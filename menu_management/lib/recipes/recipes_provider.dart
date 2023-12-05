@@ -1,7 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:menu_management/recipes/recipe.dart';
 
-class RecipeProvider extends ChangeNotifier {
+class RecipesProvider extends ChangeNotifier {
+  static late RecipesProvider instance;
+
+  RecipesProvider() {
+    instance = this;
+  }
+
   final List<Recipe> _recipes = [];
   List<Recipe> get recipes => _recipes;
 
@@ -14,5 +20,4 @@ class RecipeProvider extends ChangeNotifier {
     _recipes.remove(recipe);
     notifyListeners();
   }
-
 }

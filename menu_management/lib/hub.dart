@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/ingredients/ingredients_page.dart';
 import 'package:menu_management/menu/menu_page.dart';
-import 'package:menu_management/recipes/recipe_page.dart';
+
+import 'recipes/recipes_page.dart';
 
 class Hub extends StatefulWidget {
   const Hub({super.key});

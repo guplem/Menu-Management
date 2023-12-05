@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/hub.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
+import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       home: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => IngredientsProvider()),
+          ChangeNotifierProvider(create: (context) => RecipesProvider()),
         ],
         child: const Hub(),
       ),

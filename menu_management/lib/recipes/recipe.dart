@@ -1,12 +1,13 @@
 import 'package:menu_management/recipes/step.dart';
 
 class Recipe {
+  String name;
   List<Step> steps;
 
-  bool carbsRich = false;
-  bool proteinRich = false;
-  bool fatRich = false;
+  bool carbs = false;
+  bool proteins = false;
+  bool vegetables = false;
 
 
-  Recipe({required this.steps});
+  Recipe({required this.name, required this.steps});
 }
