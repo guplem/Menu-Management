@@ -1,5 +1,6 @@
 enum MealType {
   breakfast,
   lunch,
-  dinner
+  dinner,
+  dessert,
 }
