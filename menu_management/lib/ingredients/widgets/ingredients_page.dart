@@ -36,14 +36,14 @@ class _IngredientsPageState extends State<IngredientsPage> {
                     icon: const Icon(Icons.delete),
                     onPressed: () {
                       Ingredient toRemove = ingredientsProvider.ingredients[index];
-                      ingredientsProvider.removeIngredient(toRemove);
+                      IngredientsProvider.remove(ingredientId: toRemove.id);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Ingredient "${toRemove.name}" removed'),
                           action: SnackBarAction(
                             label: 'Undo',
                             onPressed: () {
-                              IngredientsProvider.instance.addIngredient(toRemove);
+                              IngredientsProvider.addOrUpdate(newIngredient: toRemove);
                             },
                           ),
                         ),

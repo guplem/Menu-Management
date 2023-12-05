@@ -47,7 +47,7 @@ class _RecipeAdditionState extends State<RecipeAddition> {
     if (_controller.text.trimAndSetNullIfEmpty == null) {
       return;
     }
-    RecipesProvider.instance.addRecipe(
+    RecipesProvider.addOrUpdate(newRecipe:
       Recipe(id: const Uuid().v1(), name: _controller.text, instructions: []),
     );
     setState(() {

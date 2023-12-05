@@ -160,7 +160,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
+class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   const _$RecipeImpl(
       {required this.id,
       required this.name,
@@ -168,7 +168,8 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
       this.carbs = false,
       this.proteins = false,
       this.vegetables = false})
-      : _instructions = instructions;
+      : _instructions = instructions,
+        super._();
 
   factory _$RecipeImpl.fromJson(Map<String, dynamic> json) =>
       _$$RecipeImplFromJson(json);
@@ -255,7 +256,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
   }
 }
 
-abstract class _Recipe implements Recipe {
+abstract class _Recipe extends Recipe {
   const factory _Recipe(
       {required final String id,
       required final String name,
@@ -263,6 +264,7 @@ abstract class _Recipe implements Recipe {
       final bool carbs,
       final bool proteins,
       final bool vegetables}) = _$RecipeImpl;
+  const _Recipe._() : super._();
 
   factory _Recipe.fromJson(Map<String, dynamic> json) = _$RecipeImpl.fromJson;
 

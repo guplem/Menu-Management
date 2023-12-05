@@ -1,62 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
+import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:menu_management/recipes/widgets/instruction_editor.dart';
 
-class RecipePage extends StatefulWidget {
-  const RecipePage({super.key, required this.recipe});
+class RecipePage extends StatelessWidget {
+  const RecipePage({super.key, required this.recipeId});
 
-  final Recipe recipe;
-
-  @override
-  State<RecipePage> createState() => _RecipePageState();
-}
-
-class _RecipePageState extends State<RecipePage> {
-  late Recipe newRecipe;
-
-  @override
-  void initState() {
-    super.initState();
-    newRecipe = widget.recipe;
-  }
+  final String recipeId;
 
   @override
   Widget build(BuildContext context) {
+    Recipe recipe = RecipesProvider.listenableOf(context, recipeId);
+
     return ReorderableListView.builder(
-      itemCount: newRecipe.instructions.length,
+      itemCount: recipe.instructions.length,
       onReorder: (int oldIndex, int newIndex) {
-        setState(() {
-          newRecipe = copyWithReorderedSteps(oldIndex: oldIndex, newIndex: newIndex);
-        });
+        RecipesProvider.reorderInstructions(recipeId: recipeId, oldIndex: oldIndex, newIndex: newIndex);
       },
-      header: RecipeConfiguration(),
+      header: RecipeConfiguration(recipe: recipe, context: context),
       itemBuilder: (context, index) {
+        Instruction instruction = recipe.instructions[index];
         return ListTile(
-          key: ValueKey(newRecipe.instructions[index]),
-          title: Text(newRecipe.instructions[index].description),
+          key: ValueKey(instruction.id),
+          title: Text(instruction.description),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () {
-                  setState(() {
-                    newRecipe = copyWithRemovedStep(index);
-                  });
+                  RecipesProvider.removeInstruction(recipeId: recipeId, instructionId: instruction.id);
                 },
               ),
               IconButton(
                 icon: const Icon(Icons.edit),
-                onPressed: InstructionEditor.show(
-                  context,
-                  recipe: newRecipe.id,
-                  originalInstruction: newRecipe.instructions[index],
-                  onSave: (Instruction newInstruction) {
-                    setState(() {
-                      newRecipe = copyWithEditedStep(index, newInstruction);
-                    });
-                  },
+                onPressed: () => InstructionEditor.show(
+                  context: context,
+                  recipeId: recipeId,
+                  originalInstruction: instruction,
                 ),
               ),
             ],
@@ -67,7 +49,7 @@ class _RecipePageState extends State<RecipePage> {
   }
 
   // ignore: non_constant_identifier_names
-  Widget RecipeConfiguration() {
+  Widget RecipeConfiguration({required BuildContext context, required Recipe recipe}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
@@ -75,31 +57,25 @@ class _RecipePageState extends State<RecipePage> {
         children: [
           FilterChip(
             label: const Text('Carbs'),
-            selected: newRecipe.carbs,
+            selected: recipe.carbs,
             onSelected: (value) {
-              setState(() {
-                newRecipe = newRecipe.copyWith(carbs: value);
-              });
+              recipe.copyWith(carbs: value).saveToProvider();
             },
           ),
           const SizedBox(width: 10),
           FilterChip(
             label: const Text('Protein'),
-            selected: newRecipe.proteins,
+            selected: recipe.proteins,
             onSelected: (value) {
-              setState(() {
-                newRecipe = newRecipe.copyWith(proteins: value);
-              });
+              recipe.copyWith(proteins: value).saveToProvider();
             },
           ),
           const SizedBox(width: 10),
           FilterChip(
             label: const Text('Vegetables'),
-            selected: newRecipe.vegetables,
+            selected: recipe.vegetables,
             onSelected: (value) {
-              setState(() {
-                newRecipe = newRecipe.copyWith(vegetables: value);
-              });
+              recipe.copyWith(vegetables: value).saveToProvider();
             },
           ),
           const Spacer(),
@@ -108,38 +84,14 @@ class _RecipePageState extends State<RecipePage> {
             label: const Text("Add Step"),
             onPressed: () {
               InstructionEditor.show(
-                context,
+                context: context,
+                recipeId: recipeId,
                 originalInstruction: null,
-                recipe: newRecipe.id,
-                onSave: (Instruction newInstruction) {
-                  setState(() {
-                    newRecipe = newRecipe.copyWith(instructions: [...newRecipe.instructions, newInstruction]);
-                  });
-                },
               );
             },
           ),
         ],
       ),
     );
-  }
-
-  Recipe copyWithReorderedSteps({required int oldIndex, required int newIndex}) {
-    List<Instruction> newSteps = newRecipe.instructions;
-    Instruction instruction = newSteps.removeAt(oldIndex);
-    newSteps.insert(newIndex, instruction);
-    return newRecipe.copyWith(instructions: newSteps);
-  }
-
-  Recipe copyWithRemovedStep(int index) {
-    List<Instruction> newSteps = newRecipe.instructions;
-    newSteps.removeAt(index);
-    return newRecipe.copyWith(instructions: newSteps);
-  }
-
-  Recipe copyWithEditedStep(int index, Instruction newInstruction) {
-    List<Instruction> newSteps = newRecipe.instructions;
-    newSteps[index] = newSteps[index] = newInstruction;
-    return newRecipe.copyWith(instructions: newSteps);
   }
 }

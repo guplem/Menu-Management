@@ -33,7 +33,7 @@ class _RecipesPageState extends State<RecipesPage> {
             RecipesProvider recipesProvider = getProvider<RecipesProvider>(context, listen: true);
 
             if (selectedRecipe != null) {
-              return RecipePage(recipe: recipesProvider.recipes.firstWhere((element) => element.id == selectedRecipe));
+              return RecipePage(recipeId: selectedRecipe!);
             }
 
             return ListView.builder(
@@ -56,14 +56,14 @@ class _RecipesPageState extends State<RecipesPage> {
                     icon: const Icon(Icons.delete),
                     onPressed: () {
                       Recipe toRemove = recipesProvider.recipes[index];
-                      recipesProvider.removeRecipe(toRemove);
+                      RecipesProvider.remove(recipeId: toRemove.id);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Recipe "${toRemove.name}" removed'),
                           action: SnackBarAction(
                             label: 'Undo',
                             onPressed: () {
-                              RecipesProvider.instance.addRecipe(toRemove);
+                              RecipesProvider.addOrUpdate(newRecipe: toRemove);
                             },
                           ),
                         ),

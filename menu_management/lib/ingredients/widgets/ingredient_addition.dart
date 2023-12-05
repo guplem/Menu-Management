@@ -47,8 +47,8 @@ class _IngredientAdditionState extends State<IngredientAddition> {
     if (_controller.text.trimAndSetNullIfEmpty == null) {
       return;
     }
-    IngredientsProvider.instance.addIngredient(
-      Ingredient(id: const Uuid().v1(), name: _controller.text),
+    IngredientsProvider.addOrUpdate(
+      newIngredient: Ingredient(id: const Uuid().v1(), name: _controller.text),
     );
     setState(() {
       _controller.clear();

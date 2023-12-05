@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -13,7 +12,7 @@ class InstructionEditor extends StatefulWidget {
   @override
   State<InstructionEditor> createState() => _InstructionEditorState();
 
-  static show(BuildContext context, {required Instruction? originalInstruction, required Function(Instruction newInstruction) onSave, required String recipe}) {
+  static show({required BuildContext context, required Instruction? originalInstruction, required String recipeId}) {
     Instruction? newInstruction;
 
     showDialog(
@@ -36,7 +35,7 @@ class InstructionEditor extends StatefulWidget {
               child: const Text('Save'),
               onPressed: () {
                 if (newInstruction != null) {
-                  getProvider<RecipesProvider>(context, listen: false).updateInstruction(recipe, newInstruction!);
+                  RecipesProvider.addOrUpdateInstruction(recipeId: recipeId, newInstruction: newInstruction!);
                 }
                 Navigator.of(context).pop();
               },
@@ -59,6 +58,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
       newInstruction = Instruction(id: const Uuid().v1(), description: '');
     } else {
       newInstruction = widget.instruction!;
+      controller.text = newInstruction.description;
     }
   }
 
@@ -70,6 +70,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      focusNode: FocusNode()..requestFocus(),
       controller: controller,
       decoration: const InputDecoration(
         labelText: 'Description',

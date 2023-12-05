@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 
+import '../flutter_essentials/library.dart';
+
 class RecipesProvider extends ChangeNotifier {
   static late RecipesProvider instance;
 
@@ -12,20 +14,63 @@ class RecipesProvider extends ChangeNotifier {
   final List<Recipe> _recipes = [];
   List<Recipe> get recipes => _recipes;
 
-  void addRecipe(Recipe recipe) {
-    _recipes.add(recipe);
-    notifyListeners();
+  static Recipe listenableOf(context, recipeId) => getProvider<RecipesProvider>(context, listen: true)._get(recipeId);
+
+  //#region RECIPES
+  static Recipe get(String recipeId) {
+    return instance._get(recipeId);
   }
 
-  void removeRecipe(Recipe recipe) {
-    _recipes.remove(recipe);
-    notifyListeners();
+  Recipe _get(String recipeId) {
+    return instance.recipes.firstWhere((element) => element.id == recipeId);
   }
 
-  void updateInstruction(String recipe, Instruction instruction) {
-    final Recipe recipeToUpdate = _recipes.firstWhere((element) => element.id == recipe);
-    final int index = recipeToUpdate.instructions.indexWhere((element) => element.id == instruction.id);
-    recipeToUpdate.instructions[index] = instruction;
-    notifyListeners();
+  static void addOrUpdate({required Recipe newRecipe}) {
+    final int index = instance.recipes.indexWhere((element) => element.id == newRecipe.id);
+    if (index >= 0) {
+      instance.recipes[index] = newRecipe;
+    } else {
+      instance.recipes.add(newRecipe);
+    }
+    instance.notifyListeners();
   }
+
+  static void remove({required String recipeId}) {
+    instance.recipes.removeWhere((element) => element.id == recipeId);
+    instance.notifyListeners();
+  }
+  //#endregion
+
+  //#region INSTRUCTIONS
+  static void addOrUpdateInstruction({required String recipeId, required Instruction newInstruction}) {
+    final Recipe recipeToUpdate = instance.recipes.firstWhere((element) => element.id == recipeId);
+    List<Instruction> instructions = [...recipeToUpdate.instructions];
+    final int index = recipeToUpdate.instructions.indexWhere((element) => element.id == newInstruction.id);
+    if (index >= 0) {
+      instructions[index] = newInstruction;
+    } else {
+      instructions.add(newInstruction);
+    }
+    Recipe updatedRecipe = recipeToUpdate.copyWith(instructions: instructions);
+    Debug.logDev("Updated recipe: ${updatedRecipe.toJson()}");
+    addOrUpdate(newRecipe: updatedRecipe);
+  }
+
+  static void removeInstruction({required String recipeId, required String instructionId}) {
+    final Recipe recipeToUpdate = instance.recipes.firstWhere((element) => element.id == recipeId);
+    List<Instruction> instructions = [...recipeToUpdate.instructions];
+    instructions.removeWhere((element) => element.id == instructionId);
+    Recipe updatedRecipe = recipeToUpdate.copyWith(instructions: instructions);
+    addOrUpdate(newRecipe: updatedRecipe);
+  }
+
+  static void reorderInstructions({required String recipeId, required int oldIndex, required int newIndex}) {
+    final Recipe recipeToUpdate = instance.recipes.firstWhere((element) => element.id == recipeId);
+    List<Instruction> instructions = [...recipeToUpdate.instructions];
+    Instruction instructionToMove = instructions.removeAt(oldIndex);
+    instructions.insert(newIndex, instructionToMove);
+    Recipe updatedRecipe = recipeToUpdate.copyWith(instructions: instructions);
+    addOrUpdate(newRecipe: updatedRecipe);
+  }
+  //#endregion
 }
