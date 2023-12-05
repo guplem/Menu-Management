@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:menu_management/recipes/recipe.dart';
+import 'package:menu_management/recipes/models/recipe.dart';
 
 class RecipesProvider extends ChangeNotifier {
   static late RecipesProvider instance;

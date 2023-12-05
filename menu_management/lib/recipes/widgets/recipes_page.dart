@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/recipes/recipe.dart';
-import 'package:menu_management/recipes/recipe_addition.dart';
-import 'package:menu_management/recipes/recipe_page.dart';
+import 'package:menu_management/recipes/models/recipe.dart';
+import 'package:menu_management/recipes/widgets/recipe_addition.dart';
+import 'package:menu_management/recipes/widgets/recipe_page.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 
 class RecipesPage extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:menu_management/recipes/recipe.dart';
+import 'package:menu_management/recipes/models/recipe.dart';
 
 class RecipePage extends StatefulWidget {
   const RecipePage({super.key, required this.recipe});
