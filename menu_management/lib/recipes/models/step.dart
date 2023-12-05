@@ -1,5 +1,5 @@
 import 'package:menu_management/ingredients/models/ingredient.dart';
-import 'package:menu_management/recipes/models/ingredientUsage.dart';
+import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
