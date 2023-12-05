@@ -43,7 +43,7 @@ class _RecipePageState extends State<RecipePage> {
             labelText: 'Step',
           ),
           onChanged: (value) {
-            newRecipe.steps[index - 1].description = value;
+            //newRecipe.steps[index - 1].description = value;
           },
         );
       },
@@ -60,7 +60,7 @@ class _RecipePageState extends State<RecipePage> {
           selected: newRecipe.carbs,
           onSelected: (value) {
             setState(() {
-              newRecipe.carbs = value;
+              newRecipe = newRecipe.copyWith(carbs: value);
             });
           },
         ),
@@ -70,7 +70,7 @@ class _RecipePageState extends State<RecipePage> {
           selected: newRecipe.proteins,
           onSelected: (value) {
             setState(() {
-              newRecipe.proteins = value;
+              newRecipe = newRecipe.copyWith(proteins: value);
             });
           },
         ),
@@ -80,7 +80,7 @@ class _RecipePageState extends State<RecipePage> {
           selected: newRecipe.vegetables,
           onSelected: (value) {
             setState(() {
-              newRecipe.vegetables = value;
+              newRecipe = newRecipe.copyWith(vegetables: value);
             });
           },
         ),
