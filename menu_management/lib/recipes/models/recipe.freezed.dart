@@ -21,7 +21,7 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Recipe {
   String get name => throw _privateConstructorUsedError;
-  List<Step> get steps => throw _privateConstructorUsedError;
+  List<Instruction> get instructions => throw _privateConstructorUsedError;
   bool get carbs => throw _privateConstructorUsedError;
   bool get proteins => throw _privateConstructorUsedError;
   bool get vegetables => throw _privateConstructorUsedError;
@@ -38,7 +38,7 @@ abstract class $RecipeCopyWith<$Res> {
   @useResult
   $Res call(
       {String name,
-      List<Step> steps,
+      List<Instruction> instructions,
       bool carbs,
       bool proteins,
       bool vegetables});
@@ -58,7 +58,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
   @override
   $Res call({
     Object? name = null,
-    Object? steps = null,
+    Object? instructions = null,
     Object? carbs = null,
     Object? proteins = null,
     Object? vegetables = null,
@@ -68,10 +68,10 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      steps: null == steps
-          ? _value.steps
-          : steps // ignore: cast_nullable_to_non_nullable
-              as List<Step>,
+      instructions: null == instructions
+          ? _value.instructions
+          : instructions // ignore: cast_nullable_to_non_nullable
+              as List<Instruction>,
       carbs: null == carbs
           ? _value.carbs
           : carbs // ignore: cast_nullable_to_non_nullable
@@ -97,7 +97,7 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
   @useResult
   $Res call(
       {String name,
-      List<Step> steps,
+      List<Instruction> instructions,
       bool carbs,
       bool proteins,
       bool vegetables});
@@ -115,7 +115,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? name = null,
-    Object? steps = null,
+    Object? instructions = null,
     Object? carbs = null,
     Object? proteins = null,
     Object? vegetables = null,
@@ -125,10 +125,10 @@ class __$$RecipeImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      steps: null == steps
-          ? _value._steps
-          : steps // ignore: cast_nullable_to_non_nullable
-              as List<Step>,
+      instructions: null == instructions
+          ? _value._instructions
+          : instructions // ignore: cast_nullable_to_non_nullable
+              as List<Instruction>,
       carbs: null == carbs
           ? _value.carbs
           : carbs // ignore: cast_nullable_to_non_nullable
@@ -150,24 +150,24 @@ class __$$RecipeImplCopyWithImpl<$Res>
 class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
   const _$RecipeImpl(
       {required this.name,
-      final List<Step> steps = const [],
+      final List<Instruction> instructions = const [],
       this.carbs = false,
       this.proteins = false,
       this.vegetables = false})
-      : _steps = steps;
+      : _instructions = instructions;
 
   factory _$RecipeImpl.fromJson(Map<String, dynamic> json) =>
       _$$RecipeImplFromJson(json);
 
   @override
   final String name;
-  final List<Step> _steps;
+  final List<Instruction> _instructions;
   @override
   @JsonKey()
-  List<Step> get steps {
-    if (_steps is EqualUnmodifiableListView) return _steps;
+  List<Instruction> get instructions {
+    if (_instructions is EqualUnmodifiableListView) return _instructions;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_steps);
+    return EqualUnmodifiableListView(_instructions);
   }
 
   @override
@@ -182,7 +182,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Recipe(name: $name, steps: $steps, carbs: $carbs, proteins: $proteins, vegetables: $vegetables)';
+    return 'Recipe(name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables)';
   }
 
   @override
@@ -191,7 +191,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
     properties
       ..add(DiagnosticsProperty('type', 'Recipe'))
       ..add(DiagnosticsProperty('name', name))
-      ..add(DiagnosticsProperty('steps', steps))
+      ..add(DiagnosticsProperty('instructions', instructions))
       ..add(DiagnosticsProperty('carbs', carbs))
       ..add(DiagnosticsProperty('proteins', proteins))
       ..add(DiagnosticsProperty('vegetables', vegetables));
@@ -203,7 +203,8 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
         (other.runtimeType == runtimeType &&
             other is _$RecipeImpl &&
             (identical(other.name, name) || other.name == name) &&
-            const DeepCollectionEquality().equals(other._steps, _steps) &&
+            const DeepCollectionEquality()
+                .equals(other._instructions, _instructions) &&
             (identical(other.carbs, carbs) || other.carbs == carbs) &&
             (identical(other.proteins, proteins) ||
                 other.proteins == proteins) &&
@@ -213,8 +214,13 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, name,
-      const DeepCollectionEquality().hash(_steps), carbs, proteins, vegetables);
+  int get hashCode => Object.hash(
+      runtimeType,
+      name,
+      const DeepCollectionEquality().hash(_instructions),
+      carbs,
+      proteins,
+      vegetables);
 
   @JsonKey(ignore: true)
   @override
@@ -233,7 +239,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
 abstract class _Recipe implements Recipe {
   const factory _Recipe(
       {required final String name,
-      final List<Step> steps,
+      final List<Instruction> instructions,
       final bool carbs,
       final bool proteins,
       final bool vegetables}) = _$RecipeImpl;
@@ -243,7 +249,7 @@ abstract class _Recipe implements Recipe {
   @override
   String get name;
   @override
-  List<Step> get steps;
+  List<Instruction> get instructions;
   @override
   bool get carbs;
   @override

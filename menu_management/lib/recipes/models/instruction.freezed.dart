@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'step.dart';
+part of 'instruction.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,33 +14,35 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
-Step _$StepFromJson(Map<String, dynamic> json) {
-  return _Step.fromJson(json);
+Instruction _$InstructionFromJson(Map<String, dynamic> json) {
+  return _Instruction.fromJson(json);
 }
 
 /// @nodoc
-mixin _$Step {
+mixin _$Instruction {
   List<IngredientUsage> get ingredientUsage =>
       throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $StepCopyWith<Step> get copyWith => throw _privateConstructorUsedError;
+  $InstructionCopyWith<Instruction> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $StepCopyWith<$Res> {
-  factory $StepCopyWith(Step value, $Res Function(Step) then) =
-      _$StepCopyWithImpl<$Res, Step>;
+abstract class $InstructionCopyWith<$Res> {
+  factory $InstructionCopyWith(
+          Instruction value, $Res Function(Instruction) then) =
+      _$InstructionCopyWithImpl<$Res, Instruction>;
   @useResult
   $Res call({List<IngredientUsage> ingredientUsage, String description});
 }
 
 /// @nodoc
-class _$StepCopyWithImpl<$Res, $Val extends Step>
-    implements $StepCopyWith<$Res> {
-  _$StepCopyWithImpl(this._value, this._then);
+class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
+    implements $InstructionCopyWith<$Res> {
+  _$InstructionCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -67,20 +69,22 @@ class _$StepCopyWithImpl<$Res, $Val extends Step>
 }
 
 /// @nodoc
-abstract class _$$StepImplCopyWith<$Res> implements $StepCopyWith<$Res> {
-  factory _$$StepImplCopyWith(
-          _$StepImpl value, $Res Function(_$StepImpl) then) =
-      __$$StepImplCopyWithImpl<$Res>;
+abstract class _$$InstructionImplCopyWith<$Res>
+    implements $InstructionCopyWith<$Res> {
+  factory _$$InstructionImplCopyWith(
+          _$InstructionImpl value, $Res Function(_$InstructionImpl) then) =
+      __$$InstructionImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({List<IngredientUsage> ingredientUsage, String description});
 }
 
 /// @nodoc
-class __$$StepImplCopyWithImpl<$Res>
-    extends _$StepCopyWithImpl<$Res, _$StepImpl>
-    implements _$$StepImplCopyWith<$Res> {
-  __$$StepImplCopyWithImpl(_$StepImpl _value, $Res Function(_$StepImpl) _then)
+class __$$InstructionImplCopyWithImpl<$Res>
+    extends _$InstructionCopyWithImpl<$Res, _$InstructionImpl>
+    implements _$$InstructionImplCopyWith<$Res> {
+  __$$InstructionImplCopyWithImpl(
+      _$InstructionImpl _value, $Res Function(_$InstructionImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -89,7 +93,7 @@ class __$$StepImplCopyWithImpl<$Res>
     Object? ingredientUsage = null,
     Object? description = null,
   }) {
-    return _then(_$StepImpl(
+    return _then(_$InstructionImpl(
       ingredientUsage: null == ingredientUsage
           ? _value._ingredientUsage
           : ingredientUsage // ignore: cast_nullable_to_non_nullable
@@ -104,17 +108,18 @@ class __$$StepImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$StepImpl with DiagnosticableTreeMixin implements _Step {
-  const _$StepImpl(
-      {required final List<IngredientUsage> ingredientUsage,
+class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
+  const _$InstructionImpl(
+      {final List<IngredientUsage> ingredientUsage = const [],
       required this.description})
       : _ingredientUsage = ingredientUsage;
 
-  factory _$StepImpl.fromJson(Map<String, dynamic> json) =>
-      _$$StepImplFromJson(json);
+  factory _$InstructionImpl.fromJson(Map<String, dynamic> json) =>
+      _$$InstructionImplFromJson(json);
 
   final List<IngredientUsage> _ingredientUsage;
   @override
+  @JsonKey()
   List<IngredientUsage> get ingredientUsage {
     if (_ingredientUsage is EqualUnmodifiableListView) return _ingredientUsage;
     // ignore: implicit_dynamic_type
@@ -126,14 +131,14 @@ class _$StepImpl with DiagnosticableTreeMixin implements _Step {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Step(ingredientUsage: $ingredientUsage, description: $description)';
+    return 'Instruction(ingredientUsage: $ingredientUsage, description: $description)';
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-      ..add(DiagnosticsProperty('type', 'Step'))
+      ..add(DiagnosticsProperty('type', 'Instruction'))
       ..add(DiagnosticsProperty('ingredientUsage', ingredientUsage))
       ..add(DiagnosticsProperty('description', description));
   }
@@ -142,7 +147,7 @@ class _$StepImpl with DiagnosticableTreeMixin implements _Step {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$StepImpl &&
+            other is _$InstructionImpl &&
             const DeepCollectionEquality()
                 .equals(other._ingredientUsage, _ingredientUsage) &&
             (identical(other.description, description) ||
@@ -157,23 +162,24 @@ class _$StepImpl with DiagnosticableTreeMixin implements _Step {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$StepImplCopyWith<_$StepImpl> get copyWith =>
-      __$$StepImplCopyWithImpl<_$StepImpl>(this, _$identity);
+  _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
+      __$$InstructionImplCopyWithImpl<_$InstructionImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$StepImplToJson(
+    return _$$InstructionImplToJson(
       this,
     );
   }
 }
 
-abstract class _Step implements Step {
-  const factory _Step(
-      {required final List<IngredientUsage> ingredientUsage,
-      required final String description}) = _$StepImpl;
+abstract class _Instruction implements Instruction {
+  const factory _Instruction(
+      {final List<IngredientUsage> ingredientUsage,
+      required final String description}) = _$InstructionImpl;
 
-  factory _Step.fromJson(Map<String, dynamic> json) = _$StepImpl.fromJson;
+  factory _Instruction.fromJson(Map<String, dynamic> json) =
+      _$InstructionImpl.fromJson;
 
   @override
   List<IngredientUsage> get ingredientUsage;
@@ -181,6 +187,6 @@ abstract class _Step implements Step {
   String get description;
   @override
   @JsonKey(ignore: true)
-  _$$StepImplCopyWith<_$StepImpl> get copyWith =>
+  _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

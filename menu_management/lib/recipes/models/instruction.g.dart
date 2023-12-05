@@ -1,19 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'step.dart';
+part of 'instruction.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$StepImpl _$$StepImplFromJson(Map<String, dynamic> json) => _$StepImpl(
-      ingredientUsage: (json['ingredientUsage'] as List<dynamic>)
-          .map((e) => IngredientUsage.fromJson(e as Map<String, dynamic>))
-          .toList(),
+_$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
+    _$InstructionImpl(
+      ingredientUsage: (json['ingredientUsage'] as List<dynamic>?)
+              ?.map((e) => IngredientUsage.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       description: json['description'] as String,
     );
 
-Map<String, dynamic> _$$StepImplToJson(_$StepImpl instance) =>
+Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
     <String, dynamic>{
       'ingredientUsage': instance.ingredientUsage,
       'description': instance.description,

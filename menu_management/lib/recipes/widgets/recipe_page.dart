@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
+import 'package:menu_management/recipes/models/instruction.dart';
+import 'package:menu_management/recipes/widgets/instruction_editor.dart';
 
 class RecipePage extends StatefulWidget {
   const RecipePage({super.key, required this.recipe});
@@ -21,30 +23,40 @@ class _RecipePageState extends State<RecipePage> {
 
   @override
   Widget build(BuildContext context) {
-    final MaterialStateProperty<Icon?> switchIcon = MaterialStateProperty.resolveWith<Icon?>((states) {
-      if (states.contains(MaterialState.selected)) {
-        return const Icon(Icons.check);
-      }
-      return const Icon(Icons.close);
-    });
 
-    return ListView.builder(
-      itemCount: newRecipe.steps.length + 1,
+    return ReorderableListView.builder(
+      itemCount: newRecipe.instructions.length,
+      onReorder: (int oldIndex, int newIndex) {
+        setState(() {
+          newRecipe = copyWithReorderedSteps(oldIndex: oldIndex, newIndex: newIndex);
+        });
+      },
+      header: RecipeConfiguration(),
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: RecipeConfiguration(),
-          );
-        }
-        return TextFormField(
-          initialValue: newRecipe.steps[index - 1].description,
-          decoration: const InputDecoration(
-            labelText: 'Step',
+        return ListTile(
+          key: ValueKey(newRecipe.instructions[index]),
+          title: Text(newRecipe.instructions[index].description),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    newRecipe = copyWithRemovedStep(index);
+                  });
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: InstructionEditor.show(context, originalInstruction: newRecipe.instructions[index], onSave: (Instruction newInstruction) {
+                  setState(() {
+                    newRecipe = copyWithEditedStep(index, newInstruction);
+                  });
+                }),
+              ),
+            ],
           ),
-          onChanged: (value) {
-            //newRecipe.steps[index - 1].description = value;
-          },
         );
       },
     );
@@ -86,5 +98,24 @@ class _RecipePageState extends State<RecipePage> {
         ),
       ],
     );
+  }
+
+  Recipe copyWithReorderedSteps({required int oldIndex, required int newIndex}) {
+    List<Instruction> newSteps = newRecipe.instructions;
+    Instruction instruction = newSteps.removeAt(oldIndex);
+    newSteps.insert(newIndex, instruction);
+    return newRecipe.copyWith(instructions: newSteps);
+  }
+
+  Recipe copyWithRemovedStep(int index) {
+    List<Instruction> newSteps = newRecipe.instructions;
+    newSteps.removeAt(index);
+    return newRecipe.copyWith(instructions: newSteps);
+  }
+
+  Recipe copyWithEditedStep(int index, Instruction newInstruction) {
+    List<Instruction> newSteps = newRecipe.instructions;
+    newSteps[index] = newSteps[index] = newInstruction;
+    return newRecipe.copyWith(instructions: newSteps);
   }
 }

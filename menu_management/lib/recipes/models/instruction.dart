@@ -5,15 +5,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 
-part 'step.freezed.dart';
-part 'step.g.dart';
+part 'instruction.freezed.dart';
+part 'instruction.g.dart';
 
 @freezed
-class Step with _$Step {
-  const factory Step({
-    required List<IngredientUsage> ingredientUsage,
+class Instruction with _$Instruction {
+  const factory Instruction({
+    @Default([])
+    List<IngredientUsage> ingredientUsage,
     required String description,
-  }) = _Step;
+  }) = _Instruction;
 
-  factory Step.fromJson(Map<String, Object?> json) => _$StepFromJson(json);
+  factory Instruction.fromJson(Map<String, Object?> json) => _$InstructionFromJson(json);
 }

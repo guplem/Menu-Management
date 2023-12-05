@@ -47,7 +47,7 @@ class _RecipeAdditionState extends State<RecipeAddition> {
       return;
     }
     RecipesProvider.instance.addRecipe(
-      Recipe(name: _controller.text, steps: []),
+      Recipe(name: _controller.text, instructions: []),
     );
     setState(() {
       _controller.clear();
