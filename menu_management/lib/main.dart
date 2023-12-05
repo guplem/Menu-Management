@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:menu_management/hub.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/menu/menu_provider.dart';
@@ -20,7 +21,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Menu Manager',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.lightGreen,
+          brightness: SchedulerBinding.instance.window.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
+        ),
         useMaterial3: true,
       ),
       home: MultiProvider(
