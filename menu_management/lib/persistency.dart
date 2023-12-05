@@ -12,11 +12,11 @@ class Persistency {
 
   Persistency._internal();
 
-  SaveData() {
+  static saveData() {
     List<Ingredient> ingredients = [...IngredientsProvider.instance.ingredients];
     List<Recipe> recipes = [...RecipesProvider.instance.recipes];
 
   }
 
-  LoadData() {}
+  static loadData() {}
 }

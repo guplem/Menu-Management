@@ -34,13 +34,13 @@ class _HubState extends State<Hub> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.drive_folder_upload_rounded),
-                    onPressed: () => Persistency().LoadData(),
+                    onPressed: () => Persistency.loadData(),
                     tooltip: 'Load data from file',
                   ),
                   const SizedBox(height: 10),
                   IconButton(
                     icon: const Icon(Icons.save_rounded),
-                    onPressed: () => Persistency().SaveData(),
+                    onPressed: () => Persistency.saveData(),
                     tooltip: 'Save data to file',
                   ),
                 ],
