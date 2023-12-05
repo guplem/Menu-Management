@@ -7,7 +7,7 @@ part 'recipe.freezed.dart';
 part 'recipe.g.dart';
 
 @freezed
-class Recipe with $Recipe {
+class Recipe with _$Recipe {
   const factory Recipe({
     required String name,
     @Default([]) List<Step> steps,

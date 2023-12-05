@@ -9,7 +9,7 @@ part 'step.freezed.dart';
 part 'step.g.dart';
 
 @freezed
-class Step with $Step {
+class Step with _$Step {
   const factory Step({
     required List<IngredientUsage> ingredientUsage,
     required String description,

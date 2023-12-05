@@ -8,7 +8,7 @@ part 'ingredient_usage.freezed.dart';
 part 'ingredient_usage.g.dart';
 
 @freezed
-class IngredientUsage with $IngredientUsage {
+class IngredientUsage with _$IngredientUsage {
   const factory IngredientUsage({
     required Ingredient ingredient,
     required Quantity quantity,

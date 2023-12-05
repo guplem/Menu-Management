@@ -7,7 +7,7 @@ part 'quantity.freezed.dart';
 part 'quantity.g.dart';
 
 @freezed
-class Quantity with $Quantity {
+class Quantity with _$Quantity {
   const factory Quantity({
     required double amounte,
     required Unit unit,

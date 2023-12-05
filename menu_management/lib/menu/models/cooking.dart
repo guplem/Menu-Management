@@ -7,7 +7,7 @@ part 'cooking.freezed.dart';
 part 'cooking.g.dart';
 
 @freezed
-class Cooking with $Cooking {
+class Cooking with _$Cooking {
   const factory Cooking({
     required Recipe recipe,
     /// The amount to cook. [yield] = persons * meals. 0 means it should already be cooked.

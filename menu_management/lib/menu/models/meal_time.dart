@@ -7,11 +7,11 @@ part 'meal_time.freezed.dart';
 part 'meal_time.g.dart';
 
 @freezed
-class MealTime with $MealTime {
+class MealTime with _$MealTime {
   const factory MealTime({
     required MealType mealType,
     required int weekDay,
   }) = _MealTime;
 
-  factory MealTime.fromJson(Map<String, Object?> json) => _$MealTimeromJson(json);
+  factory MealTime.fromJson(Map<String, Object?> json) => _$MealTimeFromJson(json);
 }

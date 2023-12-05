@@ -8,7 +8,7 @@ part 'meal.freezed.dart';
 part 'meal.g.dart';
 
 @freezed
-class Meal with $Meal {
+class Meal with _$Meal {
   const factory Meal({
     required List<Cooking> recipes,
   }) = _Meal;
