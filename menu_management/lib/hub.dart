@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/widgets/ingredients_page.dart';
 import 'package:menu_management/menu/widgets/menu_page.dart';
 import 'package:menu_management/persistency.dart';
+import 'package:menu_management/recipes/recipes_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'recipes/widgets/recipes_page.dart';
 
@@ -34,15 +37,20 @@ class _HubState extends State<Hub> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.drive_folder_upload_rounded),
-                    onPressed: () => Persistency.loadData(),
+                    onPressed: () => Persistency.loadData(
+                      ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
+                      recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
+                    ),
                     tooltip: 'Load data from file',
                   ),
                   const SizedBox(height: 10),
-                  IconButton(
-                    icon: const Icon(Icons.save_rounded),
-                    onPressed: () => Persistency.saveData(),
-                    tooltip: 'Save data to file',
-                  ),
+                  // Save functionality not available on mobile platforms
+                  if (Theme.of(context).platform != TargetPlatform.iOS && Theme.of(context).platform != TargetPlatform.android)
+                    IconButton(
+                      icon: const Icon(Icons.save_rounded),
+                      onPressed: () => Persistency.saveData(),
+                      tooltip: 'Save data to file',
+                    ),
                 ],
               ),
             ),

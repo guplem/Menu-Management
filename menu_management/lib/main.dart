@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:menu_management/hub.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/menu/menu_provider.dart';
+import 'package:menu_management/persistency.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +29,17 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (context) => RecipesProvider()),
           ChangeNotifierProvider(create: (context) => MenuProvider()),
         ],
-        child: const Hub(),
+        child: Builder(builder: (context) {
+          // Load data on startup
+          if (!kDebugMode) {
+            Persistency.loadData(
+              ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
+              recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
+            );
+          }
+
+          return const Hub();
+        }),
       ),
     );
   }

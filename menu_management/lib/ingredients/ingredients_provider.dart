@@ -14,6 +14,12 @@ class IngredientsProvider extends ChangeNotifier {
 
   static Ingredient listenableOf(context, ingredientId) => getProvider<IngredientsProvider>(context, listen: true)._get(ingredientId);
 
+  void setData(List<Ingredient> ingredients) {
+    _ingredients.clear();
+    _ingredients.addAll(ingredients);
+    notifyListeners();
+  }
+
   static Ingredient get(String ingredientId) {
     return instance._get(ingredientId);
   }

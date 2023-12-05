@@ -17,6 +17,12 @@ class RecipesProvider extends ChangeNotifier {
   static Recipe listenableOf(context, recipeId) => getProvider<RecipesProvider>(context, listen: true)._get(recipeId);
 
   //#region RECIPES
+  void setData(List<Recipe> recipes) {
+    _recipes.clear();
+    _recipes.addAll(recipes);
+    notifyListeners();
+  }
+
   static Recipe get(String recipeId) {
     return instance._get(recipeId);
   }
