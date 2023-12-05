@@ -1,4 +1,4 @@
-import 'package:menu_management/recipe.dart';
+import 'package:menu_management/recipes/recipe.dart';
 
 class Cooking {
   Recipe recipe;

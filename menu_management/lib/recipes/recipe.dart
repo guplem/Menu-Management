@@ -1,4 +1,4 @@
-import 'package:menu_management/step.dart';
+import 'package:menu_management/recipes/step.dart';
 
 class Recipe {
   List<Step> steps;

@@ -1,4 +1,4 @@
-import 'package:menu_management/ingredient.dart';
+import 'package:menu_management/ingredients/ingredient.dart';
 
 class Step {
   List<Ingredient> ingredients;

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:menu_management/recipe.dart';
+import 'package:menu_management/recipes/recipe.dart';
 
 class RecipeProvider extends ChangeNotifier {
   final List<Recipe> _recipes = [];

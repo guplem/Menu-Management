@@ -1,5 +1,5 @@
-import 'package:menu_management/meal.dart';
-import 'package:menu_management/meal_time.dart';
+import 'package:menu_management/menu/meal.dart';
+import 'package:menu_management/menu/meal_time.dart';
 
 class Menu {
   final int headcount;

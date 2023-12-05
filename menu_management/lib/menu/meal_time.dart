@@ -1,4 +1,4 @@
-import 'package:menu_management/meal_type.dart';
+import 'package:menu_management/menu/meal_type.dart';
 
 class MealTime {
   MealType mealType;
