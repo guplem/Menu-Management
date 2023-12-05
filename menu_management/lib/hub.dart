@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/ingredients/widgets/ingredients_page.dart';
 import 'package:menu_management/menu/widgets/menu_page.dart';
+import 'package:menu_management/persistency.dart';
 
 import 'recipes/widgets/recipes_page.dart';
 
@@ -27,6 +28,24 @@ class _HubState extends State<Hub> {
                 _selectedIndex = index;
               });
             },
+            trailing: Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: Column(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.drive_folder_upload_rounded),
+                    onPressed: () => Persistency().LoadData(),
+                    tooltip: 'Load data from file',
+                  ),
+                  const SizedBox(height: 10),
+                  IconButton(
+                    icon: const Icon(Icons.save_rounded),
+                    onPressed: () => Persistency().SaveData(),
+                    tooltip: 'Save data to file',
+                  ),
+                ],
+              ),
+            ),
             labelType: NavigationRailLabelType.all,
             destinations: const <NavigationRailDestination>[
               NavigationRailDestination(
