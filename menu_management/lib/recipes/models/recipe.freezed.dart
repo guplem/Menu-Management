@@ -20,6 +20,7 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Recipe {
+  String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   List<Instruction> get instructions => throw _privateConstructorUsedError;
   bool get carbs => throw _privateConstructorUsedError;
@@ -37,7 +38,8 @@ abstract class $RecipeCopyWith<$Res> {
       _$RecipeCopyWithImpl<$Res, Recipe>;
   @useResult
   $Res call(
-      {String name,
+      {String id,
+      String name,
       List<Instruction> instructions,
       bool carbs,
       bool proteins,
@@ -57,6 +59,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? instructions = null,
     Object? carbs = null,
@@ -64,6 +67,10 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? vegetables = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -96,7 +103,8 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String name,
+      {String id,
+      String name,
       List<Instruction> instructions,
       bool carbs,
       bool proteins,
@@ -114,6 +122,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? instructions = null,
     Object? carbs = null,
@@ -121,6 +130,10 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? vegetables = null,
   }) {
     return _then(_$RecipeImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -149,7 +162,8 @@ class __$$RecipeImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
   const _$RecipeImpl(
-      {required this.name,
+      {required this.id,
+      required this.name,
       final List<Instruction> instructions = const [],
       this.carbs = false,
       this.proteins = false,
@@ -159,6 +173,8 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
   factory _$RecipeImpl.fromJson(Map<String, dynamic> json) =>
       _$$RecipeImplFromJson(json);
 
+  @override
+  final String id;
   @override
   final String name;
   final List<Instruction> _instructions;
@@ -182,7 +198,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Recipe(name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables)';
+    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables)';
   }
 
   @override
@@ -190,6 +206,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Recipe'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('instructions', instructions))
       ..add(DiagnosticsProperty('carbs', carbs))
@@ -202,6 +219,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RecipeImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality()
                 .equals(other._instructions, _instructions) &&
@@ -216,6 +234,7 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      id,
       name,
       const DeepCollectionEquality().hash(_instructions),
       carbs,
@@ -238,7 +257,8 @@ class _$RecipeImpl with DiagnosticableTreeMixin implements _Recipe {
 
 abstract class _Recipe implements Recipe {
   const factory _Recipe(
-      {required final String name,
+      {required final String id,
+      required final String name,
       final List<Instruction> instructions,
       final bool carbs,
       final bool proteins,
@@ -246,6 +266,8 @@ abstract class _Recipe implements Recipe {
 
   factory _Recipe.fromJson(Map<String, dynamic> json) = _$RecipeImpl.fromJson;
 
+  @override
+  String get id;
   @override
   String get name;
   @override

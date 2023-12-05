@@ -1,5 +1,4 @@
 import 'package:menu_management/menu/models/cooking.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';

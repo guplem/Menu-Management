@@ -13,21 +13,29 @@ class RecipesPage extends StatefulWidget {
 }
 
 class _RecipesPageState extends State<RecipesPage> {
-  Recipe? selectedRecipe;
+  String? selectedRecipe;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(selectedRecipe == null ? 'Recipes' : selectedRecipe!.name),
+          title: Text(selectedRecipe == null ? 'Recipes' : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipe).name),
+          actions: [
+            if (selectedRecipe != null)
+              IconButton(
+                icon: const Icon(Icons.close_rounded),
+                onPressed: () => setState(() => selectedRecipe = null),
+              )
+          ],
         ),
         body: Builder(
           builder: (context) {
+            RecipesProvider recipesProvider = getProvider<RecipesProvider>(context, listen: true);
+
             if (selectedRecipe != null) {
-              return RecipePage(recipe: selectedRecipe!);
+              return RecipePage(recipe: recipesProvider.recipes.firstWhere((element) => element.id == selectedRecipe));
             }
 
-            RecipesProvider recipesProvider = getProvider<RecipesProvider>(context, listen: true);
             return ListView.builder(
               itemCount: recipesProvider.recipes.length + 1,
               itemBuilder: (context, index) {
@@ -41,7 +49,7 @@ class _RecipesPageState extends State<RecipesPage> {
                   title: Text(recipesProvider.recipes[index].name),
                   onTap: () {
                     setState(() {
-                      selectedRecipe = recipesProvider.recipes[index];
+                      selectedRecipe = recipesProvider.recipes[index].id;
                     });
                   },
                   trailing: IconButton(

@@ -20,6 +20,7 @@ Ingredient _$IngredientFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Ingredient {
+  String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -34,7 +35,7 @@ abstract class $IngredientCopyWith<$Res> {
           Ingredient value, $Res Function(Ingredient) then) =
       _$IngredientCopyWithImpl<$Res, Ingredient>;
   @useResult
-  $Res call({String name});
+  $Res call({String id, String name});
 }
 
 /// @nodoc
@@ -50,9 +51,14 @@ class _$IngredientCopyWithImpl<$Res, $Val extends Ingredient>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -69,7 +75,7 @@ abstract class _$$IngredientImplCopyWith<$Res>
       __$$IngredientImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String name});
+  $Res call({String id, String name});
 }
 
 /// @nodoc
@@ -83,9 +89,14 @@ class __$$IngredientImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
   }) {
     return _then(_$IngredientImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -97,17 +108,19 @@ class __$$IngredientImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
-  const _$IngredientImpl({required this.name});
+  const _$IngredientImpl({required this.id, required this.name});
 
   factory _$IngredientImpl.fromJson(Map<String, dynamic> json) =>
       _$$IngredientImplFromJson(json);
 
   @override
+  final String id;
+  @override
   final String name;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Ingredient(name: $name)';
+    return 'Ingredient(id: $id, name: $name)';
   }
 
   @override
@@ -115,6 +128,7 @@ class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Ingredient'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name));
   }
 
@@ -123,12 +137,13 @@ class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$IngredientImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, name);
+  int get hashCode => Object.hash(runtimeType, id, name);
 
   @JsonKey(ignore: true)
   @override
@@ -145,11 +160,15 @@ class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
 }
 
 abstract class _Ingredient implements Ingredient {
-  const factory _Ingredient({required final String name}) = _$IngredientImpl;
+  const factory _Ingredient(
+      {required final String id,
+      required final String name}) = _$IngredientImpl;
 
   factory _Ingredient.fromJson(Map<String, dynamic> json) =
       _$IngredientImpl.fromJson;
 
+  @override
+  String get id;
   @override
   String get name;
   @override

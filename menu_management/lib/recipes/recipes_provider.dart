@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 
 class RecipesProvider extends ChangeNotifier {
@@ -18,6 +19,13 @@ class RecipesProvider extends ChangeNotifier {
 
   void removeRecipe(Recipe recipe) {
     _recipes.remove(recipe);
+    notifyListeners();
+  }
+
+  void updateInstruction(String recipe, Instruction instruction) {
+    final Recipe recipeToUpdate = _recipes.firstWhere((element) => element.id == recipe);
+    final int index = recipeToUpdate.instructions.indexWhere((element) => element.id == instruction.id);
+    recipeToUpdate.instructions[index] = instruction;
     notifyListeners();
   }
 }

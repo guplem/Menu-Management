@@ -8,6 +8,7 @@ part of 'instruction.dart';
 
 _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
     _$InstructionImpl(
+      id: json['id'] as String,
       ingredientUsage: (json['ingredientUsage'] as List<dynamic>?)
               ?.map((e) => IngredientUsage.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -17,6 +18,7 @@ _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'ingredientUsage': instance.ingredientUsage,
       'description': instance.description,
     };

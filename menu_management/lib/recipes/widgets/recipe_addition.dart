@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class RecipeAddition extends StatefulWidget {
   const RecipeAddition({super.key});
@@ -47,7 +48,7 @@ class _RecipeAdditionState extends State<RecipeAddition> {
       return;
     }
     RecipesProvider.instance.addRecipe(
-      Recipe(name: _controller.text, instructions: []),
+      Recipe(id: const Uuid().v1(), name: _controller.text, instructions: []),
     );
     setState(() {
       _controller.clear();

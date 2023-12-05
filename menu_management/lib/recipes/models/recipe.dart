@@ -9,6 +9,7 @@ part 'recipe.g.dart';
 @freezed
 class Recipe with _$Recipe {
   const factory Recipe({
+    required String id,
     required String name,
     @Default([]) List<Instruction> instructions,
     @Default(false) bool carbs,

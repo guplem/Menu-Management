@@ -20,6 +20,7 @@ Instruction _$InstructionFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Instruction {
+  String get id => throw _privateConstructorUsedError;
   List<IngredientUsage> get ingredientUsage =>
       throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
@@ -36,7 +37,8 @@ abstract class $InstructionCopyWith<$Res> {
           Instruction value, $Res Function(Instruction) then) =
       _$InstructionCopyWithImpl<$Res, Instruction>;
   @useResult
-  $Res call({List<IngredientUsage> ingredientUsage, String description});
+  $Res call(
+      {String id, List<IngredientUsage> ingredientUsage, String description});
 }
 
 /// @nodoc
@@ -52,10 +54,15 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? ingredientUsage = null,
     Object? description = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       ingredientUsage: null == ingredientUsage
           ? _value.ingredientUsage
           : ingredientUsage // ignore: cast_nullable_to_non_nullable
@@ -76,7 +83,8 @@ abstract class _$$InstructionImplCopyWith<$Res>
       __$$InstructionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<IngredientUsage> ingredientUsage, String description});
+  $Res call(
+      {String id, List<IngredientUsage> ingredientUsage, String description});
 }
 
 /// @nodoc
@@ -90,10 +98,15 @@ class __$$InstructionImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? ingredientUsage = null,
     Object? description = null,
   }) {
     return _then(_$InstructionImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       ingredientUsage: null == ingredientUsage
           ? _value._ingredientUsage
           : ingredientUsage // ignore: cast_nullable_to_non_nullable
@@ -110,13 +123,16 @@ class __$$InstructionImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
   const _$InstructionImpl(
-      {final List<IngredientUsage> ingredientUsage = const [],
+      {required this.id,
+      final List<IngredientUsage> ingredientUsage = const [],
       required this.description})
       : _ingredientUsage = ingredientUsage;
 
   factory _$InstructionImpl.fromJson(Map<String, dynamic> json) =>
       _$$InstructionImplFromJson(json);
 
+  @override
+  final String id;
   final List<IngredientUsage> _ingredientUsage;
   @override
   @JsonKey()
@@ -131,7 +147,7 @@ class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Instruction(ingredientUsage: $ingredientUsage, description: $description)';
+    return 'Instruction(id: $id, ingredientUsage: $ingredientUsage, description: $description)';
   }
 
   @override
@@ -139,6 +155,7 @@ class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Instruction'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('ingredientUsage', ingredientUsage))
       ..add(DiagnosticsProperty('description', description));
   }
@@ -148,6 +165,7 @@ class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$InstructionImpl &&
+            (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality()
                 .equals(other._ingredientUsage, _ingredientUsage) &&
             (identical(other.description, description) ||
@@ -156,7 +174,7 @@ class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType,
+  int get hashCode => Object.hash(runtimeType, id,
       const DeepCollectionEquality().hash(_ingredientUsage), description);
 
   @JsonKey(ignore: true)
@@ -175,12 +193,15 @@ class _$InstructionImpl with DiagnosticableTreeMixin implements _Instruction {
 
 abstract class _Instruction implements Instruction {
   const factory _Instruction(
-      {final List<IngredientUsage> ingredientUsage,
+      {required final String id,
+      final List<IngredientUsage> ingredientUsage,
       required final String description}) = _$InstructionImpl;
 
   factory _Instruction.fromJson(Map<String, dynamic> json) =
       _$InstructionImpl.fromJson;
 
+  @override
+  String get id;
   @override
   List<IngredientUsage> get ingredientUsage;
   @override

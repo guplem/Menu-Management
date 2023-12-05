@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
+import 'package:menu_management/recipes/recipes_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class InstructionEditor extends StatefulWidget {
   const InstructionEditor({super.key, required this.onUpdate, required this.instruction});
 
   final Function(Instruction newInstruction) onUpdate;
-  final Instruction instruction;
+  final Instruction? instruction;
 
   @override
   State<InstructionEditor> createState() => _InstructionEditorState();
 
-  static show(BuildContext context, {required Instruction originalInstruction, required Function(Instruction newInstruction) onSave}) {
+  static show(BuildContext context, {required Instruction? originalInstruction, required Function(Instruction newInstruction) onSave, required String recipe}) {
     Instruction? newInstruction;
 
     showDialog(
@@ -32,7 +35,9 @@ class InstructionEditor extends StatefulWidget {
             FilledButton(
               child: const Text('Save'),
               onPressed: () {
-                onSave(newInstruction!);
+                if (newInstruction != null) {
+                  getProvider<RecipesProvider>(context, listen: false).updateInstruction(recipe, newInstruction!);
+                }
                 Navigator.of(context).pop();
               },
             ),
@@ -45,21 +50,29 @@ class InstructionEditor extends StatefulWidget {
 
 class _InstructionEditorState extends State<InstructionEditor> {
   late Instruction newInstruction;
+  final TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    newInstruction = widget.instruction;
+    if (widget.instruction == null) {
+      newInstruction = Instruction(id: const Uuid().v1(), description: '');
+    } else {
+      newInstruction = widget.instruction!;
+    }
+  }
+
+  onDispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _controller = TextEditingController();
-
     return TextField(
-      controller: _controller,
+      controller: controller,
       decoration: const InputDecoration(
-        labelText: 'Instruction',
+        labelText: 'Description',
       ),
       onChanged: (value) {
         setState(() {

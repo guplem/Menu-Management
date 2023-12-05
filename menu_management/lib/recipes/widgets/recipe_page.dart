@@ -23,7 +23,6 @@ class _RecipePageState extends State<RecipePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return ReorderableListView.builder(
       itemCount: newRecipe.instructions.length,
       onReorder: (int oldIndex, int newIndex) {
@@ -49,11 +48,16 @@ class _RecipePageState extends State<RecipePage> {
               ),
               IconButton(
                 icon: const Icon(Icons.edit),
-                onPressed: InstructionEditor.show(context, originalInstruction: newRecipe.instructions[index], onSave: (Instruction newInstruction) {
-                  setState(() {
-                    newRecipe = copyWithEditedStep(index, newInstruction);
-                  });
-                }),
+                onPressed: InstructionEditor.show(
+                  context,
+                  recipe: newRecipe.id,
+                  originalInstruction: newRecipe.instructions[index],
+                  onSave: (Instruction newInstruction) {
+                    setState(() {
+                      newRecipe = copyWithEditedStep(index, newInstruction);
+                    });
+                  },
+                ),
               ),
             ],
           ),
@@ -64,39 +68,59 @@ class _RecipePageState extends State<RecipePage> {
 
   // ignore: non_constant_identifier_names
   Widget RecipeConfiguration() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        FilterChip(
-          label: const Text('Carbs'),
-          selected: newRecipe.carbs,
-          onSelected: (value) {
-            setState(() {
-              newRecipe = newRecipe.copyWith(carbs: value);
-            });
-          },
-        ),
-        const SizedBox(width: 10),
-        FilterChip(
-          label: const Text('Protein'),
-          selected: newRecipe.proteins,
-          onSelected: (value) {
-            setState(() {
-              newRecipe = newRecipe.copyWith(proteins: value);
-            });
-          },
-        ),
-        const SizedBox(width: 10),
-        FilterChip(
-          label: const Text('Vegetables'),
-          selected: newRecipe.vegetables,
-          onSelected: (value) {
-            setState(() {
-              newRecipe = newRecipe.copyWith(vegetables: value);
-            });
-          },
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FilterChip(
+            label: const Text('Carbs'),
+            selected: newRecipe.carbs,
+            onSelected: (value) {
+              setState(() {
+                newRecipe = newRecipe.copyWith(carbs: value);
+              });
+            },
+          ),
+          const SizedBox(width: 10),
+          FilterChip(
+            label: const Text('Protein'),
+            selected: newRecipe.proteins,
+            onSelected: (value) {
+              setState(() {
+                newRecipe = newRecipe.copyWith(proteins: value);
+              });
+            },
+          ),
+          const SizedBox(width: 10),
+          FilterChip(
+            label: const Text('Vegetables'),
+            selected: newRecipe.vegetables,
+            onSelected: (value) {
+              setState(() {
+                newRecipe = newRecipe.copyWith(vegetables: value);
+              });
+            },
+          ),
+          const Spacer(),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.add_rounded),
+            label: const Text("Add Step"),
+            onPressed: () {
+              InstructionEditor.show(
+                context,
+                originalInstruction: null,
+                recipe: newRecipe.id,
+                onSave: (Instruction newInstruction) {
+                  setState(() {
+                    newRecipe = newRecipe.copyWith(instructions: [...newRecipe.instructions, newInstruction]);
+                  });
+                },
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 

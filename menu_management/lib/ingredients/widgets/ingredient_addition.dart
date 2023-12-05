@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class IngredientAddition extends StatefulWidget {
   const IngredientAddition({super.key});
@@ -47,7 +48,7 @@ class _IngredientAdditionState extends State<IngredientAddition> {
       return;
     }
     IngredientsProvider.instance.addIngredient(
-      Ingredient(name: _controller.text),
+      Ingredient(id: const Uuid().v1(), name: _controller.text),
     );
     setState(() {
       _controller.clear();
