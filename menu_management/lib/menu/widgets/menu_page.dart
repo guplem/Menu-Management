@@ -37,7 +37,7 @@ class MenuPage extends StatelessWidget {
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
         itemCount: 7,
-        itemBuilder: (context, index) {
+        itemBuilder: (context, weekDay) {
           return Card(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -47,7 +47,7 @@ class MenuPage extends StatelessWidget {
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
                     child: Builder(builder: (context) {
-                      switch (index) {
+                      switch (weekDay) {
                         case 0:
                           return const Text('Saturday');
                         case 1:
@@ -68,7 +68,7 @@ class MenuPage extends StatelessWidget {
                     }),
                   ),
                 ),
-                ...List.generate(3, (index) {
+                ...List.generate(3, (mealType) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: OutlinedCard(
@@ -79,7 +79,7 @@ class MenuPage extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium!,
                             child: Builder(
                               builder: (context) {
-                                switch (index) {
+                                switch (mealType) {
                                   case 0:
                                     return const Text('Breakfast');
                                   case 1:
@@ -96,19 +96,22 @@ class MenuPage extends StatelessWidget {
                           Switch(
                             thumbIcon: switchIcon,
                             value: true,
-                            onChanged: (value) {
-                              // Do something
+                            onChanged: (mealNeeded) {
+                              // TODO: Update mealNeeded
                             },
                           ),
                           const SizedBox(height: 5),
-                          const SizedBox(
+                          SizedBox(
                             width: 140,
                             child: TextField(
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: 'Cooking time',
                                 suffixText: "min",
                               ),
+                              onChanged: (value) {
+                                // TODO: Update cooking time
+                              },
                             ),
                           ),
                         ],
