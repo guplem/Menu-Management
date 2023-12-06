@@ -20,8 +20,9 @@ MealTime _$MealTimeFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MealTime {
-  MealType get mealType => throw _privateConstructorUsedError;
+  /// 0 = Saturday, 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday
   int get weekDay => throw _privateConstructorUsedError;
+  MealType get mealType => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -34,7 +35,7 @@ abstract class $MealTimeCopyWith<$Res> {
   factory $MealTimeCopyWith(MealTime value, $Res Function(MealTime) then) =
       _$MealTimeCopyWithImpl<$Res, MealTime>;
   @useResult
-  $Res call({MealType mealType, int weekDay});
+  $Res call({int weekDay, MealType mealType});
 }
 
 /// @nodoc
@@ -50,18 +51,18 @@ class _$MealTimeCopyWithImpl<$Res, $Val extends MealTime>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? mealType = null,
     Object? weekDay = null,
+    Object? mealType = null,
   }) {
     return _then(_value.copyWith(
-      mealType: null == mealType
-          ? _value.mealType
-          : mealType // ignore: cast_nullable_to_non_nullable
-              as MealType,
       weekDay: null == weekDay
           ? _value.weekDay
           : weekDay // ignore: cast_nullable_to_non_nullable
               as int,
+      mealType: null == mealType
+          ? _value.mealType
+          : mealType // ignore: cast_nullable_to_non_nullable
+              as MealType,
     ) as $Val);
   }
 }
@@ -74,7 +75,7 @@ abstract class _$$MealTimeImplCopyWith<$Res>
       __$$MealTimeImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({MealType mealType, int weekDay});
+  $Res call({int weekDay, MealType mealType});
 }
 
 /// @nodoc
@@ -88,18 +89,18 @@ class __$$MealTimeImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? mealType = null,
     Object? weekDay = null,
+    Object? mealType = null,
   }) {
     return _then(_$MealTimeImpl(
-      mealType: null == mealType
-          ? _value.mealType
-          : mealType // ignore: cast_nullable_to_non_nullable
-              as MealType,
       weekDay: null == weekDay
           ? _value.weekDay
           : weekDay // ignore: cast_nullable_to_non_nullable
               as int,
+      mealType: null == mealType
+          ? _value.mealType
+          : mealType // ignore: cast_nullable_to_non_nullable
+              as MealType,
     ));
   }
 }
@@ -107,19 +108,20 @@ class __$$MealTimeImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$MealTimeImpl with DiagnosticableTreeMixin implements _MealTime {
-  const _$MealTimeImpl({required this.mealType, required this.weekDay});
+  const _$MealTimeImpl({required this.weekDay, required this.mealType});
 
   factory _$MealTimeImpl.fromJson(Map<String, dynamic> json) =>
       _$$MealTimeImplFromJson(json);
 
-  @override
-  final MealType mealType;
+  /// 0 = Saturday, 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday
   @override
   final int weekDay;
+  @override
+  final MealType mealType;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MealTime(mealType: $mealType, weekDay: $weekDay)';
+    return 'MealTime(weekDay: $weekDay, mealType: $mealType)';
   }
 
   @override
@@ -127,8 +129,8 @@ class _$MealTimeImpl with DiagnosticableTreeMixin implements _MealTime {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'MealTime'))
-      ..add(DiagnosticsProperty('mealType', mealType))
-      ..add(DiagnosticsProperty('weekDay', weekDay));
+      ..add(DiagnosticsProperty('weekDay', weekDay))
+      ..add(DiagnosticsProperty('mealType', mealType));
   }
 
   @override
@@ -136,14 +138,14 @@ class _$MealTimeImpl with DiagnosticableTreeMixin implements _MealTime {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MealTimeImpl &&
+            (identical(other.weekDay, weekDay) || other.weekDay == weekDay) &&
             (identical(other.mealType, mealType) ||
-                other.mealType == mealType) &&
-            (identical(other.weekDay, weekDay) || other.weekDay == weekDay));
+                other.mealType == mealType));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, mealType, weekDay);
+  int get hashCode => Object.hash(runtimeType, weekDay, mealType);
 
   @JsonKey(ignore: true)
   @override
@@ -161,16 +163,18 @@ class _$MealTimeImpl with DiagnosticableTreeMixin implements _MealTime {
 
 abstract class _MealTime implements MealTime {
   const factory _MealTime(
-      {required final MealType mealType,
-      required final int weekDay}) = _$MealTimeImpl;
+      {required final int weekDay,
+      required final MealType mealType}) = _$MealTimeImpl;
 
   factory _MealTime.fromJson(Map<String, dynamic> json) =
       _$MealTimeImpl.fromJson;
 
   @override
-  MealType get mealType;
-  @override
+
+  /// 0 = Saturday, 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday
   int get weekDay;
+  @override
+  MealType get mealType;
   @override
   @JsonKey(ignore: true)
   _$$MealTimeImplCopyWith<_$MealTimeImpl> get copyWith =>

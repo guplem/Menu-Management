@@ -70,6 +70,8 @@ class Persistency {
   }
 
   static loadData({required IngredientsProvider ingredientsProvider, required RecipesProvider recipesProvider}) async {
+    // TODO: check if there is data in the providers and ask for confirmation before loading the file
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Select the file to load',
       allowMultiple: false,

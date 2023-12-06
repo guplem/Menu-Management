@@ -25,20 +25,21 @@ class _IngredientAdditionState extends State<IngredientAddition> {
       title: TextField(
         // focusNode: FocusNode()..requestFocus(),
         controller: _controller,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           labelText: 'Ingredient name',
+          border: const OutlineInputBorder(),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.check_circle_outline_rounded),
+            onPressed: _controller.text.trimAndSetNullIfEmpty == null
+                ? null
+                : () {
+                    addIngredient();
+                  },
+          ),
         ),
         onChanged: (value) => setState(() {}),
         onEditingComplete: addIngredient,
         onSubmitted: (value) => addIngredient(),
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.check),
-        onPressed: _controller.text.trimAndSetNullIfEmpty == null
-            ? null
-            : () {
-                addIngredient();
-              },
       ),
     );
   }

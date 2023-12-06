@@ -25,15 +25,15 @@ class _HubState extends State<Hub> {
         children: <Widget>[
           NavigationRail(
             selectedIndex: _selectedIndex,
-            groupAlignment: -1,
+            // groupAlignment: -1,
             onDestinationSelected: (int index) {
               setState(() {
                 _selectedIndex = index;
               });
             },
-            trailing: Padding(
-              padding: const EdgeInsets.only(top: 50.0),
+            trailing: Expanded(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.drive_folder_upload_rounded),
@@ -51,6 +51,7 @@ class _HubState extends State<Hub> {
                       onPressed: () => Persistency.saveData(),
                       tooltip: 'Save data to file',
                     ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

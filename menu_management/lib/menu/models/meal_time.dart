@@ -9,8 +9,9 @@ part 'meal_time.g.dart';
 @freezed
 class MealTime with _$MealTime {
   const factory MealTime({
-    required MealType mealType,
+    /// 0 = Saturday, 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday
     required int weekDay,
+    required MealType mealType,
   }) = _MealTime;
 
   factory MealTime.fromJson(Map<String, Object?> json) => _$MealTimeFromJson(json);
