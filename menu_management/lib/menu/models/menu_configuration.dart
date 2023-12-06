@@ -1,5 +1,5 @@
 import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/models/cooking.dart';
+import 'package:menu_management/menu/menu_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
@@ -15,8 +15,15 @@ class MenuConfiguration with _$MenuConfiguration {
     @Default(true)
     bool requiresMeal,
     @Default(60)
-    int availableCookingTime,
+    int? availableCookingTimeMinutes,
   }) = _Configuration;
 
   factory MenuConfiguration.fromJson(Map<String, Object?> json) => _$MenuConfigurationFromJson(json);
+
+  // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
+  const MenuConfiguration._();
+
+  void saveToProvider() {
+    MenuProvider.update(newConfiguration: this);
+  }
 }

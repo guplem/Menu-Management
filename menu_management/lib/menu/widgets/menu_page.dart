@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
+import 'package:menu_management/menu/enums/meal_type.dart';
+import 'package:menu_management/menu/enums/week_day.dart';
+import 'package:menu_management/menu/menu_provider.dart';
+import 'package:menu_management/menu/models/menu_configuration.dart';
 
 class MenuPage extends StatelessWidget {
   const MenuPage({super.key});
@@ -37,7 +42,7 @@ class MenuPage extends StatelessWidget {
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
         itemCount: 7,
-        itemBuilder: (context, weekDay) {
+        itemBuilder: (context, weekDayValue) {
           return Card(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -47,7 +52,7 @@ class MenuPage extends StatelessWidget {
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
                     child: Builder(builder: (context) {
-                      switch (weekDay) {
+                      switch (weekDayValue) {
                         case 0:
                           return const Text('Saturday');
                         case 1:
@@ -68,7 +73,13 @@ class MenuPage extends StatelessWidget {
                     }),
                   ),
                 ),
-                ...List.generate(3, (mealType) {
+                ...List.generate(3, (mealTypeValue) {
+                  MenuConfiguration menuConfiguration = MenuProvider.listenableOf(
+                    context,
+                    weekDay: WeekDay.fromValue(weekDayValue),
+                    mealType: MealType.fromValue(mealTypeValue),
+                  );
+
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: OutlinedCard(
@@ -79,7 +90,7 @@ class MenuPage extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium!,
                             child: Builder(
                               builder: (context) {
-                                switch (mealType) {
+                                switch (mealTypeValue) {
                                   case 0:
                                     return const Text('Breakfast');
                                   case 1:
@@ -95,22 +106,33 @@ class MenuPage extends StatelessWidget {
                           const SizedBox(height: 5),
                           Switch(
                             thumbIcon: switchIcon,
-                            value: true,
-                            onChanged: (mealNeeded) {
-                              // TODO: Update mealNeeded
+                            value: menuConfiguration.requiresMeal,
+                            onChanged: (requiredMeal) {
+                              menuConfiguration.copyWith(requiresMeal: requiredMeal).saveToProvider();
                             },
                           ),
                           const SizedBox(height: 5),
                           SizedBox(
                             width: 140,
                             child: TextField(
+                              controller: TextEditingController.fromValue(
+                                TextEditingValue(
+                                  text: menuConfiguration.availableCookingTimeMinutes == null ? "" : menuConfiguration.availableCookingTimeMinutes.toString(),
+                                  selection: TextSelection.collapsed(
+                                    offset: menuConfiguration.availableCookingTimeMinutes == null ? -1 : menuConfiguration.availableCookingTimeMinutes.toString().length,
+                                  ),
+                                ),
+                              ),
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: 'Cooking time',
                                 suffixText: "min",
                               ),
-                              onChanged: (value) {
-                                // TODO: Update cooking time
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              onChanged: (String cookingTimeInput) {
+                                int? cookingTimeMinutes = int.tryParse(cookingTimeInput);
+                                menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes).saveToProvider();
                               },
                             ),
                           ),

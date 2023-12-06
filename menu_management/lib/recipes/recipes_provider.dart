@@ -4,6 +4,8 @@ import 'package:menu_management/recipes/models/recipe.dart';
 
 import '../flutter_essentials/library.dart';
 
+// Alter data should be done through the static methods.
+// Fetching data should be done through the listenableOf method or through the provider in the tree.
 class RecipesProvider extends ChangeNotifier {
   static late RecipesProvider instance;
 
@@ -14,7 +16,7 @@ class RecipesProvider extends ChangeNotifier {
   final List<Recipe> _recipes = [];
   List<Recipe> get recipes => _recipes;
 
-  static Recipe listenableOf(context, recipeId) => getProvider<RecipesProvider>(context, listen: true)._get(recipeId);
+  static Recipe listenableOf(context, recipeId) => getProvider<RecipesProvider>(context, listen: true).get(recipeId);
 
   //#region RECIPES
   void setData(List<Recipe> recipes) {
@@ -23,12 +25,8 @@ class RecipesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  static Recipe get(String recipeId) {
-    return instance._get(recipeId);
-  }
-
-  Recipe _get(String recipeId) {
-    return instance.recipes.firstWhere((element) => element.id == recipeId);
+  Recipe get(String recipeId) {
+    return recipes.firstWhere((element) => element.id == recipeId);
   }
 
   static void addOrUpdate({required Recipe newRecipe}) {

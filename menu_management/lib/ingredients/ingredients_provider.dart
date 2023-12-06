@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 
+// Alter data should be done through the static methods.
+// Fetching data should be done through the listenableOf method or through the provider in the tree.
 class IngredientsProvider extends ChangeNotifier {
   static late IngredientsProvider instance;
 
@@ -12,7 +14,7 @@ class IngredientsProvider extends ChangeNotifier {
   final List<Ingredient> _ingredients = [];
   List<Ingredient> get ingredients => _ingredients;
 
-  static Ingredient listenableOf(context, ingredientId) => getProvider<IngredientsProvider>(context, listen: true)._get(ingredientId);
+  static Ingredient listenableOf(context, ingredientId) => getProvider<IngredientsProvider>(context, listen: true).get(ingredientId);
 
   void setData(List<Ingredient> ingredients) {
     _ingredients.clear();
@@ -20,12 +22,8 @@ class IngredientsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  static Ingredient get(String ingredientId) {
-    return instance._get(ingredientId);
-  }
-
-  Ingredient _get(String ingredientId) {
-    return instance.ingredients.firstWhere((element) => element.id == ingredientId);
+  Ingredient get(String ingredientId) {
+    return ingredients.firstWhere((element) => element.id == ingredientId);
   }
 
   static void addOrUpdate({required Ingredient newIngredient}) {

@@ -22,7 +22,7 @@ MenuConfiguration _$MenuConfigurationFromJson(Map<String, dynamic> json) {
 mixin _$MenuConfiguration {
   MealTime get mealTime => throw _privateConstructorUsedError;
   bool get requiresMeal => throw _privateConstructorUsedError;
-  int get availableCookingTime => throw _privateConstructorUsedError;
+  int? get availableCookingTimeMinutes => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -36,7 +36,8 @@ abstract class $MenuConfigurationCopyWith<$Res> {
           MenuConfiguration value, $Res Function(MenuConfiguration) then) =
       _$MenuConfigurationCopyWithImpl<$Res, MenuConfiguration>;
   @useResult
-  $Res call({MealTime mealTime, bool requiresMeal, int availableCookingTime});
+  $Res call(
+      {MealTime mealTime, bool requiresMeal, int? availableCookingTimeMinutes});
 
   $MealTimeCopyWith<$Res> get mealTime;
 }
@@ -56,7 +57,7 @@ class _$MenuConfigurationCopyWithImpl<$Res, $Val extends MenuConfiguration>
   $Res call({
     Object? mealTime = null,
     Object? requiresMeal = null,
-    Object? availableCookingTime = null,
+    Object? availableCookingTimeMinutes = freezed,
   }) {
     return _then(_value.copyWith(
       mealTime: null == mealTime
@@ -67,10 +68,10 @@ class _$MenuConfigurationCopyWithImpl<$Res, $Val extends MenuConfiguration>
           ? _value.requiresMeal
           : requiresMeal // ignore: cast_nullable_to_non_nullable
               as bool,
-      availableCookingTime: null == availableCookingTime
-          ? _value.availableCookingTime
-          : availableCookingTime // ignore: cast_nullable_to_non_nullable
-              as int,
+      availableCookingTimeMinutes: freezed == availableCookingTimeMinutes
+          ? _value.availableCookingTimeMinutes
+          : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 
@@ -91,7 +92,8 @@ abstract class _$$ConfigurationImplCopyWith<$Res>
       __$$ConfigurationImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({MealTime mealTime, bool requiresMeal, int availableCookingTime});
+  $Res call(
+      {MealTime mealTime, bool requiresMeal, int? availableCookingTimeMinutes});
 
   @override
   $MealTimeCopyWith<$Res> get mealTime;
@@ -110,7 +112,7 @@ class __$$ConfigurationImplCopyWithImpl<$Res>
   $Res call({
     Object? mealTime = null,
     Object? requiresMeal = null,
-    Object? availableCookingTime = null,
+    Object? availableCookingTimeMinutes = freezed,
   }) {
     return _then(_$ConfigurationImpl(
       mealTime: null == mealTime
@@ -121,23 +123,22 @@ class __$$ConfigurationImplCopyWithImpl<$Res>
           ? _value.requiresMeal
           : requiresMeal // ignore: cast_nullable_to_non_nullable
               as bool,
-      availableCookingTime: null == availableCookingTime
-          ? _value.availableCookingTime
-          : availableCookingTime // ignore: cast_nullable_to_non_nullable
-              as int,
+      availableCookingTimeMinutes: freezed == availableCookingTimeMinutes
+          ? _value.availableCookingTimeMinutes
+          : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$ConfigurationImpl
-    with DiagnosticableTreeMixin
-    implements _Configuration {
+class _$ConfigurationImpl extends _Configuration with DiagnosticableTreeMixin {
   const _$ConfigurationImpl(
       {required this.mealTime,
       this.requiresMeal = true,
-      this.availableCookingTime = 60});
+      this.availableCookingTimeMinutes = 60})
+      : super._();
 
   factory _$ConfigurationImpl.fromJson(Map<String, dynamic> json) =>
       _$$ConfigurationImplFromJson(json);
@@ -149,11 +150,11 @@ class _$ConfigurationImpl
   final bool requiresMeal;
   @override
   @JsonKey()
-  final int availableCookingTime;
+  final int? availableCookingTimeMinutes;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTime: $availableCookingTime)';
+    return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes)';
   }
 
   @override
@@ -163,7 +164,8 @@ class _$ConfigurationImpl
       ..add(DiagnosticsProperty('type', 'MenuConfiguration'))
       ..add(DiagnosticsProperty('mealTime', mealTime))
       ..add(DiagnosticsProperty('requiresMeal', requiresMeal))
-      ..add(DiagnosticsProperty('availableCookingTime', availableCookingTime));
+      ..add(DiagnosticsProperty(
+          'availableCookingTimeMinutes', availableCookingTimeMinutes));
   }
 
   @override
@@ -175,14 +177,16 @@ class _$ConfigurationImpl
                 other.mealTime == mealTime) &&
             (identical(other.requiresMeal, requiresMeal) ||
                 other.requiresMeal == requiresMeal) &&
-            (identical(other.availableCookingTime, availableCookingTime) ||
-                other.availableCookingTime == availableCookingTime));
+            (identical(other.availableCookingTimeMinutes,
+                    availableCookingTimeMinutes) ||
+                other.availableCookingTimeMinutes ==
+                    availableCookingTimeMinutes));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, mealTime, requiresMeal, availableCookingTime);
+  int get hashCode => Object.hash(
+      runtimeType, mealTime, requiresMeal, availableCookingTimeMinutes);
 
   @JsonKey(ignore: true)
   @override
@@ -198,11 +202,12 @@ class _$ConfigurationImpl
   }
 }
 
-abstract class _Configuration implements MenuConfiguration {
+abstract class _Configuration extends MenuConfiguration {
   const factory _Configuration(
       {required final MealTime mealTime,
       final bool requiresMeal,
-      final int availableCookingTime}) = _$ConfigurationImpl;
+      final int? availableCookingTimeMinutes}) = _$ConfigurationImpl;
+  const _Configuration._() : super._();
 
   factory _Configuration.fromJson(Map<String, dynamic> json) =
       _$ConfigurationImpl.fromJson;
@@ -212,7 +217,7 @@ abstract class _Configuration implements MenuConfiguration {
   @override
   bool get requiresMeal;
   @override
-  int get availableCookingTime;
+  int? get availableCookingTimeMinutes;
   @override
   @JsonKey(ignore: true)
   _$$ConfigurationImplCopyWith<_$ConfigurationImpl> get copyWith =>
