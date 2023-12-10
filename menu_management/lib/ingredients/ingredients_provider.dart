@@ -14,6 +14,8 @@ class IngredientsProvider extends ChangeNotifier {
   final List<Ingredient> _ingredients = [];
   List<Ingredient> get ingredients => _ingredients;
 
+  List<Ingredient> searchHistory = <Ingredient>[];
+
   static Ingredient listenableOf(context, ingredientId) => getProvider<IngredientsProvider>(context, listen: true).get(ingredientId);
 
   void setData(List<Ingredient> ingredients) {
@@ -38,6 +40,19 @@ class IngredientsProvider extends ChangeNotifier {
 
   static void remove({required String ingredientId}) {
     instance.ingredients.removeWhere((element) => element.id == ingredientId);
+    instance.notifyListeners();
+  }
+
+  static void addIngredientToHistory(Ingredient selectedIngredient) {
+    if (instance.searchHistory.contains(selectedIngredient)) {
+      return;
+    }
+
+    if (instance.searchHistory.length >= 10) {
+      instance.searchHistory.removeLast();
+    }
+    instance.searchHistory.insert(0, selectedIngredient);
+
     instance.notifyListeners();
   }
 }

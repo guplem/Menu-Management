@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 
