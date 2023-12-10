@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/models/recipe.dart';

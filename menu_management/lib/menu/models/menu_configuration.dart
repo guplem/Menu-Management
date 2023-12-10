@@ -1,4 +1,3 @@
-import 'package:menu_management/menu/enums/meal_type.dart';
 import 'package:menu_management/menu/menu_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
