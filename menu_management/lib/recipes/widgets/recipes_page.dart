@@ -52,23 +52,30 @@ class _RecipesPageState extends State<RecipesPage> {
                       selectedRecipe = recipesProvider.recipes[index].id;
                     });
                   },
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      Recipe toRemove = recipesProvider.recipes[index];
-                      RecipesProvider.remove(recipeId: toRemove.id);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Recipe "${toRemove.name}" removed'),
-                          action: SnackBarAction(
-                            label: 'Undo',
-                            onPressed: () {
-                              RecipesProvider.addOrUpdate(newRecipe: toRemove);
-                            },
-                          ),
-                        ),
-                      );
-                    },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("${recipesProvider.recipes[index].totalTimeMinutes} min"),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          Recipe toRemove = recipesProvider.recipes[index];
+                          RecipesProvider.remove(recipeId: toRemove.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Recipe "${toRemove.name}" removed'),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () {
+                                  RecipesProvider.addOrUpdate(newRecipe: toRemove);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 );
               },

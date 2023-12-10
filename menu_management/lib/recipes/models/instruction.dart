@@ -21,5 +21,5 @@ class Instruction with _$Instruction {
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Instruction._();
 
-  get totalTimeMinutes => workingTimeMinutes + cookingTimeMinutes;
+  int get totalTimeMinutes => workingTimeMinutes + cookingTimeMinutes;
 }

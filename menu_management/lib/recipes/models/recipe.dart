@@ -27,4 +27,8 @@ class Recipe with _$Recipe {
     RecipesProvider.addOrUpdate(newRecipe: this);
   }
 
+  int get workingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.workingTimeMinutes);
+  int get cookingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
+  int get totalTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.totalTimeMinutes);
+
 }
