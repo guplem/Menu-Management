@@ -10,10 +10,16 @@ part 'instruction.g.dart';
 class Instruction with _$Instruction {
   const factory Instruction({
     required String id,
-    @Default([])
-    List<IngredientUsage> ingredientUsage,
+    @Default([]) List<IngredientUsage> ingredientsUsed,
+    @Default(10) int workingTimeMinutes,
+    @Default(10) int cookingTimeMinutes,
     required String description,
   }) = _Instruction;
 
   factory Instruction.fromJson(Map<String, Object?> json) => _$InstructionFromJson(json);
+
+  // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
+  const Instruction._();
+
+  get totalTimeMinutes => workingTimeMinutes + cookingTimeMinutes;
 }

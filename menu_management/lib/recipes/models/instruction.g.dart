@@ -9,16 +9,20 @@ part of 'instruction.dart';
 _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
     _$InstructionImpl(
       id: json['id'] as String,
-      ingredientUsage: (json['ingredientUsage'] as List<dynamic>?)
+      ingredientsUsed: (json['ingredientsUsed'] as List<dynamic>?)
               ?.map((e) => IngredientUsage.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      workingTimeMinutes: json['workingTimeMinutes'] as int? ?? 10,
+      cookingTimeMinutes: json['cookingTimeMinutes'] as int? ?? 10,
       description: json['description'] as String,
     );
 
 Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'ingredientUsage': instance.ingredientUsage,
+      'ingredientsUsed': instance.ingredientsUsed,
+      'workingTimeMinutes': instance.workingTimeMinutes,
+      'cookingTimeMinutes': instance.cookingTimeMinutes,
       'description': instance.description,
     };

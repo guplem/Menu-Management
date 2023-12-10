@@ -50,48 +50,54 @@ class RecipePage extends StatelessWidget {
 
   // ignore: non_constant_identifier_names
   Widget RecipeConfiguration({required BuildContext context, required Recipe recipe}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FilterChip(
-            label: const Text('Carbs'),
-            selected: recipe.carbs,
-            onSelected: (value) {
-              recipe.copyWith(carbs: value).saveToProvider();
-            },
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilterChip(
+                label: const Text('Carbs'),
+                selected: recipe.carbs,
+                onSelected: (value) {
+                  recipe.copyWith(carbs: value).saveToProvider();
+                },
+              ),
+              const SizedBox(width: 10),
+              FilterChip(
+                label: const Text('Protein'),
+                selected: recipe.proteins,
+                onSelected: (value) {
+                  recipe.copyWith(proteins: value).saveToProvider();
+                },
+              ),
+              const SizedBox(width: 10),
+              FilterChip(
+                label: const Text('Vegetables'),
+                selected: recipe.vegetables,
+                onSelected: (value) {
+                  recipe.copyWith(vegetables: value).saveToProvider();
+                },
+              ),
+              const Spacer(),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.add_rounded),
+                label: const Text("Add Step"),
+                onPressed: () {
+                  InstructionEditor.show(
+                    context: context,
+                    recipeId: recipeId,
+                    originalInstruction: null,
+                  );
+                },
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          FilterChip(
-            label: const Text('Protein'),
-            selected: recipe.proteins,
-            onSelected: (value) {
-              recipe.copyWith(proteins: value).saveToProvider();
-            },
-          ),
-          const SizedBox(width: 10),
-          FilterChip(
-            label: const Text('Vegetables'),
-            selected: recipe.vegetables,
-            onSelected: (value) {
-              recipe.copyWith(vegetables: value).saveToProvider();
-            },
-          ),
-          const Spacer(),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.add_rounded),
-            label: const Text("Add Step"),
-            onPressed: () {
-              InstructionEditor.show(
-                context: context,
-                recipeId: recipeId,
-                originalInstruction: null,
-              );
-            },
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        const Divider(),
+      ],
     );
   }
 }
