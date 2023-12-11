@@ -74,19 +74,21 @@ class _IngredientSelectorState extends State<IngredientSelector> {
             return getSuggestions(controller);
           },
         ),
-        ... newInstruction.ingredientsUsed.map((IngredientUsage ingredientUsage) => ListTile(
-          leading: const Icon(Icons.check),
-          title: Text(ingredientUsage.ingredient.name),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              setState(() {
-                newInstruction = newInstruction.copyWith(ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage usage) => usage != ingredientUsage).toList());
-              });
-              widget.onUpdate(newInstruction);
-            },
-          ),
-        )).toList(),
+        const SizedBox(height: 5),
+        ...newInstruction.ingredientsUsed
+            .map((IngredientUsage ingredientUsage) => ListTile(
+                  title: Text(ingredientUsage.ingredient.name),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      setState(() {
+                        newInstruction = newInstruction.copyWith(ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage usage) => usage != ingredientUsage).toList());
+                      });
+                      widget.onUpdate(newInstruction);
+                    },
+                  ),
+                ))
+            .toList(),
       ],
     );
   }
@@ -97,41 +99,52 @@ class _IngredientSelectorState extends State<IngredientSelector> {
     List<Ingredient> ingredients = IngredientsProvider.instance.ingredients;
 
     return ingredients.where((Ingredient ingredient) => ingredient.name.toLowerCase().contains(input)).map(
-          (Ingredient ingredient) => ListTile(
-            title: Text(ingredient.name),
-            trailing: IconButton(
-              icon: const Icon(Icons.call_missed),
-              onPressed: () {
-                controller.text = ingredient.name;
-                controller.selection = TextSelection.collapsed(offset: controller.text.length);
-              },
-            ),
-            onTap: () {
-              controller.closeView(ingredient.name);
-              IngredientUsage ingredientUsage = IngredientUsage(
-                ingredient: ingredient,
-                quantity: const Quantity(ammount: 1, unit: Unit.pieces),
-              );
-              widget.onUpdate(newInstruction.copyWith(ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage]));
-              IngredientsProvider.addIngredientToHistory(ingredient);
-            },
-          ),
+          (Ingredient ingredient) => IngredientSuggestion(ingredient: ingredient, controller: controller, isHistory: false),
         );
   }
 
   Iterable<Widget> getHistoryList(SearchController controller) {
     return IngredientsProvider.instance.searchHistory.map(
-          (Ingredient ingredient) => ListTile(
-            leading: const Icon(Icons.history),
-            title: Text(ingredient.name),
-            trailing: IconButton(
-              icon: const Icon(Icons.call_missed),
-              onPressed: () {
-                controller.text = ingredient.name;
-                controller.selection = TextSelection.collapsed(offset: controller.text.length);
-              },
-            ),
-          ),
-        );
+      (Ingredient ingredient) => IngredientSuggestion(ingredient: ingredient, controller: controller, isHistory: true),
+    );
   }
+
+  // ignore: non_constant_identifier_names
+  Widget IngredientSuggestion({required Ingredient ingredient, required SearchController controller, required bool isHistory}) {
+    bool alreadyUsed = newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient);
+    return ListTile(
+      title: Text(ingredient.name),
+      leading: isHistory ? const Icon(Icons.history_rounded) : null,
+      trailing: IconButton(
+        icon: const Icon(Icons.call_missed_rounded),
+        onPressed:  () {
+          controller.text = ingredient.name;
+          controller.selection = TextSelection.collapsed(offset: controller.text.length);
+        },
+      ),
+      onTap: alreadyUsed ? null : () {
+        selectIngredient(controller: controller, ingredient: ingredient);
+      },
+    );
+  }
+
+  void selectIngredient({required Ingredient ingredient, required SearchController controller}) {
+    // Check if the ingredient is already in the list
+    if (newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient)) {
+      return;
+    }
+    // Close the search bar
+    controller.closeView("");
+    // Add the ingredient to the list
+    IngredientUsage ingredientUsage = IngredientUsage(
+      ingredient: ingredient,
+      quantity: const Quantity(ammount: 1, unit: Unit.pieces),
+    );
+    setState(() {
+      newInstruction = newInstruction.copyWith(ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage]);
+    });
+    widget.onUpdate(newInstruction);
+    IngredientsProvider.addIngredientToHistory(ingredient);
+  }
+
 }
