@@ -39,6 +39,7 @@ class IngredientsProvider extends ChangeNotifier {
   }
 
   static void remove({required String ingredientId}) {
+    // TODO: Ask for confirmation (generic method with all "removes")
     instance.ingredients.removeWhere((element) => element.id == ingredientId);
     instance.notifyListeners();
   }

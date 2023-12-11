@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
+import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
 import 'package:menu_management/recipes/widgets/ingredient_selector.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,6 +29,7 @@ class InstructionEditor extends StatefulWidget {
             recipeId: recipeId,
             instruction: originalInstruction,
             onUpdate: (Instruction instruction) {
+              // Save the update so if the "save" button is pressed, the instruction is updated in the provider
               newInstruction = instruction;
             },
           ),
@@ -75,6 +78,13 @@ class _InstructionEditorState extends State<InstructionEditor> {
     cookingTimeController.text = newInstruction.cookingTimeMinutes.toString();
   }
 
+  void updateInstruction(Instruction instruction) {
+    setState(() {
+      newInstruction = instruction;
+    });
+    widget.onUpdate(instruction);
+  }
+
   onDispose() {
     descriptionController.dispose();
     workingTimeController.dispose();
@@ -86,6 +96,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
@@ -101,10 +112,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   suffixIcon: Icon(Icons.restaurant_menu_rounded),
                 ),
                 onChanged: (value) {
-                  setState(() {
-                    newInstruction = newInstruction.copyWith(workingTimeMinutes: int.parse(value));
-                  });
-                  widget.onUpdate(newInstruction);
+                  updateInstruction(newInstruction.copyWith(workingTimeMinutes: int.parse(value)));
                 },
               ),
             ),
@@ -121,46 +129,64 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   suffixIcon: Icon(Icons.takeout_dining_rounded),
                 ),
                 onChanged: (value) {
-                  setState(() {
-                    newInstruction = newInstruction.copyWith(cookingTimeMinutes: int.parse(value));
-                  });
-                  widget.onUpdate(newInstruction);
+                  updateInstruction(newInstruction.copyWith(cookingTimeMinutes: int.parse(value)));
                 },
               ),
             ),
           ],
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         Text('Total time: ${newInstruction.totalTimeMinutes} min', style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 15),
-        TextButton.icon(
-          onPressed: () {
-            IngredientSelector.show(
-              context: context,
-              originalInstruction: newInstruction,
-              recipeId: widget.recipeId,
-              onUpdate: (Instruction instruction) {
-                setState(() {
-                  newInstruction = instruction;
-                });
+        const Divider(),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextButton.icon(
+              onPressed: () {
+                IngredientSelector.show(
+                  context: context,
+                  originalInstruction: newInstruction,
+                  recipeId: widget.recipeId,
+                  onUpdate: (Instruction instruction) => updateInstruction(instruction),
+                );
               },
-            );
-          },
-          icon: const Icon(Icons.add_rounded),
-          label: const Text("Add Ingredient"),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text("Add Ingredient"),
+            ),
+          ],
         ),
-        ...newInstruction.ingredientsUsed.map((ingredientUsed) => ListTile(
-              title: Text(ingredientUsed.ingredient.name),
-              trailing: IconButton(
-                icon: const Icon(Icons.call_missed),
-                onPressed: () {
-                  setState(() {
-                    newInstruction = newInstruction.copyWith(ingredientsUsed: newInstruction.ingredientsUsed.where((usage) => usage != ingredientUsed).toList());
-                  });
-                  widget.onUpdate(newInstruction);
-                },
-              ),
-            )),
+        const SizedBox(height: 5),
+        ...newInstruction.ingredientsUsed.map((ingredientUsage) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 7),
+          child: IngredientQuantity(
+            ingredientUsage: ingredientUsage,
+            onUpdate: (IngredientUsage? newUsage) {
+              Instruction updatedInstruction;
+              if (newUsage != null) {
+                // Update the ingredient
+                updatedInstruction = newInstruction.copyWith(
+                  ingredientsUsed: newInstruction.ingredientsUsed.map((IngredientUsage ing) {
+                    if (ing.ingredient == ingredientUsage.ingredient) {
+                      return newUsage;
+                    }
+                    return ing;
+                  }).toList(),
+                );
+              } else {
+                // Remove the ingredient
+                updatedInstruction = newInstruction.copyWith(
+                  ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage ing) => ing.ingredient != ingredientUsage.ingredient).toList(),
+                );
+              }
+              updateInstruction(updatedInstruction);
+            },
+          ),
+        )),
+        const SizedBox(height: 15),
+        const Divider(),
         const SizedBox(height: 15),
         TextField(
           controller: descriptionController,
@@ -170,10 +196,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
             labelText: 'Description',
           ),
           onChanged: (value) {
-            setState(() {
-              newInstruction = newInstruction.copyWith(description: value);
-            });
-            widget.onUpdate(newInstruction);
+            updateInstruction(newInstruction.copyWith(description: value));
           },
         ),
       ],

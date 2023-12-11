@@ -24,24 +24,21 @@ class RecipePage extends StatelessWidget {
         return ListTile(
           key: ValueKey(instruction.id),
           title: Text(instruction.description),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  RecipesProvider.removeInstruction(recipeId: recipeId, instructionId: instruction.id);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => InstructionEditor.show(
-                  context: context,
-                  recipeId: recipeId,
-                  originalInstruction: instruction,
-                ),
-              ),
-            ],
+          onTap: () {
+            InstructionEditor.show(
+              context: context,
+              recipeId: recipeId,
+              originalInstruction: instruction,
+            );
+          },
+          trailing: Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                RecipesProvider.removeInstruction(recipeId: recipeId, instructionId: instruction.id);
+              },
+            ),
           ),
         );
       },

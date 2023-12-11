@@ -8,13 +8,13 @@ part of 'quantity.dart';
 
 _$QuantityImpl _$$QuantityImplFromJson(Map<String, dynamic> json) =>
     _$QuantityImpl(
-      ammount: (json['ammount'] as num).toDouble(),
+      amount: (json['amount'] as num).toDouble(),
       unit: $enumDecode(_$UnitEnumMap, json['unit']),
     );
 
 Map<String, dynamic> _$$QuantityImplToJson(_$QuantityImpl instance) =>
     <String, dynamic>{
-      'ammount': instance.ammount,
+      'amount': instance.amount,
       'unit': _$UnitEnumMap[instance.unit]!,
     };
 

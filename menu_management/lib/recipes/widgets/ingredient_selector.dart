@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/enums/unit.dart';
 import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:uuid/uuid.dart';
+import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
 
 class IngredientSelector extends StatefulWidget {
   const IngredientSelector({super.key, required this.onUpdate, required this.instruction});
@@ -57,10 +54,18 @@ class _IngredientSelectorState extends State<IngredientSelector> {
     newInstruction = widget.instruction;
   }
 
+  void updateInstruction(Instruction instruction) {
+    setState(() {
+      newInstruction = instruction;
+    });
+    widget.onUpdate(instruction);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SearchAnchor.bar(
           barHintText: 'Search Ingredients',
@@ -74,20 +79,34 @@ class _IngredientSelectorState extends State<IngredientSelector> {
             return getSuggestions(controller);
           },
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 15),
         ...newInstruction.ingredientsUsed
-            .map((IngredientUsage ingredientUsage) => ListTile(
-                  title: Text(ingredientUsage.ingredient.name),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      setState(() {
-                        newInstruction = newInstruction.copyWith(ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage usage) => usage != ingredientUsage).toList());
-                      });
-                      widget.onUpdate(newInstruction);
+            .map((IngredientUsage ingredientUsage) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7.0),
+              child: IngredientQuantity(
+                    ingredientUsage: ingredientUsage,
+                    onUpdate: (IngredientUsage? newUsage) {
+                      Instruction updatedInstruction;
+                      if (newUsage != null) {
+                        // Update the ingredient
+                        updatedInstruction = newInstruction.copyWith(
+                          ingredientsUsed: newInstruction.ingredientsUsed.map((IngredientUsage ing) {
+                            if (ing.ingredient == ingredientUsage.ingredient) {
+                              return newUsage;
+                            }
+                            return ing;
+                          }).toList(),
+                        );
+                      } else {
+                        // Remove the ingredient
+                        updatedInstruction = newInstruction.copyWith(
+                          ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage ing) => ing.ingredient != ingredientUsage.ingredient).toList(),
+                        );
+                      }
+                      updateInstruction(updatedInstruction);
                     },
                   ),
-                ))
+            ))
             .toList(),
       ],
     );
@@ -117,14 +136,16 @@ class _IngredientSelectorState extends State<IngredientSelector> {
       leading: isHistory ? const Icon(Icons.history_rounded) : null,
       trailing: IconButton(
         icon: const Icon(Icons.call_missed_rounded),
-        onPressed:  () {
+        onPressed: () {
           controller.text = ingredient.name;
           controller.selection = TextSelection.collapsed(offset: controller.text.length);
         },
       ),
-      onTap: alreadyUsed ? null : () {
-        selectIngredient(controller: controller, ingredient: ingredient);
-      },
+      onTap: alreadyUsed
+          ? null
+          : () {
+              selectIngredient(controller: controller, ingredient: ingredient);
+            },
     );
   }
 
@@ -138,13 +159,9 @@ class _IngredientSelectorState extends State<IngredientSelector> {
     // Add the ingredient to the list
     IngredientUsage ingredientUsage = IngredientUsage(
       ingredient: ingredient,
-      quantity: const Quantity(ammount: 1, unit: Unit.pieces),
+      quantity: const Quantity(amount: 1, unit: Unit.pieces),
     );
-    setState(() {
-      newInstruction = newInstruction.copyWith(ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage]);
-    });
-    widget.onUpdate(newInstruction);
+    updateInstruction(newInstruction.copyWith(ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage]));
     IngredientsProvider.addIngredientToHistory(ingredient);
   }
-
 }

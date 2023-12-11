@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 
@@ -41,6 +40,7 @@ class RecipesProvider extends ChangeNotifier {
   }
 
   static void remove({required String recipeId}) {
+    // TODO: Ask for confirmation (generic method with all "removes")
     instance.recipes.removeWhere((element) => element.id == recipeId);
     instance.notifyListeners();
   }
@@ -57,11 +57,11 @@ class RecipesProvider extends ChangeNotifier {
       instructions.add(newInstruction);
     }
     Recipe updatedRecipe = recipeToUpdate.copyWith(instructions: instructions);
-    Debug.logDev("Updated recipe: ${updatedRecipe.toJson()}");
     addOrUpdate(newRecipe: updatedRecipe);
   }
 
   static void removeInstruction({required String recipeId, required String instructionId}) {
+    // TODO: Ask for confirmation (generic method with all "removes")
     final Recipe recipeToUpdate = instance.recipes.firstWhere((element) => element.id == recipeId);
     List<Instruction> instructions = [...recipeToUpdate.instructions];
     instructions.removeWhere((element) => element.id == instructionId);

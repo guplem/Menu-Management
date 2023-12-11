@@ -20,7 +20,7 @@ Quantity _$QuantityFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Quantity {
-  double get ammount => throw _privateConstructorUsedError;
+  double get amount => throw _privateConstructorUsedError;
   Unit get unit => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -34,7 +34,7 @@ abstract class $QuantityCopyWith<$Res> {
   factory $QuantityCopyWith(Quantity value, $Res Function(Quantity) then) =
       _$QuantityCopyWithImpl<$Res, Quantity>;
   @useResult
-  $Res call({double ammount, Unit unit});
+  $Res call({double amount, Unit unit});
 }
 
 /// @nodoc
@@ -50,13 +50,13 @@ class _$QuantityCopyWithImpl<$Res, $Val extends Quantity>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ammount = null,
+    Object? amount = null,
     Object? unit = null,
   }) {
     return _then(_value.copyWith(
-      ammount: null == ammount
-          ? _value.ammount
-          : ammount // ignore: cast_nullable_to_non_nullable
+      amount: null == amount
+          ? _value.amount
+          : amount // ignore: cast_nullable_to_non_nullable
               as double,
       unit: null == unit
           ? _value.unit
@@ -74,7 +74,7 @@ abstract class _$$QuantityImplCopyWith<$Res>
       __$$QuantityImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({double ammount, Unit unit});
+  $Res call({double amount, Unit unit});
 }
 
 /// @nodoc
@@ -88,13 +88,13 @@ class __$$QuantityImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ammount = null,
+    Object? amount = null,
     Object? unit = null,
   }) {
     return _then(_$QuantityImpl(
-      ammount: null == ammount
-          ? _value.ammount
-          : ammount // ignore: cast_nullable_to_non_nullable
+      amount: null == amount
+          ? _value.amount
+          : amount // ignore: cast_nullable_to_non_nullable
               as double,
       unit: null == unit
           ? _value.unit
@@ -107,19 +107,19 @@ class __$$QuantityImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
-  const _$QuantityImpl({required this.ammount, required this.unit});
+  const _$QuantityImpl({required this.amount, required this.unit});
 
   factory _$QuantityImpl.fromJson(Map<String, dynamic> json) =>
       _$$QuantityImplFromJson(json);
 
   @override
-  final double ammount;
+  final double amount;
   @override
   final Unit unit;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Quantity(ammount: $ammount, unit: $unit)';
+    return 'Quantity(amount: $amount, unit: $unit)';
   }
 
   @override
@@ -127,7 +127,7 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Quantity'))
-      ..add(DiagnosticsProperty('ammount', ammount))
+      ..add(DiagnosticsProperty('amount', amount))
       ..add(DiagnosticsProperty('unit', unit));
   }
 
@@ -136,13 +136,13 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$QuantityImpl &&
-            (identical(other.ammount, ammount) || other.ammount == ammount) &&
+            (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.unit, unit) || other.unit == unit));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, ammount, unit);
+  int get hashCode => Object.hash(runtimeType, amount, unit);
 
   @JsonKey(ignore: true)
   @override
@@ -160,14 +160,14 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
 
 abstract class _Quantity implements Quantity {
   const factory _Quantity(
-      {required final double ammount,
+      {required final double amount,
       required final Unit unit}) = _$QuantityImpl;
 
   factory _Quantity.fromJson(Map<String, dynamic> json) =
       _$QuantityImpl.fromJson;
 
   @override
-  double get ammount;
+  double get amount;
   @override
   Unit get unit;
   @override
