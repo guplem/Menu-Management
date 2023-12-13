@@ -26,6 +26,7 @@ mixin _$Recipe {
   bool get carbs => throw _privateConstructorUsedError;
   bool get proteins => throw _privateConstructorUsedError;
   bool get vegetables => throw _privateConstructorUsedError;
+  RecipeType? get type => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -43,7 +44,8 @@ abstract class $RecipeCopyWith<$Res> {
       List<Instruction> instructions,
       bool carbs,
       bool proteins,
-      bool vegetables});
+      bool vegetables,
+      RecipeType? type});
 }
 
 /// @nodoc
@@ -65,6 +67,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? carbs = null,
     Object? proteins = null,
     Object? vegetables = null,
+    Object? type = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -91,6 +94,10 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
           ? _value.vegetables
           : vegetables // ignore: cast_nullable_to_non_nullable
               as bool,
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as RecipeType?,
     ) as $Val);
   }
 }
@@ -108,7 +115,8 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
       List<Instruction> instructions,
       bool carbs,
       bool proteins,
-      bool vegetables});
+      bool vegetables,
+      RecipeType? type});
 }
 
 /// @nodoc
@@ -128,6 +136,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? carbs = null,
     Object? proteins = null,
     Object? vegetables = null,
+    Object? type = freezed,
   }) {
     return _then(_$RecipeImpl(
       id: null == id
@@ -154,6 +163,10 @@ class __$$RecipeImplCopyWithImpl<$Res>
           ? _value.vegetables
           : vegetables // ignore: cast_nullable_to_non_nullable
               as bool,
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as RecipeType?,
     ));
   }
 }
@@ -167,7 +180,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       final List<Instruction> instructions = const [],
       this.carbs = false,
       this.proteins = false,
-      this.vegetables = false})
+      this.vegetables = false,
+      this.type})
       : _instructions = instructions,
         super._();
 
@@ -196,10 +210,12 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final bool vegetables;
+  @override
+  final RecipeType? type;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables)';
+    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type)';
   }
 
   @override
@@ -212,7 +228,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('instructions', instructions))
       ..add(DiagnosticsProperty('carbs', carbs))
       ..add(DiagnosticsProperty('proteins', proteins))
-      ..add(DiagnosticsProperty('vegetables', vegetables));
+      ..add(DiagnosticsProperty('vegetables', vegetables))
+      ..add(DiagnosticsProperty('type', type));
   }
 
   @override
@@ -228,7 +245,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
             (identical(other.proteins, proteins) ||
                 other.proteins == proteins) &&
             (identical(other.vegetables, vegetables) ||
-                other.vegetables == vegetables));
+                other.vegetables == vegetables) &&
+            (identical(other.type, type) || other.type == type));
   }
 
   @JsonKey(ignore: true)
@@ -240,7 +258,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       const DeepCollectionEquality().hash(_instructions),
       carbs,
       proteins,
-      vegetables);
+      vegetables,
+      type);
 
   @JsonKey(ignore: true)
   @override
@@ -263,7 +282,8 @@ abstract class _Recipe extends Recipe {
       final List<Instruction> instructions,
       final bool carbs,
       final bool proteins,
-      final bool vegetables}) = _$RecipeImpl;
+      final bool vegetables,
+      final RecipeType? type}) = _$RecipeImpl;
   const _Recipe._() : super._();
 
   factory _Recipe.fromJson(Map<String, dynamic> json) = _$RecipeImpl.fromJson;
@@ -280,6 +300,8 @@ abstract class _Recipe extends Recipe {
   bool get proteins;
   @override
   bool get vegetables;
+  @override
+  RecipeType? get type;
   @override
   @JsonKey(ignore: true)
   _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith =>

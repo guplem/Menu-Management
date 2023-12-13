@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
@@ -52,7 +53,24 @@ class RecipePage extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            children: RecipeType.values.map((e) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: FilterChip(
+                  label: Text(e.name),
+                  selected: recipe.type == e,
+                  onSelected: (value) {
+                    recipe.copyWith(type: e).saveToProvider();
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
             children: [
               FilterChip(
                 label: const Text('Carbs'),

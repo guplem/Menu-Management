@@ -1,3 +1,4 @@
+import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
@@ -16,6 +17,7 @@ class Recipe with _$Recipe {
     @Default(false) bool carbs,
     @Default(false) bool proteins,
     @Default(false) bool vegetables,
+    RecipeType? type,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);
