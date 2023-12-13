@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
@@ -67,7 +68,42 @@ class RecipePage extends StatelessWidget {
             }).toList(),
           ),
         ),
-        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              Flexible(
+                flex: 1,
+                child: TextField(
+                  controller: TextEditingController.fromValue(
+                    TextEditingValue(
+                      text: recipe.maxStorageDays.toString(),
+                      selection: TextSelection.collapsed(
+                        offset: recipe.maxStorageDays.toString().length,
+                      ),
+                    ),
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Maximum Days in Storage',
+                    border: OutlineInputBorder(),
+                  ),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    int? valueInt = int.tryParse(value);
+                    if (valueInt != null) {
+                      recipe.copyWith(maxStorageDays: valueInt).saveToProvider();
+                    }
+                  },
+                ),
+              ),
+              const Flexible(
+                flex: 3,
+                child: SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(

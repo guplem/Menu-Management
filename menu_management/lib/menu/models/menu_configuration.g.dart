@@ -6,15 +6,17 @@ part of 'menu_configuration.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ConfigurationImpl _$$ConfigurationImplFromJson(Map<String, dynamic> json) =>
-    _$ConfigurationImpl(
+_$MenuConfigurationImpl _$$MenuConfigurationImplFromJson(
+        Map<String, dynamic> json) =>
+    _$MenuConfigurationImpl(
       mealTime: MealTime.fromJson(json['mealTime'] as Map<String, dynamic>),
       requiresMeal: json['requiresMeal'] as bool? ?? true,
       availableCookingTimeMinutes:
           json['availableCookingTimeMinutes'] as int? ?? 60,
     );
 
-Map<String, dynamic> _$$ConfigurationImplToJson(_$ConfigurationImpl instance) =>
+Map<String, dynamic> _$$MenuConfigurationImplToJson(
+        _$MenuConfigurationImpl instance) =>
     <String, dynamic>{
       'mealTime': instance.mealTime,
       'requiresMeal': instance.requiresMeal,

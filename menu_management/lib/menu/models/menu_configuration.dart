@@ -15,7 +15,7 @@ class MenuConfiguration with _$MenuConfiguration {
     bool requiresMeal,
     @Default(60)
     int? availableCookingTimeMinutes,
-  }) = _Configuration;
+  }) = _MenuConfiguration;
 
   factory MenuConfiguration.fromJson(Map<String, Object?> json) => _$MenuConfigurationFromJson(json);
 

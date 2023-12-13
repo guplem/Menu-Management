@@ -15,7 +15,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 MenuConfiguration _$MenuConfigurationFromJson(Map<String, dynamic> json) {
-  return _Configuration.fromJson(json);
+  return _MenuConfiguration.fromJson(json);
 }
 
 /// @nodoc
@@ -85,11 +85,11 @@ class _$MenuConfigurationCopyWithImpl<$Res, $Val extends MenuConfiguration>
 }
 
 /// @nodoc
-abstract class _$$ConfigurationImplCopyWith<$Res>
+abstract class _$$MenuConfigurationImplCopyWith<$Res>
     implements $MenuConfigurationCopyWith<$Res> {
-  factory _$$ConfigurationImplCopyWith(
-          _$ConfigurationImpl value, $Res Function(_$ConfigurationImpl) then) =
-      __$$ConfigurationImplCopyWithImpl<$Res>;
+  factory _$$MenuConfigurationImplCopyWith(_$MenuConfigurationImpl value,
+          $Res Function(_$MenuConfigurationImpl) then) =
+      __$$MenuConfigurationImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -100,11 +100,11 @@ abstract class _$$ConfigurationImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$ConfigurationImplCopyWithImpl<$Res>
-    extends _$MenuConfigurationCopyWithImpl<$Res, _$ConfigurationImpl>
-    implements _$$ConfigurationImplCopyWith<$Res> {
-  __$$ConfigurationImplCopyWithImpl(
-      _$ConfigurationImpl _value, $Res Function(_$ConfigurationImpl) _then)
+class __$$MenuConfigurationImplCopyWithImpl<$Res>
+    extends _$MenuConfigurationCopyWithImpl<$Res, _$MenuConfigurationImpl>
+    implements _$$MenuConfigurationImplCopyWith<$Res> {
+  __$$MenuConfigurationImplCopyWithImpl(_$MenuConfigurationImpl _value,
+      $Res Function(_$MenuConfigurationImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -114,7 +114,7 @@ class __$$ConfigurationImplCopyWithImpl<$Res>
     Object? requiresMeal = null,
     Object? availableCookingTimeMinutes = freezed,
   }) {
-    return _then(_$ConfigurationImpl(
+    return _then(_$MenuConfigurationImpl(
       mealTime: null == mealTime
           ? _value.mealTime
           : mealTime // ignore: cast_nullable_to_non_nullable
@@ -133,15 +133,16 @@ class __$$ConfigurationImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ConfigurationImpl extends _Configuration with DiagnosticableTreeMixin {
-  const _$ConfigurationImpl(
+class _$MenuConfigurationImpl extends _MenuConfiguration
+    with DiagnosticableTreeMixin {
+  const _$MenuConfigurationImpl(
       {required this.mealTime,
       this.requiresMeal = true,
       this.availableCookingTimeMinutes = 60})
       : super._();
 
-  factory _$ConfigurationImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ConfigurationImplFromJson(json);
+  factory _$MenuConfigurationImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MenuConfigurationImplFromJson(json);
 
   @override
   final MealTime mealTime;
@@ -172,7 +173,7 @@ class _$ConfigurationImpl extends _Configuration with DiagnosticableTreeMixin {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$ConfigurationImpl &&
+            other is _$MenuConfigurationImpl &&
             (identical(other.mealTime, mealTime) ||
                 other.mealTime == mealTime) &&
             (identical(other.requiresMeal, requiresMeal) ||
@@ -191,26 +192,27 @@ class _$ConfigurationImpl extends _Configuration with DiagnosticableTreeMixin {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$ConfigurationImplCopyWith<_$ConfigurationImpl> get copyWith =>
-      __$$ConfigurationImplCopyWithImpl<_$ConfigurationImpl>(this, _$identity);
+  _$$MenuConfigurationImplCopyWith<_$MenuConfigurationImpl> get copyWith =>
+      __$$MenuConfigurationImplCopyWithImpl<_$MenuConfigurationImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ConfigurationImplToJson(
+    return _$$MenuConfigurationImplToJson(
       this,
     );
   }
 }
 
-abstract class _Configuration extends MenuConfiguration {
-  const factory _Configuration(
+abstract class _MenuConfiguration extends MenuConfiguration {
+  const factory _MenuConfiguration(
       {required final MealTime mealTime,
       final bool requiresMeal,
-      final int? availableCookingTimeMinutes}) = _$ConfigurationImpl;
-  const _Configuration._() : super._();
+      final int? availableCookingTimeMinutes}) = _$MenuConfigurationImpl;
+  const _MenuConfiguration._() : super._();
 
-  factory _Configuration.fromJson(Map<String, dynamic> json) =
-      _$ConfigurationImpl.fromJson;
+  factory _MenuConfiguration.fromJson(Map<String, dynamic> json) =
+      _$MenuConfigurationImpl.fromJson;
 
   @override
   MealTime get mealTime;
@@ -220,6 +222,6 @@ abstract class _Configuration extends MenuConfiguration {
   int? get availableCookingTimeMinutes;
   @override
   @JsonKey(ignore: true)
-  _$$ConfigurationImplCopyWith<_$ConfigurationImpl> get copyWith =>
+  _$$MenuConfigurationImplCopyWith<_$MenuConfigurationImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

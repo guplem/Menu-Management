@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/menu/enums/meal_type.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
+import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/menu/models/menu_configuration.dart';
 import 'package:menu_management/menu/models/meal_time.dart';
 
@@ -70,6 +71,12 @@ class MenuProvider extends ChangeNotifier {
     } else {
       Debug.logError("MenuProvider.update: No configuration found for ${newConfiguration.mealTime.weekDay} ${newConfiguration.mealTime.mealType}");
     }
+  }
+
+  static Menu generateMenu(int seed) {
+
+    // TODO: Generate a random menu, based on the seed
+    return const Menu();
   }
 
 }

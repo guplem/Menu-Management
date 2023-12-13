@@ -21,6 +21,7 @@ Meal _$MealFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Meal {
   List<Cooking> get recipes => throw _privateConstructorUsedError;
+  MealTime get mealTime => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -32,7 +33,9 @@ abstract class $MealCopyWith<$Res> {
   factory $MealCopyWith(Meal value, $Res Function(Meal) then) =
       _$MealCopyWithImpl<$Res, Meal>;
   @useResult
-  $Res call({List<Cooking> recipes});
+  $Res call({List<Cooking> recipes, MealTime mealTime});
+
+  $MealTimeCopyWith<$Res> get mealTime;
 }
 
 /// @nodoc
@@ -49,13 +52,26 @@ class _$MealCopyWithImpl<$Res, $Val extends Meal>
   @override
   $Res call({
     Object? recipes = null,
+    Object? mealTime = null,
   }) {
     return _then(_value.copyWith(
       recipes: null == recipes
           ? _value.recipes
           : recipes // ignore: cast_nullable_to_non_nullable
               as List<Cooking>,
+      mealTime: null == mealTime
+          ? _value.mealTime
+          : mealTime // ignore: cast_nullable_to_non_nullable
+              as MealTime,
     ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $MealTimeCopyWith<$Res> get mealTime {
+    return $MealTimeCopyWith<$Res>(_value.mealTime, (value) {
+      return _then(_value.copyWith(mealTime: value) as $Val);
+    });
   }
 }
 
@@ -66,7 +82,10 @@ abstract class _$$MealImplCopyWith<$Res> implements $MealCopyWith<$Res> {
       __$$MealImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<Cooking> recipes});
+  $Res call({List<Cooking> recipes, MealTime mealTime});
+
+  @override
+  $MealTimeCopyWith<$Res> get mealTime;
 }
 
 /// @nodoc
@@ -80,12 +99,17 @@ class __$$MealImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? recipes = null,
+    Object? mealTime = null,
   }) {
     return _then(_$MealImpl(
       recipes: null == recipes
           ? _value._recipes
           : recipes // ignore: cast_nullable_to_non_nullable
               as List<Cooking>,
+      mealTime: null == mealTime
+          ? _value.mealTime
+          : mealTime // ignore: cast_nullable_to_non_nullable
+              as MealTime,
     ));
   }
 }
@@ -93,7 +117,9 @@ class __$$MealImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
-  const _$MealImpl({required final List<Cooking> recipes}) : _recipes = recipes;
+  const _$MealImpl(
+      {required final List<Cooking> recipes, required this.mealTime})
+      : _recipes = recipes;
 
   factory _$MealImpl.fromJson(Map<String, dynamic> json) =>
       _$$MealImplFromJson(json);
@@ -107,8 +133,11 @@ class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
   }
 
   @override
+  final MealTime mealTime;
+
+  @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Meal(recipes: $recipes)';
+    return 'Meal(recipes: $recipes, mealTime: $mealTime)';
   }
 
   @override
@@ -116,7 +145,8 @@ class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Meal'))
-      ..add(DiagnosticsProperty('recipes', recipes));
+      ..add(DiagnosticsProperty('recipes', recipes))
+      ..add(DiagnosticsProperty('mealTime', mealTime));
   }
 
   @override
@@ -124,13 +154,15 @@ class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MealImpl &&
-            const DeepCollectionEquality().equals(other._recipes, _recipes));
+            const DeepCollectionEquality().equals(other._recipes, _recipes) &&
+            (identical(other.mealTime, mealTime) ||
+                other.mealTime == mealTime));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_recipes));
+  int get hashCode => Object.hash(
+      runtimeType, const DeepCollectionEquality().hash(_recipes), mealTime);
 
   @JsonKey(ignore: true)
   @override
@@ -147,12 +179,16 @@ class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
 }
 
 abstract class _Meal implements Meal {
-  const factory _Meal({required final List<Cooking> recipes}) = _$MealImpl;
+  const factory _Meal(
+      {required final List<Cooking> recipes,
+      required final MealTime mealTime}) = _$MealImpl;
 
   factory _Meal.fromJson(Map<String, dynamic> json) = _$MealImpl.fromJson;
 
   @override
   List<Cooking> get recipes;
+  @override
+  MealTime get mealTime;
   @override
   @JsonKey(ignore: true)
   _$$MealImplCopyWith<_$MealImpl> get copyWith =>

@@ -18,6 +18,8 @@ class Recipe with _$Recipe {
     @Default(false) bool proteins,
     @Default(false) bool vegetables,
     RecipeType? type,
+    /// The number of days the recipe can be stored in the fridge (coocked)
+    @Default(7) int maxStorageDays,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);

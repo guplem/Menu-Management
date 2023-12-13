@@ -22,7 +22,7 @@ Cooking _$CookingFromJson(Map<String, dynamic> json) {
 mixin _$Cooking {
   Recipe get recipe => throw _privateConstructorUsedError;
 
-  /// The amount to cook. [yield] = persons * meals. 0 means it should already be cooked.
+  /// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
   int get yield => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -128,7 +128,7 @@ class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
   @override
   final Recipe recipe;
 
-  /// The amount to cook. [yield] = persons * meals. 0 means it should already be cooked.
+  /// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
   @override
   final int yield;
 
@@ -183,7 +183,7 @@ abstract class _Cooking implements Cooking {
   Recipe get recipe;
   @override
 
-  /// The amount to cook. [yield] = persons * meals. 0 means it should already be cooked.
+  /// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
   int get yield;
   @override
   @JsonKey(ignore: true)
