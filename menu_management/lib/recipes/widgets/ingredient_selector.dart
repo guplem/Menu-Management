@@ -6,6 +6,7 @@ import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
 import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
+import 'package:uuid/uuid.dart';
 
 class IngredientSelector extends StatefulWidget {
   const IngredientSelector({super.key, required this.onUpdate, required this.instruction});
@@ -68,22 +69,49 @@ class _IngredientSelectorState extends State<IngredientSelector> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SearchAnchor.bar(
+          viewConstraints: const BoxConstraints(minHeight: 50),
           barHintText: 'Search Ingredients',
           suggestionsBuilder: (BuildContext context, SearchController controller) {
+            // return [SizedBox.shrink()]; // Not even with this, the suggestions take the whole height
             if (controller.text.isEmpty) {
               if (IngredientsProvider.instance.searchHistory.isNotEmpty) {
                 return getHistoryList(controller);
               }
               return <Widget>[const Center(child: Text('No search history.'))];
             }
-            return getSuggestions(controller);
+            Iterable<Widget> suggestions = getSuggestions(controller);
+
+            if (suggestions.isEmpty) {
+              return <Widget>[
+                const SizedBox(height: 15),
+                const Center(child: Text('No results.')),
+                const SizedBox(height: 15),
+                Center(
+                  child: OutlinedButton.icon(
+                      onPressed: () {
+                        // Create a new ingredient
+                        final Ingredient newIngredient = Ingredient(name: controller.text, id: const Uuid().v1());
+                        IngredientsProvider.addOrUpdate(newIngredient: newIngredient);
+                        // Add the ingredient to the list
+                        selectIngredient(controller: controller, ingredient: newIngredient);
+                      },
+                      label: const Text("Create new ingredient"),
+                      icon: const Icon(Icons.add_circle_rounded)),
+                ),
+                const SizedBox(height: 15),
+                const Divider(),
+                ...getHistoryList(controller),
+              ];
+            }
+
+            return suggestions.toList();
           },
         ),
         const SizedBox(height: 15),
         ...newInstruction.ingredientsUsed
             .map((IngredientUsage ingredientUsage) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 7.0),
-              child: IngredientQuantity(
+                  padding: const EdgeInsets.symmetric(vertical: 7.0),
+                  child: IngredientQuantity(
                     ingredientUsage: ingredientUsage,
                     onUpdate: (IngredientUsage? newUsage) {
                       Instruction updatedInstruction;
@@ -106,7 +134,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                       updateInstruction(updatedInstruction);
                     },
                   ),
-            ))
+                ))
             .toList(),
       ],
     );
