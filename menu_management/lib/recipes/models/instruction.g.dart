@@ -16,6 +16,10 @@ _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
       workingTimeMinutes: json['workingTimeMinutes'] as int? ?? 10,
       cookingTimeMinutes: json['cookingTimeMinutes'] as int? ?? 10,
       description: json['description'] as String,
+      outputs: (json['outputs'] as List<dynamic>?)
+              ?.map((e) => Output.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
@@ -25,4 +29,5 @@ Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
       'workingTimeMinutes': instance.workingTimeMinutes,
       'cookingTimeMinutes': instance.cookingTimeMinutes,
       'description': instance.description,
+      'outputs': instance.outputs,
     };

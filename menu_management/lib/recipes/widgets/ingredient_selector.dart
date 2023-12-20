@@ -33,7 +33,7 @@ class IngredientSelector extends StatefulWidget {
           ),
           actions: <Widget>[
             FilledButton(
-              child: const Text('Close'),
+              child: const Text('Save'),
               onPressed: () {
                 onUpdate(newInstruction);
                 Navigator.of(context).pop();
@@ -64,79 +64,81 @@ class _IngredientSelectorState extends State<IngredientSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SearchAnchor.bar(
-          viewConstraints: const BoxConstraints(minHeight: 50),
-          barHintText: 'Search Ingredients',
-          suggestionsBuilder: (BuildContext context, SearchController controller) {
-            // return [SizedBox.shrink()]; // Not even with this, the suggestions take the whole height
-            if (controller.text.isEmpty) {
-              if (IngredientsProvider.instance.searchHistory.isNotEmpty) {
-                return getHistoryList(controller);
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SearchAnchor.bar(
+            viewConstraints: const BoxConstraints(minHeight: 50),
+            barHintText: 'Search Ingredients',
+            suggestionsBuilder: (BuildContext context, SearchController controller) {
+              // return [SizedBox.shrink()]; // Not even with this, the suggestions take the whole height
+              if (controller.text.isEmpty) {
+                if (IngredientsProvider.instance.searchHistory.isNotEmpty) {
+                  return getHistoryList(controller);
+                }
+                return <Widget>[const Center(child: Text('No search history.'))];
               }
-              return <Widget>[const Center(child: Text('No search history.'))];
-            }
-            Iterable<Widget> suggestions = getSuggestions(controller);
-
-            if (suggestions.isEmpty) {
-              return <Widget>[
-                const SizedBox(height: 15),
-                const Center(child: Text('No results.')),
-                const SizedBox(height: 15),
-                Center(
-                  child: OutlinedButton.icon(
-                      onPressed: () {
-                        // Create a new ingredient
-                        final Ingredient newIngredient = Ingredient(name: controller.text, id: const Uuid().v1());
-                        IngredientsProvider.addOrUpdate(newIngredient: newIngredient);
-                        // Add the ingredient to the list
-                        selectIngredient(controller: controller, ingredient: newIngredient);
-                      },
-                      label: const Text("Create new ingredient"),
-                      icon: const Icon(Icons.add_circle_rounded)),
-                ),
-                const SizedBox(height: 15),
-                const Divider(),
-                ...getHistoryList(controller),
-              ];
-            }
-
-            return suggestions.toList();
-          },
-        ),
-        const SizedBox(height: 15),
-        ...newInstruction.ingredientsUsed
-            .map((IngredientUsage ingredientUsage) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 7.0),
-                  child: IngredientQuantity(
-                    ingredientUsage: ingredientUsage,
-                    onUpdate: (IngredientUsage? newUsage) {
-                      Instruction updatedInstruction;
-                      if (newUsage != null) {
-                        // Update the ingredient
-                        updatedInstruction = newInstruction.copyWith(
-                          ingredientsUsed: newInstruction.ingredientsUsed.map((IngredientUsage ing) {
-                            if (ing.ingredient == ingredientUsage.ingredient) {
-                              return newUsage;
-                            }
-                            return ing;
-                          }).toList(),
-                        );
-                      } else {
-                        // Remove the ingredient
-                        updatedInstruction = newInstruction.copyWith(
-                          ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage ing) => ing.ingredient != ingredientUsage.ingredient).toList(),
-                        );
-                      }
-                      updateInstruction(updatedInstruction);
-                    },
+              Iterable<Widget> suggestions = getSuggestions(controller);
+      
+              if (suggestions.isEmpty) {
+                return <Widget>[
+                  const SizedBox(height: 15),
+                  const Center(child: Text('No results.')),
+                  const SizedBox(height: 15),
+                  Center(
+                    child: OutlinedButton.icon(
+                        onPressed: () {
+                          // Create a new ingredient
+                          final Ingredient newIngredient = Ingredient(name: controller.text, id: const Uuid().v1());
+                          IngredientsProvider.addOrUpdate(newIngredient: newIngredient);
+                          // Add the ingredient to the list
+                          selectIngredient(controller: controller, ingredient: newIngredient);
+                        },
+                        label: const Text("Create new ingredient"),
+                        icon: const Icon(Icons.add_circle_rounded)),
                   ),
-                ))
-            .toList(),
-      ],
+                  const SizedBox(height: 15),
+                  const Divider(),
+                  ...getHistoryList(controller),
+                ];
+              }
+      
+              return suggestions.toList();
+            },
+          ),
+          const SizedBox(height: 15),
+          ...newInstruction.ingredientsUsed
+              .map((IngredientUsage ingredientUsage) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 7.0),
+                    child: IngredientQuantity(
+                      ingredientUsage: ingredientUsage,
+                      onUpdate: (IngredientUsage? newUsage) {
+                        Instruction updatedInstruction;
+                        if (newUsage != null) {
+                          // Update the ingredient
+                          updatedInstruction = newInstruction.copyWith(
+                            ingredientsUsed: newInstruction.ingredientsUsed.map((IngredientUsage ing) {
+                              if (ing.ingredient == ingredientUsage.ingredient) {
+                                return newUsage;
+                              }
+                              return ing;
+                            }).toList(),
+                          );
+                        } else {
+                          // Remove the ingredient
+                          updatedInstruction = newInstruction.copyWith(
+                            ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage ing) => ing.ingredient != ingredientUsage.ingredient).toList(),
+                          );
+                        }
+                        updateInstruction(updatedInstruction);
+                      },
+                    ),
+                  ))
+              .toList(),
+        ],
+      ),
     );
   }
 

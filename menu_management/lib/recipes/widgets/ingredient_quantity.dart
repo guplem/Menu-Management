@@ -74,7 +74,7 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
             controller: amountController,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              labelText: 'Amount',
+              labelText: 'New',
               errorText: isInvalidAmount ? "Invalid Amount" : null,
             ),
             onChanged: (value) {
@@ -88,7 +88,6 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
             },
           ),
         ),
-
         const SizedBox(width: 10),
         // Unit Dropdown
         DropdownButton<Unit>(

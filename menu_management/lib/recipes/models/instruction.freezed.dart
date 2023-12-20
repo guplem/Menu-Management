@@ -26,6 +26,7 @@ mixin _$Instruction {
   int get workingTimeMinutes => throw _privateConstructorUsedError;
   int get cookingTimeMinutes => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
+  List<Output> get outputs => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -44,7 +45,8 @@ abstract class $InstructionCopyWith<$Res> {
       List<IngredientUsage> ingredientsUsed,
       int workingTimeMinutes,
       int cookingTimeMinutes,
-      String description});
+      String description,
+      List<Output> outputs});
 }
 
 /// @nodoc
@@ -65,6 +67,7 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
     Object? workingTimeMinutes = null,
     Object? cookingTimeMinutes = null,
     Object? description = null,
+    Object? outputs = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -87,6 +90,10 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      outputs: null == outputs
+          ? _value.outputs
+          : outputs // ignore: cast_nullable_to_non_nullable
+              as List<Output>,
     ) as $Val);
   }
 }
@@ -104,7 +111,8 @@ abstract class _$$InstructionImplCopyWith<$Res>
       List<IngredientUsage> ingredientsUsed,
       int workingTimeMinutes,
       int cookingTimeMinutes,
-      String description});
+      String description,
+      List<Output> outputs});
 }
 
 /// @nodoc
@@ -123,6 +131,7 @@ class __$$InstructionImplCopyWithImpl<$Res>
     Object? workingTimeMinutes = null,
     Object? cookingTimeMinutes = null,
     Object? description = null,
+    Object? outputs = null,
   }) {
     return _then(_$InstructionImpl(
       id: null == id
@@ -145,6 +154,10 @@ class __$$InstructionImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      outputs: null == outputs
+          ? _value._outputs
+          : outputs // ignore: cast_nullable_to_non_nullable
+              as List<Output>,
     ));
   }
 }
@@ -157,8 +170,10 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
       final List<IngredientUsage> ingredientsUsed = const [],
       this.workingTimeMinutes = 10,
       this.cookingTimeMinutes = 10,
-      required this.description})
+      required this.description,
+      final List<Output> outputs = const []})
       : _ingredientsUsed = ingredientsUsed,
+        _outputs = outputs,
         super._();
 
   factory _$InstructionImpl.fromJson(Map<String, dynamic> json) =>
@@ -183,10 +198,18 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
   final int cookingTimeMinutes;
   @override
   final String description;
+  final List<Output> _outputs;
+  @override
+  @JsonKey()
+  List<Output> get outputs {
+    if (_outputs is EqualUnmodifiableListView) return _outputs;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_outputs);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Instruction(id: $id, ingredientsUsed: $ingredientsUsed, workingTimeMinutes: $workingTimeMinutes, cookingTimeMinutes: $cookingTimeMinutes, description: $description)';
+    return 'Instruction(id: $id, ingredientsUsed: $ingredientsUsed, workingTimeMinutes: $workingTimeMinutes, cookingTimeMinutes: $cookingTimeMinutes, description: $description, outputs: $outputs)';
   }
 
   @override
@@ -198,7 +221,8 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('ingredientsUsed', ingredientsUsed))
       ..add(DiagnosticsProperty('workingTimeMinutes', workingTimeMinutes))
       ..add(DiagnosticsProperty('cookingTimeMinutes', cookingTimeMinutes))
-      ..add(DiagnosticsProperty('description', description));
+      ..add(DiagnosticsProperty('description', description))
+      ..add(DiagnosticsProperty('outputs', outputs));
   }
 
   @override
@@ -214,7 +238,8 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
             (identical(other.cookingTimeMinutes, cookingTimeMinutes) ||
                 other.cookingTimeMinutes == cookingTimeMinutes) &&
             (identical(other.description, description) ||
-                other.description == description));
+                other.description == description) &&
+            const DeepCollectionEquality().equals(other._outputs, _outputs));
   }
 
   @JsonKey(ignore: true)
@@ -225,7 +250,8 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
       const DeepCollectionEquality().hash(_ingredientsUsed),
       workingTimeMinutes,
       cookingTimeMinutes,
-      description);
+      description,
+      const DeepCollectionEquality().hash(_outputs));
 
   @JsonKey(ignore: true)
   @override
@@ -247,7 +273,8 @@ abstract class _Instruction extends Instruction {
       final List<IngredientUsage> ingredientsUsed,
       final int workingTimeMinutes,
       final int cookingTimeMinutes,
-      required final String description}) = _$InstructionImpl;
+      required final String description,
+      final List<Output> outputs}) = _$InstructionImpl;
   const _Instruction._() : super._();
 
   factory _Instruction.fromJson(Map<String, dynamic> json) =
@@ -263,6 +290,8 @@ abstract class _Instruction extends Instruction {
   int get cookingTimeMinutes;
   @override
   String get description;
+  @override
+  List<Output> get outputs;
   @override
   @JsonKey(ignore: true)
   _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
