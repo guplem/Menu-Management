@@ -2,7 +2,7 @@ import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
-import 'package:menu_management/recipes/models/output.dart';
+import 'package:menu_management/recipes/models/result.dart';
 
 part 'instruction.freezed.dart';
 part 'instruction.g.dart';
@@ -15,7 +15,7 @@ class Instruction with _$Instruction {
     @Default(10) int workingTimeMinutes,
     @Default(10) int cookingTimeMinutes,
     required String description,
-    @Default([]) List<Output> outputs,
+    @Default([]) List<Result> outputs,
   }) = _Instruction;
 
   factory Instruction.fromJson(Map<String, Object?> json) => _$InstructionFromJson(json);

@@ -26,7 +26,7 @@ mixin _$Instruction {
   int get workingTimeMinutes => throw _privateConstructorUsedError;
   int get cookingTimeMinutes => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
-  List<Output> get outputs => throw _privateConstructorUsedError;
+  List<Result> get outputs => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -46,7 +46,7 @@ abstract class $InstructionCopyWith<$Res> {
       int workingTimeMinutes,
       int cookingTimeMinutes,
       String description,
-      List<Output> outputs});
+      List<Result> outputs});
 }
 
 /// @nodoc
@@ -93,7 +93,7 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
       outputs: null == outputs
           ? _value.outputs
           : outputs // ignore: cast_nullable_to_non_nullable
-              as List<Output>,
+              as List<Result>,
     ) as $Val);
   }
 }
@@ -112,7 +112,7 @@ abstract class _$$InstructionImplCopyWith<$Res>
       int workingTimeMinutes,
       int cookingTimeMinutes,
       String description,
-      List<Output> outputs});
+      List<Result> outputs});
 }
 
 /// @nodoc
@@ -157,7 +157,7 @@ class __$$InstructionImplCopyWithImpl<$Res>
       outputs: null == outputs
           ? _value._outputs
           : outputs // ignore: cast_nullable_to_non_nullable
-              as List<Output>,
+              as List<Result>,
     ));
   }
 }
@@ -171,7 +171,7 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
       this.workingTimeMinutes = 10,
       this.cookingTimeMinutes = 10,
       required this.description,
-      final List<Output> outputs = const []})
+      final List<Result> outputs = const []})
       : _ingredientsUsed = ingredientsUsed,
         _outputs = outputs,
         super._();
@@ -198,10 +198,10 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
   final int cookingTimeMinutes;
   @override
   final String description;
-  final List<Output> _outputs;
+  final List<Result> _outputs;
   @override
   @JsonKey()
-  List<Output> get outputs {
+  List<Result> get outputs {
     if (_outputs is EqualUnmodifiableListView) return _outputs;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_outputs);
@@ -274,7 +274,7 @@ abstract class _Instruction extends Instruction {
       final int workingTimeMinutes,
       final int cookingTimeMinutes,
       required final String description,
-      final List<Output> outputs}) = _$InstructionImpl;
+      final List<Result> outputs}) = _$InstructionImpl;
   const _Instruction._() : super._();
 
   factory _Instruction.fromJson(Map<String, dynamic> json) =
@@ -291,7 +291,7 @@ abstract class _Instruction extends Instruction {
   @override
   String get description;
   @override
-  List<Output> get outputs;
+  List<Result> get outputs;
   @override
   @JsonKey(ignore: true)
   _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>

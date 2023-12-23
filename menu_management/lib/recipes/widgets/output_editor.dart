@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:menu_management/recipes/models/output.dart';
+import 'package:menu_management/recipes/models/result.dart';
 import 'package:uuid/uuid.dart';
 
 class OutputEditor extends StatefulWidget {
   const OutputEditor({super.key, required this.onUpdate, required this.output, required this.recipeId, required this.instructionId});
 
-  final Function(Output newOutput) onUpdate;
-  final Output? output;
+  final Function(Result newOutput) onUpdate;
+  final Result? output;
   final String recipeId, instructionId;
 
   @override
   State<OutputEditor> createState() => _OutputEditorState();
 
-  static show({required BuildContext context, required Output? originalOutput, required String recipeId, required String instructionId, required void Function(Output newOutput) onUpdate}) {
-    Output? newOutput;
+  static show({required BuildContext context, required Result? originalOutput, required String recipeId, required String instructionId, required void Function(Result newOutput) onUpdate}) {
+    Result? newOutput;
 
     showDialog(
       context: context,
@@ -24,7 +24,7 @@ class OutputEditor extends StatefulWidget {
             recipeId: recipeId,
             instructionId: instructionId,
             output: originalOutput,
-            onUpdate: (Output output) {
+            onUpdate: (Result output) {
               // Save the update so if the "save" button is pressed, the output is updated in the provider
               newOutput = output;
             },
@@ -49,14 +49,14 @@ class OutputEditor extends StatefulWidget {
 }
 
 class _OutputEditorState extends State<OutputEditor> {
-  late Output newOutput;
+  late Result newOutput;
   final TextEditingController descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     if (widget.output == null) {
-      newOutput = Output(
+      newOutput = Result(
         id: const Uuid().v1(),
         description: '',
       );
@@ -71,7 +71,7 @@ class _OutputEditorState extends State<OutputEditor> {
     super.dispose();
   }
 
-  void updateOutput(Output output) {
+  void updateOutput(Result output) {
     setState(() {
       newOutput = output;
     });

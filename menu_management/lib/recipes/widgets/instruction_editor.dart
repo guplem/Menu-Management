@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/output.dart';
+import 'package:menu_management/recipes/models/result.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
 import 'package:menu_management/recipes/widgets/ingredient_selector.dart';
@@ -217,7 +217,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
                 icon: Icon(Icons.add_rounded),
                 onPressed: () {
                   String txt = outputController.text;
-                  Output newOutput = Output(id: const Uuid().v1(), description: txt);
+                  Result newOutput = Result(id: const Uuid().v1(), description: txt);
                   updateInstruction(newInstruction.copyWith(outputs: [...newInstruction.outputs, newOutput]));
                   setState(() => outputController.clear());
                 },
@@ -237,7 +237,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
                       originalOutput: output,
                       recipeId: widget.recipeId,
                       instructionId: newInstruction.id,
-                      onUpdate: (Output newOutput) => updateInstruction(newInstruction.copyWith(outputs: newInstruction.outputs.map((existingOutput) => existingOutput.id == newOutput.id ? newOutput : existingOutput).toList())),
+                      onUpdate: (Result newOutput) => updateInstruction(newInstruction.copyWith(outputs: newInstruction.outputs.map((existingOutput) => existingOutput.id == newOutput.id ? newOutput : existingOutput).toList())),
                     );
                   },
                 ),

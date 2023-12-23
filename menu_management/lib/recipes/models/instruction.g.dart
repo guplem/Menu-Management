@@ -17,7 +17,7 @@ _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
       cookingTimeMinutes: json['cookingTimeMinutes'] as int? ?? 10,
       description: json['description'] as String,
       outputs: (json['outputs'] as List<dynamic>?)
-              ?.map((e) => Output.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => Result.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );

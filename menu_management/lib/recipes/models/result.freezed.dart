@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'output.dart';
+part of 'result.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,32 +14,32 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
-Output _$OutputFromJson(Map<String, dynamic> json) {
-  return _Output.fromJson(json);
+Result _$ResultFromJson(Map<String, dynamic> json) {
+  return _Result.fromJson(json);
 }
 
 /// @nodoc
-mixin _$Output {
+mixin _$Result {
   String get id => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $OutputCopyWith<Output> get copyWith => throw _privateConstructorUsedError;
+  $ResultCopyWith<Result> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $OutputCopyWith<$Res> {
-  factory $OutputCopyWith(Output value, $Res Function(Output) then) =
-      _$OutputCopyWithImpl<$Res, Output>;
+abstract class $ResultCopyWith<$Res> {
+  factory $ResultCopyWith(Result value, $Res Function(Result) then) =
+      _$ResultCopyWithImpl<$Res, Result>;
   @useResult
   $Res call({String id, String description});
 }
 
 /// @nodoc
-class _$OutputCopyWithImpl<$Res, $Val extends Output>
-    implements $OutputCopyWith<$Res> {
-  _$OutputCopyWithImpl(this._value, this._then);
+class _$ResultCopyWithImpl<$Res, $Val extends Result>
+    implements $ResultCopyWith<$Res> {
+  _$ResultCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -66,21 +66,21 @@ class _$OutputCopyWithImpl<$Res, $Val extends Output>
 }
 
 /// @nodoc
-abstract class _$$OutputImplCopyWith<$Res> implements $OutputCopyWith<$Res> {
-  factory _$$OutputImplCopyWith(
-          _$OutputImpl value, $Res Function(_$OutputImpl) then) =
-      __$$OutputImplCopyWithImpl<$Res>;
+abstract class _$$ResultImplCopyWith<$Res> implements $ResultCopyWith<$Res> {
+  factory _$$ResultImplCopyWith(
+          _$ResultImpl value, $Res Function(_$ResultImpl) then) =
+      __$$ResultImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, String description});
 }
 
 /// @nodoc
-class __$$OutputImplCopyWithImpl<$Res>
-    extends _$OutputCopyWithImpl<$Res, _$OutputImpl>
-    implements _$$OutputImplCopyWith<$Res> {
-  __$$OutputImplCopyWithImpl(
-      _$OutputImpl _value, $Res Function(_$OutputImpl) _then)
+class __$$ResultImplCopyWithImpl<$Res>
+    extends _$ResultCopyWithImpl<$Res, _$ResultImpl>
+    implements _$$ResultImplCopyWith<$Res> {
+  __$$ResultImplCopyWithImpl(
+      _$ResultImpl _value, $Res Function(_$ResultImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -89,7 +89,7 @@ class __$$OutputImplCopyWithImpl<$Res>
     Object? id = null,
     Object? description = null,
   }) {
-    return _then(_$OutputImpl(
+    return _then(_$ResultImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -104,11 +104,11 @@ class __$$OutputImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$OutputImpl with DiagnosticableTreeMixin implements _Output {
-  const _$OutputImpl({required this.id, required this.description});
+class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
+  const _$ResultImpl({required this.id, required this.description});
 
-  factory _$OutputImpl.fromJson(Map<String, dynamic> json) =>
-      _$$OutputImplFromJson(json);
+  factory _$ResultImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ResultImplFromJson(json);
 
   @override
   final String id;
@@ -117,14 +117,14 @@ class _$OutputImpl with DiagnosticableTreeMixin implements _Output {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Output(id: $id, description: $description)';
+    return 'Result(id: $id, description: $description)';
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-      ..add(DiagnosticsProperty('type', 'Output'))
+      ..add(DiagnosticsProperty('type', 'Result'))
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('description', description));
   }
@@ -133,7 +133,7 @@ class _$OutputImpl with DiagnosticableTreeMixin implements _Output {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$OutputImpl &&
+            other is _$ResultImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.description, description) ||
                 other.description == description));
@@ -146,23 +146,23 @@ class _$OutputImpl with DiagnosticableTreeMixin implements _Output {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$OutputImplCopyWith<_$OutputImpl> get copyWith =>
-      __$$OutputImplCopyWithImpl<_$OutputImpl>(this, _$identity);
+  _$$ResultImplCopyWith<_$ResultImpl> get copyWith =>
+      __$$ResultImplCopyWithImpl<_$ResultImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$OutputImplToJson(
+    return _$$ResultImplToJson(
       this,
     );
   }
 }
 
-abstract class _Output implements Output {
-  const factory _Output(
+abstract class _Result implements Result {
+  const factory _Result(
       {required final String id,
-      required final String description}) = _$OutputImpl;
+      required final String description}) = _$ResultImpl;
 
-  factory _Output.fromJson(Map<String, dynamic> json) = _$OutputImpl.fromJson;
+  factory _Result.fromJson(Map<String, dynamic> json) = _$ResultImpl.fromJson;
 
   @override
   String get id;
@@ -170,6 +170,6 @@ abstract class _Output implements Output {
   String get description;
   @override
   @JsonKey(ignore: true)
-  _$$OutputImplCopyWith<_$OutputImpl> get copyWith =>
+  _$$ResultImplCopyWith<_$ResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
