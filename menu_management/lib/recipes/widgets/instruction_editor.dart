@@ -211,10 +211,10 @@ class _InstructionEditorState extends State<InstructionEditor> {
             controller: outputController,
             maxLines: null,
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               labelText: 'Output',
               suffixIcon: IconButton(
-                icon: Icon(Icons.add_rounded),
+                icon: const Icon(Icons.add_rounded),
                 onPressed: () {
                   String txt = outputController.text;
                   Result newOutput = Result(id: const Uuid().v1(), description: txt);
