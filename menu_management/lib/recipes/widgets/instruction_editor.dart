@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/result.dart';
@@ -177,7 +178,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 10),
           ...newInstruction.ingredientsUsed.map((ingredientUsage) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 7),
                 child: IngredientQuantity(
@@ -204,7 +205,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   },
                 ),
               )),
-          const SizedBox(height: 15),
+          if (newInstruction.ingredientsUsed.isNotEmpty) const SizedBox(height: 15),
           const Divider(),
           const SizedBox(height: 15),
           TextField(
@@ -215,14 +216,17 @@ class _InstructionEditorState extends State<InstructionEditor> {
               labelText: 'Output',
               suffixIcon: IconButton(
                 icon: const Icon(Icons.add_rounded),
-                onPressed: () {
-                  String txt = outputController.text;
-                  Result newOutput = Result(id: const Uuid().v1(), description: txt);
-                  updateInstruction(newInstruction.copyWith(outputs: [...newInstruction.outputs, newOutput]));
-                  setState(() => outputController.clear());
-                },
+                onPressed: outputController.text.trimAndSetNullIfEmpty == null
+                    ? null
+                    : () {
+                        String txt = outputController.text;
+                        Result newOutput = Result(id: const Uuid().v1(), description: txt);
+                        updateInstruction(newInstruction.copyWith(outputs: [...newInstruction.outputs, newOutput]));
+                        setState(() => outputController.clear());
+                      },
               ),
             ),
+            onChanged: (value) => setState(() {}), // To update the suffix icon "onPressed" property, making it null or not
           ),
           const SizedBox(height: 15),
           ...newInstruction.outputs.map(
