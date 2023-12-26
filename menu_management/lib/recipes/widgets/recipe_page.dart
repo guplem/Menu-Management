@@ -18,6 +18,11 @@ class RecipePage extends StatelessWidget {
     return ReorderableListView.builder(
       itemCount: recipe.instructions.length,
       onReorder: (int oldIndex, int newIndex) {
+        // When an item is dragged to a new position in a ReorderableListView, the onReorder callback is triggered, and it provides the old and new indexes of the dragged item. However, there is a specific behavior to be aware of when adjusting these indexes.
+        // If the dragged item is moved to a position down the list (i.e., to a higher index), Flutter automatically increments the newIndex by one. This increment is done to account for the placeholder that is temporarily created when an item is lifted and moved. As a result, you often need to decrement newIndex by one in your onReorder function to get the correct index where the item should be inserted.
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
         RecipesProvider.reorderInstructions(recipeId: recipeId, oldIndex: oldIndex, newIndex: newIndex);
       },
       header: RecipeConfiguration(recipe: recipe, context: context),

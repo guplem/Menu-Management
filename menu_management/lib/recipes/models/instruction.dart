@@ -16,6 +16,7 @@ class Instruction with _$Instruction {
     @Default(10) int cookingTimeMinutes,
     required String description,
     @Default([]) List<Result> outputs,
+    @Default([]) List<String> inputs,
   }) = _Instruction;
 
   factory Instruction.fromJson(Map<String, Object?> json) => _$InstructionFromJson(json);

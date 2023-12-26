@@ -7,6 +7,7 @@ import 'package:menu_management/recipes/models/result.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
 import 'package:menu_management/recipes/widgets/ingredient_selector.dart';
+import 'package:menu_management/recipes/widgets/input_selector.dart';
 import 'package:menu_management/recipes/widgets/output_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -158,6 +159,42 @@ class _InstructionEditorState extends State<InstructionEditor> {
           const SizedBox(height: 8),
           Text('Total time: ${newInstruction.totalTimeMinutes} min', style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 15),
+          const Divider(),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextButton.icon(
+                onPressed: () {
+                  InputSelector.show(
+                    context: context,
+                    originalInstruction: newInstruction,
+                    recipeId: widget.recipeId,
+                    onUpdate: (Instruction instruction) => updateInstruction(instruction),
+                  );
+                },
+                icon: const Icon(Icons.add_rounded),
+                label: const Text("Add Input from other Step"),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...RecipesProvider.getResults(newInstruction.inputs).map((Result input) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              child: ListTile(
+                title: Text(input.description),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    updateInstruction(newInstruction.copyWith(inputs: newInstruction.inputs.where((existingInput) => existingInput != input.id).toList()));
+                  },
+                ),
+              ),
+            );
+          }),
+          if (newInstruction.inputs.isNotEmpty) const SizedBox(height: 15),
           const Divider(),
           const SizedBox(height: 10),
           Row(

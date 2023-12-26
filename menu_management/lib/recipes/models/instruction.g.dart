@@ -20,6 +20,10 @@ _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => Result.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      inputs: (json['inputs'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
@@ -30,4 +34,5 @@ Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) =>
       'cookingTimeMinutes': instance.cookingTimeMinutes,
       'description': instance.description,
       'outputs': instance.outputs,
+      'inputs': instance.inputs,
     };

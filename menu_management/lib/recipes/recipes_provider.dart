@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
+import 'package:menu_management/recipes/models/result.dart';
 
 import '../flutter_essentials/library.dart';
 
@@ -76,6 +77,37 @@ class RecipesProvider extends ChangeNotifier {
     instructions.insert(newIndex, instructionToMove);
     Recipe updatedRecipe = recipeToUpdate.copyWith(instructions: instructions);
     addOrUpdate(newRecipe: updatedRecipe);
+  }
+  //#endregion
+
+  //#region RESULTS
+  static Map<Result, bool> getRecipeInputsAvailability({required String recipeId, String? forInstruction}) {
+    final Recipe recipe = instance.get(recipeId);
+    final List<Result> possibleInputs = recipe.instructions.expand((Instruction element) => element.outputs).toList();
+    final List<String> alreadyTakenInputs = recipe.instructions
+        .where((Instruction instruction) => forInstruction == null || forInstruction != instruction.id)
+        .expand((Instruction instruction) => instruction.inputs)
+        .toList();
+    final int instructionIndex = recipe.instructions.indexWhere((Instruction instruction) => instruction.id == forInstruction);
+    final List<Result> outputsOfNextInstructions = recipe.instructions
+        .sublist(instructionIndex + 1)
+        .expand((Instruction instruction) => instruction.outputs)
+        .toList();
+    return {for (Result element in possibleInputs) element: !alreadyTakenInputs.contains(element.id) && forInstruction != element.id && !outputsOfNextInstructions.contains(element)};
+  }
+
+  static List<Result> getResults(List<String> inputs) {
+    List<Result> results = [];
+    for(Recipe recipe in instance.recipes) {
+      for(Instruction instruction in recipe.instructions) {
+        for(Result output in instruction.outputs) {
+          if(inputs.contains(output.id)) {
+            results.add(output);
+          }
+        }
+      }
+    }
+    return results;
   }
   //#endregion
 }
