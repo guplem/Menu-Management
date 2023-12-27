@@ -18,22 +18,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Menu Manager',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.lightGreen,
-          brightness: SchedulerBinding.instance.window.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => IngredientsProvider()),
+        ChangeNotifierProvider(create: (context) => RecipesProvider()),
+        ChangeNotifierProvider(create: (context) => MenuProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Menu and Recipes Manager',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.lightGreen,
+            brightness: SchedulerBinding.instance.window.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
-      ),
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => IngredientsProvider()),
-          ChangeNotifierProvider(create: (context) => RecipesProvider()),
-          ChangeNotifierProvider(create: (context) => MenuProvider()),
-        ],
-        child: Builder(builder: (context) {
+        home: Builder(builder: (context) {
           // Load data on startup
           if (!kDebugMode) {
             Persistency.loadData(
