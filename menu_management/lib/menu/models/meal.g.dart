@@ -7,7 +7,7 @@ part of 'meal.dart';
 // **************************************************************************
 
 _$MealImpl _$$MealImplFromJson(Map<String, dynamic> json) => _$MealImpl(
-      recipes: (json['recipes'] as List<dynamic>)
+      cookings: (json['cookings'] as List<dynamic>)
           .map((e) => Cooking.fromJson(e as Map<String, dynamic>))
           .toList(),
       mealTime: MealTime.fromJson(json['mealTime'] as Map<String, dynamic>),
@@ -15,6 +15,6 @@ _$MealImpl _$$MealImplFromJson(Map<String, dynamic> json) => _$MealImpl(
 
 Map<String, dynamic> _$$MealImplToJson(_$MealImpl instance) =>
     <String, dynamic>{
-      'recipes': instance.recipes,
+      'cookings': instance.cookings,
       'mealTime': instance.mealTime,
     };

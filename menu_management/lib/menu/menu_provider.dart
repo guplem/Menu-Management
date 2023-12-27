@@ -513,29 +513,31 @@ class MenuProvider extends ChangeNotifier {
 
     Menu menu = Menu(
       meals: [
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.saturday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.breakfast), recipes: saturdayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.saturday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), recipes: saturdayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.saturday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner), recipes: saturdayDinnerCook),
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.sunday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.sunday, mealType: MealType.breakfast), recipes: sundayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.sunday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch), recipes: sundayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.sunday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.sunday, mealType: MealType.dinner), recipes: sundayDinnerCook),
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.monday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.breakfast), recipes: mondayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.monday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch), recipes: mondayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.monday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.dinner), recipes: mondayDinnerCook),
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.tuesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.breakfast), recipes: tuesdayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.tuesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch), recipes: tuesdayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.tuesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.dinner), recipes: tuesdayDinnerCook),
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.wednesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.breakfast), recipes: wednesdayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.wednesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch), recipes: wednesdayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.wednesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.dinner), recipes: wednesdayDinnerCook),
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.thursday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.breakfast), recipes: thursdayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.thursday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch), recipes: thursdayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.thursday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.dinner), recipes: thursdayDinnerCook),
-        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.friday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.friday, mealType: MealType.breakfast), recipes: fridayBreakfastCook),
-        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.friday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.friday, mealType: MealType.lunch), recipes: fridayLunchCook),
-        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.friday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.friday, mealType: MealType.dinner), recipes: fridayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.saturday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.breakfast), cookings: saturdayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.saturday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), cookings: saturdayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.saturday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner), cookings: saturdayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.sunday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.sunday, mealType: MealType.breakfast), cookings: sundayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.sunday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch), cookings: sundayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.sunday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.sunday, mealType: MealType.dinner), cookings: sundayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.monday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.breakfast), cookings: mondayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.monday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch), cookings: mondayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.monday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.dinner), cookings: mondayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.tuesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.breakfast), cookings: tuesdayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.tuesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch), cookings: tuesdayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.tuesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.dinner), cookings: tuesdayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.wednesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.breakfast), cookings: wednesdayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.wednesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch), cookings: wednesdayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.wednesday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.dinner), cookings: wednesdayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.thursday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.breakfast), cookings: thursdayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.thursday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch), cookings: thursdayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.thursday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.dinner), cookings: thursdayDinnerCook),
+        if (instance.get(mealType: MealType.breakfast, weekDay: WeekDay.friday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.friday, mealType: MealType.breakfast), cookings: fridayBreakfastCook),
+        if (instance.get(mealType: MealType.lunch, weekDay: WeekDay.friday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.friday, mealType: MealType.lunch), cookings: fridayLunchCook),
+        if (instance.get(mealType: MealType.dinner, weekDay: WeekDay.friday).requiresMeal) Meal(mealTime: const MealTime(weekDay: WeekDay.friday, mealType: MealType.dinner), cookings: fridayDinnerCook),
       ],
     );
+
+    Debug.logDev("Generated menu: ${menu.toJson()}");
 
     return menu;
   }

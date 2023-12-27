@@ -10,7 +10,7 @@ part 'meal.g.dart';
 @freezed
 class Meal with _$Meal {
   const factory Meal({
-    required List<Cooking> recipes,
+    required List<Cooking> cookings,
     required MealTime mealTime,
   }) = _Meal;
 
@@ -19,7 +19,7 @@ class Meal with _$Meal {
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Meal._();
 
-  Meal copyWithUpdatedRecipes(List<Cooking> recipes) {
-    return copyWith(recipes: recipes);
+  Meal copyWithUpdatedRecipes(List<Cooking> cookings) {
+    return copyWith(cookings: cookings);
   }
 }

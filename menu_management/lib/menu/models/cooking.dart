@@ -7,6 +7,7 @@ part 'cooking.freezed.dart';
 part 'cooking.g.dart';
 
 @freezed
+/// The composition of a meal
 class Cooking with _$Cooking {
   const factory Cooking({
     required Recipe recipe,

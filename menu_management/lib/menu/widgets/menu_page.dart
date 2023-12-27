@@ -48,16 +48,16 @@ class MenuPage extends StatelessWidget {
                           DefaultTextStyle(
                             style: Theme.of(context).textTheme.titleMedium!,
                             // ignore: prefer_interpolation_to_compose_strings
-                            child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null") + " (${meal.recipes.length})"),
+                            child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null") + " (${meal.cookings.length})"),
                           ),
                           const SizedBox(height: 5),
                           SizedBox(
                             width: 140,
                             child: Column(
                               children: [
-                                ...meal.recipes.map((cook) {
+                                ...meal.cookings.map((cooking) {
                                   return Text(
-                                    "(${cook.yield}) ${cook.recipe.name}",
+                                    "(${cooking.yield}) ${cooking.recipe.name}",
                                     textAlign: TextAlign.center,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 3,
