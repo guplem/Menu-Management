@@ -86,14 +86,19 @@ class MenuProvider extends ChangeNotifier {
     // *** SORT ALL MEALS BY TYPE *** //
 
     List<Recipe> breakfasts = RecipesProvider().getOfType(type: RecipeType.breakfast);
-
+    Debug.logWarning(breakfasts.isEmpty, "No breakfasts found");
     List<Recipe> carbsHeavies = RecipesProvider().getOfType(type: RecipeType.heavy, carbs: true);
+    Debug.logWarning(carbsHeavies.isEmpty, "No carbsHeavies found");
     List<Recipe> proteinHeavies = RecipesProvider().getOfType(type: RecipeType.heavy, proteins: true);
+    Debug.logWarning(proteinHeavies.isEmpty, "No proteinHeavies found");
     List<Recipe> veggieHeavies = RecipesProvider().getOfType(type: RecipeType.heavy, vegetables: true);
-
+    Debug.logWarning(veggieHeavies.isEmpty, "No veggieHeavies found");
     List<Recipe> carbsLights = RecipesProvider().getOfType(type: RecipeType.light, carbs: true);
+    Debug.logWarning(carbsLights.isEmpty, "No carbsLights found");
     List<Recipe> proteinLights = RecipesProvider().getOfType(type: RecipeType.light, proteins: true);
+    Debug.logWarning(proteinLights.isEmpty, "No proteinLights found");
     List<Recipe> veggieLights = RecipesProvider().getOfType(type: RecipeType.light, vegetables: true);
+    Debug.logWarning(veggieLights.isEmpty, "No veggieLights found");
 
     // TODO: Decide when to use "snacks" saturdays?
     // ignore: unused_local_variable
