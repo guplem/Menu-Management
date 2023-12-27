@@ -54,6 +54,14 @@ class RecipePage extends StatelessWidget {
 
   // ignore: non_constant_identifier_names
   Widget RecipeConfiguration({required BuildContext context, required Recipe recipe}) {
+
+    final MaterialStateProperty<Icon?> switchIcon = MaterialStateProperty.resolveWith<Icon?>((states) {
+      if (states.contains(MaterialState.selected)) {
+        return const Icon(Icons.check_rounded);
+      }
+      return const Icon(Icons.close);
+    });
+
     return Column(
       children: [
         Padding(
@@ -77,35 +85,15 @@ class RecipePage extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              Flexible(
-                flex: 1,
-                child: TextField(
-                  controller: TextEditingController.fromValue(
-                    // TODO: change to switch
-                    TextEditingValue(
-                      text: recipe.canBeStored ? "1" : "0",
-                      selection: TextSelection.collapsed(
-                        offset: (recipe.canBeStored ? "1" : "0").length,
-                      ),
-                    ),
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Maximum Days in Storage',
-                    border: OutlineInputBorder(),
-                  ),
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    int? valueInt = int.tryParse(value);
-                    if (valueInt != null) {
-                      recipe.copyWith(canBeStored: valueInt > 0).saveToProvider();
-                    }
-                  },
-                ),
-              ),
-              const Flexible(
-                flex: 3,
-                child: SizedBox.shrink(),
+              const SizedBox(width: 3),
+              const Text("Can be stored? "),
+              const SizedBox(width: 5),
+              Switch(
+                thumbIcon: switchIcon,
+                value: recipe.canBeStored,
+                onChanged: (bool value) {
+                  recipe.copyWith(canBeStored: value).saveToProvider();
+                },
               ),
             ],
           ),
