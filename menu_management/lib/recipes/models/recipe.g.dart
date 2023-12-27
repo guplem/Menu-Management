@@ -17,7 +17,7 @@ _$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
       proteins: json['proteins'] as bool? ?? false,
       vegetables: json['vegetables'] as bool? ?? false,
       type: $enumDecodeNullable(_$RecipeTypeEnumMap, json['type']),
-      maxStorageDays: json['maxStorageDays'] as int? ?? 7,
+      canBeStored: json['canBeStored'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
@@ -29,7 +29,7 @@ Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
       'proteins': instance.proteins,
       'vegetables': instance.vegetables,
       'type': _$RecipeTypeEnumMap[instance.type],
-      'maxStorageDays': instance.maxStorageDays,
+      'canBeStored': instance.canBeStored,
     };
 
 const _$RecipeTypeEnumMap = {

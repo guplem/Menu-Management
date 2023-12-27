@@ -107,8 +107,9 @@ class __$$MealTimeImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$MealTimeImpl with DiagnosticableTreeMixin implements _MealTime {
-  const _$MealTimeImpl({required this.weekDay, required this.mealType});
+class _$MealTimeImpl extends _MealTime with DiagnosticableTreeMixin {
+  const _$MealTimeImpl({required this.weekDay, required this.mealType})
+      : super._();
 
   factory _$MealTimeImpl.fromJson(Map<String, dynamic> json) =>
       _$$MealTimeImplFromJson(json);
@@ -161,10 +162,11 @@ class _$MealTimeImpl with DiagnosticableTreeMixin implements _MealTime {
   }
 }
 
-abstract class _MealTime implements MealTime {
+abstract class _MealTime extends MealTime {
   const factory _MealTime(
       {required final WeekDay weekDay,
       required final MealType mealType}) = _$MealTimeImpl;
+  const _MealTime._() : super._();
 
   factory _MealTime.fromJson(Map<String, dynamic> json) =
       _$MealTimeImpl.fromJson;

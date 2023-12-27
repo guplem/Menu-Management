@@ -22,7 +22,7 @@ MenuConfiguration _$MenuConfigurationFromJson(Map<String, dynamic> json) {
 mixin _$MenuConfiguration {
   MealTime get mealTime => throw _privateConstructorUsedError;
   bool get requiresMeal => throw _privateConstructorUsedError;
-  int? get availableCookingTimeMinutes => throw _privateConstructorUsedError;
+  int get availableCookingTimeMinutes => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -37,7 +37,7 @@ abstract class $MenuConfigurationCopyWith<$Res> {
       _$MenuConfigurationCopyWithImpl<$Res, MenuConfiguration>;
   @useResult
   $Res call(
-      {MealTime mealTime, bool requiresMeal, int? availableCookingTimeMinutes});
+      {MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes});
 
   $MealTimeCopyWith<$Res> get mealTime;
 }
@@ -57,7 +57,7 @@ class _$MenuConfigurationCopyWithImpl<$Res, $Val extends MenuConfiguration>
   $Res call({
     Object? mealTime = null,
     Object? requiresMeal = null,
-    Object? availableCookingTimeMinutes = freezed,
+    Object? availableCookingTimeMinutes = null,
   }) {
     return _then(_value.copyWith(
       mealTime: null == mealTime
@@ -68,10 +68,10 @@ class _$MenuConfigurationCopyWithImpl<$Res, $Val extends MenuConfiguration>
           ? _value.requiresMeal
           : requiresMeal // ignore: cast_nullable_to_non_nullable
               as bool,
-      availableCookingTimeMinutes: freezed == availableCookingTimeMinutes
+      availableCookingTimeMinutes: null == availableCookingTimeMinutes
           ? _value.availableCookingTimeMinutes
           : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
     ) as $Val);
   }
 
@@ -93,7 +93,7 @@ abstract class _$$MenuConfigurationImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {MealTime mealTime, bool requiresMeal, int? availableCookingTimeMinutes});
+      {MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes});
 
   @override
   $MealTimeCopyWith<$Res> get mealTime;
@@ -112,7 +112,7 @@ class __$$MenuConfigurationImplCopyWithImpl<$Res>
   $Res call({
     Object? mealTime = null,
     Object? requiresMeal = null,
-    Object? availableCookingTimeMinutes = freezed,
+    Object? availableCookingTimeMinutes = null,
   }) {
     return _then(_$MenuConfigurationImpl(
       mealTime: null == mealTime
@@ -123,10 +123,10 @@ class __$$MenuConfigurationImplCopyWithImpl<$Res>
           ? _value.requiresMeal
           : requiresMeal // ignore: cast_nullable_to_non_nullable
               as bool,
-      availableCookingTimeMinutes: freezed == availableCookingTimeMinutes
+      availableCookingTimeMinutes: null == availableCookingTimeMinutes
           ? _value.availableCookingTimeMinutes
           : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
     ));
   }
 }
@@ -151,7 +151,7 @@ class _$MenuConfigurationImpl extends _MenuConfiguration
   final bool requiresMeal;
   @override
   @JsonKey()
-  final int? availableCookingTimeMinutes;
+  final int availableCookingTimeMinutes;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -208,7 +208,7 @@ abstract class _MenuConfiguration extends MenuConfiguration {
   const factory _MenuConfiguration(
       {required final MealTime mealTime,
       final bool requiresMeal,
-      final int? availableCookingTimeMinutes}) = _$MenuConfigurationImpl;
+      final int availableCookingTimeMinutes}) = _$MenuConfigurationImpl;
   const _MenuConfiguration._() : super._();
 
   factory _MenuConfiguration.fromJson(Map<String, dynamic> json) =
@@ -219,7 +219,7 @@ abstract class _MenuConfiguration extends MenuConfiguration {
   @override
   bool get requiresMeal;
   @override
-  int? get availableCookingTimeMinutes;
+  int get availableCookingTimeMinutes;
   @override
   @JsonKey(ignore: true)
   _$$MenuConfigurationImplCopyWith<_$MenuConfigurationImpl> get copyWith =>

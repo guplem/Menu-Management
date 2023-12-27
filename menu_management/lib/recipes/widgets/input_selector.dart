@@ -54,7 +54,7 @@ class _InputSelectorState extends State<InputSelector> {
   void initState() {
     super.initState();
     newInstruction = widget.instruction ?? Instruction(id: const Uuid().v1(), description: '', ingredientsUsed: [], outputs: []);
-    allPossibleInputs = RecipesProvider.getRecipeInputsAvailability(recipeId: widget.recipeId, forInstruction: newInstruction.id);
+    allPossibleInputs = RecipesProvider().getRecipeInputsAvailability(recipeId: widget.recipeId, forInstruction: newInstruction.id);
     allPossibleInputs.addAll({for (Result output in newInstruction.outputs) output: false});
   }
 
@@ -76,7 +76,7 @@ class _InputSelectorState extends State<InputSelector> {
               value: newInstruction.inputs.contains(possibleInput.id),
               onChanged: (bool? value) {
                 if (value == null) return;
-                List<Result> instructionInputs = RecipesProvider.getResults(newInstruction.inputs);
+                List<Result> instructionInputs = RecipesProvider().getResults(newInstruction.inputs);
                 if (value) {
                   instructionInputs.add(possibleInput);
                 } else {

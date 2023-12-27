@@ -116,10 +116,11 @@ class __$$MealImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
+class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
   const _$MealImpl(
       {required final List<Cooking> recipes, required this.mealTime})
-      : _recipes = recipes;
+      : _recipes = recipes,
+        super._();
 
   factory _$MealImpl.fromJson(Map<String, dynamic> json) =>
       _$$MealImplFromJson(json);
@@ -178,10 +179,11 @@ class _$MealImpl with DiagnosticableTreeMixin implements _Meal {
   }
 }
 
-abstract class _Meal implements Meal {
+abstract class _Meal extends Meal {
   const factory _Meal(
       {required final List<Cooking> recipes,
       required final MealTime mealTime}) = _$MealImpl;
+  const _Meal._() : super._();
 
   factory _Meal.fromJson(Map<String, dynamic> json) = _$MealImpl.fromJson;
 

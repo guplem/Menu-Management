@@ -16,4 +16,10 @@ class MealTime with _$MealTime {
   }) = _MealTime;
 
   factory MealTime.fromJson(Map<String, Object?> json) => _$MealTimeFromJson(json);
+
+  const MealTime._();
+
+  bool isSameTime(MealTime other) {
+    return weekDay == other.weekDay && mealType == other.mealType;
+  }
 }

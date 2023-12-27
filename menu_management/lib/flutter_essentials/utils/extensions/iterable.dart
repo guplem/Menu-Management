@@ -23,7 +23,17 @@ extension IterableExtensions<E> on Iterable<E> {
     return null;
   }
 
-  E? get randomElement {
-    return elementAt(Random().nextInt(length));
+  E? getRandomElement({int? seed}) {
+    if (isEmpty) {
+      return null;
+    }
+
+    if (seed != null) {
+      final Random random = Random(seed);
+      return elementAt(random.nextInt(length));
+    } else {
+      return elementAt(Random().nextInt(length));
+    }
+
   }
 }

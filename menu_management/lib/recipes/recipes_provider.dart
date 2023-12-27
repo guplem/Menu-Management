@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/result.dart';
@@ -28,6 +29,16 @@ class RecipesProvider extends ChangeNotifier {
 
   Recipe get(String recipeId) {
     return recipes.firstWhere((element) => element.id == recipeId);
+  }
+
+  List<Recipe> getOfType({required RecipeType type, bool? carbs, bool? proteins, bool? vegetables}) {
+    return recipes.where((recipe) {
+      if (recipe.type != type) return false;
+      if (carbs != null && recipe.carbs != carbs) return false;
+      if (proteins != null && recipe.proteins != proteins) return false;
+      if (vegetables != null && recipe.vegetables != vegetables) return false;
+      return true;
+    }).toList();
   }
 
   static void addOrUpdate({required Recipe newRecipe}) {
@@ -81,7 +92,7 @@ class RecipesProvider extends ChangeNotifier {
   //#endregion
 
   //#region RESULTS
-  static Map<Result, bool> getRecipeInputsAvailability({required String recipeId, String? forInstruction}) {
+  Map<Result, bool> getRecipeInputsAvailability({required String recipeId, String? forInstruction}) {
     final Recipe recipe = instance.get(recipeId);
     final List<Result> possibleInputs = recipe.instructions.expand((Instruction element) => element.outputs).toList();
     final List<String> alreadyTakenInputs = recipe.instructions
@@ -96,7 +107,7 @@ class RecipesProvider extends ChangeNotifier {
     return {for (Result element in possibleInputs) element: !alreadyTakenInputs.contains(element.id) && forInstruction != element.id && !outputsOfNextInstructions.contains(element)};
   }
 
-  static List<Result> getResults(List<String> inputs) {
+  List<Result> getResults(List<String> inputs) {
     List<Result> results = [];
     for(Recipe recipe in instance.recipes) {
       for(Instruction instruction in recipe.instructions) {

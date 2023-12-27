@@ -29,7 +29,7 @@ mixin _$Recipe {
   RecipeType? get type => throw _privateConstructorUsedError;
 
   /// The number of days the recipe can be stored in the fridge (coocked)
-  int get maxStorageDays => throw _privateConstructorUsedError;
+  bool get canBeStored => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -49,7 +49,7 @@ abstract class $RecipeCopyWith<$Res> {
       bool proteins,
       bool vegetables,
       RecipeType? type,
-      int maxStorageDays});
+      bool canBeStored});
 }
 
 /// @nodoc
@@ -72,7 +72,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? proteins = null,
     Object? vegetables = null,
     Object? type = freezed,
-    Object? maxStorageDays = null,
+    Object? canBeStored = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -103,10 +103,10 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as RecipeType?,
-      maxStorageDays: null == maxStorageDays
-          ? _value.maxStorageDays
-          : maxStorageDays // ignore: cast_nullable_to_non_nullable
-              as int,
+      canBeStored: null == canBeStored
+          ? _value.canBeStored
+          : canBeStored // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -126,7 +126,7 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
       bool proteins,
       bool vegetables,
       RecipeType? type,
-      int maxStorageDays});
+      bool canBeStored});
 }
 
 /// @nodoc
@@ -147,7 +147,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? proteins = null,
     Object? vegetables = null,
     Object? type = freezed,
-    Object? maxStorageDays = null,
+    Object? canBeStored = null,
   }) {
     return _then(_$RecipeImpl(
       id: null == id
@@ -178,10 +178,10 @@ class __$$RecipeImplCopyWithImpl<$Res>
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as RecipeType?,
-      maxStorageDays: null == maxStorageDays
-          ? _value.maxStorageDays
-          : maxStorageDays // ignore: cast_nullable_to_non_nullable
-              as int,
+      canBeStored: null == canBeStored
+          ? _value.canBeStored
+          : canBeStored // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -197,7 +197,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       this.proteins = false,
       this.vegetables = false,
       this.type,
-      this.maxStorageDays = 7})
+      this.canBeStored = true})
       : _instructions = instructions,
         super._();
 
@@ -232,11 +232,11 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   /// The number of days the recipe can be stored in the fridge (coocked)
   @override
   @JsonKey()
-  final int maxStorageDays;
+  final bool canBeStored;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, maxStorageDays: $maxStorageDays)';
+    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, canBeStored: $canBeStored)';
   }
 
   @override
@@ -251,7 +251,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('proteins', proteins))
       ..add(DiagnosticsProperty('vegetables', vegetables))
       ..add(DiagnosticsProperty('type', type))
-      ..add(DiagnosticsProperty('maxStorageDays', maxStorageDays));
+      ..add(DiagnosticsProperty('canBeStored', canBeStored));
   }
 
   @override
@@ -269,8 +269,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
             (identical(other.vegetables, vegetables) ||
                 other.vegetables == vegetables) &&
             (identical(other.type, type) || other.type == type) &&
-            (identical(other.maxStorageDays, maxStorageDays) ||
-                other.maxStorageDays == maxStorageDays));
+            (identical(other.canBeStored, canBeStored) ||
+                other.canBeStored == canBeStored));
   }
 
   @JsonKey(ignore: true)
@@ -284,7 +284,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       proteins,
       vegetables,
       type,
-      maxStorageDays);
+      canBeStored);
 
   @JsonKey(ignore: true)
   @override
@@ -309,7 +309,7 @@ abstract class _Recipe extends Recipe {
       final bool proteins,
       final bool vegetables,
       final RecipeType? type,
-      final int maxStorageDays}) = _$RecipeImpl;
+      final bool canBeStored}) = _$RecipeImpl;
   const _Recipe._() : super._();
 
   factory _Recipe.fromJson(Map<String, dynamic> json) = _$RecipeImpl.fromJson;
@@ -331,7 +331,7 @@ abstract class _Recipe extends Recipe {
   @override
 
   /// The number of days the recipe can be stored in the fridge (coocked)
-  int get maxStorageDays;
+  bool get canBeStored;
   @override
   @JsonKey(ignore: true)
   _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith =>

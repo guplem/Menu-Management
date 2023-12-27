@@ -81,10 +81,11 @@ class RecipePage extends StatelessWidget {
                 flex: 1,
                 child: TextField(
                   controller: TextEditingController.fromValue(
+                    // TODO: change to switch
                     TextEditingValue(
-                      text: recipe.maxStorageDays.toString(),
+                      text: recipe.canBeStored ? "1" : "0",
                       selection: TextSelection.collapsed(
-                        offset: recipe.maxStorageDays.toString().length,
+                        offset: (recipe.canBeStored ? "1" : "0").length,
                       ),
                     ),
                   ),
@@ -97,7 +98,7 @@ class RecipePage extends StatelessWidget {
                   onChanged: (value) {
                     int? valueInt = int.tryParse(value);
                     if (valueInt != null) {
-                      recipe.copyWith(maxStorageDays: valueInt).saveToProvider();
+                      recipe.copyWith(canBeStored: valueInt > 0).saveToProvider();
                     }
                   },
                 ),

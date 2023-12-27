@@ -26,7 +26,7 @@ class MenuPage extends StatelessWidget {
             tooltip: "Open Menu",
             icon: const Icon(Icons.file_open),
             onPressed: () {
-              // TODO: Load menu from file
+              // TODO: Load menu from file and open menu visualization page
             },
           ),
         ],
@@ -35,7 +35,7 @@ class MenuPage extends StatelessWidget {
         tooltip: "Generate Menu",
         child: const Icon(Icons.auto_awesome_sharp),
         onPressed: () {
-          // TODO: Generate menu
+          // TODO: Trigger menu generation and open menu visualization page
         },
       ),
       body: ListView.builder(
@@ -117,9 +117,9 @@ class MenuPage extends StatelessWidget {
                             child: TextField(
                               controller: TextEditingController.fromValue(
                                 TextEditingValue(
-                                  text: menuConfiguration.availableCookingTimeMinutes == null ? "" : menuConfiguration.availableCookingTimeMinutes.toString(),
+                                  text: menuConfiguration.availableCookingTimeMinutes.toString(),
                                   selection: TextSelection.collapsed(
-                                    offset: menuConfiguration.availableCookingTimeMinutes == null ? -1 : menuConfiguration.availableCookingTimeMinutes.toString().length,
+                                    offset: menuConfiguration.availableCookingTimeMinutes.toString().length,
                                   ),
                                 ),
                               ),
@@ -132,7 +132,9 @@ class MenuPage extends StatelessWidget {
                               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                               onChanged: (String cookingTimeInput) {
                                 int? cookingTimeMinutes = int.tryParse(cookingTimeInput);
-                                menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes).saveToProvider();
+                                if (cookingTimeMinutes != null) {
+                                  menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes).saveToProvider();
+                                }
                               },
                             ),
                           ),

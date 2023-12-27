@@ -180,7 +180,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
             ],
           ),
           const SizedBox(height: 10),
-          ...RecipesProvider.getResults(newInstruction.inputs).map((Result input) {
+          ...RecipesProvider().getResults(newInstruction.inputs).map((Result input) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 7),
               child: ListTile(
