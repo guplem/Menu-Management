@@ -15,7 +15,7 @@ class MenuPage extends StatelessWidget {
         title: const Text('Menu'),
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: "Generate Menu",
+        tooltip: "Save Menu",
         child: const Icon(Icons.save_rounded),
         onPressed: () {
           // TODO: save the menu to a file
