@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
+import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/cooking.dart';
 import 'package:menu_management/menu/models/meal.dart';
 import 'package:menu_management/menu/models/meal_time.dart';
@@ -29,4 +30,9 @@ class Menu with _$Menu {
     return copyWith(meals: newMeals);
   }
 
+  List<Meal> mealsOfDay(WeekDay weekDay) {
+    List<Meal> dayMeals = meals.where((meal) => meal.mealTime.weekDay == weekDay).toList();
+    dayMeals.sort((a, b) => a.mealTime.goesBefore(b.mealTime) ? -1 : 1);
+    return dayMeals;
+  }
 }

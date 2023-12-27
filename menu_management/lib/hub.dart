@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/widgets/ingredients_page.dart';
-import 'package:menu_management/menu/widgets/menu_page.dart';
+import 'package:menu_management/menu/widgets/menu_configuration_page.dart';
 import 'package:menu_management/persistency.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +84,7 @@ class _HubState extends State<Hub> {
                 case 1:
                   return const RecipesPage();
                 case 2:
-                  return const MenuPage();
+                  return const MenuConfigurationPage();
                 default:
                   return const Center(child: Text('Error'));
               }

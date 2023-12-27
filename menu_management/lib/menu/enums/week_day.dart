@@ -13,4 +13,8 @@ enum WeekDay {
   factory WeekDay.fromValue(int value) {
     return WeekDay.values.firstWhere((x) => x.value == value);
   }
+
+  bool goesBefore(WeekDay other) {
+    return value < other.value;
+  }
 }

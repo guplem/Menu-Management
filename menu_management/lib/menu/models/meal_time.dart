@@ -22,4 +22,11 @@ class MealTime with _$MealTime {
   bool isSameTime(MealTime other) {
     return weekDay == other.weekDay && mealType == other.mealType;
   }
+
+  bool goesBefore(MealTime other) {
+    if (weekDay == other.weekDay) {
+      return mealType.goesBefore(other.mealType);
+    }
+    return weekDay.goesBefore(other.weekDay);
+  }
 }

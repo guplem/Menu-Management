@@ -9,4 +9,9 @@ enum MealType {
   factory MealType.fromValue(int value) {
     return MealType.values.firstWhere((x) => x.value == value);
   }
+
+  bool goesBefore(MealType other) {
+    return value < other.value;
+  }
+
 }
