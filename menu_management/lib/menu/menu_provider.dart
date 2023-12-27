@@ -472,14 +472,9 @@ class MenuProvider extends ChangeNotifier {
     List<Cooking> mondayLunchCook = mondayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
     recipesToCook.removeWhere((toCook) => mondayLunchCook.any((element) => element.recipe.id == toCook.id));
     List<Cooking> mondayDinnerCook = mondayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    recipesToCook.removeWhere((toCook) => mondayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> tuesdayBreakfastCook = tuesdayBreakfast
-            ?.map((Recipe mealRecipe) => Cooking(
-                  recipe: mealRecipe,
-                  yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)),
-                ))
-            .toList() ??
-        [];
+    List<Cooking> tuesdayBreakfastCook = tuesdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
     recipesToCook.removeWhere((toCook) => tuesdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
     List<Cooking> tuesdayLunchCook = tuesdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
     recipesToCook.removeWhere((toCook) => tuesdayLunchCook.any((element) => element.recipe.id == toCook.id));
