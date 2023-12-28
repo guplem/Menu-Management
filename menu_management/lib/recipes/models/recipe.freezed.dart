@@ -26,7 +26,9 @@ mixin _$Recipe {
   bool get carbs => throw _privateConstructorUsedError;
   bool get proteins => throw _privateConstructorUsedError;
   bool get vegetables => throw _privateConstructorUsedError;
-  RecipeType? get type => throw _privateConstructorUsedError;
+  RecipeType get type => throw _privateConstructorUsedError;
+  bool get lunch => throw _privateConstructorUsedError;
+  bool get dinner => throw _privateConstructorUsedError;
 
   /// The number of days the recipe can be stored in the fridge (coocked)
   bool get canBeStored => throw _privateConstructorUsedError;
@@ -48,7 +50,9 @@ abstract class $RecipeCopyWith<$Res> {
       bool carbs,
       bool proteins,
       bool vegetables,
-      RecipeType? type,
+      RecipeType type,
+      bool lunch,
+      bool dinner,
       bool canBeStored});
 }
 
@@ -71,7 +75,9 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? carbs = null,
     Object? proteins = null,
     Object? vegetables = null,
-    Object? type = freezed,
+    Object? type = null,
+    Object? lunch = null,
+    Object? dinner = null,
     Object? canBeStored = null,
   }) {
     return _then(_value.copyWith(
@@ -99,10 +105,18 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
           ? _value.vegetables
           : vegetables // ignore: cast_nullable_to_non_nullable
               as bool,
-      type: freezed == type
+      type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as RecipeType?,
+              as RecipeType,
+      lunch: null == lunch
+          ? _value.lunch
+          : lunch // ignore: cast_nullable_to_non_nullable
+              as bool,
+      dinner: null == dinner
+          ? _value.dinner
+          : dinner // ignore: cast_nullable_to_non_nullable
+              as bool,
       canBeStored: null == canBeStored
           ? _value.canBeStored
           : canBeStored // ignore: cast_nullable_to_non_nullable
@@ -125,7 +139,9 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
       bool carbs,
       bool proteins,
       bool vegetables,
-      RecipeType? type,
+      RecipeType type,
+      bool lunch,
+      bool dinner,
       bool canBeStored});
 }
 
@@ -146,7 +162,9 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? carbs = null,
     Object? proteins = null,
     Object? vegetables = null,
-    Object? type = freezed,
+    Object? type = null,
+    Object? lunch = null,
+    Object? dinner = null,
     Object? canBeStored = null,
   }) {
     return _then(_$RecipeImpl(
@@ -174,10 +192,18 @@ class __$$RecipeImplCopyWithImpl<$Res>
           ? _value.vegetables
           : vegetables // ignore: cast_nullable_to_non_nullable
               as bool,
-      type: freezed == type
+      type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as RecipeType?,
+              as RecipeType,
+      lunch: null == lunch
+          ? _value.lunch
+          : lunch // ignore: cast_nullable_to_non_nullable
+              as bool,
+      dinner: null == dinner
+          ? _value.dinner
+          : dinner // ignore: cast_nullable_to_non_nullable
+              as bool,
       canBeStored: null == canBeStored
           ? _value.canBeStored
           : canBeStored // ignore: cast_nullable_to_non_nullable
@@ -193,10 +219,12 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       {required this.id,
       required this.name,
       final List<Instruction> instructions = const [],
-      this.carbs = false,
-      this.proteins = false,
-      this.vegetables = false,
-      this.type,
+      this.carbs = true,
+      this.proteins = true,
+      this.vegetables = true,
+      this.type = RecipeType.meal,
+      this.lunch = true,
+      this.dinner = true,
       this.canBeStored = true})
       : _instructions = instructions,
         super._();
@@ -227,7 +255,14 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   @JsonKey()
   final bool vegetables;
   @override
-  final RecipeType? type;
+  @JsonKey()
+  final RecipeType type;
+  @override
+  @JsonKey()
+  final bool lunch;
+  @override
+  @JsonKey()
+  final bool dinner;
 
   /// The number of days the recipe can be stored in the fridge (coocked)
   @override
@@ -236,7 +271,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, canBeStored: $canBeStored)';
+    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, canBeStored: $canBeStored)';
   }
 
   @override
@@ -251,6 +286,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('proteins', proteins))
       ..add(DiagnosticsProperty('vegetables', vegetables))
       ..add(DiagnosticsProperty('type', type))
+      ..add(DiagnosticsProperty('lunch', lunch))
+      ..add(DiagnosticsProperty('dinner', dinner))
       ..add(DiagnosticsProperty('canBeStored', canBeStored));
   }
 
@@ -269,6 +306,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
             (identical(other.vegetables, vegetables) ||
                 other.vegetables == vegetables) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.lunch, lunch) || other.lunch == lunch) &&
+            (identical(other.dinner, dinner) || other.dinner == dinner) &&
             (identical(other.canBeStored, canBeStored) ||
                 other.canBeStored == canBeStored));
   }
@@ -284,6 +323,8 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       proteins,
       vegetables,
       type,
+      lunch,
+      dinner,
       canBeStored);
 
   @JsonKey(ignore: true)
@@ -308,7 +349,9 @@ abstract class _Recipe extends Recipe {
       final bool carbs,
       final bool proteins,
       final bool vegetables,
-      final RecipeType? type,
+      final RecipeType type,
+      final bool lunch,
+      final bool dinner,
       final bool canBeStored}) = _$RecipeImpl;
   const _Recipe._() : super._();
 
@@ -327,7 +370,11 @@ abstract class _Recipe extends Recipe {
   @override
   bool get vegetables;
   @override
-  RecipeType? get type;
+  RecipeType get type;
+  @override
+  bool get lunch;
+  @override
+  bool get dinner;
   @override
 
   /// The number of days the recipe can be stored in the fridge (coocked)

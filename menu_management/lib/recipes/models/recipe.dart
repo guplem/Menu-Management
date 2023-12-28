@@ -14,10 +14,13 @@ class Recipe with _$Recipe {
     required String id,
     required String name,
     @Default([]) List<Instruction> instructions,
-    @Default(false) bool carbs,
-    @Default(false) bool proteins,
-    @Default(false) bool vegetables,
-    RecipeType? type,
+    @Default(true) bool carbs,
+    @Default(true) bool proteins,
+    @Default(true) bool vegetables,
+    @Default(RecipeType.meal) RecipeType type,
+    @Default(true) bool lunch,
+    @Default(true) bool dinner,
+
     /// The number of days the recipe can be stored in the fridge (coocked)
     @Default(true) bool canBeStored,
   }) = _Recipe;
@@ -34,5 +37,4 @@ class Recipe with _$Recipe {
   int get workingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.workingTimeMinutes);
   int get cookingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
   int get totalTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.totalTimeMinutes);
-
 }

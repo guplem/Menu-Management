@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
@@ -53,7 +54,6 @@ class RecipePage extends StatelessWidget {
 
   // ignore: non_constant_identifier_names
   Widget RecipeConfiguration({required BuildContext context, required Recipe recipe}) {
-
     final MaterialStateProperty<Icon?> switchIcon = MaterialStateProperty.resolveWith<Icon?>((states) {
       if (states.contains(MaterialState.selected)) {
         return const Icon(Icons.check_rounded);
@@ -66,14 +66,18 @@ class RecipePage extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
-            children: RecipeType.values.map((e) {
+            children: RecipeType.values.map((RecipeType type) {
               return Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: FilterChip(
-                  label: Text(e.name),
-                  selected: recipe.type == e,
-                  onSelected: (value) {
-                    recipe.copyWith(type: e).saveToProvider();
+                  label: Text(type.name.capitalizeFirstLetter()??"null"),
+                  selected: recipe.type == type,
+                  onSelected: (bool value) {
+                    if (value && type == RecipeType.breakfast) {
+                      recipe.copyWith(type: type, lunch: false, dinner: false).saveToProvider();
+                    } else {
+                      recipe.copyWith(type: type).saveToProvider();
+                    }
                   },
                 ),
               );
@@ -101,6 +105,33 @@ class RecipePage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
             children: [
+              const Text("Good for:"),
+              const SizedBox(width: 10),
+              FilterChip(
+                label: const Text('Lunch'),
+                selected: recipe.lunch,
+                onSelected: (value) {
+                  recipe.copyWith(lunch: value).saveToProvider();
+                },
+              ),
+              const SizedBox(width: 10),
+              FilterChip(
+                label: const Text('Dinner'),
+                selected: recipe.dinner,
+                onSelected: (value) {
+                  recipe.copyWith(dinner: value).saveToProvider();
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              const Text("Contains:"),
+              const SizedBox(width: 10),
               FilterChip(
                 label: const Text('Carbs'),
                 selected: recipe.carbs,
@@ -124,6 +155,12 @@ class RecipePage extends StatelessWidget {
                   recipe.copyWith(vegetables: value).saveToProvider();
                 },
               ),
+              const SizedBox(width: 10),
+              if (recipe.carbs == false && recipe.proteins == false && recipe.vegetables == false)
+                Tooltip(
+                  message: "No contents selected, this might be a problem generating menus!",
+                  child: Icon(Icons.warning_rounded, color: Theme.of(context).colorScheme.error),
+                ),
               const Spacer(),
               ElevatedButton.icon(
                 icon: const Icon(Icons.add_rounded),

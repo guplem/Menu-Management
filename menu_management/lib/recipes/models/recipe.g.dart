@@ -13,10 +13,13 @@ _$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
               ?.map((e) => Instruction.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      carbs: json['carbs'] as bool? ?? false,
-      proteins: json['proteins'] as bool? ?? false,
-      vegetables: json['vegetables'] as bool? ?? false,
-      type: $enumDecodeNullable(_$RecipeTypeEnumMap, json['type']),
+      carbs: json['carbs'] as bool? ?? true,
+      proteins: json['proteins'] as bool? ?? true,
+      vegetables: json['vegetables'] as bool? ?? true,
+      type: $enumDecodeNullable(_$RecipeTypeEnumMap, json['type']) ??
+          RecipeType.meal,
+      lunch: json['lunch'] as bool? ?? true,
+      dinner: json['dinner'] as bool? ?? true,
       canBeStored: json['canBeStored'] as bool? ?? true,
     );
 
@@ -28,14 +31,15 @@ Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
       'carbs': instance.carbs,
       'proteins': instance.proteins,
       'vegetables': instance.vegetables,
-      'type': _$RecipeTypeEnumMap[instance.type],
+      'type': _$RecipeTypeEnumMap[instance.type]!,
+      'lunch': instance.lunch,
+      'dinner': instance.dinner,
       'canBeStored': instance.canBeStored,
     };
 
 const _$RecipeTypeEnumMap = {
   RecipeType.breakfast: 'breakfast',
-  RecipeType.heavy: 'heavy',
-  RecipeType.light: 'light',
+  RecipeType.meal: 'meal',
   RecipeType.snack: 'snack',
   RecipeType.dessert: 'dessert',
 };

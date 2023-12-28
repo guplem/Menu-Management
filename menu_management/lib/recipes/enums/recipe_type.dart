@@ -1,7 +1,7 @@
 enum RecipeType {
   breakfast(0),
-  heavy(1),
-  light(2),
+  meal(1),
+  //light(2),
   snack(3),
   dessert(4);
 

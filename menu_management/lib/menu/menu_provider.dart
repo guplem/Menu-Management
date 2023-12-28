@@ -15,13 +15,12 @@ import 'models/meal.dart';
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.
 class MenuProvider extends ChangeNotifier {
-
   factory MenuProvider() {
     return instance;
   }
 
   static final MenuProvider instance = MenuProvider._privateConstructor();
-  MenuProvider._privateConstructor(){
+  MenuProvider._privateConstructor() {
     Debug.log("Creating MenuProvider instance", maxStackTraceRows: 4);
   }
 
@@ -91,18 +90,19 @@ class MenuProvider extends ChangeNotifier {
 
     List<Recipe> breakfasts = RecipesProvider().getOfType(type: RecipeType.breakfast);
     Debug.logWarning(breakfasts.isEmpty, "No breakfasts found");
-    List<Recipe> carbsHeavies = RecipesProvider().getOfType(type: RecipeType.heavy, carbs: true);
-    Debug.logWarning(carbsHeavies.isEmpty, "No carbsHeavies found");
-    List<Recipe> proteinHeavies = RecipesProvider().getOfType(type: RecipeType.heavy, proteins: true);
-    Debug.logWarning(proteinHeavies.isEmpty, "No proteinHeavies found");
-    List<Recipe> veggieHeavies = RecipesProvider().getOfType(type: RecipeType.heavy, vegetables: true);
-    Debug.logWarning(veggieHeavies.isEmpty, "No veggieHeavies found");
-    List<Recipe> carbsLights = RecipesProvider().getOfType(type: RecipeType.light, carbs: true);
-    Debug.logWarning(carbsLights.isEmpty, "No carbsLights found");
-    List<Recipe> proteinLights = RecipesProvider().getOfType(type: RecipeType.light, proteins: true);
-    Debug.logWarning(proteinLights.isEmpty, "No proteinLights found");
-    List<Recipe> veggieLights = RecipesProvider().getOfType(type: RecipeType.light, vegetables: true);
-    Debug.logWarning(veggieLights.isEmpty, "No veggieLights found");
+    List<Recipe> carbsMeal = RecipesProvider().getOfType(type: RecipeType.meal, carbs: true);
+    Debug.logWarning(carbsMeal.isEmpty, "No carbsMeal found");
+    List<Recipe> proteinMeal = RecipesProvider().getOfType(type: RecipeType.meal, proteins: true);
+    Debug.logWarning(proteinMeal.isEmpty, "No proteinMeal found");
+    List<Recipe> veggieMeal = RecipesProvider().getOfType(type: RecipeType.meal, vegetables: true);
+    Debug.logWarning(veggieMeal.isEmpty, "No veggieMeal found");
+
+    // List<Recipe> carbsLights = RecipesProvider().getOfType(type: RecipeType.light, carbs: true);
+    // Debug.logWarning(carbsLights.isEmpty, "No carbsLights found");
+    // List<Recipe> proteinLights = RecipesProvider().getOfType(type: RecipeType.light, proteins: true);
+    // Debug.logWarning(proteinLights.isEmpty, "No proteinLights found");
+    // List<Recipe> veggieLights = RecipesProvider().getOfType(type: RecipeType.light, vegetables: true);
+    // Debug.logWarning(veggieLights.isEmpty, "No veggieLights found");
 
     // TODO: Decide when to use "snacks" saturdays?
     // ignore: unused_local_variable
@@ -141,7 +141,7 @@ class MenuProvider extends ChangeNotifier {
     int lastHeavy = -1; // 1, 2 or 3, 3 total variants of heavy meals
     int lastLight = -1; // 1, 2, 3, 4, 5 or 6, 6 total variants of light meals
 
-    Recipe? getRecipeSuggestion({required List<Recipe> candidates, required MenuConfiguration configuration, List<Recipe> otherRecipesOfTheSameMeal = const []}) {
+    Recipe? getRecipeSuggestion({required List<Recipe> candidates, required MenuConfiguration configuration, List<Recipe> otherRecipesOfTheSameMeal = const [], bool? prioritizeLunch, bool? prioritizeDinner}) {
       if (!configuration.requiresMeal) {
         Debug.logError("Configuration does not require a meal, this should never becalled happen");
         return null;
@@ -152,9 +152,38 @@ class MenuProvider extends ChangeNotifier {
 
       int cookingTimeAlreadyUsed = otherRecipesOfTheSameMeal.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
 
-      for (Recipe recipe in randomizedCandidates) {
+      prioritizeLunch ??= false;
+      prioritizeDinner ??= false;
+      assert(!(prioritizeLunch && prioritizeDinner), "Cannot prioritize both lunch and dinner");
+      bool? lookingForPriority = prioritizeLunch != prioritizeDinner ? true : null;
+      for (int i = 0; i < randomizedCandidates.length; i++) {
+        Recipe recipe = randomizedCandidates[i];
         if (recipe.cookingTimeMinutes <= configuration.availableCookingTimeMinutes - cookingTimeAlreadyUsed) {
+          if (lookingForPriority != null && lookingForPriority == true) {
+            if (!recipe.lunch && prioritizeLunch) {
+              continue;
+            } else if (!recipe.dinner && prioritizeDinner) {
+              continue;
+            }
+          } else if (lookingForPriority != null && lookingForPriority == false) {
+            if (recipe.lunch && prioritizeLunch) {
+              continue;
+            } else if (recipe.dinner && prioritizeDinner) {
+              continue;
+            }
+          }
           return recipe;
+        }
+        if (i == randomizedCandidates.length - 1) {
+          if (lookingForPriority != null && lookingForPriority == true) {
+            lookingForPriority = false;
+            i = -1;
+          } else {
+            // If lookingForPriority is null or false, exit the loop
+            // This should never be reached, but just in case
+            Debug.logWarning(true, "Reached an unexpected state in getRecipeSuggestion loop. This should never happen.\ncandidatesLength-1: ${randomizedCandidates.length-1} \ni: $i\nlookingForPriority: $lookingForPriority\nprioritizeLunch: $prioritizeLunch\nprioritizeDinner: $prioritizeDinner");
+            break;
+          }
         }
       }
 
@@ -249,7 +278,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastCarbHeavy != null && lastCarbHeavy!.canBeStored) {
               recipes = [lastCarbHeavy!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsHeavies, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeLunch: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -261,7 +290,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastVeggieHeavy != null && lastVeggieHeavy!.canBeStored) {
               recipes = [lastVeggieHeavy!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieHeavies, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeLunch: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -273,7 +302,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastProteinHeavy != null && lastProteinHeavy!.canBeStored) {
               recipes = [lastProteinHeavy!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinHeavies, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeLunch: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -328,7 +357,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastProteinLight1 != null && lastProteinLight1!.canBeStored) {
               recipes = [lastProteinLight1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinLights, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -340,7 +369,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastVeggieLight1 != null && lastVeggieLight1!.canBeStored) {
               recipes = [lastVeggieLight1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieLights, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -352,7 +381,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastCarbsLight1 != null && lastCarbsLight1!.canBeStored) {
               recipes = [lastCarbsLight1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsLights, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -364,7 +393,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastProteinLight2 != null && lastProteinLight2!.canBeStored) {
               recipes = [lastProteinLight2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinLights, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -376,7 +405,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastVeggieLight2 != null && lastVeggieLight2!.canBeStored) {
               recipes = [lastVeggieLight2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieLights, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
@@ -388,7 +417,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastCarbsLight2 != null && lastCarbsLight2!.canBeStored) {
               recipes = [lastCarbsLight2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsLights, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
