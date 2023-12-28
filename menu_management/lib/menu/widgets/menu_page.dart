@@ -47,8 +47,7 @@ class MenuPage extends StatelessWidget {
                         children: [
                           DefaultTextStyle(
                             style: Theme.of(context).textTheme.titleMedium!,
-                            // ignore: prefer_interpolation_to_compose_strings
-                            child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null") + " (${meal.cookings.length})"),
+                            child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null") ),
                           ),
                           const SizedBox(height: 5),
                           SizedBox(

@@ -132,18 +132,34 @@ class MenuProvider extends ChangeNotifier {
     int lastLunch = -1; // 1, 2 or 3, 3 total variants of lunch meals
     int lastDinner = -1; // 1, 2, 3, 4, 5 or 6, 6 total variants of dinner meals
 
-    Recipe? getRecipeSuggestion({required List<Recipe> candidates, required MenuConfiguration configuration, List<Recipe> otherRecipesOfTheSameMeal = const [], bool? prioritizeLunch, bool? prioritizeDinner}) {
+    Set<Recipe> uniqueSelectedRecipes = {};
+
+    Recipe? getRecipeSuggestion({
+      required List<Recipe> candidates,
+      required MenuConfiguration configuration,
+      List<Recipe> otherRecipesOfTheSameMeal = const [],
+      bool? prioritizeLunch,
+      bool? prioritizeDinner,
+      bool onlyUseRecipesThatCanBeStored = false,
+      bool removeAlreadySelectedRecipesFromCandidates = true,
+    }) {
       if (!configuration.requiresMeal) {
-        Debug.logError("Configuration does not require a meal, this should never becalled happen");
+        Debug.logError("Configuration does not require a meal, this should never happen");
         return null;
       }
 
-      Debug.log("Getting recipe suggestion for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}", signature: "🫕 ");
+      Debug.log("Getting recipe suggestion for configuration with available time of ${configuration.availableCookingTimeMinutes}", signature: "🫕 ", maxStackTraceRows: 2);
 
-      List<Recipe> randomizedCandidates = [...candidates];
-      int s = seed();
-      randomizedCandidates.shuffle(Random(s));
-      Debug.log("Seed: $s\nCandidates:\n\t${randomizedCandidates.map((e) => e.name).toList().join("\n\t")}", signature: "\t");
+
+      List<Recipe> cleanCandidates = [...candidates];
+      if (onlyUseRecipesThatCanBeStored) {
+        cleanCandidates.removeWhere((element) => !element.canBeStored);
+      }
+      if (removeAlreadySelectedRecipesFromCandidates) {
+        cleanCandidates.removeWhere((element) => uniqueSelectedRecipes.any((selectedRecipe) => selectedRecipe.id == element.id));
+      }
+      cleanCandidates.shuffle(Random(seed()));
+      Debug.log("Candidates:\n\t${cleanCandidates.map((e) => e.name).toList().join("\n\t")}", signature: "\t");
 
       int cookingTimeAlreadyUsed = otherRecipesOfTheSameMeal.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
 
@@ -151,38 +167,39 @@ class MenuProvider extends ChangeNotifier {
       prioritizeDinner ??= false;
       assert(!(prioritizeLunch && prioritizeDinner), "Cannot prioritize both lunch and dinner");
       bool? lookingForPriority = prioritizeLunch != prioritizeDinner ? true : null;
-      for (int i = 0; i < randomizedCandidates.length; i++) {
-        Recipe recipe = randomizedCandidates[i];
+      for (int i = 0; i < cleanCandidates.length; i++) {
+        Recipe recipe = cleanCandidates[i];
         if (recipe.cookingTimeMinutes <= configuration.availableCookingTimeMinutes - cookingTimeAlreadyUsed) {
           if (lookingForPriority != null && lookingForPriority == true) {
-            if (!recipe.lunch && prioritizeLunch) {
-              continue;
-            } else if (!recipe.dinner && prioritizeDinner) {
-              continue;
+            // If lookingForPriority is true, return the first recipe that fits the priority settings
+            if ((recipe.lunch && prioritizeLunch) || (recipe.dinner && prioritizeDinner)) {
+              return recipe;
             }
           } else if (lookingForPriority != null && lookingForPriority == false) {
-            if (recipe.lunch && prioritizeLunch) {
-              continue;
-            } else if (recipe.dinner && prioritizeDinner) {
-              continue;
+            // If lookingForPriority is false (aka looking for a non-priority meal), return the first recipe that is not within the priority settings
+            if ((!recipe.lunch && prioritizeLunch) || (!recipe.dinner && prioritizeDinner)) {
+              return recipe;
             }
+          } else {
+            // If lookingForPriority is null (aka not looking for anything in particular), return the first recipe that fits
+            return recipe;
           }
-          Debug.log("Found recipe ${recipe.name}", signature: "\t🍲 ");
-          return recipe;
         }
-        if (i == randomizedCandidates.length - 1) {
+        if (i == cleanCandidates.length - 1) {
           if (lookingForPriority != null && lookingForPriority == true) {
+            Debug.logDev("Exhausted options while looking for the priority meal, looking for the non-prioritized meals");
             lookingForPriority = false;
             i = -1;
           } else {
             // If lookingForPriority is null or false, exit the loop
             // This should never be reached, but just in case
-            Debug.logWarning(true, "Reached an unexpected state in getRecipeSuggestion loop. This should never happen.\ncandidatesLength-1: ${randomizedCandidates.length-1} \ni: $i\nlookingForPriority: $lookingForPriority\nprioritizeLunch: $prioritizeLunch\nprioritizeDinner: $prioritizeDinner");
+            Debug.logWarning(true, "Reached an unexpected state in getRecipeSuggestion loop. This should never happen.\ncandidatesLength-1: ${cleanCandidates.length - 1} \ni: $i\nlookingForPriority: $lookingForPriority\nprioritizeLunch: $prioritizeLunch\nprioritizeDinner: $prioritizeDinner");
             break;
           }
         }
       }
 
+      Debug.log("No recipe found for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}.\nAvailable time: ${configuration.availableCookingTimeMinutes - cookingTimeAlreadyUsed}.\nCandidates: ${cleanCandidates.map((e) => e.name).toList().join(", ")}.\nOther recipes of the same meal: ${otherRecipesOfTheSameMeal.map((e) => e.name).toList().join(", ")}", signature: "❌ ", messageColor: ColorsConsole.red);
       return null;
     }
 
@@ -218,7 +235,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastBreakfast1 != null && lastBreakfast1!.canBeStored) {
               recipes = [lastBreakfast1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
                 return null;
               }
@@ -230,7 +247,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastBreakfast2 != null && lastBreakfast2!.canBeStored) {
               recipes = [lastBreakfast2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
                 return null;
               }
@@ -242,7 +259,7 @@ class MenuProvider extends ChangeNotifier {
             if (lastBreakfast3 != null && lastBreakfast3!.canBeStored) {
               recipes = [lastBreakfast3!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
                 return null;
               }
@@ -272,10 +289,11 @@ class MenuProvider extends ChangeNotifier {
           }
           // Pick a recipe
           if (selectedLunch == 1) {
+            // Carbs
             if (lastCarbLunch != null && lastCarbLunch!.canBeStored) {
               recipes = [lastCarbLunch!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeLunch: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
                 return null;
               }
@@ -284,10 +302,11 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastCarbLunch!];
             }
           } else if (selectedLunch == 2) {
+            // Vegetables
             if (lastVeggieLunch != null && lastVeggieLunch!.canBeStored) {
               recipes = [lastVeggieLunch!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeLunch: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
                 return null;
               }
@@ -296,10 +315,11 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastVeggieLunch!];
             }
           } else if (selectedLunch == 3) {
+            // Proteins
             if (lastProteinLunch != null && lastProteinLunch!.canBeStored) {
               recipes = [lastProteinLunch!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeLunch: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
                 return null;
               }
@@ -352,6 +372,7 @@ class MenuProvider extends ChangeNotifier {
 
           // Pick a recipe
           if (selectedDinner == 1) {
+            // Proteins 1
             if (lastProteinDinner1 != null && lastProteinDinner1!.canBeStored) {
               recipes = [lastProteinDinner1!];
             } else {
@@ -364,6 +385,7 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastProteinDinner1!];
             }
           } else if (selectedDinner == 2) {
+            // Vegetables 1
             if (lastVeggieDinner1 != null && lastVeggieDinner1!.canBeStored) {
               recipes = [lastVeggieDinner1!];
             } else {
@@ -376,6 +398,7 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastVeggieDinner1!];
             }
           } else if (selectedDinner == 3) {
+            // Carbs 1
             if (lastCarbsDinner1 != null && lastCarbsDinner1!.canBeStored) {
               recipes = [lastCarbsDinner1!];
             } else {
@@ -388,6 +411,7 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastCarbsDinner1!];
             }
           } else if (selectedDinner == 4) {
+            // Proteins 2
             if (lastProteinDinner2 != null && lastProteinDinner2!.canBeStored) {
               recipes = [lastProteinDinner2!];
             } else {
@@ -400,6 +424,7 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastProteinDinner2!];
             }
           } else if (selectedDinner == 5) {
+            // Vegetables 2
             if (lastVeggieDinner2 != null && lastVeggieDinner2!.canBeStored) {
               recipes = [lastVeggieDinner2!];
             } else {
@@ -412,6 +437,7 @@ class MenuProvider extends ChangeNotifier {
               recipes = [lastVeggieDinner2!];
             }
           } else if (selectedDinner == 6) {
+            // Carbs 2
             if (lastCarbsDinner2 != null && lastCarbsDinner2!.canBeStored) {
               recipes = [lastCarbsDinner2!];
             } else {
@@ -436,36 +462,57 @@ class MenuProvider extends ChangeNotifier {
     }
 
     List<Recipe>? saturdayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.saturday), seed: seed());
+    uniqueSelectedRecipes.addAll(saturdayBreakfast ?? []);
     List<Recipe>? saturdayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.saturday), seed: seed());
+    uniqueSelectedRecipes.addAll(saturdayLunch ?? []);
     List<Recipe>? saturdayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.saturday), seed: seed());
+    uniqueSelectedRecipes.addAll(saturdayDinner ?? []);
 
     List<Recipe>? sundayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.sunday), seed: seed());
+    uniqueSelectedRecipes.addAll(sundayBreakfast ?? []);
     List<Recipe>? sundayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.sunday), seed: seed());
+    uniqueSelectedRecipes.addAll(sundayLunch ?? []);
     List<Recipe>? sundayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.sunday), seed: seed());
+    uniqueSelectedRecipes.addAll(sundayDinner ?? []);
 
     List<Recipe>? mondayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.monday), seed: seed());
+    uniqueSelectedRecipes.addAll(mondayBreakfast ?? []);
     List<Recipe>? mondayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.monday), seed: seed());
+    uniqueSelectedRecipes.addAll(mondayLunch ?? []);
     List<Recipe>? mondayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.monday), seed: seed());
+    uniqueSelectedRecipes.addAll(mondayDinner ?? []);
 
     List<Recipe>? tuesdayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.tuesday), seed: seed());
+    uniqueSelectedRecipes.addAll(tuesdayBreakfast ?? []);
     List<Recipe>? tuesdayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.tuesday), seed: seed());
+    uniqueSelectedRecipes.addAll(tuesdayLunch ?? []);
     List<Recipe>? tuesdayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.tuesday), seed: seed());
+    uniqueSelectedRecipes.addAll(tuesdayDinner ?? []);
 
     List<Recipe>? wednesdayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.wednesday), seed: seed());
+    uniqueSelectedRecipes.addAll(wednesdayBreakfast ?? []);
     List<Recipe>? wednesdayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.wednesday), seed: seed());
+    uniqueSelectedRecipes.addAll(wednesdayLunch ?? []);
     List<Recipe>? wednesdayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.wednesday), seed: seed());
+    uniqueSelectedRecipes.addAll(wednesdayDinner ?? []);
 
     List<Recipe>? thursdayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.thursday), seed: seed());
+    uniqueSelectedRecipes.addAll(thursdayBreakfast ?? []);
     List<Recipe>? thursdayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.thursday), seed: seed());
+    uniqueSelectedRecipes.addAll(thursdayLunch ?? []);
     List<Recipe>? thursdayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.thursday), seed: seed());
+    uniqueSelectedRecipes.addAll(thursdayDinner ?? []);
 
     List<Recipe>? fridayBreakfast = getMealFor(configuration: instance.get(mealType: MealType.breakfast, weekDay: WeekDay.friday), seed: seed());
+    uniqueSelectedRecipes.addAll(fridayBreakfast ?? []);
     List<Recipe>? fridayLunch = getMealFor(configuration: instance.get(mealType: MealType.lunch, weekDay: WeekDay.friday), seed: seed());
+    uniqueSelectedRecipes.addAll(fridayLunch ?? []);
     List<Recipe>? fridayDinner = getMealFor(configuration: instance.get(mealType: MealType.dinner, weekDay: WeekDay.friday), seed: seed());
+    uniqueSelectedRecipes.addAll(fridayDinner ?? []);
 
     // *** POPULATE MENU *** //
 
-    List<Recipe> recipesToCook = [
+    List<Recipe> mealsToCook = [
       ...saturdayBreakfast ?? [],
       ...saturdayLunch ?? [],
       ...saturdayDinner ?? [],
@@ -489,56 +536,56 @@ class MenuProvider extends ChangeNotifier {
       ...fridayDinner ?? []
     ];
 
-    List<Cooking> saturdayBreakfastCook = saturdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => saturdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> saturdayLunchCook = saturdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => saturdayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> saturdayDinnerCook = saturdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => saturdayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> saturdayBreakfastCook = saturdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => saturdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> saturdayLunchCook = saturdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => saturdayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> saturdayDinnerCook = saturdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => saturdayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> sundayBreakfastCook = sundayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => sundayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> sundayLunchCook = sundayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => sundayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> sundayDinnerCook = sundayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => sundayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> sundayBreakfastCook = sundayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => sundayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> sundayLunchCook = sundayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => sundayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> sundayDinnerCook = sundayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => sundayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> mondayBreakfastCook = mondayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => mondayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> mondayLunchCook = mondayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => mondayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> mondayDinnerCook = mondayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => mondayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> mondayBreakfastCook = mondayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => mondayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> mondayLunchCook = mondayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => mondayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> mondayDinnerCook = mondayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => mondayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> tuesdayBreakfastCook = tuesdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => tuesdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> tuesdayLunchCook = tuesdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => tuesdayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> tuesdayDinnerCook = tuesdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => tuesdayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> tuesdayBreakfastCook = tuesdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => tuesdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> tuesdayLunchCook = tuesdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => tuesdayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> tuesdayDinnerCook = tuesdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => tuesdayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> wednesdayBreakfastCook = wednesdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => wednesdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> wednesdayLunchCook = wednesdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => wednesdayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> wednesdayDinnerCook = wednesdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => wednesdayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> wednesdayBreakfastCook = wednesdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => wednesdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> wednesdayLunchCook = wednesdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => wednesdayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> wednesdayDinnerCook = wednesdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => wednesdayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> thursdayBreakfastCook = thursdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => thursdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> thursdayLunchCook = thursdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => thursdayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> thursdayDinnerCook = thursdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => thursdayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> thursdayBreakfastCook = thursdayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => thursdayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> thursdayLunchCook = thursdayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => thursdayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> thursdayDinnerCook = thursdayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => thursdayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    List<Cooking> fridayBreakfastCook = fridayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => fridayBreakfastCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> fridayLunchCook = fridayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => fridayLunchCook.any((element) => element.recipe.id == toCook.id));
-    List<Cooking> fridayDinnerCook = fridayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: recipesToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
-    recipesToCook.removeWhere((toCook) => fridayDinnerCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> fridayBreakfastCook = fridayBreakfast?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => fridayBreakfastCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> fridayLunchCook = fridayLunch?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => fridayLunchCook.any((element) => element.recipe.id == toCook.id));
+    List<Cooking> fridayDinnerCook = fridayDinner?.map((Recipe mealRecipe) => Cooking(recipe: mealRecipe, yield: mealsToCook.fold(0, (previousValue, toCook) => previousValue + (toCook.id == mealRecipe.id ? 1 : 0)))).toList() ?? [];
+    mealsToCook.removeWhere((toCook) => fridayDinnerCook.any((element) => element.recipe.id == toCook.id));
 
-    if (recipesToCook.isNotEmpty) {
+    if (mealsToCook.isNotEmpty) {
       Debug.logError("Not all recipes have been added to the cooking list");
     }
 

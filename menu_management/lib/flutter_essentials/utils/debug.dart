@@ -41,7 +41,7 @@ class Debug {
 
   /// General/standard log message. Shouldn't be used to log successful operations, errors or updates. Instead it should be used to provide relevant information that do not fall in any of those categories, so it should be rarely used.
   static void log(String message,
-      {String signature = "🪵 ", int ignoredFirstStackTraceRows = 3, int maxStackTraceRows = 1, bool printInRelease = false, ColorsConsole messageColor = ColorsConsole.standard}) {
+      {String signature = "🪵 ", int ignoredFirstStackTraceRows = 2, int maxStackTraceRows = 1, bool printInRelease = false, ColorsConsole messageColor = ColorsConsole.standard}) {
     if (kDebugMode || printInRelease) {
       // ignore: avoid_print
       print(
