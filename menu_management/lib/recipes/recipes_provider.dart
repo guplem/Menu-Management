@@ -9,10 +9,14 @@ import '../flutter_essentials/library.dart';
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.
 class RecipesProvider extends ChangeNotifier {
-  static late RecipesProvider instance;
 
-  RecipesProvider() {
-    instance = this;
+  factory RecipesProvider() {
+    return instance;
+  }
+
+  static final RecipesProvider instance = RecipesProvider._privateConstructor();
+  RecipesProvider._privateConstructor(){
+    Debug.log("Creating RecipesProvider instance", maxStackTraceRows: 4);
   }
 
   final List<Recipe> _recipes = [];
@@ -60,6 +64,7 @@ class RecipesProvider extends ChangeNotifier {
 
   //#region INSTRUCTIONS
   static void addOrUpdateInstruction({required String recipeId, required Instruction newInstruction}) {
+    Debug.logWarning(instance.recipes.isEmpty, "No recipes found");
     final Recipe recipeToUpdate = instance.recipes.firstWhere((element) => element.id == recipeId);
     List<Instruction> instructions = [...recipeToUpdate.instructions];
     final int index = recipeToUpdate.instructions.indexWhere((element) => element.id == newInstruction.id);

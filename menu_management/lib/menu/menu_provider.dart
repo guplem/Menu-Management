@@ -15,10 +15,14 @@ import 'models/meal.dart';
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.
 class MenuProvider extends ChangeNotifier {
-  static late MenuProvider instance;
 
-  MenuProvider() {
-    instance = this;
+  factory MenuProvider() {
+    return instance;
+  }
+
+  static final MenuProvider instance = MenuProvider._privateConstructor();
+  MenuProvider._privateConstructor(){
+    Debug.log("Creating MenuProvider instance", maxStackTraceRows: 4);
   }
 
   final List<MenuConfiguration> _configurations = [

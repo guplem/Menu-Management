@@ -5,10 +5,14 @@ import 'package:menu_management/ingredients/models/ingredient.dart';
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.
 class IngredientsProvider extends ChangeNotifier {
-  static late IngredientsProvider instance;
 
-  IngredientsProvider() {
-    instance = this;
+  factory IngredientsProvider() {
+    return instance;
+  }
+
+  static final IngredientsProvider instance = IngredientsProvider._privateConstructor();
+  IngredientsProvider._privateConstructor(){
+    Debug.log("Creating IngredientsProvider instance", maxStackTraceRows: 4);
   }
 
   final List<Ingredient> _ingredients = [];
