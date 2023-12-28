@@ -90,12 +90,12 @@ class MenuProvider extends ChangeNotifier {
 
     List<Recipe> breakfasts = RecipesProvider().getOfType(type: RecipeType.breakfast);
     Debug.logWarning(breakfasts.isEmpty, "No breakfasts found");
-    List<Recipe> carbsMeal = RecipesProvider().getOfType(type: RecipeType.meal, carbs: true);
-    Debug.logWarning(carbsMeal.isEmpty, "No carbsMeal found");
-    List<Recipe> proteinMeal = RecipesProvider().getOfType(type: RecipeType.meal, proteins: true);
-    Debug.logWarning(proteinMeal.isEmpty, "No proteinMeal found");
-    List<Recipe> veggieMeal = RecipesProvider().getOfType(type: RecipeType.meal, vegetables: true);
-    Debug.logWarning(veggieMeal.isEmpty, "No veggieMeal found");
+    List<Recipe> carbsMeals = RecipesProvider().getOfType(type: RecipeType.meal, carbs: true);
+    Debug.logWarning(carbsMeals.isEmpty, "No carbsMeals found");
+    List<Recipe> proteinMeals = RecipesProvider().getOfType(type: RecipeType.meal, proteins: true);
+    Debug.logWarning(proteinMeals.isEmpty, "No proteinMeals found");
+    List<Recipe> veggieMeals = RecipesProvider().getOfType(type: RecipeType.meal, vegetables: true);
+    Debug.logWarning(veggieMeals.isEmpty, "No veggieMeals found");
 
     // TODO: Decide when to use "snacks" saturdays? // Delete category? Or simply don't use it?, just to store recipes
     // List<Recipe> snacks = RecipesProvider().getOfType(type: RecipeType.snack);
@@ -186,7 +186,7 @@ class MenuProvider extends ChangeNotifier {
         }
         if (i == cleanCandidates.length - 1) {
           if (lookingForPriority != null && lookingForPriority == true) {
-            Debug.logDev("Exhausted options while looking for the priority meal, looking for the non-prioritized meals");
+            // Debug.logDev("Exhausted options while looking for the priority meal, looking for the non-prioritized meals");
             lookingForPriority = false;
             i = -1;
           } else {
@@ -208,7 +208,7 @@ class MenuProvider extends ChangeNotifier {
     // Prefer heavy meals for lunch
     // Prefer light meals for dinner, unless some of the heavy meals have not been selected
     List<Recipe>? getMealFor({required MenuConfiguration configuration, required int seed}) {
-      Debug.log("Getting meal for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}. Requires meal: ${configuration.requiresMeal}", signature: "🗒️ ", messageColor: ColorsConsole.green);
+      Debug.log("Getting meal for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}. Requires meal: ${configuration.requiresMeal}", signature: "🗒️ ", messageColor: ColorsConsole.green, maxStackTraceRows: 2);
       if (!configuration.requiresMeal) {
         return null;
       }
@@ -239,36 +239,42 @@ class MenuProvider extends ChangeNotifier {
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among breakfasts (${breakfasts.length})");
                 return null;
               }
               lastBreakfast1 = recipe;
-              lastBreakfast = 1;
               recipes = [lastBreakfast1!];
             }
+            lastBreakfast = 1;
           } else if (selectedBreakfast == 2) {
             if (lastBreakfast2 != null && lastBreakfast2!.canBeStored) {
               recipes = [lastBreakfast2!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among breakfasts (${breakfasts.length})");
                 return null;
               }
               lastBreakfast2 = recipe;
-              lastBreakfast = 2;
               recipes = [lastBreakfast2!];
             }
+            lastBreakfast = 2;
           } else if (selectedBreakfast == 3) {
             if (lastBreakfast3 != null && lastBreakfast3!.canBeStored) {
               recipes = [lastBreakfast3!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among breakfasts (${breakfasts.length})");
                 return null;
               }
               lastBreakfast3 = recipe;
-              lastBreakfast = 3;
               recipes = [lastBreakfast3!];
             }
+            lastBreakfast = 3;
           }
 
         case MealType.lunch:
@@ -289,46 +295,53 @@ class MenuProvider extends ChangeNotifier {
               selectedLunch = 1;
             }
           }
+          Debug.logDev("Selected lunch: $selectedLunch");
           // Pick a recipe
           if (selectedLunch == 1) {
             // Carbs
             if (lastCarbLunch != null && lastCarbLunch!.canBeStored) {
               recipes = [lastCarbLunch!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeals, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among carbsMeals (${carbsMeals.length})");
                 return null;
               }
               lastCarbLunch = recipe;
-              lastLunch = 1;
               recipes = [lastCarbLunch!];
             }
+            lastLunch = 1;
           } else if (selectedLunch == 2) {
             // Vegetables
             if (lastVeggieLunch != null && lastVeggieLunch!.canBeStored) {
               recipes = [lastVeggieLunch!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeals, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among veggieMeals (${veggieMeals.length})");
                 return null;
               }
               lastVeggieLunch = recipe;
-              lastLunch = 2;
               recipes = [lastVeggieLunch!];
             }
+            lastLunch = 2;
           } else if (selectedLunch == 3) {
             // Proteins
             if (lastProteinLunch != null && lastProteinLunch!.canBeStored) {
               recipes = [lastProteinLunch!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeals, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among proteinMeals (${proteinMeals.length})");
                 return null;
               }
               lastProteinLunch = recipe;
-              lastLunch = 3;
               recipes = [lastProteinLunch!];
             }
+            lastLunch = 3;
           }
 
         case MealType.dinner:
@@ -378,79 +391,91 @@ class MenuProvider extends ChangeNotifier {
             if (lastProteinDinner1 != null && lastProteinDinner1!.canBeStored) {
               recipes = [lastProteinDinner1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeDinner: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among proteinMeals (${proteinMeals.length})");
                 return null;
               }
               lastProteinDinner1 = recipe;
-              lastDinner = 1;
               recipes = [lastProteinDinner1!];
             }
+            lastDinner = 1;
           } else if (selectedDinner == 2) {
             // Vegetables 1
             if (lastVeggieDinner1 != null && lastVeggieDinner1!.canBeStored) {
               recipes = [lastVeggieDinner1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeDinner: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among veggieMeals (${veggieMeals.length})");
                 return null;
               }
               lastVeggieDinner1 = recipe;
-              lastDinner = 2;
               recipes = [lastVeggieDinner1!];
             }
+            lastDinner = 2;
           } else if (selectedDinner == 3) {
             // Carbs 1
             if (lastCarbsDinner1 != null && lastCarbsDinner1!.canBeStored) {
               recipes = [lastCarbsDinner1!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeDinner: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among carbsMeals (${carbsMeals.length})");
                 return null;
               }
               lastCarbsDinner1 = recipe;
-              lastDinner = 3;
               recipes = [lastCarbsDinner1!];
             }
+            lastDinner = 3;
           } else if (selectedDinner == 4) {
             // Proteins 2
             if (lastProteinDinner2 != null && lastProteinDinner2!.canBeStored) {
               recipes = [lastProteinDinner2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeDinner: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: proteinMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among proteinMeals (${proteinMeals.length})");
                 return null;
               }
               lastProteinDinner2 = recipe;
-              lastDinner = 4;
               recipes = [lastProteinDinner2!];
             }
+            lastDinner = 4;
           } else if (selectedDinner == 5) {
             // Vegetables 2
             if (lastVeggieDinner2 != null && lastVeggieDinner2!.canBeStored) {
               recipes = [lastVeggieDinner2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeDinner: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: veggieMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among veggieMeals (${veggieMeals.length})");
                 return null;
               }
               lastVeggieDinner2 = recipe;
-              lastDinner = 5;
               recipes = [lastVeggieDinner2!];
             }
+            lastDinner = 5;
           } else if (selectedDinner == 6) {
             // Carbs 2
             if (lastCarbsDinner2 != null && lastCarbsDinner2!.canBeStored) {
               recipes = [lastCarbsDinner2!];
             } else {
-              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeDinner: true, configuration: configuration);
+              Recipe? recipe = getRecipeSuggestion(candidates: carbsMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
+                // TODO: Show error dialog with proper information
+                Debug.logError("Recipe not found among carbsMeals (${carbsMeals.length})");
                 return null;
               }
               lastCarbsDinner2 = recipe;
-              lastDinner = 6;
               recipes = [lastCarbsDinner2!];
             }
+            lastDinner = 6;
           }
       }
 
