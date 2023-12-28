@@ -97,21 +97,12 @@ class MenuProvider extends ChangeNotifier {
     List<Recipe> veggieMeal = RecipesProvider().getOfType(type: RecipeType.meal, vegetables: true);
     Debug.logWarning(veggieMeal.isEmpty, "No veggieMeal found");
 
-    // List<Recipe> carbsLights = RecipesProvider().getOfType(type: RecipeType.light, carbs: true);
-    // Debug.logWarning(carbsLights.isEmpty, "No carbsLights found");
-    // List<Recipe> proteinLights = RecipesProvider().getOfType(type: RecipeType.light, proteins: true);
-    // Debug.logWarning(proteinLights.isEmpty, "No proteinLights found");
-    // List<Recipe> veggieLights = RecipesProvider().getOfType(type: RecipeType.light, vegetables: true);
-    // Debug.logWarning(veggieLights.isEmpty, "No veggieLights found");
-
-    // TODO: Decide when to use "snacks" saturdays?
-    // ignore: unused_local_variable
-    List<Recipe> snacks = RecipesProvider().getOfType(type: RecipeType.snack);
+    // TODO: Decide when to use "snacks" saturdays? // Delete category? Or simply don't use it?, just to store recipes
+    // List<Recipe> snacks = RecipesProvider().getOfType(type: RecipeType.snack);
 
     // TODO: Decide when to use "not vegetable desserts"
-    // ignore: unused_local_variable
-    List<Recipe> notVegetableDesserts = RecipesProvider().getOfType(type: RecipeType.dessert, vegetables: false);
-    // ignore: unused_local_variable
+    // List<Recipe> notVegetableDesserts = RecipesProvider().getOfType(type: RecipeType.dessert, vegetables: false);
+
     List<Recipe> fruitDesserts = RecipesProvider().getOfType(type: RecipeType.dessert, vegetables: true);
 
     // ** helpers ** //
@@ -125,21 +116,21 @@ class MenuProvider extends ChangeNotifier {
     Recipe? lastBreakfast1;
     Recipe? lastBreakfast2;
     Recipe? lastBreakfast3;
-    // Heavy
-    Recipe? lastCarbHeavy;
-    Recipe? lastVeggieHeavy;
-    Recipe? lastProteinHeavy;
-    // Light
-    Recipe? lastProteinLight1;
-    Recipe? lastVeggieLight1;
-    Recipe? lastCarbsLight1;
-    Recipe? lastProteinLight2;
-    Recipe? lastVeggieLight2;
-    Recipe? lastCarbsLight2;
+    // Lunch
+    Recipe? lastCarbLunch;
+    Recipe? lastVeggieLunch;
+    Recipe? lastProteinLunch;
+    // Dinner
+    Recipe? lastProteinDinner1;
+    Recipe? lastVeggieDinner1;
+    Recipe? lastCarbsDinner1;
+    Recipe? lastProteinDinner2;
+    Recipe? lastVeggieDinner2;
+    Recipe? lastCarbsDinner2;
 
-    int lastBreakfast = -1; // 1, 2 or 3, 3 total variants of breakfast
-    int lastHeavy = -1; // 1, 2 or 3, 3 total variants of heavy meals
-    int lastLight = -1; // 1, 2, 3, 4, 5 or 6, 6 total variants of light meals
+    int lastBreakfast = -1; // 1, 2 or 3, 3 total variants of breakfasts
+    int lastLunch = -1; // 1, 2 or 3, 3 total variants of lunch meals
+    int lastDinner = -1; // 1, 2, 3, 4, 5 or 6, 6 total variants of dinner meals
 
     Recipe? getRecipeSuggestion({required List<Recipe> candidates, required MenuConfiguration configuration, List<Recipe> otherRecipesOfTheSameMeal = const [], bool? prioritizeLunch, bool? prioritizeDinner}) {
       if (!configuration.requiresMeal) {
@@ -147,8 +138,12 @@ class MenuProvider extends ChangeNotifier {
         return null;
       }
 
+      Debug.log("Getting recipe suggestion for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}", signature: "🫕 ");
+
       List<Recipe> randomizedCandidates = [...candidates];
-      randomizedCandidates.shuffle(Random(seed()));
+      int s = seed();
+      randomizedCandidates.shuffle(Random(s));
+      Debug.log("Seed: $s\nCandidates:\n\t${randomizedCandidates.map((e) => e.name).toList().join("\n\t")}", signature: "\t");
 
       int cookingTimeAlreadyUsed = otherRecipesOfTheSameMeal.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
 
@@ -172,6 +167,7 @@ class MenuProvider extends ChangeNotifier {
               continue;
             }
           }
+          Debug.log("Found recipe ${recipe.name}", signature: "\t🍲 ");
           return recipe;
         }
         if (i == randomizedCandidates.length - 1) {
@@ -193,6 +189,7 @@ class MenuProvider extends ChangeNotifier {
     // Prefer heavy meals for lunch
     // Prefer light meals for dinner, unless some of the heavy meals have not been selected
     List<Recipe>? getMealFor({required MenuConfiguration configuration, required int seed}) {
+      Debug.log("Getting meal for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}. Requires meal: ${configuration.requiresMeal}", signature: "🗒️ ", messageColor: ColorsConsole.green);
       if (!configuration.requiresMeal) {
         return null;
       }
@@ -257,65 +254,66 @@ class MenuProvider extends ChangeNotifier {
 
         case MealType.lunch:
           // Pick a heavy meal number
-          int selectedHeavy = -1;
-          if (lastCarbHeavy == null) {
-            selectedHeavy = 1;
-          } else if (lastVeggieHeavy == null) {
-            selectedHeavy = 2;
-          } else if (lastProteinHeavy == null) {
-            selectedHeavy = 3;
+          int selectedLunch = -1;
+          if (lastCarbLunch == null) {
+            selectedLunch = 1;
+          } else if (lastVeggieLunch == null) {
+            selectedLunch = 2;
+          } else if (lastProteinLunch == null) {
+            selectedLunch = 3;
           } else {
-            if (lastHeavy == 1) {
-              selectedHeavy = 2;
-            } else if (lastHeavy == 2) {
-              selectedHeavy = 3;
-            } else if (lastHeavy == 3) {
-              selectedHeavy = 1;
+            if (lastLunch == 1) {
+              selectedLunch = 2;
+            } else if (lastLunch == 2) {
+              selectedLunch = 3;
+            } else if (lastLunch == 3) {
+              selectedLunch = 1;
             }
           }
           // Pick a recipe
-          if (selectedHeavy == 1) {
-            if (lastCarbHeavy != null && lastCarbHeavy!.canBeStored) {
-              recipes = [lastCarbHeavy!];
+          if (selectedLunch == 1) {
+            if (lastCarbLunch != null && lastCarbLunch!.canBeStored) {
+              recipes = [lastCarbLunch!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeLunch: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastCarbHeavy = recipe;
-              lastHeavy = 1;
-              recipes = [lastCarbHeavy!];
+              lastCarbLunch = recipe;
+              lastLunch = 1;
+              recipes = [lastCarbLunch!];
             }
-          } else if (selectedHeavy == 2) {
-            if (lastVeggieHeavy != null && lastVeggieHeavy!.canBeStored) {
-              recipes = [lastVeggieHeavy!];
+          } else if (selectedLunch == 2) {
+            if (lastVeggieLunch != null && lastVeggieLunch!.canBeStored) {
+              recipes = [lastVeggieLunch!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeLunch: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastVeggieHeavy = recipe;
-              lastHeavy = 2;
-              recipes = [lastVeggieHeavy!];
+              lastVeggieLunch = recipe;
+              lastLunch = 2;
+              recipes = [lastVeggieLunch!];
             }
-          } else if (selectedHeavy == 3) {
-            if (lastProteinHeavy != null && lastProteinHeavy!.canBeStored) {
-              recipes = [lastProteinHeavy!];
+          } else if (selectedLunch == 3) {
+            if (lastProteinLunch != null && lastProteinLunch!.canBeStored) {
+              recipes = [lastProteinLunch!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeLunch: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastProteinHeavy = recipe;
-              lastHeavy = 3;
-              recipes = [lastProteinHeavy!];
+              lastProteinLunch = recipe;
+              lastLunch = 3;
+              recipes = [lastProteinLunch!];
             }
           }
 
         case MealType.dinner:
 
-          // Before any light meal, first ensure all heavy meals have been selected
-          if (lastCarbHeavy == null || lastProteinHeavy == null || lastVeggieHeavy == null) {
+          // Before any dinner meal, first ensure all lunch meals have been selected
+          if (lastCarbLunch == null || lastProteinLunch == null || lastVeggieLunch == null) {
+            Debug.logDev("Not all lunch meals have been selected, cannot select dinner meal for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}. Selecting a lunch meal instead.");
             List<Recipe>? r = getMealFor(configuration: configuration.copyWith(mealTime: configuration.mealTime.copyWith(mealType: MealType.lunch)), seed: seed);
             if (r != null) {
               return r;
@@ -323,107 +321,107 @@ class MenuProvider extends ChangeNotifier {
           }
 
           // Pick a light meal number
-          int selectedLight = -1;
-          if (lastProteinLight1 == null) {
-            selectedLight = 1;
-          } else if (lastVeggieLight1 == null) {
-            selectedLight = 2;
-          } else if (lastCarbsLight1 == null) {
-            selectedLight = 3;
-          } else if (lastProteinLight2 == null) {
-            selectedLight = 4;
-          } else if (lastVeggieLight2 == null) {
-            selectedLight = 5;
-          } else if (lastCarbsLight2 == null) {
-            selectedLight = 6;
+          int selectedDinner = -1;
+          if (lastProteinDinner1 == null) {
+            selectedDinner = 1;
+          } else if (lastVeggieDinner1 == null) {
+            selectedDinner = 2;
+          } else if (lastCarbsDinner1 == null) {
+            selectedDinner = 3;
+          } else if (lastProteinDinner2 == null) {
+            selectedDinner = 4;
+          } else if (lastVeggieDinner2 == null) {
+            selectedDinner = 5;
+          } else if (lastCarbsDinner2 == null) {
+            selectedDinner = 6;
           } else {
-            if (lastLight == 1) {
-              selectedLight = 2;
-            } else if (lastLight == 2) {
-              selectedLight = 3;
-            } else if (lastLight == 3) {
-              selectedLight = 4;
-            } else if (lastLight == 4) {
-              selectedLight = 5;
-            } else if (lastLight == 5) {
-              selectedLight = 6;
-            } else if (lastLight == 6) {
-              selectedLight = 1;
+            if (lastDinner == 1) {
+              selectedDinner = 2;
+            } else if (lastDinner == 2) {
+              selectedDinner = 3;
+            } else if (lastDinner == 3) {
+              selectedDinner = 4;
+            } else if (lastDinner == 4) {
+              selectedDinner = 5;
+            } else if (lastDinner == 5) {
+              selectedDinner = 6;
+            } else if (lastDinner == 6) {
+              selectedDinner = 1;
             }
           }
 
           // Pick a recipe
-          if (selectedLight == 1) {
-            if (lastProteinLight1 != null && lastProteinLight1!.canBeStored) {
-              recipes = [lastProteinLight1!];
+          if (selectedDinner == 1) {
+            if (lastProteinDinner1 != null && lastProteinDinner1!.canBeStored) {
+              recipes = [lastProteinDinner1!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastProteinLight1 = recipe;
-              lastLight = 1;
-              recipes = [lastProteinLight1!];
+              lastProteinDinner1 = recipe;
+              lastDinner = 1;
+              recipes = [lastProteinDinner1!];
             }
-          } else if (selectedLight == 2) {
-            if (lastVeggieLight1 != null && lastVeggieLight1!.canBeStored) {
-              recipes = [lastVeggieLight1!];
+          } else if (selectedDinner == 2) {
+            if (lastVeggieDinner1 != null && lastVeggieDinner1!.canBeStored) {
+              recipes = [lastVeggieDinner1!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastVeggieLight1 = recipe;
-              lastLight = 2;
-              recipes = [lastVeggieLight1!];
+              lastVeggieDinner1 = recipe;
+              lastDinner = 2;
+              recipes = [lastVeggieDinner1!];
             }
-          } else if (selectedLight == 3) {
-            if (lastCarbsLight1 != null && lastCarbsLight1!.canBeStored) {
-              recipes = [lastCarbsLight1!];
+          } else if (selectedDinner == 3) {
+            if (lastCarbsDinner1 != null && lastCarbsDinner1!.canBeStored) {
+              recipes = [lastCarbsDinner1!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastCarbsLight1 = recipe;
-              lastLight = 3;
-              recipes = [lastCarbsLight1!];
+              lastCarbsDinner1 = recipe;
+              lastDinner = 3;
+              recipes = [lastCarbsDinner1!];
             }
-          } else if (selectedLight == 4) {
-            if (lastProteinLight2 != null && lastProteinLight2!.canBeStored) {
-              recipes = [lastProteinLight2!];
+          } else if (selectedDinner == 4) {
+            if (lastProteinDinner2 != null && lastProteinDinner2!.canBeStored) {
+              recipes = [lastProteinDinner2!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: proteinMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastProteinLight2 = recipe;
-              lastLight = 4;
-              recipes = [lastProteinLight2!];
+              lastProteinDinner2 = recipe;
+              lastDinner = 4;
+              recipes = [lastProteinDinner2!];
             }
-          } else if (selectedLight == 5) {
-            if (lastVeggieLight2 != null && lastVeggieLight2!.canBeStored) {
-              recipes = [lastVeggieLight2!];
+          } else if (selectedDinner == 5) {
+            if (lastVeggieDinner2 != null && lastVeggieDinner2!.canBeStored) {
+              recipes = [lastVeggieDinner2!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: veggieMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastVeggieLight2 = recipe;
-              lastLight = 5;
-              recipes = [lastVeggieLight2!];
+              lastVeggieDinner2 = recipe;
+              lastDinner = 5;
+              recipes = [lastVeggieDinner2!];
             }
-          } else if (selectedLight == 6) {
-            if (lastCarbsLight2 != null && lastCarbsLight2!.canBeStored) {
-              recipes = [lastCarbsLight2!];
+          } else if (selectedDinner == 6) {
+            if (lastCarbsDinner2 != null && lastCarbsDinner2!.canBeStored) {
+              recipes = [lastCarbsDinner2!];
             } else {
               Recipe? recipe = getRecipeSuggestion(candidates: carbsMeal, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 return null;
               }
-              lastCarbsLight2 = recipe;
-              lastLight = 6;
-              recipes = [lastCarbsLight2!];
+              lastCarbsDinner2 = recipe;
+              lastDinner = 6;
+              recipes = [lastCarbsDinner2!];
             }
           }
       }
@@ -570,7 +568,7 @@ class MenuProvider extends ChangeNotifier {
       ],
     );
 
-    Debug.logDev("Generated menu: ${menu.toJson()}");
+    // Debug.logDev("Generated menu: ${menu.toJson()}");
 
     return menu;
   }
