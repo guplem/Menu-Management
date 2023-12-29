@@ -32,27 +32,27 @@ class MenuProvider extends ChangeNotifier {
     // SUNDAY
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.breakfast), availableCookingTimeMinutes: 60, requiresMeal: true),
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.dinner), availableCookingTimeMinutes: 60, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.dinner), availableCookingTimeMinutes: 10, requiresMeal: true),
     // MONDAY
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.breakfast), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch), availableCookingTimeMinutes: 60, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch), availableCookingTimeMinutes: 0, requiresMeal: true),
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.dinner), availableCookingTimeMinutes: 60, requiresMeal: true),
     // TUESDAY
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.tuesday, mealType: MealType.breakfast), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch), availableCookingTimeMinutes: 60, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch), availableCookingTimeMinutes: 0, requiresMeal: true),
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.tuesday, mealType: MealType.dinner), availableCookingTimeMinutes: 60, requiresMeal: true),
     // WEDNESDAY
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.wednesday, mealType: MealType.breakfast), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch), availableCookingTimeMinutes: 60, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch), availableCookingTimeMinutes: 0, requiresMeal: true),
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.wednesday, mealType: MealType.dinner), availableCookingTimeMinutes: 60, requiresMeal: true),
     // THURSDAY
     const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.thursday, mealType: MealType.breakfast), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.thursday, mealType: MealType.dinner), availableCookingTimeMinutes: 60, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch), availableCookingTimeMinutes: 0, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.thursday, mealType: MealType.dinner), availableCookingTimeMinutes: 45, requiresMeal: true),
     // FRIDAY
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.breakfast), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.lunch), availableCookingTimeMinutes: 60, requiresMeal: true),
-    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.dinner), availableCookingTimeMinutes: 60, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.breakfast), availableCookingTimeMinutes: 30, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.lunch), availableCookingTimeMinutes: 0, requiresMeal: true),
+    const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.dinner), availableCookingTimeMinutes: 10, requiresMeal: true),
   ];
 
   List<MenuConfiguration> get configurations => _configurations;
@@ -191,8 +191,7 @@ class MenuProvider extends ChangeNotifier {
             i = -1;
           } else {
             // If lookingForPriority is null or false, exit the loop
-            // This should never be reached, but just in case
-            Debug.logWarning(true, "Reached an unexpected state in getRecipeSuggestion loop. This should never happen.\ncandidatesLength-1: ${cleanCandidates.length - 1} \ni: $i\nlookingForPriority: $lookingForPriority\nprioritizeLunch: $prioritizeLunch\nprioritizeDinner: $prioritizeDinner");
+            // This should only be reached if no meal fits the configuration
             break;
           }
         }
@@ -240,7 +239,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among breakfasts (${breakfasts.length})");
+                Debug.log("Recipe not found among breakfasts (${breakfasts.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastBreakfast1 = recipe;
@@ -254,7 +253,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among breakfasts (${breakfasts.length})");
+                Debug.log("Recipe not found among breakfasts (${breakfasts.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastBreakfast2 = recipe;
@@ -268,7 +267,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: breakfasts, configuration: configuration, removeAlreadySelectedRecipesFromCandidates: false);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among breakfasts (${breakfasts.length})");
+                Debug.log("Recipe not found among breakfasts (${breakfasts.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastBreakfast3 = recipe;
@@ -305,7 +304,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: carbsMeals, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among carbsMeals (${carbsMeals.length})");
+                Debug.log("Recipe not found among carbsMeals (${carbsMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastCarbLunch = recipe;
@@ -320,7 +319,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: veggieMeals, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among veggieMeals (${veggieMeals.length})");
+                Debug.log("Recipe not found among veggieMeals (${veggieMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastVeggieLunch = recipe;
@@ -335,7 +334,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: proteinMeals, prioritizeLunch: true, configuration: configuration, onlyUseRecipesThatCanBeStored: true);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among proteinMeals (${proteinMeals.length})");
+                Debug.log("Recipe not found among proteinMeals (${proteinMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastProteinLunch = recipe;
@@ -394,7 +393,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: proteinMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among proteinMeals (${proteinMeals.length})");
+                Debug.log("Recipe not found among proteinMeals (${proteinMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastProteinDinner1 = recipe;
@@ -409,7 +408,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: veggieMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among veggieMeals (${veggieMeals.length})");
+                Debug.log("Recipe not found among veggieMeals (${veggieMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastVeggieDinner1 = recipe;
@@ -424,7 +423,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: carbsMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among carbsMeals (${carbsMeals.length})");
+                Debug.log("Recipe not found among carbsMeals (${carbsMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastCarbsDinner1 = recipe;
@@ -439,7 +438,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: proteinMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among proteinMeals (${proteinMeals.length})");
+                Debug.log("Recipe not found among proteinMeals (${proteinMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastProteinDinner2 = recipe;
@@ -454,7 +453,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: veggieMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among veggieMeals (${veggieMeals.length})");
+                Debug.log("Recipe not found among veggieMeals (${veggieMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastVeggieDinner2 = recipe;
@@ -469,7 +468,7 @@ class MenuProvider extends ChangeNotifier {
               Recipe? recipe = getRecipeSuggestion(candidates: carbsMeals, prioritizeDinner: true, configuration: configuration);
               if (recipe == null) {
                 // TODO: Show error dialog with proper information
-                Debug.logError("Recipe not found among carbsMeals (${carbsMeals.length})");
+                Debug.log("Recipe not found among carbsMeals (${carbsMeals.length})", signature: "⚠️ ", messageColor: ColorsConsole.yellow);
                 return null;
               }
               lastCarbsDinner2 = recipe;
@@ -480,7 +479,7 @@ class MenuProvider extends ChangeNotifier {
       }
 
       if (recipes == null) {
-        Debug.logError("No recipe found for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}");
+        Debug.logError("No recipe found for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}", asException: false);
       }
 
       // TODO: Populate snacks and desserts, take into account the available cooking time by using the parameter otherRecipesOfTheSameMeal of the method getRecipeSuggestion
