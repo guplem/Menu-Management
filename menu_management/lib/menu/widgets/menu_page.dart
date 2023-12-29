@@ -32,7 +32,7 @@ class MenuPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.all(15),
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
                     child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),

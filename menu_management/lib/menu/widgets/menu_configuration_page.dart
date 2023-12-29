@@ -58,7 +58,7 @@ class MenuConfigurationPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.all(15),
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
                     child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter()??"null"),
