@@ -105,6 +105,13 @@ class MenuProvider extends ChangeNotifier {
 
     List<Recipe> fruitDesserts = RecipesProvider().getOfType(type: RecipeType.dessert, vegetables: true);
 
+    // *** VALUES *** //
+    //int minDaysBetweenSameBreakfast = 2; // Must have at least 1 day between same breakfasts
+    //int minDaysBetweenSameMeal = 1; // Can not be in the same day
+    //
+    //int requiredMealsThatCanNotBeCookedAtTheSpot = instance.configurations.fold(0, (previousValue, config) => previousValue + (!config.canBeCookedAtTheSpot && config.isMeal ? 1 : 0));
+    //int requiredMealsThatCanBeCookedAtTheSpot = instance.configurations.fold(0, (previousValue, config) => previousValue + (config.canBeCookedAtTheSpot && config.isMeal ? 1 : 0));
+
     // ** helpers ** //
     int seedIncrementTimes = 0;
     int seed() {
@@ -142,13 +149,14 @@ class MenuProvider extends ChangeNotifier {
       bool? prioritizeDinner,
       bool onlyUseRecipesThatCanBeStored = false,
       bool removeAlreadySelectedRecipesFromCandidates = true,
+      bool lookForAlreadySelectedRecipesIfNotFound = true,
     }) {
       if (!configuration.requiresMeal) {
         Debug.logError("Configuration does not require a meal, this should never happen");
         return null;
       }
 
-      Debug.log("Getting recipe suggestion for configuration with available time of ${configuration.availableCookingTimeMinutes}", signature: "🫕 ", maxStackTraceRows: 2);
+      Debug.log("Looking for recipe suggestion for configuration with available time of ${configuration.availableCookingTimeMinutes}", signature: "🫕 ", maxStackTraceRows: 2);
 
       List<Recipe> cleanCandidates = [...candidates];
       if (onlyUseRecipesThatCanBeStored) {
@@ -158,7 +166,7 @@ class MenuProvider extends ChangeNotifier {
         cleanCandidates.removeWhere((element) => uniqueSelectedRecipes.any((selectedRecipe) => selectedRecipe.id == element.id));
       }
       cleanCandidates.shuffle(Random(seed()));
-      Debug.log("Candidates:\n\t${cleanCandidates.map((e) => e.name).toList().join("\n\t")}", signature: "\t");
+      // Debug.log("Candidates:\n\t${cleanCandidates.map((e) => e.name).toList().join("\n\t")}", signature: "\t");
 
       int cookingTimeAlreadyUsed = otherRecipesOfTheSameMeal.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
 
@@ -198,9 +206,29 @@ class MenuProvider extends ChangeNotifier {
       }
 
       Debug.log(
-          "No recipe found for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}.\nAvailable time: ${configuration.availableCookingTimeMinutes - cookingTimeAlreadyUsed}.\nCandidates: ${cleanCandidates.map((e) => e.name).toList().join(", ")}.\nOther recipes of the same meal: ${otherRecipesOfTheSameMeal.map((e) => e.name).toList().join(", ")}",
+          "No recipe found for ${configuration.mealTime.weekDay} ${configuration.mealTime.mealType}.\nAvailable time: ${configuration.availableCookingTimeMinutes - cookingTimeAlreadyUsed}.\nCandidates: ${cleanCandidates.map((e) => e.toShortString()).toList().join(", ")}.\nOther recipes of the same meal: ${otherRecipesOfTheSameMeal.map((e) => e.name).toList().join(", ")}",
           signature: "❌ ",
           messageColor: ColorsConsole.red);
+
+      if (lookForAlreadySelectedRecipesIfNotFound) {
+        int minimumCookingTime = candidates.fold(0, (previousValue, element) {
+          if (element.totalTimeMinutes < configuration.availableCookingTimeMinutes) {
+            element.totalTimeMinutes;
+          }
+          return previousValue;
+        });
+        Debug.logWarning(configuration.availableCookingTimeMinutes > minimumCookingTime, "Available cooking time is ${configuration.availableCookingTimeMinutes} but the minimum cooking time of the recipes is $minimumCookingTime, should not be looking for already selected recipes");
+        return getRecipeSuggestion(
+          candidates: uniqueSelectedRecipes.toList(),
+          configuration: configuration.copyWith(availableCookingTimeMinutes: 24*60),
+          otherRecipesOfTheSameMeal: otherRecipesOfTheSameMeal,
+          prioritizeLunch: prioritizeLunch,
+          prioritizeDinner: prioritizeDinner,
+          onlyUseRecipesThatCanBeStored: false,
+          removeAlreadySelectedRecipesFromCandidates: false,
+          lookForAlreadySelectedRecipesIfNotFound: false,
+        );
+      }
       return null;
     }
 
