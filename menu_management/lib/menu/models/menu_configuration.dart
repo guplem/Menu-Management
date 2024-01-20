@@ -30,4 +30,8 @@ class MenuConfiguration with _$MenuConfiguration {
   void saveToProvider() {
     MenuProvider.update(newConfiguration: this);
   }
+
+  bool goesBefore(MenuConfiguration b) {
+    return mealTime.goesBefore(b.mealTime);
+  }
 }

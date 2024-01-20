@@ -1,3 +1,6 @@
+import 'package:menu_management/flutter_essentials/library.dart';
+import 'package:menu_management/menu/enums/meal_type.dart';
+import 'package:menu_management/menu/models/menu_configuration.dart';
 import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -38,8 +41,32 @@ class Recipe with _$Recipe {
   int get cookingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
   int get totalTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.totalTimeMinutes);
 
-
   String toShortString() {
     return "$name (${totalTimeMinutes}min)";
+  }
+
+  bool fitsConfiguration(MenuConfiguration configuration, {required bool needToBeStored, required bool strictMealTime}) {
+    if (needToBeStored && !canBeStored) {
+      return false;
+    }
+    if (!configuration.canBeCookedAtTheSpot && totalTimeMinutes > 0) {
+      return false;
+    }
+    if (configuration.isMeal && !lunch && !dinner) {
+      return false;
+    }
+    if (strictMealTime) {
+      if (configuration.mealTime.mealType == MealType.breakfast && (lunch || dinner)) {
+        Debug.logError("This should never happen, since breakfast is not a meal and this is checked before");
+        return false;
+      }
+      if (configuration.mealTime.mealType == MealType.lunch && (dinner)) {
+        return false;
+      }
+      if (configuration.mealTime.mealType == MealType.dinner && (lunch)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

@@ -36,4 +36,17 @@ extension IterableExtensions<E> on Iterable<E> {
     }
 
   }
+
+  Iterable<E> shuffled([Random? random]) {
+    List<E> list = [...this];
+    list.shuffle(random);
+    return list;
+  }
+
+  Iterable<E> sorted([int Function(E, E)? compare]) {
+    List<E> list = [...this];
+    list.sort(compare);
+    return list;
+  }
+
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/menu/enums/meal_type.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
+import 'package:menu_management/menu/menu_generator.dart';
 import 'package:menu_management/menu/models/cooking.dart';
 import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/menu/models/menu_configuration.dart';
@@ -86,6 +87,11 @@ class MenuProvider extends ChangeNotifier {
   }
 
   static Menu generateMenu({required int initialSeed}) {
+
+    MenuGenerator generator = MenuGenerator(baseSeed: initialSeed);
+    generator.generate(configurations: instance.configurations);
+    return generator.menu!;
+
     // *** SORT ALL MEALS BY TYPE *** //
 
     List<Recipe> breakfasts = RecipesProvider().getOfType(type: RecipeType.breakfast);
