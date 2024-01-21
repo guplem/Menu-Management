@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/cooking.dart';
 import 'package:menu_management/menu/models/meal.dart';
 import 'package:menu_management/menu/models/meal_time.dart';
