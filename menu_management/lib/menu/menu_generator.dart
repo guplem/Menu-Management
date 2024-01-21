@@ -87,6 +87,7 @@ class MenuGenerator {
   }
 
   Recipe? getValidRecipeForConfiguration({required MenuConfiguration configuration, required List<Recipe> candidates, required bool needToBeStored, required List<Recipe> alreadySelected, required bool strictMealTime}) {
+    Debug.log("Verifying if there is a valid recipe for ${configuration.mealTime}. Candidates: ${candidates.map((e) => e.toShortString()).join(", ")})}");
     // Count the number of recipes of each type that have already been selected
     int selectedCarbs = 0; // ID: 1
     int selectedProteins = 0; // ID: 2
@@ -149,7 +150,7 @@ class MenuGenerator {
     recipesByLeastSelected.add(otherRecipe);
 
     // Return the first valid recipe
-    return recipesByLeastSelected.firstOrNull;
+    return recipesByLeastSelected.firstWhereOrNull((recipe) => recipe != null);
   }
 
   List<MenuConfiguration> getPreviousMomentConfigurations({required MenuConfiguration previousThan, required List<MenuConfiguration> possibleConfigurations}) {
@@ -176,9 +177,11 @@ class MenuGenerator {
     List<MenuConfiguration> configsByAvailableTime = [...configurationsToFindRecipesFor].sorted((a, b) => a.availableCookingTimeMinutes.compareTo(b.availableCookingTimeMinutes)).toList();
     for (int i = 0; i < configsByAvailableTime.length; i++) {
       MenuConfiguration configWithTheLeastAvailableTime = configsByAvailableTime[i];
+      Debug.logDev("Looking for recipe for ${configWithTheLeastAvailableTime.mealTime} (${configWithTheLeastAvailableTime.availableCookingTimeMinutes} minutes available)");
 
       if (result.containsKey(configWithTheLeastAvailableTime.mealTime)) {
         // The configuration has already been set (maybe by a configuration with lower available cooking time)
+        Debug.logUpdate("Configuration already set");
         continue;
       }
 
@@ -186,9 +189,11 @@ class MenuGenerator {
       Recipe? recipe = getValidRecipeForConfiguration(strictMealTime: true, configuration: configWithTheLeastAvailableTime, candidates: recipesToConsider, needToBeStored: false, alreadySelected: result.values.whereType<Recipe>().toList());
       if (recipe != null) {
         // Valid recipe found. Set it for the configuration
+        Debug.logSuccess("Valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}");
         result[configWithTheLeastAvailableTime.mealTime] = recipe;
         recipesToConsider.remove(recipe);
       } else {
+        Debug.log("No valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}");
         // Valid recipe not found. Try to get the recipe for the nearest previous moment
         List<MenuConfiguration> possibleMoments = [...configurationsToFindRecipesFor].sublist(i);
 
@@ -201,28 +206,34 @@ class MenuGenerator {
         // Filter out the configurations that have already been set
         possibleMoments.removeWhere((MenuConfiguration config) => result.containsKey(config.mealTime));
 
+        Debug.logUpdate("Looking for recipe in other (previous) moments... ${previousMomentConfigurations.length} previous moments available");
+
         // Check if all the previous moments have already been set
         List<MenuConfiguration> previousMomentsWithAlreadySelectedMeal = previousMomentConfigurations.where((element) => result.containsKey(element.mealTime)).toList();
         if (previousMomentsWithAlreadySelectedMeal.length >= previousMomentConfigurations.length) {
+          Debug.logUpdate("All the previous moments have already been set");
           // All the previous moments have already been set.
           Recipe recipe = recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast();
           result[configWithTheLeastAvailableTime.mealTime] = recipe;
           recipesToConsider.remove(recipe);
         } else {
           // There are previous moments that have not been set yet.
-
+          Debug.log("There are previous moments that have not been set yet");
           // Remove the previous moments that have already been set
           previousMomentConfigurations.removeWhere((MenuConfiguration config) => result.containsKey(config.mealTime));
 
           while (previousMomentConfigurations.isNotEmpty) {
             // Select the previous moment configuration, being the one that is further away from the current moment (as early as possible)
             MenuConfiguration selectedPreviousMomentConfiguration = previousMomentConfigurations.first;
+            Debug.log("Checking if it is possible to cook in ${selectedPreviousMomentConfiguration.mealTime}");
             // There is a previous moment. Try to get the recipe for it
             recipe = getValidRecipeForConfiguration(strictMealTime: false, configuration: selectedPreviousMomentConfiguration, candidates: recipesToConsider, needToBeStored: true, alreadySelected: result.values.whereType<Recipe>().toList());
             if (recipe == null) {
+              Debug.logUpdate("It is not possible to cook in ${selectedPreviousMomentConfiguration.mealTime}");
               // Valid recipe not found for the previous moment. Remove the previous moment from the possible moments
               previousMomentConfigurations.remove(selectedPreviousMomentConfiguration);
             } else {
+              Debug.logSuccess("Valid recipe found for ${selectedPreviousMomentConfiguration.mealTime}");
               // Valid recipe found for the previous moment.
               result[selectedPreviousMomentConfiguration.mealTime] = recipe;
               result[configWithTheLeastAvailableTime.mealTime] = recipe;

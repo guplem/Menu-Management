@@ -51,25 +51,25 @@ class Debug {
 
   /// Used to log successful general operations that are not directly related to the upload or download of resources.
   static void logSuccess(String message,
-      {String signature = "✔ ", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 4, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.green}) {
+      {String signature = "✔ ", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 3, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.green}) {
     log(message, signature: signature, ignoredFirstStackTraceRows: ignoredFirstStackTraceRows, maxStackTraceRows: maxStackTraceRows, messageColor: messageColor);
   }
 
   /// Used to log successful upload operations.
   static void logSuccessUpload(String message,
-      {String signature = "⬆️", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 4, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.blue}) {
+      {String signature = "⬆️", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 3, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.blue}) {
     log(message, signature: signature, ignoredFirstStackTraceRows: ignoredFirstStackTraceRows, maxStackTraceRows: maxStackTraceRows, messageColor: messageColor);
   }
 
   /// Used to log successful download operations.
   static void logSuccessDownload(String message,
-      {String signature = "⬇️", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 4, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.cyan}) {
+      {String signature = "⬇️", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 3, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.cyan}) {
     log(message, signature: signature, ignoredFirstStackTraceRows: ignoredFirstStackTraceRows, maxStackTraceRows: maxStackTraceRows, messageColor: messageColor);
   }
 
   /// Used to log updates on the state/configuration of the app.
   static void logUpdate(String message,
-      {String signature = "🔄 ", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 4, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.white}) {
+      {String signature = "🔄 ", int maxStackTraceRows = 1, int ignoredFirstStackTraceRows = 3, bool showFullStackTrace = false, ColorsConsole messageColor = ColorsConsole.white}) {
     log(message, signature: signature, ignoredFirstStackTraceRows: ignoredFirstStackTraceRows, maxStackTraceRows: maxStackTraceRows, messageColor: messageColor);
   }
 
