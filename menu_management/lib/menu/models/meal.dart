@@ -10,6 +10,7 @@ part 'meal.g.dart';
 @freezed
 class Meal with _$Meal {
   const factory Meal({
+    // TODO: cookings should be singular and not a list. No support for multiple recipes in a meal
     required List<Cooking> cookings,
     required MealTime mealTime,
   }) = _Meal;
