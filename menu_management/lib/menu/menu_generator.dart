@@ -44,7 +44,7 @@ class MenuGenerator {
 
 
 
-    List<Meal> meals = configurations.map((config) {
+    List<Meal> meals = configurations.where((element) => element.requiresMeal).map((config) {
       Recipe? recipe = allSelected[config.mealTime];
 
       return Meal(

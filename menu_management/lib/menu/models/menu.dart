@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
+import 'package:menu_management/menu/enums/meal_type.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/cooking.dart';
 import 'package:menu_management/menu/models/meal.dart';
@@ -38,10 +39,13 @@ class Menu with _$Menu {
     return copyWith(meals: newMeals).copyWithUpdatedYields();
   }
 
-  List<Meal> mealsOfDay(WeekDay weekDay) {
+  List<Meal?> mealsOfDay(WeekDay weekDay) {
     List<Meal> dayMeals = meals.where((meal) => meal.mealTime.weekDay == weekDay).toList();
-    dayMeals.sort((a, b) => a.mealTime.goesBefore(b.mealTime) ? -1 : 1);
-    return dayMeals;
+    List<Meal?> dayMealsWithNulls = List.filled(3, null, growable: false);
+    dayMealsWithNulls[0] = dayMeals.firstWhereOrNull((meal) => meal.mealTime.mealType == MealType.breakfast);
+    dayMealsWithNulls[1] = dayMeals.firstWhereOrNull((meal) => meal.mealTime.mealType == MealType.lunch);
+    dayMealsWithNulls[2] = dayMeals.firstWhereOrNull((meal) => meal.mealTime.mealType == MealType.dinner);
+    return dayMealsWithNulls;
   }
 
   Menu copyWithUpdatedYields() {
