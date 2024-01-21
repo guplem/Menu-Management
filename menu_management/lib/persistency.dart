@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
+import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 
@@ -108,4 +109,61 @@ class Persistency {
       recipesProvider.setData(recipes);
     }
   }
+
+  static saveMenu(Menu menu) async {
+
+    DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
+    String date = '${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}';
+
+    // Pick the destination
+    String? outputFile = await FilePicker.platform.saveFile(
+      dialogTitle: 'Select where to save the menu',
+      fileName: 'Menu-$date.tsm',
+      allowedExtensions: ['tsm','json'],
+      type: FileType.custom,
+    );
+
+    if (outputFile == null) {
+      // User canceled the picker
+    } else {
+
+      // Prepare the file
+      File file = File(outputFile);
+      String data = jsonEncode(menu.toJson());
+
+      // Save to file
+      file.writeAsString(data);
+    }
+  }
+
+
+  static Future<Menu?> loadMenu() async {
+     FilePickerResult? result = await FilePicker.platform.pickFiles(
+       dialogTitle: 'Select the menu to load',
+       allowMultiple: false,
+       allowedExtensions: ['tsm','json'],
+       withData: true,
+       type: FileType.custom,
+     );
+
+     if (result == null) {
+       // User canceled the picker
+     } else {
+       // Prepare the file
+       File file = File(result.files.single.path!);
+
+       // Read the file
+       String data = await file.readAsString();
+
+       // Parse the data
+       Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+
+       // Convert to INGREDIENT objects
+       Menu menu = Menu.fromJson(json);
+
+        return menu;
+     }
+      return null;
+
+   }
 }

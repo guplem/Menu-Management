@@ -3,6 +3,7 @@ import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/meal.dart';
 import 'package:menu_management/menu/models/menu.dart';
+import 'package:menu_management/persistency.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 
 class MenuPage extends StatefulWidget {
@@ -27,7 +28,7 @@ class _MenuPageState extends State<MenuPage> {
         tooltip: "Save Menu",
         child: const Icon(Icons.save_rounded),
         onPressed: () {
-          // TODO: save the menu to a file
+          Persistency.saveMenu(widget.menu);
         },
       ),
       body: ListView.builder(

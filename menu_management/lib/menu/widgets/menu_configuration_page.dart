@@ -7,6 +7,7 @@ import 'package:menu_management/menu/menu_provider.dart';
 import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/menu/models/menu_configuration.dart';
 import 'package:menu_management/menu/widgets/menu_page.dart';
+import 'package:menu_management/persistency.dart';
 
 class MenuConfigurationPage extends StatelessWidget {
   const MenuConfigurationPage({super.key});
@@ -27,8 +28,15 @@ class MenuConfigurationPage extends StatelessWidget {
           IconButton(
             tooltip: "Open Menu",
             icon: const Icon(Icons.file_open),
-            onPressed: () {
-              // TODO: Load menu from file and open menu visualization page
+            onPressed: () async {
+              Menu? loadedMenu = await Persistency.loadMenu();
+              if (loadedMenu != null && context.mounted) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MenuPage(menu: loadedMenu),
+                  ),
+                );
+              }
             },
           ),
         ],
@@ -61,7 +69,7 @@ class MenuConfigurationPage extends StatelessWidget {
                   padding: const EdgeInsets.all(15),
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
-                    child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter()??"null"),
+                    child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
                   ),
                 ),
                 ...List.generate(3, (mealTypeValue) {
@@ -81,7 +89,7 @@ class MenuConfigurationPage extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                   color: menuConfiguration.requiresMeal ? null : Theme.of(context).colorScheme.outline,
                                 ),
-                            child: Text(MealType.fromValue(mealTypeValue).name.capitalizeFirstLetter()??"null"),
+                            child: Text(MealType.fromValue(mealTypeValue).name.capitalizeFirstLetter() ?? "null"),
                           ),
                           const SizedBox(height: 5),
                           Switch(
