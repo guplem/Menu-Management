@@ -42,47 +42,23 @@ class MenuGenerator {
 
     Map<MealTime, Recipe?> allSelected = {...breakfastRecipes, ...mealsRecipesMap};
 
-    bool isFirstTimeOfRecipe(MealTime time, Recipe recipe) {
-      List<MealTime> sortedMealTimes = allSelected.keys.sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
-      for (int i = 0; i < sortedMealTimes.length; i++) {
-        MealTime t = sortedMealTimes[i];
-        Recipe? r = allSelected[t];
-        if (r == recipe && t.goesBefore(time)) {
-          return false;
-        } else if (r == recipe && (t == time || time.goesBefore(t))) {
-          return true;
-        }
-      }
-      Debug.logError("This should not happen");
-      return false;
-    }
+
 
     List<Meal> meals = configurations.map((config) {
       Recipe? recipe = allSelected[config.mealTime];
 
-      int yield = 1;
-      if (recipe != null && recipe.canBeStored) {
-        if (isFirstTimeOfRecipe(config.mealTime, recipe)) {
-          yield = allSelected.values.fold(0, (previousValue, element) => previousValue + (element == recipe ? 1 : 0));
-        } else {
-          yield = 0;
-        }
-      }
-
       return Meal(
         mealTime: config.mealTime,
-        cookings: recipe == null
-            ? []
-            : [
-                Cooking(
-                  recipe: recipe,
-                  yield: yield,
-                ),
-              ],
+        cooking: recipe == null
+            ? null
+            : Cooking(
+                recipe: recipe,
+                yield: -1,
+              ),
       );
     }).toList();
 
-    menu = Menu(meals: meals);
+    menu = Menu(meals: meals).copyWithUpdatedYields();
   }
 
   Recipe? getValidRecipeForConfiguration({required int maxNumberOfTimesTheSameRecipeShouldBeUsed, required MenuConfiguration configuration, required Set<Recipe> candidates, required bool needToBeStored, required List<Recipe> alreadySelected, required bool strictMealTime}) {

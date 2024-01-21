@@ -29,4 +29,11 @@ class MealTime with _$MealTime {
     }
     return weekDay.goesBefore(other.weekDay);
   }
+
+  bool goesAfter(MealTime other) {
+    if (weekDay == other.weekDay) {
+      return mealType.goesAfter(other.mealType);
+    }
+    return weekDay.goesAfter(other.weekDay);
+  }
 }

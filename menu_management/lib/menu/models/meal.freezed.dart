@@ -20,7 +20,7 @@ Meal _$MealFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Meal {
-  List<Cooking> get cookings => throw _privateConstructorUsedError;
+  Cooking? get cooking => throw _privateConstructorUsedError;
   MealTime get mealTime => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -33,8 +33,9 @@ abstract class $MealCopyWith<$Res> {
   factory $MealCopyWith(Meal value, $Res Function(Meal) then) =
       _$MealCopyWithImpl<$Res, Meal>;
   @useResult
-  $Res call({List<Cooking> cookings, MealTime mealTime});
+  $Res call({Cooking? cooking, MealTime mealTime});
 
+  $CookingCopyWith<$Res>? get cooking;
   $MealTimeCopyWith<$Res> get mealTime;
 }
 
@@ -51,19 +52,31 @@ class _$MealCopyWithImpl<$Res, $Val extends Meal>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? cookings = null,
+    Object? cooking = freezed,
     Object? mealTime = null,
   }) {
     return _then(_value.copyWith(
-      cookings: null == cookings
-          ? _value.cookings
-          : cookings // ignore: cast_nullable_to_non_nullable
-              as List<Cooking>,
+      cooking: freezed == cooking
+          ? _value.cooking
+          : cooking // ignore: cast_nullable_to_non_nullable
+              as Cooking?,
       mealTime: null == mealTime
           ? _value.mealTime
           : mealTime // ignore: cast_nullable_to_non_nullable
               as MealTime,
     ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $CookingCopyWith<$Res>? get cooking {
+    if (_value.cooking == null) {
+      return null;
+    }
+
+    return $CookingCopyWith<$Res>(_value.cooking!, (value) {
+      return _then(_value.copyWith(cooking: value) as $Val);
+    });
   }
 
   @override
@@ -82,8 +95,10 @@ abstract class _$$MealImplCopyWith<$Res> implements $MealCopyWith<$Res> {
       __$$MealImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<Cooking> cookings, MealTime mealTime});
+  $Res call({Cooking? cooking, MealTime mealTime});
 
+  @override
+  $CookingCopyWith<$Res>? get cooking;
   @override
   $MealTimeCopyWith<$Res> get mealTime;
 }
@@ -98,14 +113,14 @@ class __$$MealImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? cookings = null,
+    Object? cooking = freezed,
     Object? mealTime = null,
   }) {
     return _then(_$MealImpl(
-      cookings: null == cookings
-          ? _value._cookings
-          : cookings // ignore: cast_nullable_to_non_nullable
-              as List<Cooking>,
+      cooking: freezed == cooking
+          ? _value.cooking
+          : cooking // ignore: cast_nullable_to_non_nullable
+              as Cooking?,
       mealTime: null == mealTime
           ? _value.mealTime
           : mealTime // ignore: cast_nullable_to_non_nullable
@@ -117,28 +132,19 @@ class __$$MealImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
-  const _$MealImpl(
-      {required final List<Cooking> cookings, required this.mealTime})
-      : _cookings = cookings,
-        super._();
+  const _$MealImpl({required this.cooking, required this.mealTime}) : super._();
 
   factory _$MealImpl.fromJson(Map<String, dynamic> json) =>
       _$$MealImplFromJson(json);
 
-  final List<Cooking> _cookings;
   @override
-  List<Cooking> get cookings {
-    if (_cookings is EqualUnmodifiableListView) return _cookings;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_cookings);
-  }
-
+  final Cooking? cooking;
   @override
   final MealTime mealTime;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Meal(cookings: $cookings, mealTime: $mealTime)';
+    return 'Meal(cooking: $cooking, mealTime: $mealTime)';
   }
 
   @override
@@ -146,7 +152,7 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Meal'))
-      ..add(DiagnosticsProperty('cookings', cookings))
+      ..add(DiagnosticsProperty('cooking', cooking))
       ..add(DiagnosticsProperty('mealTime', mealTime));
   }
 
@@ -155,15 +161,14 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MealImpl &&
-            const DeepCollectionEquality().equals(other._cookings, _cookings) &&
+            (identical(other.cooking, cooking) || other.cooking == cooking) &&
             (identical(other.mealTime, mealTime) ||
                 other.mealTime == mealTime));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_cookings), mealTime);
+  int get hashCode => Object.hash(runtimeType, cooking, mealTime);
 
   @JsonKey(ignore: true)
   @override
@@ -181,14 +186,14 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
 
 abstract class _Meal extends Meal {
   const factory _Meal(
-      {required final List<Cooking> cookings,
+      {required final Cooking? cooking,
       required final MealTime mealTime}) = _$MealImpl;
   const _Meal._() : super._();
 
   factory _Meal.fromJson(Map<String, dynamic> json) = _$MealImpl.fromJson;
 
   @override
-  List<Cooking> get cookings;
+  Cooking? get cooking;
   @override
   MealTime get mealTime;
   @override

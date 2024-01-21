@@ -17,4 +17,8 @@ enum WeekDay {
   bool goesBefore(WeekDay other) {
     return value < other.value;
   }
+
+  bool goesAfter(WeekDay other) {
+    return value > other.value;
+  }
 }
