@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/menu/enums/meal_type.dart';
+import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/cooking.dart';
 import 'package:menu_management/menu/models/meal.dart';
 import 'package:menu_management/menu/models/meal_time.dart';
@@ -85,9 +86,9 @@ class MenuGenerator {
     menu = Menu(meals: meals);
   }
 
-  Recipe? getValidRecipeForConfiguration({required int maxNumberOfTimesTHeSameRecipeCanBeUsed, required MenuConfiguration configuration, required Set<Recipe> candidates, required bool needToBeStored, required List<Recipe> alreadySelected, required bool strictMealTime}) {
+  Recipe? getValidRecipeForConfiguration({required int maxNumberOfTimesTheSameRecipeShouldBeUsed, required MenuConfiguration configuration, required Set<Recipe> candidates, required bool needToBeStored, required List<Recipe> alreadySelected, required bool strictMealTime}) {
     Debug.log(
-        "Verifying if there is a valid recipe for ${configuration.mealTime}. Candidates: ${candidates.map((e) => e.toShortString()).join(", ")}. MaxRepetitions: $maxNumberOfTimesTHeSameRecipeCanBeUsed. Need to be stored: $needToBeStored. Already selected: ${alreadySelected.map((e) => e.toShortString()).join(", ")}. Strict meal time: $strictMealTime");
+        "Verifying if there is a valid recipe for ${configuration.mealTime}. Candidates: ${candidates.map((e) => e.toShortString()).join(", ")}. MaxRepetitions: $maxNumberOfTimesTheSameRecipeShouldBeUsed. Need to be stored: $needToBeStored. Already selected: ${alreadySelected.map((e) => e.toShortString()).join(", ")}. Strict meal time: $strictMealTime");
     // Count the number of recipes of each type that have already been selected
     int selectedCarbs = 0; // ID: 1
     int selectedProteins = 0; // ID: 2
@@ -117,18 +118,19 @@ class MenuGenerator {
       }
     }
 
-    // Remove invalid candidates because they have already been selected too many times
-    candidates.removeWhere((recipe) {
-      int timesSelected = alreadySelected.where((element) => element == recipe).length;
-      return timesSelected >= maxNumberOfTimesTHeSameRecipeCanBeUsed;
-    });
-
-    // Prioritize the recipes that have been selected already
+    // Prioritize the recipes that have been selected already (and can be stored)
     List<Recipe> shuffledCandidates = candidates.shuffled(Random(seed)).toList();
     List<Recipe> uniqueCandidatesAlreadySelected = alreadySelected.shuffled(Random(seed)).toSet().toList();
     for (Recipe recipe in uniqueCandidatesAlreadySelected) {
-      if (shuffledCandidates.remove(recipe)) {
+      if (recipe.canBeStored && shuffledCandidates.contains(recipe)) {
+        shuffledCandidates.remove(recipe);
         shuffledCandidates.insert(0, recipe);
+      }
+      // Prioritize those candidates that have not been selected too many times
+      int timesSelected = alreadySelected.where((element) => element == recipe).length;
+      if (timesSelected >= maxNumberOfTimesTheSameRecipeShouldBeUsed) {
+        shuffledCandidates.remove(recipe);
+        shuffledCandidates.add(recipe);
       }
     }
 
@@ -175,11 +177,12 @@ class MenuGenerator {
   Map<MealTime, Recipe?> getRecipesFor({required List<MenuConfiguration> configurationsToFindRecipesFor, required Set<Recipe> recipesToConsider}) {
     Map<MealTime, Recipe?> result = {};
 
+    configurationsToFindRecipesFor.shuffle(Random(seed));
     int configurationsThatCanBeCookedAtTheSpot = configurationsToFindRecipesFor.where((element) => element.canBeCookedAtTheSpot).length;
     int configurationsThatCannotBeCookedAtTheSpot = configurationsToFindRecipesFor.where((element) => !element.canBeCookedAtTheSpot).length;
     int totalConfigurations = configurationsToFindRecipesFor.length;
     double percentageOfConfigurationsThatCanBeCookedAtTheSpot = configurationsThatCanBeCookedAtTheSpot / totalConfigurations;
-    int maxNumberOfTimesTheSameRecipeCanBeUsed = (totalConfigurations * (percentageOfConfigurationsThatCanBeCookedAtTheSpot / 3.1)).ceil();
+    int maxNumberOfTimesTheSameRecipeShouldBeUsed = (totalConfigurations * (percentageOfConfigurationsThatCanBeCookedAtTheSpot / 3.1)).ceil();
     List<Recipe> selectedRecipesWithRepetitions = result.values.whereType<Recipe>().toList();
     Debug.log("Number of selected reicpes with repetitions: ${selectedRecipesWithRepetitions.length}");
     int numberOfTimesTheRecipeHasBeenUsed(Recipe recipe) => selectedRecipesWithRepetitions.where((element) => element == recipe).length;
@@ -190,7 +193,7 @@ class MenuGenerator {
         "cannotBeCookedAtTheSpot: $configurationsThatCannotBeCookedAtTheSpot\n"
         "totalConfigurations: $totalConfigurations\n"
         "percentageOfConfigurationsThatCanBeCookedAtTheSpot: $percentageOfConfigurationsThatCanBeCookedAtTheSpot\n"
-        "maxNumberOfTimesTheSameRecipeCanBeUsed: $maxNumberOfTimesTheSameRecipeCanBeUsed\n"
+        "maxNumberOfTimesTheSameRecipeCanBeUsed: $maxNumberOfTimesTheSameRecipeShouldBeUsed\n"
         "numberOfTimesTheRecipeHasBeenUsed: $numberOfTimesTheRecipeHasBeenUsed\n"
         "recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast: ${recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast()?.toShortString()}");
 
@@ -208,7 +211,7 @@ class MenuGenerator {
 
       // Get the recipe for the configuration with the least available cooking time
       Recipe? recipe = getValidRecipeForConfiguration(
-          maxNumberOfTimesTHeSameRecipeCanBeUsed: maxNumberOfTimesTheSameRecipeCanBeUsed, strictMealTime: true, configuration: configWithTheLeastAvailableTime, candidates: recipesToConsider, needToBeStored: false, alreadySelected: result.values.whereType<Recipe>().toList());
+          maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed, strictMealTime: true, configuration: configWithTheLeastAvailableTime, candidates: recipesToConsider, needToBeStored: false, alreadySelected: result.values.whereType<Recipe>().toList());
       if (recipe != null) {
         // Valid recipe found. Set it for the configuration
         Debug.logSuccess("Valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}");
@@ -227,7 +230,7 @@ class MenuGenerator {
         // Filter out the configurations that have already been set
         possibleMoments.removeWhere((MenuConfiguration config) => result.containsKey(config.mealTime));
 
-        Debug.logUpdate("Looking for recipe in other (previous) moments... ${previousMomentConfigurations.length} previous moments available");
+        Debug.logUpdate("Looking for recipe in other (previous) moments... ${previousMomentConfigurations.length} previous moments available: ${previousMomentConfigurations.map((e) => e.mealTime).join(", ")}");
 
         // Check if all the previous moments have already been set
         List<MenuConfiguration> previousMomentsWithAlreadySelectedMeal = previousMomentConfigurations.where((element) => result.containsKey(element.mealTime)).toList();
@@ -245,6 +248,7 @@ class MenuGenerator {
           Debug.log("There are previous moments that have not been set yet");
           // Remove the previous moments that have already been set
           previousMomentConfigurations.removeWhere((MenuConfiguration config) => result.containsKey(config.mealTime));
+          Debug.log("Previous moments that have not been set yet (${previousMomentConfigurations.length}): ${previousMomentConfigurations.map((e) => e.mealTime).join(", ")}");
 
           while (previousMomentConfigurations.isNotEmpty) {
             // Select the previous moment configuration, being the one that is further away from the current moment (as early as possible)
@@ -252,7 +256,7 @@ class MenuGenerator {
             Debug.log("Checking if it is possible to cook in ${selectedPreviousMomentConfiguration.mealTime}");
             // There is a previous moment. Try to get the recipe for it
             recipe = getValidRecipeForConfiguration(
-                maxNumberOfTimesTHeSameRecipeCanBeUsed: maxNumberOfTimesTheSameRecipeCanBeUsed, strictMealTime: false, configuration: selectedPreviousMomentConfiguration, candidates: recipesToConsider, needToBeStored: true, alreadySelected: result.values.whereType<Recipe>().toList());
+                maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed, strictMealTime: false, configuration: selectedPreviousMomentConfiguration, candidates: recipesToConsider, needToBeStored: true, alreadySelected: result.values.whereType<Recipe>().toList());
             if (recipe == null) {
               Debug.logUpdate("It is not possible to cook in ${selectedPreviousMomentConfiguration.mealTime}");
               // Valid recipe not found for the previous moment. Remove the previous moment from the possible moments
@@ -269,6 +273,64 @@ class MenuGenerator {
             }
           }
         }
+      }
+    }
+
+    // Fill the gaps
+    // Filter out the configurations that have already been set and those that have not
+    Set<MenuConfiguration> configurationsThatHaveBeenSet = {};
+    Set<MenuConfiguration> configurationsThatHaveNotBeenSet = {};
+    for (MenuConfiguration configuration in configurationsToFindRecipesFor) {
+      Recipe? recipe = result[configuration.mealTime];
+      if (recipe != null) {
+        configurationsThatHaveBeenSet.add(configuration);
+      } else {
+        configurationsThatHaveNotBeenSet.add(configuration);
+      }
+    }
+    // For each of the configurations that have not been set, try to get a recipe from the previous moments
+    for (MenuConfiguration configuration in configurationsThatHaveNotBeenSet) {
+      Debug.log("Trying to fill the gap for ${configuration.mealTime}", signature: "🔎");
+      // Get the previous moments from the configurations that have already been set
+      List<MenuConfiguration> previousMealTimes = getPreviousMomentConfigurations(previousThan: configuration, possibleConfigurations: configurationsThatHaveBeenSet.toList());
+      if (previousMealTimes.isNotEmpty) {
+        // Get the recipes that have already been selected for the previous moments to consider them as candidates for the current configuration (missing a recipe)
+        Set<Recipe> recipesToConsider = {};
+        for (MenuConfiguration previousMealTime in previousMealTimes) {
+          Recipe? recipe = result[previousMealTime.mealTime];
+          if (recipe != null && recipe.canBeStored) {
+            recipesToConsider.add(recipe);
+          }
+        }
+        // Get a valid recipe for the configuration from the previous moments
+        if (recipesToConsider.isNotEmpty) {
+          Recipe? recipe = getValidRecipeForConfiguration(
+            maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed,
+            strictMealTime: false,
+            configuration: configuration.copyWith(availableCookingTimeMinutes: 24 * 60),
+            candidates: recipesToConsider,
+            needToBeStored: true,
+            alreadySelected: result.values.whereType<Recipe>().toList(),
+          );
+          if (recipe != null) {
+            result[configuration.mealTime] = recipe;
+          } else {
+            Debug.logWarning(
+                true,
+                "No recipe found for ${configuration.mealTime} from the previous moments.\n"
+                "Previous moments: ${previousMealTimes.map((e) => e.mealTime).join(", ")}\n"
+                "Recipes to consider: ${recipesToConsider.map((e) => e.toShortString()).join(", ")}\n"
+                "Already selected recipes: ${result.values.whereType<Recipe>().map((e) => e.toShortString()).join(", ")}\n"
+                "Configurations that have been set: ${configurationsThatHaveBeenSet.map((e) => e.mealTime).join(", ")}\n"
+                "Configurations that have not been set: ${configurationsThatHaveNotBeenSet.map((e) => e.mealTime).join(", ")}\n"
+                "",
+                asAssertion: false);
+          }
+        } else {
+          Debug.log("No recipes to consider for ${configuration.mealTime}", signature: "🦢");
+        }
+      } else {
+        Debug.log("No previous moments found for ${configuration.mealTime}", signature: "🫗");
       }
     }
 
