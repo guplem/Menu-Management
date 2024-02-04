@@ -70,7 +70,7 @@ class RecipePage extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: FilterChip(
-                  label: Text(type.name.capitalizeFirstLetter()??"null"),
+                  label: Text(type.name.capitalizeFirstLetter() ?? "null"),
                   selected: recipe.type == type,
                   onSelected: (bool value) {
                     if (value && type == RecipeType.breakfast) {

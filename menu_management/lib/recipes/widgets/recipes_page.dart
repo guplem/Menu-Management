@@ -4,6 +4,7 @@ import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/widgets/recipe_addition.dart';
 import 'package:menu_management/recipes/widgets/recipe_page.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
+import 'package:menu_management/recipes/widgets/recipe_title_editor.dart';
 
 class RecipesPage extends StatefulWidget {
   const RecipesPage({super.key});
@@ -13,18 +14,29 @@ class RecipesPage extends StatefulWidget {
 }
 
 class _RecipesPageState extends State<RecipesPage> {
-  String? selectedRecipe;
+  String? selectedRecipeId;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(selectedRecipe == null ? 'Recipes' : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipe).name),
+          title: Text(selectedRecipeId == null ? 'Recipes' : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipeId).name),
           actions: [
-            if (selectedRecipe != null)
+            if (selectedRecipeId != null)
+              IconButton(
+                icon: const Icon(Icons.edit_rounded),
+                onPressed: () => RecipeTitleEditor.show(
+                  context: context,
+                  recipe: RecipesProvider.instance.get(selectedRecipeId!),
+                  onUpdate: (Recipe newRecipe) {
+                    RecipesProvider.addOrUpdate(newRecipe: newRecipe);
+                  },
+                ),
+              ),
+            if (selectedRecipeId != null)
               IconButton(
                 icon: const Icon(Icons.close_rounded),
-                onPressed: () => setState(() => selectedRecipe = null),
+                onPressed: () => setState(() => selectedRecipeId = null),
               )
           ],
         ),
@@ -32,8 +44,8 @@ class _RecipesPageState extends State<RecipesPage> {
           builder: (context) {
             RecipesProvider recipesProvider = getProvider<RecipesProvider>(context, listen: true);
 
-            if (selectedRecipe != null) {
-              return RecipePage(recipeId: selectedRecipe!);
+            if (selectedRecipeId != null) {
+              return RecipePage(recipeId: selectedRecipeId!);
             }
 
             return ListView.builder(
@@ -49,7 +61,7 @@ class _RecipesPageState extends State<RecipesPage> {
                   title: Text(recipesProvider.recipes[index].name),
                   onTap: () {
                     setState(() {
-                      selectedRecipe = recipesProvider.recipes[index].id;
+                      selectedRecipeId = recipesProvider.recipes[index].id;
                     });
                   },
                   trailing: Row(
