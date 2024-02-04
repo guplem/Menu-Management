@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/result.dart';
@@ -8,6 +7,7 @@ import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
 import 'package:menu_management/recipes/widgets/ingredient_selector.dart';
 import 'package:menu_management/recipes/widgets/input_selector.dart';
+import 'package:menu_management/recipes/widgets/output_creator.dart';
 import 'package:menu_management/recipes/widgets/output_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -63,7 +63,6 @@ class _InstructionEditorState extends State<InstructionEditor> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController workingTimeController = TextEditingController();
   final TextEditingController cookingTimeController = TextEditingController();
-  final TextEditingController outputController = TextEditingController();
 
   @override
   void initState() {
@@ -94,7 +93,6 @@ class _InstructionEditorState extends State<InstructionEditor> {
     descriptionController.dispose();
     workingTimeController.dispose();
     cookingTimeController.dispose();
-    outputController.dispose();
     super.dispose();
   }
 
@@ -245,25 +243,22 @@ class _InstructionEditorState extends State<InstructionEditor> {
           if (newInstruction.ingredientsUsed.isNotEmpty) const SizedBox(height: 15),
           const Divider(),
           const SizedBox(height: 15),
-          TextField(
-            controller: outputController,
-            maxLines: null,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: 'Output',
-              suffixIcon: IconButton(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextButton.icon(
+                onPressed: () {
+                  OutputCreator.show(
+                    context: context,
+                    instruction: newInstruction,
+                    onUpdate: (Instruction instruction) => updateInstruction(instruction),
+                  );
+                },
                 icon: const Icon(Icons.add_rounded),
-                onPressed: outputController.text.trimAndSetNullIfEmpty == null
-                    ? null
-                    : () {
-                        String txt = outputController.text;
-                        Result newOutput = Result(id: const Uuid().v1(), description: txt);
-                        updateInstruction(newInstruction.copyWith(outputs: [...newInstruction.outputs, newOutput]));
-                        setState(() => outputController.clear());
-                      },
+                label: const Text("Add Output"),
               ),
-            ),
-            onChanged: (value) => setState(() {}), // To update the suffix icon "onPressed" property, making it null or not
+            ],
           ),
           const SizedBox(height: 15),
           ...newInstruction.outputs.map(
