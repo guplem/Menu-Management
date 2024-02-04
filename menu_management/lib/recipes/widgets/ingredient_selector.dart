@@ -81,8 +81,8 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                 return <Widget>[const Center(child: Text('No search history.'))];
               }
               Iterable<Widget> suggestions = getSuggestions(controller);
-      
-              if (suggestions.isEmpty) {
+
+              if (suggestions.isEmpty || controller.text.length > 1) {
                 return <Widget>[
                   const SizedBox(height: 15),
                   const Center(child: Text('No results.')),
@@ -101,10 +101,11 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                   ),
                   const SizedBox(height: 15),
                   const Divider(),
+                  ...suggestions.toList(),
                   ...getHistoryList(controller),
                 ];
               }
-      
+
               return suggestions.toList();
             },
           ),
