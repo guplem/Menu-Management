@@ -104,12 +104,13 @@ class RecipesProvider extends ChangeNotifier {
         .where((Instruction instruction) => forInstruction == null || forInstruction != instruction.id)
         .expand((Instruction instruction) => instruction.inputs)
         .toList();
-    final int instructionIndex = recipe.instructions.indexWhere((Instruction instruction) => instruction.id == forInstruction);
-    final List<Result> outputsOfNextInstructions = recipe.instructions
+    int instructionIndex = recipe.instructions.indexWhere((Instruction instruction) => instruction.id == forInstruction);
+    final List<Result> outputsOfNextInstructions = instructionIndex == -1 ? [] : recipe.instructions
         .sublist(instructionIndex + 1)
         .expand((Instruction instruction) => instruction.outputs)
         .toList();
-    return {for (Result element in possibleInputs) element: !alreadyTakenInputs.contains(element.id) && forInstruction != element.id && !outputsOfNextInstructions.contains(element)};
+    final Map<Result, bool> inputsAvailability = {for (Result element in possibleInputs) element: !alreadyTakenInputs.contains(element.id) && forInstruction != element.id && !outputsOfNextInstructions.contains(element)};
+    return inputsAvailability;
   }
 
   List<Result> getResults(List<String> inputs) {
