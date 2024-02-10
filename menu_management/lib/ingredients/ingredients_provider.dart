@@ -18,6 +18,13 @@ class IngredientsProvider extends ChangeNotifier {
   final List<Ingredient> _ingredients = [];
   List<Ingredient> get ingredients => _ingredients;
 
+  bool isValidNewIngredient(String newIngredientName) {
+    bool ingredientExists = _ingredients.any((existentIngredient) {
+      return existentIngredient.name.trim().toLowerCase() == newIngredientName.trim().toLowerCase();
+    });
+    return !ingredientExists;
+  }
+
   List<Ingredient> searchHistory = <Ingredient>[];
 
   static Ingredient listenableOf(context, ingredientId) => getProvider<IngredientsProvider>(context, listen: true).get(ingredientId);

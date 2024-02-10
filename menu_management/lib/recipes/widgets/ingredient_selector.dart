@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/enums/unit.dart';
@@ -83,19 +84,22 @@ class _IngredientSelectorState extends State<IngredientSelector> {
               Iterable<Widget> suggestions = getSuggestions(controller);
 
               if (suggestions.isEmpty || controller.text.length > 1) {
+                bool showCreateEnabled = IngredientsProvider.instance.isValidNewIngredient(controller.text);
                 return <Widget>[
                   const SizedBox(height: 15),
                   const Center(child: Text('No results.')),
                   const SizedBox(height: 15),
                   Center(
                     child: OutlinedButton.icon(
-                        onPressed: () {
-                          // Create a new ingredient
-                          final Ingredient newIngredient = Ingredient(name: controller.text, id: const Uuid().v1());
-                          IngredientsProvider.addOrUpdate(newIngredient: newIngredient);
-                          // Add the ingredient to the list
-                          selectIngredient(controller: controller, ingredient: newIngredient);
-                        },
+                        onPressed: !showCreateEnabled
+                            ? null
+                            : () {
+                                // Create a new ingredient
+                                final Ingredient newIngredient = Ingredient(name: controller.text, id: const Uuid().v1());
+                                IngredientsProvider.addOrUpdate(newIngredient: newIngredient);
+                                // Add the ingredient to the list
+                                selectIngredient(controller: controller, ingredient: newIngredient);
+                              },
                         label: const Text("Create new ingredient"),
                         icon: const Icon(Icons.add_circle_rounded)),
                   ),
