@@ -7,6 +7,7 @@ import 'package:menu_management/menu/models/meal_time.dart';
 part 'meal.freezed.dart';
 part 'meal.g.dart';
 
+/// A meal is a cooking of a recipe at a certain time, for a menu
 @freezed
 class Meal with _$Meal {
   const factory Meal({

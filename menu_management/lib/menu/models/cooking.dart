@@ -7,7 +7,7 @@ part 'cooking.freezed.dart';
 part 'cooking.g.dart';
 
 @freezed
-/// The composition of a meal
+/// A link between a recipe and the amount of meals to cook
 class Cooking with _$Cooking {
   const factory Cooking({
     required Recipe recipe,

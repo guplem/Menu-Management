@@ -11,6 +11,7 @@ import 'package:menu_management/recipes/recipes_provider.dart';
 part 'recipe.freezed.dart';
 part 'recipe.g.dart';
 
+/// A recipe is a set of instructions
 @freezed
 class Recipe with _$Recipe {
   const factory Recipe({

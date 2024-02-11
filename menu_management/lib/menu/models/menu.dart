@@ -2,11 +2,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
+import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/menu/enums/meal_type.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/cooking.dart';
 import 'package:menu_management/menu/models/meal.dart';
 import 'package:menu_management/menu/models/meal_time.dart';
+import 'package:menu_management/recipes/models/ingredient_usage.dart';
+import 'package:menu_management/recipes/models/instruction.dart';
+import 'package:menu_management/recipes/models/quantity.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 
 part 'menu.freezed.dart';
@@ -51,7 +55,6 @@ class Menu with _$Menu {
   Menu copyWithUpdatedYields() {
     List<Meal> oldMeals = [...this.meals];
 
-
     bool isFirstTimeOfRecipe(MealTime time, Recipe recipe) {
       List<Meal> sortedMealTimes = oldMeals.sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
       for (int i = 0; i < sortedMealTimes.length; i++) {
@@ -66,7 +69,6 @@ class Menu with _$Menu {
       Debug.logError("This should not happen");
       return false;
     }
-
 
     List<Meal> meals = oldMeals.map((meal) {
       Recipe? recipe = meal.cooking?.recipe;
@@ -85,13 +87,38 @@ class Menu with _$Menu {
         cooking: recipe == null
             ? null
             : Cooking(
-          recipe: recipe,
-          yield: yield,
-        ),
+                recipe: recipe,
+                yield: yield,
+              ),
       );
     }).toList();
 
-
     return copyWith(meals: meals);
+  }
+
+  Map<Ingredient, List<Quantity>> get allIngredients {
+    Map<Ingredient, List<Quantity>> ingredients = {};
+
+    for (Meal meal in meals) {
+      if (meal.cooking == null) continue;
+      int yields = meal.cooking!.yield;
+      for (Instruction instruction in meal.cooking!.recipe.instructions) {
+        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+          if (ingredients[ingredientUsage.ingredient] == null) {
+            ingredients[ingredientUsage.ingredient] = [];
+          }
+          if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
+            ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0/*placeholder*/, unit: ingredientUsage.quantity.unit));
+          }
+          double amountToAdd = ingredientUsage.quantity.amount * yields;
+          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit);
+          Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
+          ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
+          ingredients[ingredientUsage.ingredient]!.add(newQuantity);
+        }
+      }
+    }
+
+    return ingredients;
   }
 }

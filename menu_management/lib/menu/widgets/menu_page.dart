@@ -7,6 +7,7 @@ import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/persistency.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
+import 'package:menu_management/shopping/shopping_page.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key, required this.menu});
@@ -39,6 +40,17 @@ class _MenuPageState extends State<MenuPage> {
               setState(() {
                 menu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
               });
+            },
+          ),
+          IconButton(
+            tooltip: "Create Shopping List",
+            icon: const Icon(Icons.shopping_basket_rounded),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ShoppingPage(menu: menu),
+                ),
+              );
             },
           ),
         ],
