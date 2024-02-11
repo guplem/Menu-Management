@@ -13,37 +13,45 @@ class ShoppingPage extends StatefulWidget {
 }
 
 class _ShoppingPageState extends State<ShoppingPage> {
-
   late final Map<Ingredient, List<Quantity>> ingredients;
+  int people = 1;
 
   @override
   void initState() {
-
     super.initState();
     ingredients = widget.menu.allIngredients;
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping List'),
+        actions: [
+          Row(
+            children: [
+              IconButton(icon: const Icon(Icons.remove), onPressed: people <= 1 ? null : () => setState(() => people -= 1)),
+              Text("$people"),
+              const SizedBox(width: 10),
+              Icon(people <= 1 ? Icons.person_rounded : Icons.people_alt_rounded),
+              IconButton(icon: const Icon(Icons.add), onPressed: () => setState(() => people += 1)),
+            ],
+          )
+        ],
       ),
       body: ListView.builder(
         itemCount: ingredients.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(ingredients.keys.elementAt(index).name),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: ingredients.values.elementAt(index).map((quantity) {
-                String amountRounded = quantity.amount.toStringAsFixed(0);
-                String unit = quantity.unit.toString().split(".").last;
-                return Text("$amountRounded $unit");
-              }).toList(),
-            )
-          );
+              title: Text(ingredients.keys.elementAt(index).name),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: ingredients.values.elementAt(index).map((quantity) {
+                  String amountRounded = (quantity.amount * people).toStringAsFixed(0);
+                  String unit = quantity.unit.toString().split(".").last;
+                  return Text("$amountRounded $unit");
+                }).toList(),
+              ));
         },
       ),
     );
