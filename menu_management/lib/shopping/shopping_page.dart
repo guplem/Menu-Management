@@ -20,7 +20,7 @@ class ShoppingPage extends StatefulWidget {
 class _ShoppingPageState extends State<ShoppingPage> {
   late final Map<Ingredient, List<Quantity>> ingredientsRequired;
   late final Map<Ingredient, List<Quantity>> ingredientsOwned;
-  int people = 1;
+  int people = 2;
 
   @override
   void initState() {
