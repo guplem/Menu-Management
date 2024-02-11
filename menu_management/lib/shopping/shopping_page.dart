@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
+import 'package:menu_management/shopping/shopping_ingredient.dart';
 
 class ShoppingPage extends StatefulWidget {
   const ShoppingPage({super.key, required this.menu});
@@ -13,15 +17,15 @@ class ShoppingPage extends StatefulWidget {
 }
 
 class _ShoppingPageState extends State<ShoppingPage> {
-  late final Map<Ingredient, List<Quantity>> ingredients;
+  late final Map<Ingredient, List<Quantity>> ingredientsRequired;
   late final Map<Ingredient, List<Quantity>> ingredientsOwned;
   int people = 1;
 
   @override
   void initState() {
     super.initState();
-    ingredients = widget.menu.allIngredients;
-    ingredientsOwned = ingredients.map((key, value) => MapEntry(key, value.map((quantity) => Quantity(amount: 0, unit: quantity.unit)).toList()));
+    ingredientsRequired = widget.menu.allIngredients;
+    ingredientsOwned = ingredientsRequired.map((key, value) => MapEntry(key, value.map((quantity) => Quantity(amount: 0, unit: quantity.unit)).toList()));
   }
 
   @override
@@ -42,20 +46,32 @@ class _ShoppingPageState extends State<ShoppingPage> {
         ],
       ),
       body: ListView.builder(
-        itemCount: ingredients.length,
+        itemCount: ingredientsRequired.length,
         itemBuilder: (context, index) {
-          return ListTile(
-              title: Text(ingredients.keys.elementAt(index).name),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: ingredients.values.elementAt(index).map((quantity) {
-                  String amountRounded = (quantity.amount * people).toStringAsFixed(0);
-                  String unit = quantity.unit.toString().split(".").last;
-                  return Text("$amountRounded $unit");
-                }).toList(),
-              ));
+          return ShoppingIngredient(
+            ingredient: ingredientsRequired.keyAt(index),
+            quantitiesDesiredPerPerson: ingredientsRequired.valueAt(index),
+            ownedQuantities: ingredientsOwned[ingredientsRequired.keyAt(index)]!,
+            calculatedRemainingQuantities: remainingAmounts(ingredient: ingredientsRequired.keyAt(index)),
+            people: people,
+            onOwnedAmountChanged: (List<Quantity> ownedQuantities) {
+              setState(() => ingredientsOwned[ingredientsRequired.keyAt(index)] = ownedQuantities);
+            },
+          );
         },
       ),
     );
+  }
+
+  List<Quantity> remainingAmounts({required Ingredient ingredient}) {
+    int ingredientIndex = ingredientsRequired.keys.toList().indexOf(ingredient);
+    List<Quantity> required = ingredientsRequired.valueAt(ingredientIndex);
+    List<Quantity> owned = ingredientsOwned[ingredientsRequired.keyAt(ingredientIndex)]!;
+
+    return required.map((quantityRequired) {
+      Quantity ownedQuantity = owned.firstWhere((ownedQty) => ownedQty.unit == quantityRequired.unit);
+      double amount = quantityRequired.amount * people - ownedQuantity.amount;
+      return Quantity(amount: max(0, amount).roundToDouble(), unit: quantityRequired.unit);
+    }).toList();
   }
 }
