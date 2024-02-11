@@ -121,4 +121,29 @@ class Menu with _$Menu {
 
     return ingredients;
   }
+
+  String toStringBeautified() {
+    // Format:
+    // Weekday
+    //   Breakfast: recipe (yield pp)
+    //   Lunch: recipe (yield pp)
+    //   Dinner: recipe (yield pp)
+    // NOTE: If a meal has no recipe, it will be displayed as "-", with no yield
+
+    String result = "";
+    for (WeekDay weekDay in WeekDay.values) {
+      result += "${weekDay.name.capitalizeFirstLetter()}\n";
+      List<Meal?> dayMeals = mealsOfDay(weekDay);
+      for (int i = 0; i < dayMeals.length; i++) {
+        Meal? meal = dayMeals[i];
+        String? mealType = MealType.values[i].name.capitalizeFirstLetter();
+        String recipe = meal?.cooking?.recipe.name ?? "-";
+        recipe += meal?.cooking == null ? "" : " (${meal?.cooking?.yield.toString()} pp)";
+        result += "  $mealType: $recipe\n";
+      }
+      result += "\n";
+    }
+    return result.trim();
+
+  }
 }

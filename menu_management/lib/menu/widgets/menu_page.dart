@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/menu_provider.dart';
@@ -59,12 +60,28 @@ class _MenuPageState extends State<MenuPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: "Save Menu",
-        child: const Icon(Icons.save_rounded),
-        onPressed: () {
-          Persistency.saveMenu(menu);
-        },
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            tooltip: "Copy to clipboard",
+            child: const Icon(Icons.copy_rounded),
+            onPressed: () {
+              // Turn the menu into a string
+              final String menuString = menu.toStringBeautified();
+              // Copy the string to the clipboard
+              Clipboard.setData(ClipboardData(text: menuString));
+            },
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            tooltip: "Save Menu",
+            child: const Icon(Icons.save_rounded),
+            onPressed: () {
+              Persistency.saveMenu(menu);
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         shrinkWrap: true,
