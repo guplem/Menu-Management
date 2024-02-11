@@ -31,17 +31,21 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Menu'),
+        title: Row(
+          children: [
+            const Text('Menu'),
+            IconButton(
+              tooltip: "Regenerate Menu",
+              icon: const Icon(Icons.refresh_rounded),
+              onPressed: () {
+                setState(() {
+                  menu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
+                });
+              },
+            )
+          ],
+        ),
         actions: [
-          IconButton(
-            tooltip: "Regenerate Menu",
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () {
-              setState(() {
-                menu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
-              });
-            },
-          ),
           IconButton(
             tooltip: "Create Shopping List",
             icon: const Icon(Icons.shopping_basket_rounded),
