@@ -14,12 +14,14 @@ class ShoppingPage extends StatefulWidget {
 
 class _ShoppingPageState extends State<ShoppingPage> {
   late final Map<Ingredient, List<Quantity>> ingredients;
+  late final Map<Ingredient, List<Quantity>> ingredientsOwned;
   int people = 1;
 
   @override
   void initState() {
     super.initState();
     ingredients = widget.menu.allIngredients;
+    ingredientsOwned = ingredients.map((key, value) => MapEntry(key, value.map((quantity) => Quantity(amount: 0, unit: quantity.unit)).toList()));
   }
 
   @override
