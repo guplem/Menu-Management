@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/menu/models/menu.dart';
@@ -44,6 +45,24 @@ class _ShoppingPageState extends State<ShoppingPage> {
             ],
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: "Copy to clipboard",
+        onPressed: () {
+          // Create string (ignoring those with required <= 0). Format: "Ingredient: amount unit + amount unit + ..."
+          String shoppingList = ingredientsRequired.entries
+              .map((entry) {
+                List<Quantity> remaining = remainingAmounts(ingredient: entry.key);
+                return remaining.any((quantity) => quantity.amount > 0)
+                    ? "${entry.key.name}: ${remaining.where((quantity) => quantity.amount > 0).map((quantity) => "${quantity.amount} ${quantity.unit.toString().split(".").last}").join(' + ')}"
+                    : null;
+              })
+              .whereType<String>()
+              .join('\n');
+          // Copy to clipboard
+          Clipboard.setData(ClipboardData(text: shoppingList));
+        },
+        child: const Icon(Icons.copy_rounded),
       ),
       body: ListView.builder(
         itemCount: ingredientsRequired.length,

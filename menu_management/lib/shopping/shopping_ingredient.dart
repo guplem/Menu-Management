@@ -84,7 +84,6 @@ class ShoppingIngredient extends StatelessWidget {
       }
       newQuantities.add(q);
     }
-    Debug.log("New quantities: $newQuantities");
     onOwnedAmountChanged(newQuantities);
   }
 }
