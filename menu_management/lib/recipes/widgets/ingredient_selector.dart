@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/enums/unit.dart';
