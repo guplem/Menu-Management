@@ -24,8 +24,6 @@ class Recipe with _$Recipe {
     @Default(RecipeType.meal) RecipeType type,
     @Default(true) bool lunch,
     @Default(true) bool dinner,
-
-    /// The number of days the recipe can be stored in the fridge (coocked)
     @Default(true) bool canBeStored,
   }) = _Recipe;
 
