@@ -131,7 +131,9 @@ class _InstructionEditorState extends State<InstructionEditor> {
                     suffixIcon: Icon(Icons.restaurant_menu_rounded),
                   ),
                   onChanged: (value) {
-                    updateInstruction(newInstruction.copyWith(workingTimeMinutes: int.parse(value)));
+                    int? valueParsed = int.tryParse(value);
+                    if (valueParsed == null) return;
+                    updateInstruction(newInstruction.copyWith(workingTimeMinutes: valueParsed));
                   },
                 ),
               ),
