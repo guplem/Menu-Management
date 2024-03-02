@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
+import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
@@ -18,8 +19,8 @@ class ShoppingPage extends StatefulWidget {
 }
 
 class _ShoppingPageState extends State<ShoppingPage> {
-  late final Map<Ingredient, List<Quantity>> ingredientsRequired;
-  late final Map<Ingredient, List<Quantity>> ingredientsOwned;
+  late final Map<String, List<Quantity>> ingredientsRequired;
+  late final Map<String, List<Quantity>> ingredientsOwned;
   int people = 2;
 
   @override
@@ -54,7 +55,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
               .map((entry) {
                 List<Quantity> remaining = remainingAmounts(ingredient: entry.key);
                 return remaining.any((quantity) => quantity.amount > 0)
-                    ? "${entry.key.name}: ${remaining.where((quantity) => quantity.amount > 0).map((quantity) => "${quantity.amount} ${quantity.unit.toString().split(".").last}").join(' + ')}"
+                    ? "${IngredientsProvider.instance.get(entry.key).name}: ${remaining.where((quantity) => quantity.amount > 0).map((quantity) => "${quantity.amount} ${quantity.unit.toString().split(".").last}").join(' + ')}"
                     : null;
               })
               .whereType<String>()
@@ -68,7 +69,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
         itemCount: ingredientsRequired.length,
         itemBuilder: (context, index) {
           return ShoppingIngredient(
-            ingredient: ingredientsRequired.keyAt(index),
+            ingredient: getProvider<IngredientsProvider>(context, listen: true).get(ingredientsRequired.keyAt(index)),
             quantitiesDesiredPerPerson: ingredientsRequired.valueAt(index),
             ownedQuantities: ingredientsOwned[ingredientsRequired.keyAt(index)]!,
             calculatedRemainingQuantities: remainingAmounts(ingredient: ingredientsRequired.keyAt(index)),
@@ -82,7 +83,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  List<Quantity> remainingAmounts({required Ingredient ingredient}) {
+  List<Quantity> remainingAmounts({required String ingredient}) {
     int ingredientIndex = ingredientsRequired.keys.toList().indexOf(ingredient);
     List<Quantity> required = ingredientsRequired.valueAt(ingredientIndex);
     List<Quantity> owned = ingredientsOwned[ingredientsRequired.keyAt(ingredientIndex)]!;

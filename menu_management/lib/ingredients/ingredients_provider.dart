@@ -36,7 +36,9 @@ class IngredientsProvider extends ChangeNotifier {
   }
 
   Ingredient get(String ingredientId) {
-    return ingredients.firstWhere((element) => element.id == ingredientId);
+    Ingredient? ing = ingredients.firstWhereOrNull((element) => element.id == ingredientId);
+    if (ing == null) Debug.logError("No ingredient found with id $ingredientId");
+    return ing!;
   }
 
   static void addOrUpdate({required Ingredient newIngredient}) {

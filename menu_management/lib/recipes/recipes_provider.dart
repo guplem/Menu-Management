@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:menu_management/ingredients/ingredients_provider.dart';
+import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/enums/recipe_type.dart';
+import 'package:menu_management/recipes/models/ingredient_usage.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
 import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/result.dart';
@@ -29,6 +32,7 @@ class RecipesProvider extends ChangeNotifier {
     _recipes.clear();
     _recipes.addAll(recipes);
     notifyListeners();
+    _checkIngredientsValidity();
   }
 
   Recipe get(String recipeId) {
@@ -127,4 +131,17 @@ class RecipesProvider extends ChangeNotifier {
     return results;
   }
   //#endregion
+
+  void _checkIngredientsValidity() {
+    for (Recipe recipe in recipes) {
+      for (Instruction instruction in recipe.instructions) {
+        for (IngredientUsage usage in instruction.ingredientsUsed) {
+          Ingredient? ing = IngredientsProvider.instance.get(usage.ingredient);
+          // Just to check that nothing breaks and it is found.
+          // TODO: wrap the "get" in a try-catch and display a warning if an ingredient is not found
+        }
+      }
+    }
+  }
+
 }

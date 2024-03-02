@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/menu/enums/meal_type.dart';
 import 'package:menu_management/menu/enums/week_day.dart';
 import 'package:menu_management/menu/models/cooking.dart';
@@ -96,8 +95,8 @@ class Menu with _$Menu {
     return copyWith(meals: meals);
   }
 
-  Map<Ingredient, List<Quantity>> get allIngredients {
-    Map<Ingredient, List<Quantity>> ingredients = {};
+  Map<String, List<Quantity>> get allIngredients {
+    Map<String, List<Quantity>> ingredients = {};
 
     for (Meal meal in meals) {
       if (meal.cooking == null) continue;

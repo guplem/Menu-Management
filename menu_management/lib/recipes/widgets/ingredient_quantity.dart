@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
+import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/recipes/enums/unit.dart';
 import 'package:menu_management/recipes/models/ingredient_usage.dart';
 
@@ -51,7 +52,7 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
       children: [
         QuantityEditor(),
         const SizedBox(width: 20),
-        Text(widget.ingredientUsage.ingredient.name),
+        Text(getProvider<IngredientsProvider>(context, listen: true).get(widget.ingredientUsage.ingredient).name),
         const SizedBox(width: 20),
         IconButton(
           icon: const Icon(Icons.delete),

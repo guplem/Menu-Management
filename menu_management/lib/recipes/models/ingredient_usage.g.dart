@@ -9,8 +9,7 @@ part of 'ingredient_usage.dart';
 _$IngredientUsageImpl _$$IngredientUsageImplFromJson(
         Map<String, dynamic> json) =>
     _$IngredientUsageImpl(
-      ingredient:
-          Ingredient.fromJson(json['ingredient'] as Map<String, dynamic>),
+      ingredient: json['ingredient'] as String,
       quantity: Quantity.fromJson(json['quantity'] as Map<String, dynamic>),
     );
 

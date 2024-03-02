@@ -164,7 +164,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
 
   // ignore: non_constant_identifier_names
   Widget IngredientSuggestion({required Ingredient ingredient, required SearchController controller, required bool isHistory}) {
-    bool alreadyUsed = newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient);
+    bool alreadyUsed = newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient.id);
     return ListTile(
       title: Text(ingredient.name),
       leading: isHistory ? const Icon(Icons.history_rounded) : null,
@@ -185,14 +185,14 @@ class _IngredientSelectorState extends State<IngredientSelector> {
 
   void selectIngredient({required Ingredient ingredient, required SearchController controller}) {
     // Check if the ingredient is already in the list
-    if (newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient)) {
+    if (newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient.id)) {
       return;
     }
     // Close the search bar
     controller.closeView("");
     // Add the ingredient to the list
     IngredientUsage ingredientUsage = IngredientUsage(
-      ingredient: ingredient,
+      ingredient: ingredient.id,
       quantity: const Quantity(amount: 1, unit: Unit.pieces),
     );
     updateInstruction(newInstruction.copyWith(ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage]));

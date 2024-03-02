@@ -29,8 +29,6 @@ mixin _$Recipe {
   RecipeType get type => throw _privateConstructorUsedError;
   bool get lunch => throw _privateConstructorUsedError;
   bool get dinner => throw _privateConstructorUsedError;
-
-  /// The number of days the recipe can be stored in the fridge (coocked)
   bool get canBeStored => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -263,8 +261,6 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final bool dinner;
-
-  /// The number of days the recipe can be stored in the fridge (coocked)
   @override
   @JsonKey()
   final bool canBeStored;
@@ -376,8 +372,6 @@ abstract class _Recipe extends Recipe {
   @override
   bool get dinner;
   @override
-
-  /// The number of days the recipe can be stored in the fridge (coocked)
   bool get canBeStored;
   @override
   @JsonKey(ignore: true)

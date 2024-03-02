@@ -1,4 +1,3 @@
-import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
@@ -10,7 +9,7 @@ part 'ingredient_usage.g.dart';
 @freezed
 class IngredientUsage with _$IngredientUsage {
   const factory IngredientUsage({
-    required Ingredient ingredient,
+    required String ingredient,
     required Quantity quantity,
   }) = _IngredientUsage;
 

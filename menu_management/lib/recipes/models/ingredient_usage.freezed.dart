@@ -20,7 +20,7 @@ IngredientUsage _$IngredientUsageFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$IngredientUsage {
-  Ingredient get ingredient => throw _privateConstructorUsedError;
+  String get ingredient => throw _privateConstructorUsedError;
   Quantity get quantity => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -35,9 +35,8 @@ abstract class $IngredientUsageCopyWith<$Res> {
           IngredientUsage value, $Res Function(IngredientUsage) then) =
       _$IngredientUsageCopyWithImpl<$Res, IngredientUsage>;
   @useResult
-  $Res call({Ingredient ingredient, Quantity quantity});
+  $Res call({String ingredient, Quantity quantity});
 
-  $IngredientCopyWith<$Res> get ingredient;
   $QuantityCopyWith<$Res> get quantity;
 }
 
@@ -61,20 +60,12 @@ class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage>
       ingredient: null == ingredient
           ? _value.ingredient
           : ingredient // ignore: cast_nullable_to_non_nullable
-              as Ingredient,
+              as String,
       quantity: null == quantity
           ? _value.quantity
           : quantity // ignore: cast_nullable_to_non_nullable
               as Quantity,
     ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $IngredientCopyWith<$Res> get ingredient {
-    return $IngredientCopyWith<$Res>(_value.ingredient, (value) {
-      return _then(_value.copyWith(ingredient: value) as $Val);
-    });
   }
 
   @override
@@ -94,10 +85,8 @@ abstract class _$$IngredientUsageImplCopyWith<$Res>
       __$$IngredientUsageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Ingredient ingredient, Quantity quantity});
+  $Res call({String ingredient, Quantity quantity});
 
-  @override
-  $IngredientCopyWith<$Res> get ingredient;
   @override
   $QuantityCopyWith<$Res> get quantity;
 }
@@ -120,7 +109,7 @@ class __$$IngredientUsageImplCopyWithImpl<$Res>
       ingredient: null == ingredient
           ? _value.ingredient
           : ingredient // ignore: cast_nullable_to_non_nullable
-              as Ingredient,
+              as String,
       quantity: null == quantity
           ? _value.quantity
           : quantity // ignore: cast_nullable_to_non_nullable
@@ -141,7 +130,7 @@ class _$IngredientUsageImpl
       _$$IngredientUsageImplFromJson(json);
 
   @override
-  final Ingredient ingredient;
+  final String ingredient;
   @override
   final Quantity quantity;
 
@@ -191,14 +180,14 @@ class _$IngredientUsageImpl
 
 abstract class _IngredientUsage implements IngredientUsage {
   const factory _IngredientUsage(
-      {required final Ingredient ingredient,
+      {required final String ingredient,
       required final Quantity quantity}) = _$IngredientUsageImpl;
 
   factory _IngredientUsage.fromJson(Map<String, dynamic> json) =
       _$IngredientUsageImpl.fromJson;
 
   @override
-  Ingredient get ingredient;
+  String get ingredient;
   @override
   Quantity get quantity;
   @override
