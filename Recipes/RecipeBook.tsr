@@ -38,7 +38,7 @@
 ,{"id":"98203cc0-c469-1eaa-b835-cfe533d41a10","name":"Ramita de menta"}
 ,{"id":"2cc45c00-c4ae-1eaa-b835-cfe533d41a10","name":"Calabacín"}
 ,{"id":"20cddb70-c539-1eaa-b835-cfe533d41a10","name":"Agua"}
-,{"id":"b4523e20-c612-1eaa-b835-cfe533d41a10","name":"Pimienta"}
+,{"id":"b4523e20-c612-1eaa-b835-cfe533d41a10","name":"Pimienta (especia)"}
 ,{"id":"31870940-c6d4-1eaa-b835-cfe533d41a10","name":"Spaguetti"}
 ,{"id":"b82ac5f0-7faf-1ec0-9c83-05811f7c00d6","name":"Pizza (Pre-Made)"}
 ,{"id":"fb733010-20e6-1eeb-9b52-298d2e408b19","name":"Pollo"}
@@ -65,8 +65,8 @@
 ,{"id":"ff90fa70-cf32-10a7-a87d-2fef2dcd1072","name":"Aceitunas Kalamata"}
 ,{"id":"ad070e70-d194-10a7-a87d-2fef2dcd1072","name":"Queso Feta"}
 ,{"id":"ab8499c0-d32c-10a7-a87d-2fef2dcd1072","name":"Zumo de limón"}
-,{"id":"5e717b40-d33f-10a7-a87d-2fef2dcd1072","name":"Perejil"}
-,{"id":"33ca2770-d3b2-10a7-a87d-2fef2dcd1072","name":"Pimienta Roja"}
+,{"id":"5e717b40-d33f-10a7-a87d-2fef2dcd1072","name":"Perejil (especia)"}
+,{"id":"33ca2770-d3b2-10a7-a87d-2fef2dcd1072","name":"Pimienta Roja (especia)"}
 ,{"id":"e6500b40-41b8-10ba-b0dd-9d041637ca66","name":"Bacon (o Panceta)"}
 ,{"id":"b3be0b30-43b3-10ba-b0dd-9d041637ca66","name":"Parmesano (o Grana Padano) rallado"}
 ],
