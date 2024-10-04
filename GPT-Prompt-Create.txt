@@ -1,10 +1,9 @@
-Crea una receta de "Guisantes Salteados".
+Crea una receta de "Burritos".
 
 Los ingredientes principales son:
- - Setas
- - Guisantes
- - Soja texturizada
- - Cebolla
+ - Pollo
+ - Arroz
+ - Verduras
 
 La receta debe ser para 1 ración de 1 persona.
 
