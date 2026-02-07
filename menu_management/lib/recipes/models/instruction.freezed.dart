@@ -12,7 +12,8 @@ part of 'instruction.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Instruction _$InstructionFromJson(Map<String, dynamic> json) {
   return _Instruction.fromJson(json);
@@ -29,8 +30,12 @@ mixin _$Instruction {
   List<Result> get outputs => throw _privateConstructorUsedError;
   List<String> get inputs => throw _privateConstructorUsedError;
 
+  /// Serializes this Instruction to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Instruction
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $InstructionCopyWith<Instruction> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -38,17 +43,19 @@ mixin _$Instruction {
 /// @nodoc
 abstract class $InstructionCopyWith<$Res> {
   factory $InstructionCopyWith(
-          Instruction value, $Res Function(Instruction) then) =
-      _$InstructionCopyWithImpl<$Res, Instruction>;
+    Instruction value,
+    $Res Function(Instruction) then,
+  ) = _$InstructionCopyWithImpl<$Res, Instruction>;
   @useResult
-  $Res call(
-      {String id,
-      List<IngredientUsage> ingredientsUsed,
-      int workingTimeMinutes,
-      int cookingTimeMinutes,
-      String description,
-      List<Result> outputs,
-      List<String> inputs});
+  $Res call({
+    String id,
+    List<IngredientUsage> ingredientsUsed,
+    int workingTimeMinutes,
+    int cookingTimeMinutes,
+    String description,
+    List<Result> outputs,
+    List<String> inputs,
+  });
 }
 
 /// @nodoc
@@ -61,6 +68,8 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Instruction
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -72,36 +81,39 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
     Object? outputs = null,
     Object? inputs = null,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      ingredientsUsed: null == ingredientsUsed
-          ? _value.ingredientsUsed
-          : ingredientsUsed // ignore: cast_nullable_to_non_nullable
-              as List<IngredientUsage>,
-      workingTimeMinutes: null == workingTimeMinutes
-          ? _value.workingTimeMinutes
-          : workingTimeMinutes // ignore: cast_nullable_to_non_nullable
-              as int,
-      cookingTimeMinutes: null == cookingTimeMinutes
-          ? _value.cookingTimeMinutes
-          : cookingTimeMinutes // ignore: cast_nullable_to_non_nullable
-              as int,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-      outputs: null == outputs
-          ? _value.outputs
-          : outputs // ignore: cast_nullable_to_non_nullable
-              as List<Result>,
-      inputs: null == inputs
-          ? _value.inputs
-          : inputs // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            ingredientsUsed: null == ingredientsUsed
+                ? _value.ingredientsUsed
+                : ingredientsUsed // ignore: cast_nullable_to_non_nullable
+                      as List<IngredientUsage>,
+            workingTimeMinutes: null == workingTimeMinutes
+                ? _value.workingTimeMinutes
+                : workingTimeMinutes // ignore: cast_nullable_to_non_nullable
+                      as int,
+            cookingTimeMinutes: null == cookingTimeMinutes
+                ? _value.cookingTimeMinutes
+                : cookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+                      as int,
+            description: null == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String,
+            outputs: null == outputs
+                ? _value.outputs
+                : outputs // ignore: cast_nullable_to_non_nullable
+                      as List<Result>,
+            inputs: null == inputs
+                ? _value.inputs
+                : inputs // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -109,18 +121,20 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
 abstract class _$$InstructionImplCopyWith<$Res>
     implements $InstructionCopyWith<$Res> {
   factory _$$InstructionImplCopyWith(
-          _$InstructionImpl value, $Res Function(_$InstructionImpl) then) =
-      __$$InstructionImplCopyWithImpl<$Res>;
+    _$InstructionImpl value,
+    $Res Function(_$InstructionImpl) then,
+  ) = __$$InstructionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      List<IngredientUsage> ingredientsUsed,
-      int workingTimeMinutes,
-      int cookingTimeMinutes,
-      String description,
-      List<Result> outputs,
-      List<String> inputs});
+  $Res call({
+    String id,
+    List<IngredientUsage> ingredientsUsed,
+    int workingTimeMinutes,
+    int cookingTimeMinutes,
+    String description,
+    List<Result> outputs,
+    List<String> inputs,
+  });
 }
 
 /// @nodoc
@@ -128,9 +142,12 @@ class __$$InstructionImplCopyWithImpl<$Res>
     extends _$InstructionCopyWithImpl<$Res, _$InstructionImpl>
     implements _$$InstructionImplCopyWith<$Res> {
   __$$InstructionImplCopyWithImpl(
-      _$InstructionImpl _value, $Res Function(_$InstructionImpl) _then)
-      : super(_value, _then);
+    _$InstructionImpl _value,
+    $Res Function(_$InstructionImpl) _then,
+  ) : super(_value, _then);
 
+  /// Create a copy of Instruction
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -142,54 +159,56 @@ class __$$InstructionImplCopyWithImpl<$Res>
     Object? outputs = null,
     Object? inputs = null,
   }) {
-    return _then(_$InstructionImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      ingredientsUsed: null == ingredientsUsed
-          ? _value._ingredientsUsed
-          : ingredientsUsed // ignore: cast_nullable_to_non_nullable
-              as List<IngredientUsage>,
-      workingTimeMinutes: null == workingTimeMinutes
-          ? _value.workingTimeMinutes
-          : workingTimeMinutes // ignore: cast_nullable_to_non_nullable
-              as int,
-      cookingTimeMinutes: null == cookingTimeMinutes
-          ? _value.cookingTimeMinutes
-          : cookingTimeMinutes // ignore: cast_nullable_to_non_nullable
-              as int,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-      outputs: null == outputs
-          ? _value._outputs
-          : outputs // ignore: cast_nullable_to_non_nullable
-              as List<Result>,
-      inputs: null == inputs
-          ? _value._inputs
-          : inputs // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-    ));
+    return _then(
+      _$InstructionImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        ingredientsUsed: null == ingredientsUsed
+            ? _value._ingredientsUsed
+            : ingredientsUsed // ignore: cast_nullable_to_non_nullable
+                  as List<IngredientUsage>,
+        workingTimeMinutes: null == workingTimeMinutes
+            ? _value.workingTimeMinutes
+            : workingTimeMinutes // ignore: cast_nullable_to_non_nullable
+                  as int,
+        cookingTimeMinutes: null == cookingTimeMinutes
+            ? _value.cookingTimeMinutes
+            : cookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+                  as int,
+        description: null == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String,
+        outputs: null == outputs
+            ? _value._outputs
+            : outputs // ignore: cast_nullable_to_non_nullable
+                  as List<Result>,
+        inputs: null == inputs
+            ? _value._inputs
+            : inputs // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
-  const _$InstructionImpl(
-      {required this.id,
-      final List<IngredientUsage> ingredientsUsed = const [],
-      this.workingTimeMinutes = 10,
-      this.cookingTimeMinutes = 10,
-      required this.description,
-      final List<Result> outputs = const [],
-      final List<String> inputs = const []})
-      : _ingredientsUsed = ingredientsUsed,
-        _outputs = outputs,
-        _inputs = inputs,
-        super._();
+  const _$InstructionImpl({
+    required this.id,
+    final List<IngredientUsage> ingredientsUsed = const [],
+    this.workingTimeMinutes = 10,
+    this.cookingTimeMinutes = 10,
+    required this.description,
+    final List<Result> outputs = const [],
+    final List<String> inputs = const [],
+  }) : _ingredientsUsed = ingredientsUsed,
+       _outputs = outputs,
+       _inputs = inputs,
+       super._();
 
   factory _$InstructionImpl.fromJson(Map<String, dynamic> json) =>
       _$$InstructionImplFromJson(json);
@@ -251,13 +270,15 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$InstructionImpl &&
             (identical(other.id, id) || other.id == id) &&
-            const DeepCollectionEquality()
-                .equals(other._ingredientsUsed, _ingredientsUsed) &&
+            const DeepCollectionEquality().equals(
+              other._ingredientsUsed,
+              _ingredientsUsed,
+            ) &&
             (identical(other.workingTimeMinutes, workingTimeMinutes) ||
                 other.workingTimeMinutes == workingTimeMinutes) &&
             (identical(other.cookingTimeMinutes, cookingTimeMinutes) ||
@@ -268,19 +289,22 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
             const DeepCollectionEquality().equals(other._inputs, _inputs));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      const DeepCollectionEquality().hash(_ingredientsUsed),
-      workingTimeMinutes,
-      cookingTimeMinutes,
-      description,
-      const DeepCollectionEquality().hash(_outputs),
-      const DeepCollectionEquality().hash(_inputs));
+    runtimeType,
+    id,
+    const DeepCollectionEquality().hash(_ingredientsUsed),
+    workingTimeMinutes,
+    cookingTimeMinutes,
+    description,
+    const DeepCollectionEquality().hash(_outputs),
+    const DeepCollectionEquality().hash(_inputs),
+  );
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Instruction
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
@@ -288,21 +312,20 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$InstructionImplToJson(
-      this,
-    );
+    return _$$InstructionImplToJson(this);
   }
 }
 
 abstract class _Instruction extends Instruction {
-  const factory _Instruction(
-      {required final String id,
-      final List<IngredientUsage> ingredientsUsed,
-      final int workingTimeMinutes,
-      final int cookingTimeMinutes,
-      required final String description,
-      final List<Result> outputs,
-      final List<String> inputs}) = _$InstructionImpl;
+  const factory _Instruction({
+    required final String id,
+    final List<IngredientUsage> ingredientsUsed,
+    final int workingTimeMinutes,
+    final int cookingTimeMinutes,
+    required final String description,
+    final List<Result> outputs,
+    final List<String> inputs,
+  }) = _$InstructionImpl;
   const _Instruction._() : super._();
 
   factory _Instruction.fromJson(Map<String, dynamic> json) =
@@ -322,8 +345,11 @@ abstract class _Instruction extends Instruction {
   List<Result> get outputs;
   @override
   List<String> get inputs;
+
+  /// Create a copy of Instruction
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

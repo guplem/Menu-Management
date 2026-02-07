@@ -7,7 +7,11 @@ extension BuildContextExtensions on BuildContext {
     if (mounted) {
       execute.call();
     } else {
-      Debug.logWarning(true, "Context is not mounted, skipping execution of ${execute.toString()}", asAssertion: false);
+      Debug.logWarning(
+        true,
+        "Context is not mounted, skipping execution of ${execute.toString()}",
+        asAssertion: false,
+      );
     }
   }
 }

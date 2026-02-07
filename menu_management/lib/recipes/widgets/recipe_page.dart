@@ -23,7 +23,11 @@ class RecipePage extends StatelessWidget {
         if (newIndex > oldIndex) {
           newIndex -= 1;
         }
-        RecipesProvider.reorderInstructions(recipeId: recipeId, oldIndex: oldIndex, newIndex: newIndex);
+        RecipesProvider.reorderInstructions(
+          recipeId: recipeId,
+          oldIndex: oldIndex,
+          newIndex: newIndex,
+        );
       },
       header: RecipeConfiguration(recipe: recipe, context: context),
       itemBuilder: (context, index) {
@@ -43,7 +47,10 @@ class RecipePage extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () {
-                RecipesProvider.removeInstruction(recipeId: recipeId, instructionId: instruction.id);
+                RecipesProvider.removeInstruction(
+                  recipeId: recipeId,
+                  instructionId: instruction.id,
+                );
               },
             ),
           ),
@@ -53,13 +60,17 @@ class RecipePage extends StatelessWidget {
   }
 
   // ignore: non_constant_identifier_names
-  Widget RecipeConfiguration({required BuildContext context, required Recipe recipe}) {
-    final WidgetStateProperty<Icon?> switchIcon = WidgetStateProperty.resolveWith<Icon?>((states) {
-      if (states.contains(WidgetState.selected)) {
-        return const Icon(Icons.check_rounded);
-      }
-      return const Icon(Icons.close);
-    });
+  Widget RecipeConfiguration({
+    required BuildContext context,
+    required Recipe recipe,
+  }) {
+    final WidgetStateProperty<Icon?> switchIcon =
+        WidgetStateProperty.resolveWith<Icon?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Icon(Icons.check_rounded);
+          }
+          return const Icon(Icons.close);
+        });
 
     return Column(
       children: [
@@ -74,7 +85,9 @@ class RecipePage extends StatelessWidget {
                   selected: recipe.type == type,
                   onSelected: (bool value) {
                     if (value && type == RecipeType.breakfast) {
-                      recipe.copyWith(type: type, lunch: false, dinner: false).saveToProvider();
+                      recipe
+                          .copyWith(type: type, lunch: false, dinner: false)
+                          .saveToProvider();
                     } else {
                       recipe.copyWith(type: type).saveToProvider();
                     }
@@ -156,10 +169,16 @@ class RecipePage extends StatelessWidget {
                 },
               ),
               const SizedBox(width: 10),
-              if (recipe.carbs == false && recipe.proteins == false && recipe.vegetables == false)
+              if (recipe.carbs == false &&
+                  recipe.proteins == false &&
+                  recipe.vegetables == false)
                 Tooltip(
-                  message: "No contents selected, this might be a problem generating menus!",
-                  child: Icon(Icons.warning_rounded, color: Theme.of(context).colorScheme.error),
+                  message:
+                      "No contents selected, this might be a problem generating menus!",
+                  child: Icon(
+                    Icons.warning_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                 ),
               const Spacer(),
               ElevatedButton.icon(

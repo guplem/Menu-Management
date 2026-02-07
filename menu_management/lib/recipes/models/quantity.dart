@@ -8,10 +8,9 @@ part 'quantity.g.dart';
 
 @freezed
 class Quantity with _$Quantity {
-  const factory Quantity({
-    required double amount,
-    required Unit unit,
-  }) = _Quantity;
+  const factory Quantity({required double amount, required Unit unit}) =
+      _Quantity;
 
-  factory Quantity.fromJson(Map<String, Object?> json) => _$QuantityFromJson(json);
+  factory Quantity.fromJson(Map<String, Object?> json) =>
+      _$QuantityFromJson(json);
 }

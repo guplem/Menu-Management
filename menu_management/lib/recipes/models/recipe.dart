@@ -36,15 +36,28 @@ class Recipe with _$Recipe {
     RecipesProvider.addOrUpdate(newRecipe: this);
   }
 
-  int get workingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.workingTimeMinutes);
-  int get cookingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
-  int get totalTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.totalTimeMinutes);
+  int get workingTimeMinutes => instructions.fold(
+    0,
+    (previousValue, element) => previousValue + element.workingTimeMinutes,
+  );
+  int get cookingTimeMinutes => instructions.fold(
+    0,
+    (previousValue, element) => previousValue + element.cookingTimeMinutes,
+  );
+  int get totalTimeMinutes => instructions.fold(
+    0,
+    (previousValue, element) => previousValue + element.totalTimeMinutes,
+  );
 
   String toShortString() {
     return "$name (${totalTimeMinutes}min)";
   }
 
-  bool fitsConfiguration(MenuConfiguration configuration, {required bool needToBeStored, required bool strictMealTime}) {
+  bool fitsConfiguration(
+    MenuConfiguration configuration, {
+    required bool needToBeStored,
+    required bool strictMealTime,
+  }) {
     if (needToBeStored && !canBeStored) {
       return false;
     }
@@ -55,8 +68,11 @@ class Recipe with _$Recipe {
       return false;
     }
     if (strictMealTime) {
-      if (configuration.mealTime.mealType == MealType.breakfast && (lunch || dinner)) {
-        Debug.logError("This should never happen, since breakfast is not a meal and this is checked before");
+      if (configuration.mealTime.mealType == MealType.breakfast &&
+          (lunch || dinner)) {
+        Debug.logError(
+          "This should never happen, since breakfast is not a meal and this is checked before",
+        );
         return false;
       }
       if (configuration.mealTime.mealType == MealType.lunch && (dinner)) {

@@ -40,10 +40,12 @@ class _MenuPageState extends State<MenuPage> {
               icon: const Icon(Icons.refresh_rounded),
               onPressed: () {
                 setState(() {
-                  menu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
+                  menu = MenuProvider.generateMenu(
+                    initialSeed: DateTime.now().millisecondsSinceEpoch,
+                  );
                 });
               },
-            )
+            ),
           ],
         ),
         actions: [
@@ -97,10 +99,17 @@ class _MenuPageState extends State<MenuPage> {
                   padding: const EdgeInsets.all(15),
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
-                    child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
+                    child: Text(
+                      WeekDay.fromValue(
+                            weekDayValue,
+                          ).name.capitalizeFirstLetter() ??
+                          "null",
+                    ),
                   ),
                 ),
-                ...menu.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((Meal? meal) {
+                ...menu.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((
+                  Meal? meal,
+                ) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MouseRegion(
@@ -115,56 +124,102 @@ class _MenuPageState extends State<MenuPage> {
                         });
                       },
                       child: meal == null
-                          ? const OutlinedCard(child: SizedBox(height: 50, width: 140))
+                          ? const OutlinedCard(
+                              child: SizedBox(height: 50, width: 140),
+                            )
                           : OutlinedCard(
-                              borderColor: highlightedMeal?.cooking?.recipe == meal.cooking?.recipe && meal.cooking != null ? Theme.of(context).colorScheme.secondaryContainer : null,
+                              borderColor:
+                                  highlightedMeal?.cooking?.recipe ==
+                                          meal.cooking?.recipe &&
+                                      meal.cooking != null
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.secondaryContainer
+                                  : null,
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (highlightedMeal == meal)
-                                    Row(children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit_rounded),
-                                        onPressed: () async {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                title: const Text("Select a new recipe"),
-                                                content: ConstrainedBox(
-                                                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
-                                                  child: SingleChildScrollView(
-                                                    child: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: RecipesProvider.instance.recipes.map((Recipe recipe) {
-                                                        return ListTile(
-                                                          title: Text(recipe.name),
-                                                          onTap: () {
-                                                            setState(() {
-                                                              menu = menu.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe);
-                                                            });
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                        );
-                                                      }).toList(),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.edit_rounded),
+                                          onPressed: () async {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: const Text(
+                                                    "Select a new recipe",
+                                                  ),
+                                                  content: ConstrainedBox(
+                                                    constraints: BoxConstraints(
+                                                      maxHeight:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.height *
+                                                          0.7,
+                                                    ),
+                                                    child: SingleChildScrollView(
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: RecipesProvider
+                                                            .instance
+                                                            .recipes
+                                                            .map((
+                                                              Recipe recipe,
+                                                            ) {
+                                                              return ListTile(
+                                                                title: Text(
+                                                                  recipe.name,
+                                                                ),
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    menu = menu.copyWithUpdatedRecipe(
+                                                                      mealTime:
+                                                                          meal.mealTime,
+                                                                      recipe:
+                                                                          recipe,
+                                                                    );
+                                                                  });
+                                                                  Navigator.of(
+                                                                    context,
+                                                                  ).pop();
+                                                                },
+                                                              );
+                                                            })
+                                                            .toList(),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    child: const Text('Cancel'),
-                                                    onPressed: () => Navigator.of(context).pop(),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ]),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      child: const Text(
+                                                        'Cancel',
+                                                      ),
+                                                      onPressed: () =>
+                                                          Navigator.of(
+                                                            context,
+                                                          ).pop(),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   DefaultTextStyle(
-                                    style: Theme.of(context).textTheme.titleMedium!,
-                                    child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null")),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium!,
+                                    child: Text(
+                                      (meal.mealTime.mealType.name
+                                              .capitalizeFirstLetter() ??
+                                          "null"),
+                                    ),
                                   ),
                                   const SizedBox(height: 5),
                                   SizedBox(

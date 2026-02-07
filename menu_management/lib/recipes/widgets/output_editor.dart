@@ -3,7 +3,13 @@ import 'package:menu_management/recipes/models/result.dart';
 import 'package:uuid/uuid.dart';
 
 class OutputEditor extends StatefulWidget {
-  const OutputEditor({super.key, required this.onUpdate, required this.output, required this.recipeId, required this.instructionId});
+  const OutputEditor({
+    super.key,
+    required this.onUpdate,
+    required this.output,
+    required this.recipeId,
+    required this.instructionId,
+  });
 
   final Function(Result newOutput) onUpdate;
   final Result? output;
@@ -12,7 +18,13 @@ class OutputEditor extends StatefulWidget {
   @override
   State<OutputEditor> createState() => _OutputEditorState();
 
-  static show({required BuildContext context, required Result? originalOutput, required String recipeId, required String instructionId, required void Function(Result newOutput) onUpdate}) {
+  static show({
+    required BuildContext context,
+    required Result? originalOutput,
+    required String recipeId,
+    required String instructionId,
+    required void Function(Result newOutput) onUpdate,
+  }) {
     Result? newOutput;
 
     showDialog(
@@ -56,10 +68,7 @@ class _OutputEditorState extends State<OutputEditor> {
   void initState() {
     super.initState();
     if (widget.output == null) {
-      newOutput = Result(
-        id: const Uuid().v1(),
-        description: '',
-      );
+      newOutput = Result(id: const Uuid().v1(), description: '');
     } else {
       newOutput = widget.output!;
     }

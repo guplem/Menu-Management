@@ -12,7 +12,12 @@ import 'package:menu_management/recipes/widgets/output_editor.dart';
 import 'package:uuid/uuid.dart';
 
 class InstructionEditor extends StatefulWidget {
-  const InstructionEditor({super.key, required this.onUpdate, required this.instruction, required this.recipeId});
+  const InstructionEditor({
+    super.key,
+    required this.onUpdate,
+    required this.instruction,
+    required this.recipeId,
+  });
 
   final Function(Instruction newInstruction) onUpdate;
   final Instruction? instruction;
@@ -21,7 +26,11 @@ class InstructionEditor extends StatefulWidget {
   @override
   State<InstructionEditor> createState() => _InstructionEditorState();
 
-  static show({required BuildContext context, required Instruction? originalInstruction, required String recipeId}) {
+  static show({
+    required BuildContext context,
+    required Instruction? originalInstruction,
+    required String recipeId,
+  }) {
     Instruction? newInstruction;
 
     showDialog(
@@ -46,7 +55,10 @@ class InstructionEditor extends StatefulWidget {
               child: const Text('Save'),
               onPressed: () {
                 if (newInstruction != null) {
-                  RecipesProvider.addOrUpdateInstruction(recipeId: recipeId, newInstruction: newInstruction!);
+                  RecipesProvider.addOrUpdateInstruction(
+                    recipeId: recipeId,
+                    newInstruction: newInstruction!,
+                  );
                 }
                 Navigator.of(context).pop();
               },
@@ -133,7 +145,9 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   onChanged: (value) {
                     int? valueParsed = int.tryParse(value);
                     if (valueParsed == null) return;
-                    updateInstruction(newInstruction.copyWith(workingTimeMinutes: valueParsed));
+                    updateInstruction(
+                      newInstruction.copyWith(workingTimeMinutes: valueParsed),
+                    );
                   },
                 ),
               ),
@@ -150,14 +164,21 @@ class _InstructionEditorState extends State<InstructionEditor> {
                     suffixIcon: Icon(Icons.takeout_dining_rounded),
                   ),
                   onChanged: (value) {
-                    updateInstruction(newInstruction.copyWith(cookingTimeMinutes: int.parse(value)));
+                    updateInstruction(
+                      newInstruction.copyWith(
+                        cookingTimeMinutes: int.parse(value),
+                      ),
+                    );
                   },
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text('Total time: ${newInstruction.totalTimeMinutes} min', style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            'Total time: ${newInstruction.totalTimeMinutes} min',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 15),
           const Divider(),
           const SizedBox(height: 10),
@@ -171,7 +192,8 @@ class _InstructionEditorState extends State<InstructionEditor> {
                     context: context,
                     originalInstruction: newInstruction,
                     recipeId: widget.recipeId,
-                    onUpdate: (Instruction instruction) => updateInstruction(instruction),
+                    onUpdate: (Instruction instruction) =>
+                        updateInstruction(instruction),
                   );
                 },
                 icon: const Icon(Icons.add_rounded),
@@ -180,7 +202,9 @@ class _InstructionEditorState extends State<InstructionEditor> {
             ],
           ),
           const SizedBox(height: 10),
-          ...RecipesProvider().getResults(newInstruction.inputs).map((Result input) {
+          ...RecipesProvider().getResults(newInstruction.inputs).map((
+            Result input,
+          ) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 7),
               child: ListTile(
@@ -188,7 +212,13 @@ class _InstructionEditorState extends State<InstructionEditor> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    updateInstruction(newInstruction.copyWith(inputs: newInstruction.inputs.where((existingInput) => existingInput != input.id).toList()));
+                    updateInstruction(
+                      newInstruction.copyWith(
+                        inputs: newInstruction.inputs
+                            .where((existingInput) => existingInput != input.id)
+                            .toList(),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -207,7 +237,8 @@ class _InstructionEditorState extends State<InstructionEditor> {
                     context: context,
                     originalInstruction: newInstruction,
                     recipeId: widget.recipeId,
-                    onUpdate: (Instruction instruction) => updateInstruction(instruction),
+                    onUpdate: (Instruction instruction) =>
+                        updateInstruction(instruction),
                   );
                 },
                 icon: const Icon(Icons.add_rounded),
@@ -216,33 +247,43 @@ class _InstructionEditorState extends State<InstructionEditor> {
             ],
           ),
           const SizedBox(height: 10),
-          ...newInstruction.ingredientsUsed.map((ingredientUsage) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7),
-                child: IngredientQuantity(
-                  ingredientUsage: ingredientUsage,
-                  onUpdate: (IngredientUsage? newUsage) {
-                    Instruction updatedInstruction;
-                    if (newUsage != null) {
-                      // Update the ingredient
-                      updatedInstruction = newInstruction.copyWith(
-                        ingredientsUsed: newInstruction.ingredientsUsed.map((IngredientUsage ing) {
-                          if (ing.ingredient == ingredientUsage.ingredient) {
-                            return newUsage;
-                          }
-                          return ing;
-                        }).toList(),
-                      );
-                    } else {
-                      // Remove the ingredient
-                      updatedInstruction = newInstruction.copyWith(
-                        ingredientsUsed: newInstruction.ingredientsUsed.where((IngredientUsage ing) => ing.ingredient != ingredientUsage.ingredient).toList(),
-                      );
-                    }
-                    updateInstruction(updatedInstruction);
-                  },
-                ),
-              )),
-          if (newInstruction.ingredientsUsed.isNotEmpty) const SizedBox(height: 15),
+          ...newInstruction.ingredientsUsed.map(
+            (ingredientUsage) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              child: IngredientQuantity(
+                ingredientUsage: ingredientUsage,
+                onUpdate: (IngredientUsage? newUsage) {
+                  Instruction updatedInstruction;
+                  if (newUsage != null) {
+                    // Update the ingredient
+                    updatedInstruction = newInstruction.copyWith(
+                      ingredientsUsed: newInstruction.ingredientsUsed.map((
+                        IngredientUsage ing,
+                      ) {
+                        if (ing.ingredient == ingredientUsage.ingredient) {
+                          return newUsage;
+                        }
+                        return ing;
+                      }).toList(),
+                    );
+                  } else {
+                    // Remove the ingredient
+                    updatedInstruction = newInstruction.copyWith(
+                      ingredientsUsed: newInstruction.ingredientsUsed
+                          .where(
+                            (IngredientUsage ing) =>
+                                ing.ingredient != ingredientUsage.ingredient,
+                          )
+                          .toList(),
+                    );
+                  }
+                  updateInstruction(updatedInstruction);
+                },
+              ),
+            ),
+          ),
+          if (newInstruction.ingredientsUsed.isNotEmpty)
+            const SizedBox(height: 15),
           const Divider(),
           const SizedBox(height: 15),
           Row(
@@ -254,7 +295,8 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   OutputCreator.show(
                     context: context,
                     instruction: newInstruction,
-                    onUpdate: (Instruction instruction) => updateInstruction(instruction),
+                    onUpdate: (Instruction instruction) =>
+                        updateInstruction(instruction),
                   );
                 },
                 icon: const Icon(Icons.add_rounded),
@@ -275,7 +317,18 @@ class _InstructionEditorState extends State<InstructionEditor> {
                       originalOutput: output,
                       recipeId: widget.recipeId,
                       instructionId: newInstruction.id,
-                      onUpdate: (Result newOutput) => updateInstruction(newInstruction.copyWith(outputs: newInstruction.outputs.map((existingOutput) => existingOutput.id == newOutput.id ? newOutput : existingOutput).toList())),
+                      onUpdate: (Result newOutput) => updateInstruction(
+                        newInstruction.copyWith(
+                          outputs: newInstruction.outputs
+                              .map(
+                                (existingOutput) =>
+                                    existingOutput.id == newOutput.id
+                                    ? newOutput
+                                    : existingOutput,
+                              )
+                              .toList(),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -283,7 +336,13 @@ class _InstructionEditorState extends State<InstructionEditor> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    updateInstruction(newInstruction.copyWith(outputs: newInstruction.outputs.where((o) => o.id != output.id).toList()));
+                    updateInstruction(
+                      newInstruction.copyWith(
+                        outputs: newInstruction.outputs
+                            .where((o) => o.id != output.id)
+                            .toList(),
+                      ),
+                    );
                   },
                 ),
               ),

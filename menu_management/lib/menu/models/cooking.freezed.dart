@@ -12,7 +12,8 @@ part of 'cooking.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Cooking _$CookingFromJson(Map<String, dynamic> json) {
   return _Cooking.fromJson(json);
@@ -25,8 +26,12 @@ mixin _$Cooking {
   /// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
   int get yield => throw _privateConstructorUsedError;
 
+  /// Serializes this Cooking to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Cooking
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $CookingCopyWith<Cooking> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -50,24 +55,28 @@ class _$CookingCopyWithImpl<$Res, $Val extends Cooking>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Cooking
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? recipe = null,
-    Object? yield = null,
-  }) {
-    return _then(_value.copyWith(
-      recipe: null == recipe
-          ? _value.recipe
-          : recipe // ignore: cast_nullable_to_non_nullable
-              as Recipe,
-      yield: null == yield
-          ? _value.yield
-          : yield // ignore: cast_nullable_to_non_nullable
-              as int,
-    ) as $Val);
+  $Res call({Object? recipe = null, Object? yield = null}) {
+    return _then(
+      _value.copyWith(
+            recipe: null == recipe
+                ? _value.recipe
+                : recipe // ignore: cast_nullable_to_non_nullable
+                      as Recipe,
+            yield: null == yield
+                ? _value.yield
+                : yield // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
   }
 
+  /// Create a copy of Cooking
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $RecipeCopyWith<$Res> get recipe {
@@ -80,8 +89,9 @@ class _$CookingCopyWithImpl<$Res, $Val extends Cooking>
 /// @nodoc
 abstract class _$$CookingImplCopyWith<$Res> implements $CookingCopyWith<$Res> {
   factory _$$CookingImplCopyWith(
-          _$CookingImpl value, $Res Function(_$CookingImpl) then) =
-      __$$CookingImplCopyWithImpl<$Res>;
+    _$CookingImpl value,
+    $Res Function(_$CookingImpl) then,
+  ) = __$$CookingImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({Recipe recipe, int yield});
@@ -95,25 +105,27 @@ class __$$CookingImplCopyWithImpl<$Res>
     extends _$CookingCopyWithImpl<$Res, _$CookingImpl>
     implements _$$CookingImplCopyWith<$Res> {
   __$$CookingImplCopyWithImpl(
-      _$CookingImpl _value, $Res Function(_$CookingImpl) _then)
-      : super(_value, _then);
+    _$CookingImpl _value,
+    $Res Function(_$CookingImpl) _then,
+  ) : super(_value, _then);
 
+  /// Create a copy of Cooking
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? recipe = null,
-    Object? yield = null,
-  }) {
-    return _then(_$CookingImpl(
-      recipe: null == recipe
-          ? _value.recipe
-          : recipe // ignore: cast_nullable_to_non_nullable
-              as Recipe,
-      yield: null == yield
-          ? _value.yield
-          : yield // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
+  $Res call({Object? recipe = null, Object? yield = null}) {
+    return _then(
+      _$CookingImpl(
+        recipe: null == recipe
+            ? _value.recipe
+            : recipe // ignore: cast_nullable_to_non_nullable
+                  as Recipe,
+        yield: null == yield
+            ? _value.yield
+            : yield // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
   }
 }
 
@@ -147,7 +159,7 @@ class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CookingImpl &&
@@ -155,11 +167,13 @@ class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
             (identical(other.yield, yield) || other.yield == yield));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, recipe, yield);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Cooking
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$CookingImplCopyWith<_$CookingImpl> get copyWith =>
@@ -167,26 +181,29 @@ class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$CookingImplToJson(
-      this,
-    );
+    return _$$CookingImplToJson(this);
   }
 }
 
 abstract class _Cooking implements Cooking {
-  const factory _Cooking(
-      {required final Recipe recipe, required final int yield}) = _$CookingImpl;
+  const factory _Cooking({
+    required final Recipe recipe,
+    required final int yield,
+  }) = _$CookingImpl;
 
   factory _Cooking.fromJson(Map<String, dynamic> json) = _$CookingImpl.fromJson;
 
   @override
   Recipe get recipe;
-  @override
 
   /// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
-  int get yield;
   @override
-  @JsonKey(ignore: true)
+  int get yield;
+
+  /// Create a copy of Cooking
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CookingImplCopyWith<_$CookingImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

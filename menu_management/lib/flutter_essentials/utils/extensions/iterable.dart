@@ -34,7 +34,6 @@ extension IterableExtensions<E> on Iterable<E> {
     } else {
       return elementAt(Random().nextInt(length));
     }
-
   }
 
   Iterable<E> shuffled([Random? random]) {
@@ -48,5 +47,4 @@ extension IterableExtensions<E> on Iterable<E> {
     list.sort(compare);
     return list;
   }
-
 }

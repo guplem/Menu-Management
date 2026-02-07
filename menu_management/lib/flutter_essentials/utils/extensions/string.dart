@@ -2,7 +2,9 @@ extension StringNullableExtensions on String? {
   String? capitalizeFirstLetter({bool restOfStringToLowerCase = false}) {
     if (this == null) return null;
     if (this!.isEmpty) return "";
-    String rest = restOfStringToLowerCase ? this!.substring(1).toLowerCase() : this!.substring(1);
+    String rest = restOfStringToLowerCase
+        ? this!.substring(1).toLowerCase()
+        : this!.substring(1);
     return "${this![0].toUpperCase()}$rest";
   }
 

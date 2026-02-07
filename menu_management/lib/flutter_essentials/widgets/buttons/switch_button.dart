@@ -6,7 +6,12 @@ class SwitchButton extends StatefulWidget {
   final Widget child;
   final void Function(bool)? onUpdate;
 
-  const SwitchButton({Key? key, required this.selected, required this.child, required this.onUpdate}) : super(key: key);
+  const SwitchButton({
+    Key? key,
+    required this.selected,
+    required this.child,
+    required this.onUpdate,
+  }) : super(key: key);
 
   @override
   State<SwitchButton> createState() => _SwitchButtonState();
@@ -25,7 +30,8 @@ class _SwitchButtonState extends State<SwitchButton> {
   @override
   Widget build(BuildContext context) {
     if (widget.selected) {
-      return FilledButton( //ElevatedButton(
+      return FilledButton(
+        //ElevatedButton(
         onPressed: widget.onUpdate == null ? null : switchState,
         // style: ElevatedButton.styleFrom(
         //   // Foreground color

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:menu_management/hub.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/menu/menu_provider.dart';
@@ -30,21 +29,33 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.lightGreen,
-            brightness: SchedulerBinding.instance.window.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
+            brightness:
+                PlatformDispatcher.instance.platformBrightness ==
+                    Brightness.light
+                ? Brightness.light
+                : Brightness.dark,
           ),
           useMaterial3: true,
         ),
-        home: Builder(builder: (context) {
-          // Load data on startup
-          if (!kDebugMode) {
-            Persistency.loadData(
-              ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
-              recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
-            );
-          }
+        home: Builder(
+          builder: (context) {
+            // Load data on startup
+            if (!kDebugMode) {
+              Persistency.loadData(
+                ingredientsProvider: Provider.of<IngredientsProvider>(
+                  context,
+                  listen: false,
+                ),
+                recipesProvider: Provider.of<RecipesProvider>(
+                  context,
+                  listen: false,
+                ),
+              );
+            }
 
-          return const Hub();
-        }),
+            return const Hub();
+          },
+        ),
       ),
     );
   }

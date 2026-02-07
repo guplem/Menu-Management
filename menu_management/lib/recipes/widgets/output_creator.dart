@@ -5,7 +5,11 @@ import 'package:menu_management/recipes/models/result.dart';
 import 'package:uuid/uuid.dart';
 
 class OutputCreator extends StatefulWidget {
-  const OutputCreator({Key? key, required this.onUpdate, required this.instruction}) : super(key: key);
+  const OutputCreator({
+    Key? key,
+    required this.onUpdate,
+    required this.instruction,
+  }) : super(key: key);
   final Function(Instruction newInstruction) onUpdate;
   final Instruction instruction;
 
@@ -17,10 +21,7 @@ class OutputCreator extends StatefulWidget {
     showDialog(
       context: context,
       builder: (context) {
-        return OutputCreator(
-          instruction: instruction,
-          onUpdate: onUpdate,
-        );
+        return OutputCreator(instruction: instruction, onUpdate: onUpdate);
       },
     );
   }
@@ -54,15 +55,23 @@ class _OutputCreatorState extends State<OutputCreator> {
       ),
       actions: <Widget>[
         FilledButton(
-            onPressed: outputController.text.trimAndSetNullIfEmpty == null
-                ? null
-                : () {
-                    String txt = outputController.text;
-                    Result newOutput = Result(id: const Uuid().v1(), description: txt);
-                    widget.onUpdate(widget.instruction.copyWith(outputs: [...widget.instruction.outputs, newOutput]));
-                    Navigator.of(context).pop();
-                  },
-            child: const Text('Add')),
+          onPressed: outputController.text.trimAndSetNullIfEmpty == null
+              ? null
+              : () {
+                  String txt = outputController.text;
+                  Result newOutput = Result(
+                    id: const Uuid().v1(),
+                    description: txt,
+                  );
+                  widget.onUpdate(
+                    widget.instruction.copyWith(
+                      outputs: [...widget.instruction.outputs, newOutput],
+                    ),
+                  );
+                  Navigator.of(context).pop();
+                },
+          child: const Text('Add'),
+        ),
       ],
     );
   }

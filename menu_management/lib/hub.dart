@@ -38,14 +38,21 @@ class _HubState extends State<Hub> {
                   IconButton(
                     icon: const Icon(Icons.drive_folder_upload_rounded),
                     onPressed: () => Persistency.loadData(
-                      ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
-                      recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
+                      ingredientsProvider: Provider.of<IngredientsProvider>(
+                        context,
+                        listen: false,
+                      ),
+                      recipesProvider: Provider.of<RecipesProvider>(
+                        context,
+                        listen: false,
+                      ),
                     ),
                     tooltip: 'Load data from file',
                   ),
                   const SizedBox(height: 10),
                   // Save functionality not available on mobile platforms
-                  if (Theme.of(context).platform != TargetPlatform.iOS && Theme.of(context).platform != TargetPlatform.android)
+                  if (Theme.of(context).platform != TargetPlatform.iOS &&
+                      Theme.of(context).platform != TargetPlatform.android)
                     IconButton(
                       icon: const Icon(Icons.save_rounded),
                       onPressed: () => Persistency.saveData(),
@@ -69,27 +76,31 @@ class _HubState extends State<Hub> {
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.set_meal_outlined), // Alternative: restaurant
-                selectedIcon: Icon(Icons.set_meal_rounded), // Alternative: restaurant
+                selectedIcon: Icon(
+                  Icons.set_meal_rounded,
+                ), // Alternative: restaurant
                 label: Text('Menu'),
               ),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           // This is the main content.
-          Expanded(child: Builder(
-            builder: (BuildContext context) {
-              switch (_selectedIndex) {
-                case 0:
-                  return const IngredientsPage();
-                case 1:
-                  return const RecipesPage();
-                case 2:
-                  return const MenuConfigurationPage();
-                default:
-                  return const Center(child: Text('Error'));
-              }
-            },
-          )),
+          Expanded(
+            child: Builder(
+              builder: (BuildContext context) {
+                switch (_selectedIndex) {
+                  case 0:
+                    return const IngredientsPage();
+                  case 1:
+                    return const RecipesPage();
+                  case 2:
+                    return const MenuConfigurationPage();
+                  default:
+                    return const Center(child: Text('Error'));
+                }
+              },
+            ),
+          ),
         ],
       ),
     );

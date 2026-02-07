@@ -1,7 +1,8 @@
 import "package:flutter/material.dart";
 
 class ClickableSurface extends StatelessWidget {
-  const ClickableSurface({Key? key, required this.child, this.onTap}) : super(key: key);
+  const ClickableSurface({Key? key, required this.child, this.onTap})
+    : super(key: key);
 
   final Widget child;
   final void Function()? onTap;
@@ -11,7 +12,9 @@ class ClickableSurface extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: MouseRegion(
-        cursor: onTap != null ? WidgetStateMouseCursor.clickable : SystemMouseCursors.forbidden,
+        cursor: onTap != null
+            ? WidgetStateMouseCursor.clickable
+            : SystemMouseCursors.forbidden,
         child: child,
       ),
     );

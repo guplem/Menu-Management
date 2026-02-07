@@ -39,5 +39,4 @@ extension TimeOfDayExtensions on TimeOfDay {
     date ??= DateTime.fromMicrosecondsSinceEpoch(0);
     return DateTime(date.year, date.month, date.day, hour, minute);
   }
-
 }

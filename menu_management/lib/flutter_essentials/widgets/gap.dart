@@ -7,16 +7,16 @@ class Gap extends StatelessWidget {
   final Widget? child;
 
   const Gap.vertical({super.key, this.child})
-      : width = 0,
-        height = ThemeCustom.spaceVertical;
+    : width = 0,
+      height = ThemeCustom.spaceVertical;
 
   const Gap.verticalNewSection({super.key, this.child})
-      : width = 0,
-        height = ThemeCustom.spaceVertical * 2;
+    : width = 0,
+      height = ThemeCustom.spaceVertical * 2;
 
   const Gap.horizontal({super.key, this.child})
-      : width = ThemeCustom.spaceVertical,
-        height = 0;
+    : width = ThemeCustom.spaceVertical,
+      height = 0;
 
   @override
   Widget build(BuildContext context) {

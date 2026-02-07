@@ -12,7 +12,8 @@ part of 'result.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Result _$ResultFromJson(Map<String, dynamic> json) {
   return _Result.fromJson(json);
@@ -23,8 +24,12 @@ mixin _$Result {
   String get id => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
 
+  /// Serializes this Result to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Result
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ResultCopyWith<Result> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -46,30 +51,33 @@ class _$ResultCopyWithImpl<$Res, $Val extends Result>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Result
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? description = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  $Res call({Object? id = null, Object? description = null}) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            description: null == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$ResultImplCopyWith<$Res> implements $ResultCopyWith<$Res> {
   factory _$$ResultImplCopyWith(
-          _$ResultImpl value, $Res Function(_$ResultImpl) then) =
-      __$$ResultImplCopyWithImpl<$Res>;
+    _$ResultImpl value,
+    $Res Function(_$ResultImpl) then,
+  ) = __$$ResultImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, String description});
@@ -80,25 +88,27 @@ class __$$ResultImplCopyWithImpl<$Res>
     extends _$ResultCopyWithImpl<$Res, _$ResultImpl>
     implements _$$ResultImplCopyWith<$Res> {
   __$$ResultImplCopyWithImpl(
-      _$ResultImpl _value, $Res Function(_$ResultImpl) _then)
-      : super(_value, _then);
+    _$ResultImpl _value,
+    $Res Function(_$ResultImpl) _then,
+  ) : super(_value, _then);
 
+  /// Create a copy of Result
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? description = null,
-  }) {
-    return _then(_$ResultImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+  $Res call({Object? id = null, Object? description = null}) {
+    return _then(
+      _$ResultImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        description: null == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
@@ -130,7 +140,7 @@ class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ResultImpl &&
@@ -139,11 +149,13 @@ class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
                 other.description == description));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, description);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Result
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ResultImplCopyWith<_$ResultImpl> get copyWith =>
@@ -151,16 +163,15 @@ class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ResultImplToJson(
-      this,
-    );
+    return _$$ResultImplToJson(this);
   }
 }
 
 abstract class _Result implements Result {
-  const factory _Result(
-      {required final String id,
-      required final String description}) = _$ResultImpl;
+  const factory _Result({
+    required final String id,
+    required final String description,
+  }) = _$ResultImpl;
 
   factory _Result.fromJson(Map<String, dynamic> json) = _$ResultImpl.fromJson;
 
@@ -168,8 +179,11 @@ abstract class _Result implements Result {
   String get id;
   @override
   String get description;
+
+  /// Create a copy of Result
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ResultImplCopyWith<_$ResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

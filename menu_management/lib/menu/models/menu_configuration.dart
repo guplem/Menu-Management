@@ -12,20 +12,22 @@ part 'menu_configuration.g.dart';
 class MenuConfiguration with _$MenuConfiguration {
   const factory MenuConfiguration({
     required MealTime mealTime,
-    @Default(true)
-    bool requiresMeal,
-    @Default(60)
-    int availableCookingTimeMinutes,
+    @Default(true) bool requiresMeal,
+    @Default(60) int availableCookingTimeMinutes,
   }) = _MenuConfiguration;
 
-  factory MenuConfiguration.fromJson(Map<String, Object?> json) => _$MenuConfigurationFromJson(json);
+  factory MenuConfiguration.fromJson(Map<String, Object?> json) =>
+      _$MenuConfigurationFromJson(json);
 
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const MenuConfiguration._();
 
-  bool get isMeal => mealTime.mealType == MealType.lunch || mealTime.mealType == MealType.dinner;
+  bool get isMeal =>
+      mealTime.mealType == MealType.lunch ||
+      mealTime.mealType == MealType.dinner;
 
-  bool get canBeCookedAtTheSpot => requiresMeal && availableCookingTimeMinutes > 0;
+  bool get canBeCookedAtTheSpot =>
+      requiresMeal && availableCookingTimeMinutes > 0;
 
   void saveToProvider() {
     MenuProvider.update(newConfiguration: this);

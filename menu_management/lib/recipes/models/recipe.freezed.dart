@@ -12,7 +12,8 @@ part of 'recipe.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Recipe _$RecipeFromJson(Map<String, dynamic> json) {
   return _Recipe.fromJson(json);
@@ -31,8 +32,12 @@ mixin _$Recipe {
   bool get dinner => throw _privateConstructorUsedError;
   bool get canBeStored => throw _privateConstructorUsedError;
 
+  /// Serializes this Recipe to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Recipe
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $RecipeCopyWith<Recipe> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -41,17 +46,18 @@ abstract class $RecipeCopyWith<$Res> {
   factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) then) =
       _$RecipeCopyWithImpl<$Res, Recipe>;
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      List<Instruction> instructions,
-      bool carbs,
-      bool proteins,
-      bool vegetables,
-      RecipeType type,
-      bool lunch,
-      bool dinner,
-      bool canBeStored});
+  $Res call({
+    String id,
+    String name,
+    List<Instruction> instructions,
+    bool carbs,
+    bool proteins,
+    bool vegetables,
+    RecipeType type,
+    bool lunch,
+    bool dinner,
+    bool canBeStored,
+  });
 }
 
 /// @nodoc
@@ -64,6 +70,8 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Recipe
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -78,69 +86,74 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? dinner = null,
     Object? canBeStored = null,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      instructions: null == instructions
-          ? _value.instructions
-          : instructions // ignore: cast_nullable_to_non_nullable
-              as List<Instruction>,
-      carbs: null == carbs
-          ? _value.carbs
-          : carbs // ignore: cast_nullable_to_non_nullable
-              as bool,
-      proteins: null == proteins
-          ? _value.proteins
-          : proteins // ignore: cast_nullable_to_non_nullable
-              as bool,
-      vegetables: null == vegetables
-          ? _value.vegetables
-          : vegetables // ignore: cast_nullable_to_non_nullable
-              as bool,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as RecipeType,
-      lunch: null == lunch
-          ? _value.lunch
-          : lunch // ignore: cast_nullable_to_non_nullable
-              as bool,
-      dinner: null == dinner
-          ? _value.dinner
-          : dinner // ignore: cast_nullable_to_non_nullable
-              as bool,
-      canBeStored: null == canBeStored
-          ? _value.canBeStored
-          : canBeStored // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            instructions: null == instructions
+                ? _value.instructions
+                : instructions // ignore: cast_nullable_to_non_nullable
+                      as List<Instruction>,
+            carbs: null == carbs
+                ? _value.carbs
+                : carbs // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            proteins: null == proteins
+                ? _value.proteins
+                : proteins // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            vegetables: null == vegetables
+                ? _value.vegetables
+                : vegetables // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            type: null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                      as RecipeType,
+            lunch: null == lunch
+                ? _value.lunch
+                : lunch // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            dinner: null == dinner
+                ? _value.dinner
+                : dinner // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            canBeStored: null == canBeStored
+                ? _value.canBeStored
+                : canBeStored // ignore: cast_nullable_to_non_nullable
+                      as bool,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
   factory _$$RecipeImplCopyWith(
-          _$RecipeImpl value, $Res Function(_$RecipeImpl) then) =
-      __$$RecipeImplCopyWithImpl<$Res>;
+    _$RecipeImpl value,
+    $Res Function(_$RecipeImpl) then,
+  ) = __$$RecipeImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      List<Instruction> instructions,
-      bool carbs,
-      bool proteins,
-      bool vegetables,
-      RecipeType type,
-      bool lunch,
-      bool dinner,
-      bool canBeStored});
+  $Res call({
+    String id,
+    String name,
+    List<Instruction> instructions,
+    bool carbs,
+    bool proteins,
+    bool vegetables,
+    RecipeType type,
+    bool lunch,
+    bool dinner,
+    bool canBeStored,
+  });
 }
 
 /// @nodoc
@@ -148,9 +161,12 @@ class __$$RecipeImplCopyWithImpl<$Res>
     extends _$RecipeCopyWithImpl<$Res, _$RecipeImpl>
     implements _$$RecipeImplCopyWith<$Res> {
   __$$RecipeImplCopyWithImpl(
-      _$RecipeImpl _value, $Res Function(_$RecipeImpl) _then)
-      : super(_value, _then);
+    _$RecipeImpl _value,
+    $Res Function(_$RecipeImpl) _then,
+  ) : super(_value, _then);
 
+  /// Create a copy of Recipe
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -165,67 +181,69 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? dinner = null,
     Object? canBeStored = null,
   }) {
-    return _then(_$RecipeImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      instructions: null == instructions
-          ? _value._instructions
-          : instructions // ignore: cast_nullable_to_non_nullable
-              as List<Instruction>,
-      carbs: null == carbs
-          ? _value.carbs
-          : carbs // ignore: cast_nullable_to_non_nullable
-              as bool,
-      proteins: null == proteins
-          ? _value.proteins
-          : proteins // ignore: cast_nullable_to_non_nullable
-              as bool,
-      vegetables: null == vegetables
-          ? _value.vegetables
-          : vegetables // ignore: cast_nullable_to_non_nullable
-              as bool,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as RecipeType,
-      lunch: null == lunch
-          ? _value.lunch
-          : lunch // ignore: cast_nullable_to_non_nullable
-              as bool,
-      dinner: null == dinner
-          ? _value.dinner
-          : dinner // ignore: cast_nullable_to_non_nullable
-              as bool,
-      canBeStored: null == canBeStored
-          ? _value.canBeStored
-          : canBeStored // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ));
+    return _then(
+      _$RecipeImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        instructions: null == instructions
+            ? _value._instructions
+            : instructions // ignore: cast_nullable_to_non_nullable
+                  as List<Instruction>,
+        carbs: null == carbs
+            ? _value.carbs
+            : carbs // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        proteins: null == proteins
+            ? _value.proteins
+            : proteins // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        vegetables: null == vegetables
+            ? _value.vegetables
+            : vegetables // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        type: null == type
+            ? _value.type
+            : type // ignore: cast_nullable_to_non_nullable
+                  as RecipeType,
+        lunch: null == lunch
+            ? _value.lunch
+            : lunch // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        dinner: null == dinner
+            ? _value.dinner
+            : dinner // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        canBeStored: null == canBeStored
+            ? _value.canBeStored
+            : canBeStored // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
-  const _$RecipeImpl(
-      {required this.id,
-      required this.name,
-      final List<Instruction> instructions = const [],
-      this.carbs = true,
-      this.proteins = true,
-      this.vegetables = true,
-      this.type = RecipeType.meal,
-      this.lunch = true,
-      this.dinner = true,
-      this.canBeStored = true})
-      : _instructions = instructions,
-        super._();
+  const _$RecipeImpl({
+    required this.id,
+    required this.name,
+    final List<Instruction> instructions = const [],
+    this.carbs = true,
+    this.proteins = true,
+    this.vegetables = true,
+    this.type = RecipeType.meal,
+    this.lunch = true,
+    this.dinner = true,
+    this.canBeStored = true,
+  }) : _instructions = instructions,
+       super._();
 
   factory _$RecipeImpl.fromJson(Map<String, dynamic> json) =>
       _$$RecipeImplFromJson(json);
@@ -288,14 +306,16 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RecipeImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
-            const DeepCollectionEquality()
-                .equals(other._instructions, _instructions) &&
+            const DeepCollectionEquality().equals(
+              other._instructions,
+              _instructions,
+            ) &&
             (identical(other.carbs, carbs) || other.carbs == carbs) &&
             (identical(other.proteins, proteins) ||
                 other.proteins == proteins) &&
@@ -308,22 +328,25 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
                 other.canBeStored == canBeStored));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      name,
-      const DeepCollectionEquality().hash(_instructions),
-      carbs,
-      proteins,
-      vegetables,
-      type,
-      lunch,
-      dinner,
-      canBeStored);
+    runtimeType,
+    id,
+    name,
+    const DeepCollectionEquality().hash(_instructions),
+    carbs,
+    proteins,
+    vegetables,
+    type,
+    lunch,
+    dinner,
+    canBeStored,
+  );
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Recipe
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith =>
@@ -331,24 +354,23 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$RecipeImplToJson(
-      this,
-    );
+    return _$$RecipeImplToJson(this);
   }
 }
 
 abstract class _Recipe extends Recipe {
-  const factory _Recipe(
-      {required final String id,
-      required final String name,
-      final List<Instruction> instructions,
-      final bool carbs,
-      final bool proteins,
-      final bool vegetables,
-      final RecipeType type,
-      final bool lunch,
-      final bool dinner,
-      final bool canBeStored}) = _$RecipeImpl;
+  const factory _Recipe({
+    required final String id,
+    required final String name,
+    final List<Instruction> instructions,
+    final bool carbs,
+    final bool proteins,
+    final bool vegetables,
+    final RecipeType type,
+    final bool lunch,
+    final bool dinner,
+    final bool canBeStored,
+  }) = _$RecipeImpl;
   const _Recipe._() : super._();
 
   factory _Recipe.fromJson(Map<String, dynamic> json) = _$RecipeImpl.fromJson;
@@ -373,8 +395,11 @@ abstract class _Recipe extends Recipe {
   bool get dinner;
   @override
   bool get canBeStored;
+
+  /// Create a copy of Recipe
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

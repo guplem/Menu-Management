@@ -4,7 +4,8 @@ import "package:menu_management/theme/theme_custom.dart";
 
 // WaitingForUpdate: Once this issue is completed, delete this class. https://github.com/flutter/flutter/issues/119401
 class AreaCard extends StatelessWidget {
-  const AreaCard({Key? key, required this.child, this.onTap, this.padding}) : super(key: key);
+  const AreaCard({Key? key, required this.child, this.onTap, this.padding})
+    : super(key: key);
 
   final Widget? child;
   final void Function()? onTap;

@@ -13,5 +13,6 @@ class IngredientUsage with _$IngredientUsage {
     required Quantity quantity,
   }) = _IngredientUsage;
 
-  factory IngredientUsage.fromJson(Map<String, Object?> json) => _$IngredientUsageFromJson(json);
+  factory IngredientUsage.fromJson(Map<String, Object?> json) =>
+      _$IngredientUsageFromJson(json);
 }

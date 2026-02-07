@@ -17,5 +17,4 @@ enum MealType {
   bool goesAfter(MealType other) {
     return value > other.value;
   }
-
 }

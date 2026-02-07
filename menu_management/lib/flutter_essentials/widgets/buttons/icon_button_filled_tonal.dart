@@ -4,7 +4,11 @@ import "package:menu_management/theme/theme_custom.dart";
 // WaitingForUpdate: Once this issue is completed, delete this class. https://github.com/flutter/flutter/issues/111800
 // https://m3.material.io/components/icon-buttons/specs#c2ca424b-2ad7-40e6-8946-47fb1918060a
 class IconButtonFilledTonal extends StatelessWidget {
-  const IconButtonFilledTonal({Key? key, required this.onPressed, required this.icon}) : super(key: key);
+  const IconButtonFilledTonal({
+    Key? key,
+    required this.onPressed,
+    required this.icon,
+  }) : super(key: key);
 
   final void Function()? onPressed;
   final Widget icon;
@@ -14,17 +18,17 @@ class IconButtonFilledTonal extends StatelessWidget {
 
     if (onPressed == null) {
       return IconButton.styleFrom(
-        disabledForegroundColor: colorScheme.onSurface.withOpacity(0.38),
-        disabledBackgroundColor: colorScheme.onSurface.withOpacity(0.12),
+        disabledForegroundColor: colorScheme.onSurface.withValues(alpha: 0.38),
+        disabledBackgroundColor: colorScheme.onSurface.withValues(alpha: 0.12),
       );
     }
 
     return IconButton.styleFrom(
       foregroundColor: colorScheme.onSecondaryContainer,
       backgroundColor: colorScheme.secondaryContainer,
-      hoverColor: colorScheme.onSecondaryContainer.withOpacity(0.08),
-      focusColor: colorScheme.onSecondaryContainer.withOpacity(0.12),
-      highlightColor: colorScheme.onSecondaryContainer.withOpacity(0.12),
+      hoverColor: colorScheme.onSecondaryContainer.withValues(alpha: 0.08),
+      focusColor: colorScheme.onSecondaryContainer.withValues(alpha: 0.12),
+      highlightColor: colorScheme.onSecondaryContainer.withValues(alpha: 0.12),
     );
   }
 

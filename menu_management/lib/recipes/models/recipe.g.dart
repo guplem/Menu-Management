@@ -7,21 +7,22 @@ part of 'recipe.dart';
 // **************************************************************************
 
 _$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      instructions: (json['instructions'] as List<dynamic>?)
-              ?.map((e) => Instruction.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      carbs: json['carbs'] as bool? ?? true,
-      proteins: json['proteins'] as bool? ?? true,
-      vegetables: json['vegetables'] as bool? ?? true,
-      type: $enumDecodeNullable(_$RecipeTypeEnumMap, json['type']) ??
-          RecipeType.meal,
-      lunch: json['lunch'] as bool? ?? true,
-      dinner: json['dinner'] as bool? ?? true,
-      canBeStored: json['canBeStored'] as bool? ?? true,
-    );
+  id: json['id'] as String,
+  name: json['name'] as String,
+  instructions:
+      (json['instructions'] as List<dynamic>?)
+          ?.map((e) => Instruction.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  carbs: json['carbs'] as bool? ?? true,
+  proteins: json['proteins'] as bool? ?? true,
+  vegetables: json['vegetables'] as bool? ?? true,
+  type:
+      $enumDecodeNullable(_$RecipeTypeEnumMap, json['type']) ?? RecipeType.meal,
+  lunch: json['lunch'] as bool? ?? true,
+  dinner: json['dinner'] as bool? ?? true,
+  canBeStored: json['canBeStored'] as bool? ?? true,
+);
 
 Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
     <String, dynamic>{

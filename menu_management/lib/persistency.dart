@@ -22,7 +22,7 @@ class Persistency {
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: 'Select where to save the data',
       fileName: 'RecipeBook.tsr',
-      allowedExtensions: ['tsr','json'],
+      allowedExtensions: ['tsr', 'json'],
       type: FileType.custom,
     );
 
@@ -30,7 +30,9 @@ class Persistency {
       // User canceled the picker
     } else {
       // Get the data
-      List<Ingredient> ingredients = [...IngredientsProvider.instance.ingredients];
+      List<Ingredient> ingredients = [
+        ...IngredientsProvider.instance.ingredients,
+      ];
       List<Recipe> recipes = [...RecipesProvider.instance.recipes];
 
       // Prepare the file
@@ -38,7 +40,7 @@ class Persistency {
       String data = '{\n';
 
       // Add INGREDIENTS to the file's data
-      data +='"Ingredients":[\n';
+      data += '"Ingredients":[\n';
       for (Ingredient ingredient in ingredients) {
         data += '${jsonEncode(ingredient.toJson())}\n';
         // Add a comma if not the last
@@ -51,7 +53,7 @@ class Persistency {
       data += '\n';
 
       // Add RECIPES to the file's data
-      data +='"Recipes":[\n';
+      data += '"Recipes":[\n';
       for (Recipe recipe in recipes) {
         data += '${jsonEncode(recipe.toJson())}\n';
         // Add a comma if not the last
@@ -69,13 +71,16 @@ class Persistency {
     }
   }
 
-  static loadData({required IngredientsProvider ingredientsProvider, required RecipesProvider recipesProvider}) async {
+  static loadData({
+    required IngredientsProvider ingredientsProvider,
+    required RecipesProvider recipesProvider,
+  }) async {
     // TODO: check if there is data in the providers and ask for confirmation before loading the file
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Select the file to load',
       allowMultiple: false,
-      allowedExtensions: ['tsr','json'],
+      allowedExtensions: ['tsr', 'json'],
       withData: true,
       type: FileType.custom,
     );
@@ -111,22 +116,23 @@ class Persistency {
   }
 
   static saveMenu(Menu menu) async {
-
-    DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
-    String date = '${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}';
+    DateTime nextSaturday = DateTime.now().add(
+      Duration(days: 6 - DateTime.now().weekday),
+    );
+    String date =
+        '${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}';
 
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: 'Select where to save the menu',
       fileName: 'Menu-$date.tsm',
-      allowedExtensions: ['tsm','json'],
+      allowedExtensions: ['tsm', 'json'],
       type: FileType.custom,
     );
 
     if (outputFile == null) {
       // User canceled the picker
     } else {
-
       // Prepare the file
       File file = File(outputFile);
       String data = jsonEncode(menu.toJson());
@@ -136,34 +142,32 @@ class Persistency {
     }
   }
 
-
   static Future<Menu?> loadMenu() async {
-     FilePickerResult? result = await FilePicker.platform.pickFiles(
-       dialogTitle: 'Select the menu to load',
-       allowMultiple: false,
-       allowedExtensions: ['tsm','json'],
-       withData: true,
-       type: FileType.custom,
-     );
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select the menu to load',
+      allowMultiple: false,
+      allowedExtensions: ['tsm', 'json'],
+      withData: true,
+      type: FileType.custom,
+    );
 
-     if (result == null) {
-       // User canceled the picker
-     } else {
-       // Prepare the file
-       File file = File(result.files.single.path!);
+    if (result == null) {
+      // User canceled the picker
+    } else {
+      // Prepare the file
+      File file = File(result.files.single.path!);
 
-       // Read the file
-       String data = await file.readAsString();
+      // Read the file
+      String data = await file.readAsString();
 
-       // Parse the data
-       Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+      // Parse the data
+      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
 
-       // Convert to INGREDIENT objects
-       Menu menu = Menu.fromJson(json);
+      // Convert to INGREDIENT objects
+      Menu menu = Menu.fromJson(json);
 
-        return menu;
-     }
-      return null;
-
-   }
+      return menu;
+    }
+    return null;
+  }
 }

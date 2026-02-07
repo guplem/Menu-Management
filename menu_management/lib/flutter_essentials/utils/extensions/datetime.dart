@@ -65,7 +65,7 @@ extension DateTimeExtensions on DateTime {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
   }
 
-  int get daysInMonth{
+  int get daysInMonth {
     switch (month) {
       case 4:
       case 6:

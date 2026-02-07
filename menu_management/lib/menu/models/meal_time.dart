@@ -15,7 +15,8 @@ class MealTime with _$MealTime {
     required MealType mealType,
   }) = _MealTime;
 
-  factory MealTime.fromJson(Map<String, Object?> json) => _$MealTimeFromJson(json);
+  factory MealTime.fromJson(Map<String, Object?> json) =>
+      _$MealTimeFromJson(json);
 
   const MealTime._();
 

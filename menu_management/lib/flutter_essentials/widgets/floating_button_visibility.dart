@@ -1,7 +1,12 @@
 import "package:flutter/material.dart";
 
 class FloatingButtonVisibility extends StatelessWidget {
-  const FloatingButtonVisibility({Key? key, this.duration = kThemeAnimationDuration, required this.visible, required this.child}) : super(key: key);
+  const FloatingButtonVisibility({
+    Key? key,
+    this.duration = kThemeAnimationDuration,
+    required this.visible,
+    required this.child,
+  }) : super(key: key);
 
   final Duration duration;
   final bool visible;

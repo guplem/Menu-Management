@@ -12,7 +12,8 @@ part of 'ingredient_usage.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 IngredientUsage _$IngredientUsageFromJson(Map<String, dynamic> json) {
   return _IngredientUsage.fromJson(json);
@@ -23,8 +24,12 @@ mixin _$IngredientUsage {
   String get ingredient => throw _privateConstructorUsedError;
   Quantity get quantity => throw _privateConstructorUsedError;
 
+  /// Serializes this IngredientUsage to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of IngredientUsage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $IngredientUsageCopyWith<IngredientUsage> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -32,8 +37,9 @@ mixin _$IngredientUsage {
 /// @nodoc
 abstract class $IngredientUsageCopyWith<$Res> {
   factory $IngredientUsageCopyWith(
-          IngredientUsage value, $Res Function(IngredientUsage) then) =
-      _$IngredientUsageCopyWithImpl<$Res, IngredientUsage>;
+    IngredientUsage value,
+    $Res Function(IngredientUsage) then,
+  ) = _$IngredientUsageCopyWithImpl<$Res, IngredientUsage>;
   @useResult
   $Res call({String ingredient, Quantity quantity});
 
@@ -50,24 +56,28 @@ class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of IngredientUsage
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? ingredient = null,
-    Object? quantity = null,
-  }) {
-    return _then(_value.copyWith(
-      ingredient: null == ingredient
-          ? _value.ingredient
-          : ingredient // ignore: cast_nullable_to_non_nullable
-              as String,
-      quantity: null == quantity
-          ? _value.quantity
-          : quantity // ignore: cast_nullable_to_non_nullable
-              as Quantity,
-    ) as $Val);
+  $Res call({Object? ingredient = null, Object? quantity = null}) {
+    return _then(
+      _value.copyWith(
+            ingredient: null == ingredient
+                ? _value.ingredient
+                : ingredient // ignore: cast_nullable_to_non_nullable
+                      as String,
+            quantity: null == quantity
+                ? _value.quantity
+                : quantity // ignore: cast_nullable_to_non_nullable
+                      as Quantity,
+          )
+          as $Val,
+    );
   }
 
+  /// Create a copy of IngredientUsage
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $QuantityCopyWith<$Res> get quantity {
@@ -80,9 +90,10 @@ class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage>
 /// @nodoc
 abstract class _$$IngredientUsageImplCopyWith<$Res>
     implements $IngredientUsageCopyWith<$Res> {
-  factory _$$IngredientUsageImplCopyWith(_$IngredientUsageImpl value,
-          $Res Function(_$IngredientUsageImpl) then) =
-      __$$IngredientUsageImplCopyWithImpl<$Res>;
+  factory _$$IngredientUsageImplCopyWith(
+    _$IngredientUsageImpl value,
+    $Res Function(_$IngredientUsageImpl) then,
+  ) = __$$IngredientUsageImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String ingredient, Quantity quantity});
@@ -96,25 +107,27 @@ class __$$IngredientUsageImplCopyWithImpl<$Res>
     extends _$IngredientUsageCopyWithImpl<$Res, _$IngredientUsageImpl>
     implements _$$IngredientUsageImplCopyWith<$Res> {
   __$$IngredientUsageImplCopyWithImpl(
-      _$IngredientUsageImpl _value, $Res Function(_$IngredientUsageImpl) _then)
-      : super(_value, _then);
+    _$IngredientUsageImpl _value,
+    $Res Function(_$IngredientUsageImpl) _then,
+  ) : super(_value, _then);
 
+  /// Create a copy of IngredientUsage
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? ingredient = null,
-    Object? quantity = null,
-  }) {
-    return _then(_$IngredientUsageImpl(
-      ingredient: null == ingredient
-          ? _value.ingredient
-          : ingredient // ignore: cast_nullable_to_non_nullable
-              as String,
-      quantity: null == quantity
-          ? _value.quantity
-          : quantity // ignore: cast_nullable_to_non_nullable
-              as Quantity,
-    ));
+  $Res call({Object? ingredient = null, Object? quantity = null}) {
+    return _then(
+      _$IngredientUsageImpl(
+        ingredient: null == ingredient
+            ? _value.ingredient
+            : ingredient // ignore: cast_nullable_to_non_nullable
+                  as String,
+        quantity: null == quantity
+            ? _value.quantity
+            : quantity // ignore: cast_nullable_to_non_nullable
+                  as Quantity,
+      ),
+    );
   }
 }
 
@@ -123,8 +136,10 @@ class __$$IngredientUsageImplCopyWithImpl<$Res>
 class _$IngredientUsageImpl
     with DiagnosticableTreeMixin
     implements _IngredientUsage {
-  const _$IngredientUsageImpl(
-      {required this.ingredient, required this.quantity});
+  const _$IngredientUsageImpl({
+    required this.ingredient,
+    required this.quantity,
+  });
 
   factory _$IngredientUsageImpl.fromJson(Map<String, dynamic> json) =>
       _$$IngredientUsageImplFromJson(json);
@@ -149,7 +164,7 @@ class _$IngredientUsageImpl
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$IngredientUsageImpl &&
@@ -159,29 +174,32 @@ class _$IngredientUsageImpl
                 other.quantity == quantity));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, ingredient, quantity);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of IngredientUsage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith =>
       __$$IngredientUsageImplCopyWithImpl<_$IngredientUsageImpl>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$IngredientUsageImplToJson(
-      this,
-    );
+    return _$$IngredientUsageImplToJson(this);
   }
 }
 
 abstract class _IngredientUsage implements IngredientUsage {
-  const factory _IngredientUsage(
-      {required final String ingredient,
-      required final Quantity quantity}) = _$IngredientUsageImpl;
+  const factory _IngredientUsage({
+    required final String ingredient,
+    required final Quantity quantity,
+  }) = _$IngredientUsageImpl;
 
   factory _IngredientUsage.fromJson(Map<String, dynamic> json) =
       _$IngredientUsageImpl.fromJson;
@@ -190,8 +208,11 @@ abstract class _IngredientUsage implements IngredientUsage {
   String get ingredient;
   @override
   Quantity get quantity;
+
+  /// Create a copy of IngredientUsage
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

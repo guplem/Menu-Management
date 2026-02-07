@@ -5,7 +5,15 @@ import 'package:menu_management/recipes/enums/unit.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
 
 class ShoppingIngredient extends StatelessWidget {
-  const ShoppingIngredient({super.key, required this.ingredient, required this.quantitiesDesiredPerPerson, required this.onOwnedAmountChanged, required this.people, required this.ownedQuantities, required this.calculatedRemainingQuantities});
+  const ShoppingIngredient({
+    super.key,
+    required this.ingredient,
+    required this.quantitiesDesiredPerPerson,
+    required this.onOwnedAmountChanged,
+    required this.people,
+    required this.ownedQuantities,
+    required this.calculatedRemainingQuantities,
+  });
 
   final Ingredient ingredient;
   final List<Quantity> quantitiesDesiredPerPerson;
@@ -22,54 +30,75 @@ class ShoppingIngredient extends StatelessWidget {
         children: [
           SizedBox(
             width: 350,
-            child: Text(ingredient.name, style: Theme.of(context).textTheme.titleLarge),
+            child: Text(
+              ingredient.name,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
           const SizedBox(width: 10),
-          Builder(builder: (context) {
-            bool areAllRemainingQuantitiesZero = calculatedRemainingQuantities.every((quantity) => quantity.amount <= 0);
-            return FilledCard(
-              color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(areAllRemainingQuantitiesZero ? 0.1 : 1),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: quantitiesDesiredPerPerson.map((Quantity quantity) {
-                  String amountRounded = (quantity.amount * people).toStringAsFixed(0);
-                  String unit = quantity.unit.toString().split(".").last;
-                  return Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 150,
-                          child: Text("$amountRounded $unit", style: Theme.of(context).textTheme.bodyLarge),
-                        ),
-                        const SizedBox(width: 10),
-                        SizedBox(
+          Builder(
+            builder: (context) {
+              bool areAllRemainingQuantitiesZero = calculatedRemainingQuantities
+                  .every((quantity) => quantity.amount <= 0);
+              return FilledCard(
+                color: Theme.of(context).colorScheme.secondaryContainer
+                    .withValues(alpha: areAllRemainingQuantitiesZero ? 0.1 : 1),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: quantitiesDesiredPerPerson.map((Quantity quantity) {
+                    String amountRounded = (quantity.amount * people)
+                        .toStringAsFixed(0);
+                    String unit = quantity.unit.toString().split(".").last;
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 150,
+                            child: Text(
+                              "$amountRounded $unit",
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
                             width: 220,
                             child: TextFieldOwnedAmount(
                               unit: unit,
                               desiredAmount: quantity.amount * people,
-                              onOwnedAmountChanged: (value) => informOfOwnedQuantitiesWith(value, quantity.unit),
-                            )),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: 150,
-                          child: Row(
-                            children: [
-                              Text(
-                                calculatedRemainingQuantities.firstWhere((q) => q.unit == quantity.unit).amount.toStringAsFixed(0),
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              Text(" $unit")
-                            ],
+                              onOwnedAmountChanged: (value) =>
+                                  informOfOwnedQuantitiesWith(
+                                    value,
+                                    quantity.unit,
+                                  ),
+                            ),
                           ),
-                        )
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-            );
-          }),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: 150,
+                            child: Row(
+                              children: [
+                                Text(
+                                  calculatedRemainingQuantities
+                                      .firstWhere(
+                                        (q) => q.unit == quantity.unit,
+                                      )
+                                      .amount
+                                      .toStringAsFixed(0),
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                                Text(" $unit"),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            },
+          ),
           const SizedBox(width: 10),
         ],
       ),
@@ -89,7 +118,12 @@ class ShoppingIngredient extends StatelessWidget {
 }
 
 class TextFieldOwnedAmount extends StatefulWidget {
-  const TextFieldOwnedAmount({super.key, required this.unit, required this.desiredAmount, required this.onOwnedAmountChanged});
+  const TextFieldOwnedAmount({
+    super.key,
+    required this.unit,
+    required this.desiredAmount,
+    required this.onOwnedAmountChanged,
+  });
   final String unit;
   final double desiredAmount;
   final void Function(double value) onOwnedAmountChanged;

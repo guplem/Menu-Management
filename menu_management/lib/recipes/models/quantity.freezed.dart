@@ -12,7 +12,8 @@ part of 'quantity.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Quantity _$QuantityFromJson(Map<String, dynamic> json) {
   return _Quantity.fromJson(json);
@@ -23,8 +24,12 @@ mixin _$Quantity {
   double get amount => throw _privateConstructorUsedError;
   Unit get unit => throw _privateConstructorUsedError;
 
+  /// Serializes this Quantity to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Quantity
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $QuantityCopyWith<Quantity> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -47,22 +52,24 @@ class _$QuantityCopyWithImpl<$Res, $Val extends Quantity>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Quantity
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? amount = null,
-    Object? unit = null,
-  }) {
-    return _then(_value.copyWith(
-      amount: null == amount
-          ? _value.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as double,
-      unit: null == unit
-          ? _value.unit
-          : unit // ignore: cast_nullable_to_non_nullable
-              as Unit,
-    ) as $Val);
+  $Res call({Object? amount = null, Object? unit = null}) {
+    return _then(
+      _value.copyWith(
+            amount: null == amount
+                ? _value.amount
+                : amount // ignore: cast_nullable_to_non_nullable
+                      as double,
+            unit: null == unit
+                ? _value.unit
+                : unit // ignore: cast_nullable_to_non_nullable
+                      as Unit,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -70,8 +77,9 @@ class _$QuantityCopyWithImpl<$Res, $Val extends Quantity>
 abstract class _$$QuantityImplCopyWith<$Res>
     implements $QuantityCopyWith<$Res> {
   factory _$$QuantityImplCopyWith(
-          _$QuantityImpl value, $Res Function(_$QuantityImpl) then) =
-      __$$QuantityImplCopyWithImpl<$Res>;
+    _$QuantityImpl value,
+    $Res Function(_$QuantityImpl) then,
+  ) = __$$QuantityImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({double amount, Unit unit});
@@ -82,25 +90,27 @@ class __$$QuantityImplCopyWithImpl<$Res>
     extends _$QuantityCopyWithImpl<$Res, _$QuantityImpl>
     implements _$$QuantityImplCopyWith<$Res> {
   __$$QuantityImplCopyWithImpl(
-      _$QuantityImpl _value, $Res Function(_$QuantityImpl) _then)
-      : super(_value, _then);
+    _$QuantityImpl _value,
+    $Res Function(_$QuantityImpl) _then,
+  ) : super(_value, _then);
 
+  /// Create a copy of Quantity
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? amount = null,
-    Object? unit = null,
-  }) {
-    return _then(_$QuantityImpl(
-      amount: null == amount
-          ? _value.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as double,
-      unit: null == unit
-          ? _value.unit
-          : unit // ignore: cast_nullable_to_non_nullable
-              as Unit,
-    ));
+  $Res call({Object? amount = null, Object? unit = null}) {
+    return _then(
+      _$QuantityImpl(
+        amount: null == amount
+            ? _value.amount
+            : amount // ignore: cast_nullable_to_non_nullable
+                  as double,
+        unit: null == unit
+            ? _value.unit
+            : unit // ignore: cast_nullable_to_non_nullable
+                  as Unit,
+      ),
+    );
   }
 }
 
@@ -132,7 +142,7 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$QuantityImpl &&
@@ -140,11 +150,13 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
             (identical(other.unit, unit) || other.unit == unit));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, amount, unit);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Quantity
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$QuantityImplCopyWith<_$QuantityImpl> get copyWith =>
@@ -152,16 +164,15 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$QuantityImplToJson(
-      this,
-    );
+    return _$$QuantityImplToJson(this);
   }
 }
 
 abstract class _Quantity implements Quantity {
-  const factory _Quantity(
-      {required final double amount,
-      required final Unit unit}) = _$QuantityImpl;
+  const factory _Quantity({
+    required final double amount,
+    required final Unit unit,
+  }) = _$QuantityImpl;
 
   factory _Quantity.fromJson(Map<String, dynamic> json) =
       _$QuantityImpl.fromJson;
@@ -170,8 +181,11 @@ abstract class _Quantity implements Quantity {
   double get amount;
   @override
   Unit get unit;
+
+  /// Create a copy of Quantity
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$QuantityImplCopyWith<_$QuantityImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

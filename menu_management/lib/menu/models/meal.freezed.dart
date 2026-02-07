@@ -12,7 +12,8 @@ part of 'meal.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Meal _$MealFromJson(Map<String, dynamic> json) {
   return _Meal.fromJson(json);
@@ -23,8 +24,12 @@ mixin _$Meal {
   Cooking? get cooking => throw _privateConstructorUsedError;
   MealTime get mealTime => throw _privateConstructorUsedError;
 
+  /// Serializes this Meal to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $MealCopyWith<Meal> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -49,24 +54,28 @@ class _$MealCopyWithImpl<$Res, $Val extends Meal>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? cooking = freezed,
-    Object? mealTime = null,
-  }) {
-    return _then(_value.copyWith(
-      cooking: freezed == cooking
-          ? _value.cooking
-          : cooking // ignore: cast_nullable_to_non_nullable
-              as Cooking?,
-      mealTime: null == mealTime
-          ? _value.mealTime
-          : mealTime // ignore: cast_nullable_to_non_nullable
-              as MealTime,
-    ) as $Val);
+  $Res call({Object? cooking = freezed, Object? mealTime = null}) {
+    return _then(
+      _value.copyWith(
+            cooking: freezed == cooking
+                ? _value.cooking
+                : cooking // ignore: cast_nullable_to_non_nullable
+                      as Cooking?,
+            mealTime: null == mealTime
+                ? _value.mealTime
+                : mealTime // ignore: cast_nullable_to_non_nullable
+                      as MealTime,
+          )
+          as $Val,
+    );
   }
 
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $CookingCopyWith<$Res>? get cooking {
@@ -79,6 +88,8 @@ class _$MealCopyWithImpl<$Res, $Val extends Meal>
     });
   }
 
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MealTimeCopyWith<$Res> get mealTime {
@@ -91,8 +102,9 @@ class _$MealCopyWithImpl<$Res, $Val extends Meal>
 /// @nodoc
 abstract class _$$MealImplCopyWith<$Res> implements $MealCopyWith<$Res> {
   factory _$$MealImplCopyWith(
-          _$MealImpl value, $Res Function(_$MealImpl) then) =
-      __$$MealImplCopyWithImpl<$Res>;
+    _$MealImpl value,
+    $Res Function(_$MealImpl) then,
+  ) = __$$MealImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({Cooking? cooking, MealTime mealTime});
@@ -108,24 +120,25 @@ class __$$MealImplCopyWithImpl<$Res>
     extends _$MealCopyWithImpl<$Res, _$MealImpl>
     implements _$$MealImplCopyWith<$Res> {
   __$$MealImplCopyWithImpl(_$MealImpl _value, $Res Function(_$MealImpl) _then)
-      : super(_value, _then);
+    : super(_value, _then);
 
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? cooking = freezed,
-    Object? mealTime = null,
-  }) {
-    return _then(_$MealImpl(
-      cooking: freezed == cooking
-          ? _value.cooking
-          : cooking // ignore: cast_nullable_to_non_nullable
-              as Cooking?,
-      mealTime: null == mealTime
-          ? _value.mealTime
-          : mealTime // ignore: cast_nullable_to_non_nullable
-              as MealTime,
-    ));
+  $Res call({Object? cooking = freezed, Object? mealTime = null}) {
+    return _then(
+      _$MealImpl(
+        cooking: freezed == cooking
+            ? _value.cooking
+            : cooking // ignore: cast_nullable_to_non_nullable
+                  as Cooking?,
+        mealTime: null == mealTime
+            ? _value.mealTime
+            : mealTime // ignore: cast_nullable_to_non_nullable
+                  as MealTime,
+      ),
+    );
   }
 }
 
@@ -157,7 +170,7 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MealImpl &&
@@ -166,11 +179,13 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
                 other.mealTime == mealTime));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, cooking, mealTime);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$MealImplCopyWith<_$MealImpl> get copyWith =>
@@ -178,16 +193,15 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MealImplToJson(
-      this,
-    );
+    return _$$MealImplToJson(this);
   }
 }
 
 abstract class _Meal extends Meal {
-  const factory _Meal(
-      {required final Cooking? cooking,
-      required final MealTime mealTime}) = _$MealImpl;
+  const factory _Meal({
+    required final Cooking? cooking,
+    required final MealTime mealTime,
+  }) = _$MealImpl;
   const _Meal._() : super._();
 
   factory _Meal.fromJson(Map<String, dynamic> json) = _$MealImpl.fromJson;
@@ -196,8 +210,11 @@ abstract class _Meal extends Meal {
   Cooking? get cooking;
   @override
   MealTime get mealTime;
+
+  /// Create a copy of Meal
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$MealImplCopyWith<_$MealImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

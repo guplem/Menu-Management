@@ -33,8 +33,8 @@ class _RecipeAdditionState extends State<RecipeAddition> {
             onPressed: _controller.text.trimAndSetNullIfEmpty == null
                 ? null
                 : () {
-              addRecipe();
-            },
+                    addRecipe();
+                  },
           ),
         ),
         onChanged: (value) => setState(() {}),
@@ -48,8 +48,12 @@ class _RecipeAdditionState extends State<RecipeAddition> {
     if (_controller.text.trimAndSetNullIfEmpty == null) {
       return;
     }
-    RecipesProvider.addOrUpdate(newRecipe:
-      Recipe(id: const Uuid().v1(), name: _controller.text, instructions: []),
+    RecipesProvider.addOrUpdate(
+      newRecipe: Recipe(
+        id: const Uuid().v1(),
+        name: _controller.text,
+        instructions: [],
+      ),
     );
     setState(() {
       _controller.clear();
