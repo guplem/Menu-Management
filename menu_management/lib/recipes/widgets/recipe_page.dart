@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/recipes/enums/recipe_type.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/models/instruction.dart';
+import 'package:menu_management/recipes/models/recipe.dart';
 import 'package:menu_management/recipes/recipes_provider.dart';
 import 'package:menu_management/recipes/widgets/instruction_editor.dart';
 
@@ -125,7 +125,9 @@ class RecipePage extends StatelessWidget {
                 thumbIcon: switchIcon,
                 value: recipe.includeInMenuGeneration,
                 onChanged: (bool value) {
-                  recipe.copyWith(includeInMenuGeneration: value).saveToProvider();
+                  recipe
+                      .copyWith(includeInMenuGeneration: value)
+                      .saveToProvider();
                 },
               ),
             ],
