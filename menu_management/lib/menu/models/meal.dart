@@ -1,11 +1,11 @@
 // ignore: unused_import
-import 'package:flutter/foundation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:menu_management/menu/models/cooking.dart';
-import 'package:menu_management/menu/models/meal_time.dart';
+import "package:flutter/foundation.dart";
+import "package:freezed_annotation/freezed_annotation.dart";
+import "package:menu_management/menu/models/cooking.dart";
+import "package:menu_management/menu/models/meal_time.dart";
 
-part 'meal.freezed.dart';
-part 'meal.g.dart';
+part "meal.freezed.dart";
+part "meal.g.dart";
 
 /// A meal is a cooking of a recipe at a certain time, for a menu
 @freezed

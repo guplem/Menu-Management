@@ -1,10 +1,10 @@
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:freezed_annotation/freezed_annotation.dart";
 // ignore: unused_import
-import 'package:flutter/foundation.dart';
+import "package:flutter/foundation.dart";
 
-part 'cooking.freezed.dart';
-part 'cooking.g.dart';
+part "cooking.freezed.dart";
+part "cooking.g.dart";
 
 @freezed
 /// A link between a recipe and the amount of meals to cook

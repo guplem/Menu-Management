@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:uuid/uuid.dart";
 
 class RecipeAddition extends StatefulWidget {
   const RecipeAddition({super.key});
@@ -26,7 +26,7 @@ class _RecipeAdditionState extends State<RecipeAddition> {
         // focusNode: FocusNode()..requestFocus(),
         controller: _controller,
         decoration: InputDecoration(
-          labelText: 'Recipe name',
+          labelText: "Recipe name",
           border: const OutlineInputBorder(),
           suffixIcon: IconButton(
             icon: const Icon(Icons.check_circle_outline_rounded),

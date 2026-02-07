@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/enums/week_day.dart';
-import 'package:menu_management/menu/menu_generator.dart';
-import 'package:menu_management/menu/models/meal_time.dart';
-import 'package:menu_management/menu/models/menu.dart';
-import 'package:menu_management/menu/models/menu_configuration.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_generator.dart";
+import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/menu/models/menu_configuration.dart";
 
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.

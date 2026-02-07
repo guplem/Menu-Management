@@ -1,12 +1,12 @@
-import 'dart:convert';
-import 'dart:io';
+import "dart:convert";
+import "dart:io";
 
-import 'package:file_picker/file_picker.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
-import 'package:menu_management/menu/models/menu.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
+import "package:file_picker/file_picker.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
 
 class Persistency {
   static final Persistency _singleton = Persistency._internal();
@@ -20,9 +20,9 @@ class Persistency {
   static Future<void> saveData() async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
-      dialogTitle: 'Select where to save the data',
-      fileName: 'RecipeBook.tsr',
-      allowedExtensions: ['tsr', 'json'],
+      dialogTitle: "Select where to save the data",
+      fileName: "RecipeBook.tsr",
+      allowedExtensions: ["tsr", "json"],
       type: FileType.custom,
     );
 
@@ -37,36 +37,36 @@ class Persistency {
 
       // Prepare the file
       File file = File(outputFile);
-      String data = '{\n';
+      String data = "{\n";
 
       // Add INGREDIENTS to the file's data
       data += '"Ingredients":[\n';
       for (Ingredient ingredient in ingredients) {
-        data += '${jsonEncode(ingredient.toJson())}\n';
+        data += "${jsonEncode(ingredient.toJson())}\n";
         // Add a comma if not the last
         if (ingredient != ingredients.last) {
-          data += ',';
+          data += ",";
         }
       }
-      data += ']';
-      data += ',';
-      data += '\n';
+      data += "]";
+      data += ",";
+      data += "\n";
 
       // Add RECIPES to the file's data
       data += '"Recipes":[\n';
       for (Recipe recipe in recipes) {
-        data += '${jsonEncode(recipe.toJson())}\n';
+        data += "${jsonEncode(recipe.toJson())}\n";
         // Add a comma if not the last
         if (recipe != recipes.last) {
-          data += ',';
+          data += ",";
         }
       }
-      data += ']';
+      data += "]";
       // data += ','; // A coma is not needed after the last element
-      data += '\n';
+      data += "\n";
 
       // Close JSON and save to file
-      data += '}';
+      data += "}";
       file.writeAsString(data);
     }
   }
@@ -78,9 +78,9 @@ class Persistency {
     // TODO: check if there is data in the providers and ask for confirmation before loading the file
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Select the file to load',
+      dialogTitle: "Select the file to load",
       allowMultiple: false,
-      allowedExtensions: ['tsr', 'json'],
+      allowedExtensions: ["tsr", "json"],
       withData: true,
       type: FileType.custom,
     );
@@ -99,13 +99,13 @@ class Persistency {
 
       // Convert to INGREDIENT objects
       List<Ingredient> ingredients = [];
-      for (Map<String, dynamic> ingredient in json['Ingredients']) {
+      for (Map<String, dynamic> ingredient in json["Ingredients"]) {
         ingredients.add(Ingredient.fromJson(ingredient));
       }
 
       // Convert to RECIPE objects
       List<Recipe> recipes = [];
-      for (Map<String, dynamic> recipe in json['Recipes']) {
+      for (Map<String, dynamic> recipe in json["Recipes"]) {
         recipes.add(Recipe.fromJson(recipe));
       }
 
@@ -120,13 +120,13 @@ class Persistency {
       Duration(days: 6 - DateTime.now().weekday),
     );
     String date =
-        '${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}';
+        "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
 
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
-      dialogTitle: 'Select where to save the menu',
-      fileName: 'Menu-$date.tsm',
-      allowedExtensions: ['tsm', 'json'],
+      dialogTitle: "Select where to save the menu",
+      fileName: "Menu-$date.tsm",
+      allowedExtensions: ["tsm", "json"],
       type: FileType.custom,
     );
 
@@ -144,9 +144,9 @@ class Persistency {
 
   static Future<Menu?> loadMenu() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Select the menu to load',
+      dialogTitle: "Select the menu to load",
       allowMultiple: false,
-      allowedExtensions: ['tsm', 'json'],
+      allowedExtensions: ["tsm", "json"],
       withData: true,
       type: FileType.custom,
     );

@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/recipes/enums/recipe_type.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:menu_management/recipes/widgets/instruction_editor.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/recipes/widgets/instruction_editor.dart";
 
 class RecipePage extends StatelessWidget {
   const RecipePage({super.key, required this.recipeId});
@@ -140,7 +140,7 @@ class RecipePage extends StatelessWidget {
               const Text("Good for:"),
               const SizedBox(width: 10),
               FilterChip(
-                label: const Text('Lunch'),
+                label: const Text("Lunch"),
                 selected: recipe.lunch,
                 onSelected: (value) {
                   recipe.copyWith(lunch: value).saveToProvider();
@@ -148,7 +148,7 @@ class RecipePage extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               FilterChip(
-                label: const Text('Dinner'),
+                label: const Text("Dinner"),
                 selected: recipe.dinner,
                 onSelected: (value) {
                   recipe.copyWith(dinner: value).saveToProvider();
@@ -165,7 +165,7 @@ class RecipePage extends StatelessWidget {
               const Text("Contains:"),
               const SizedBox(width: 10),
               FilterChip(
-                label: const Text('Carbs'),
+                label: const Text("Carbs"),
                 selected: recipe.carbs,
                 onSelected: (value) {
                   recipe.copyWith(carbs: value).saveToProvider();
@@ -173,7 +173,7 @@ class RecipePage extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               FilterChip(
-                label: const Text('Protein'),
+                label: const Text("Protein"),
                 selected: recipe.proteins,
                 onSelected: (value) {
                   recipe.copyWith(proteins: value).saveToProvider();
@@ -181,7 +181,7 @@ class RecipePage extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               FilterChip(
-                label: const Text('Vegetables'),
+                label: const Text("Vegetables"),
                 selected: recipe.vegetables,
                 onSelected: (value) {
                   recipe.copyWith(vegetables: value).saveToProvider();

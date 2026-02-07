@@ -1,11 +1,11 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:menu_management/hub.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/menu/menu_provider.dart';
-import 'package:menu_management/persistency.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:provider/provider.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:menu_management/hub.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/menu/menu_provider.dart";
+import "package:menu_management/persistency.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:provider/provider.dart";
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => MenuProvider()),
       ],
       child: MaterialApp(
-        title: 'Menu and Recipes Manager',
+        title: "Menu and Recipes Manager",
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(

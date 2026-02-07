@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:uuid/uuid.dart";
 
 class IngredientAddition extends StatefulWidget {
   const IngredientAddition({super.key});
@@ -26,7 +26,7 @@ class _IngredientAdditionState extends State<IngredientAddition> {
         // focusNode: FocusNode()..requestFocus(),
         controller: _controller,
         decoration: InputDecoration(
-          labelText: 'Ingredient name',
+          labelText: "Ingredient name",
           border: const OutlineInputBorder(),
           suffixIcon: IconButton(
             icon: const Icon(Icons.check_circle_outline_rounded),

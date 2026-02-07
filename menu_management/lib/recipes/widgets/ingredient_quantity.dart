@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/recipes/enums/unit.dart';
-import 'package:menu_management/recipes/models/ingredient_usage.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
 
 class IngredientQuantity extends StatefulWidget {
   const IngredientQuantity({
@@ -81,12 +81,12 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
           child: TextField(
             keyboardType: TextInputType.number,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[\d.]+')),
+              FilteringTextInputFormatter.allow(RegExp(r"[\d.]+")),
             ],
             controller: amountController,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              labelText: 'New',
+              labelText: "New",
               errorText: isInvalidAmount ? "Invalid Amount" : null,
             ),
             onChanged: (value) {

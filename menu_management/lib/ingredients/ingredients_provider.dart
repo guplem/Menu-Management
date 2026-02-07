@@ -1,6 +1,6 @@
-import 'package:flutter/widgets.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
+import "package:flutter/widgets.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
 
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.

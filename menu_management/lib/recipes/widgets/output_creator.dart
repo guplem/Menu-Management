@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/result.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/result.dart";
+import "package:uuid/uuid.dart";
 
 class OutputCreator extends StatefulWidget {
   const OutputCreator({
@@ -49,7 +49,7 @@ class _OutputCreatorState extends State<OutputCreator> {
         maxLines: null,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
-          labelText: 'Output',
+          labelText: "Output",
         ),
         onChanged: (String value) => setState(() {}),
       ),
@@ -70,7 +70,7 @@ class _OutputCreatorState extends State<OutputCreator> {
                   );
                   Navigator.of(context).pop();
                 },
-          child: const Text('Add'),
+          child: const Text("Add"),
         ),
       ],
     );

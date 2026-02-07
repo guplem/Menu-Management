@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
-import 'package:menu_management/ingredients/widgets/ingredient_addition.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/ingredients/widgets/ingredient_addition.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
 
 class IngredientsPage extends StatefulWidget {
   const IngredientsPage({super.key});
@@ -15,7 +15,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ingredients')),
+      appBar: AppBar(title: const Text("Ingredients")),
       body: Builder(
         builder: (context) {
           IngredientsProvider ingredientsProvider =
@@ -41,7 +41,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                       SnackBar(
                         content: Text('Ingredient "${toRemove.name}" removed'),
                         action: SnackBarAction(
-                          label: 'Undo',
+                          label: "Undo",
                           onPressed: () {
                             IngredientsProvider.addOrUpdate(
                               newIngredient: toRemove,

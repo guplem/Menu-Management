@@ -1,11 +1,11 @@
-import 'package:menu_management/recipes/models/ingredient_usage.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:freezed_annotation/freezed_annotation.dart";
 // ignore: unused_import
-import 'package:flutter/foundation.dart';
-import 'package:menu_management/recipes/models/result.dart';
+import "package:flutter/foundation.dart";
+import "package:menu_management/recipes/models/result.dart";
 
-part 'instruction.freezed.dart';
-part 'instruction.g.dart';
+part "instruction.freezed.dart";
+part "instruction.g.dart";
 
 @freezed
 class Instruction with _$Instruction {

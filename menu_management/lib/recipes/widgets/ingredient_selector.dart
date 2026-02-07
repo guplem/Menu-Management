@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
-import 'package:menu_management/recipes/enums/unit.dart';
-import 'package:menu_management/recipes/models/ingredient_usage.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/quantity.dart';
-import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/recipes/widgets/ingredient_quantity.dart";
+import "package:uuid/uuid.dart";
 
 class IngredientSelector extends StatefulWidget {
   const IngredientSelector({
@@ -42,7 +42,7 @@ class IngredientSelector extends StatefulWidget {
           ),
           actions: <Widget>[
             FilledButton(
-              child: const Text('Save'),
+              child: const Text("Save"),
               onPressed: () {
                 onUpdate(newInstruction);
                 Navigator.of(context).pop();
@@ -80,7 +80,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
         children: [
           SearchAnchor.bar(
             viewConstraints: const BoxConstraints(minHeight: 50),
-            barHintText: 'Search Ingredients',
+            barHintText: "Search Ingredients",
             suggestionsBuilder:
                 (BuildContext context, SearchController controller) {
                   // return [SizedBox.shrink()]; // Not even with this, the suggestions take the whole height
@@ -89,7 +89,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                       return getHistoryList(controller);
                     }
                     return <Widget>[
-                      const Center(child: Text('No search history.')),
+                      const Center(child: Text("No search history.")),
                     ];
                   }
                   Iterable<Widget> suggestions = getSuggestions(controller);
@@ -99,7 +99,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                         .isValidNewIngredient(controller.text);
                     return <Widget>[
                       const SizedBox(height: 15),
-                      const Center(child: Text('No results.')),
+                      const Center(child: Text("No results.")),
                       const SizedBox(height: 15),
                       Center(
                         child: OutlinedButton.icon(

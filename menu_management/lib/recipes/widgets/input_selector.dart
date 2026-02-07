@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/result.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/result.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:uuid/uuid.dart";
 
 class InputSelector extends StatefulWidget {
   const InputSelector({
@@ -43,7 +43,7 @@ class InputSelector extends StatefulWidget {
           ),
           actions: <Widget>[
             FilledButton(
-              child: const Text('Save'),
+              child: const Text("Save"),
               onPressed: () {
                 onUpdate(newInstruction);
                 Navigator.of(context).pop();
@@ -69,7 +69,7 @@ class _InputSelectorState extends State<InputSelector> {
         widget.instruction ??
         Instruction(
           id: const Uuid().v1(),
-          description: '',
+          description: "",
           ingredientsUsed: [],
           outputs: [],
         );

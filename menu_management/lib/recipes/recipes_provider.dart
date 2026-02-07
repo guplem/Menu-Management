@@ -1,12 +1,12 @@
-import 'package:flutter/widgets.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/recipes/enums/recipe_type.dart';
-import 'package:menu_management/recipes/models/ingredient_usage.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/models/result.dart';
+import "package:flutter/widgets.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/models/result.dart";
 
-import '../flutter_essentials/library.dart';
+import "package:menu_management/flutter_essentials/library.dart";
 
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.

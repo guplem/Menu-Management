@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/widgets/recipe_addition.dart';
-import 'package:menu_management/recipes/widgets/recipe_page.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:menu_management/recipes/widgets/recipe_title_editor.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/widgets/recipe_addition.dart";
+import "package:menu_management/recipes/widgets/recipe_page.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/recipes/widgets/recipe_title_editor.dart";
 
 class RecipesPage extends StatefulWidget {
   const RecipesPage({super.key});
@@ -22,7 +22,7 @@ class _RecipesPageState extends State<RecipesPage> {
       appBar: AppBar(
         title: Text(
           selectedRecipeId == null
-              ? 'Recipes'
+              ? "Recipes"
               : getProvider<RecipesProvider>(context, listen: true).recipes
                     .firstWhere((element) => element.id == selectedRecipeId)
                     .name,
@@ -89,7 +89,7 @@ class _RecipesPageState extends State<RecipesPage> {
                           SnackBar(
                             content: Text('Recipe "${toRemove.name}" removed'),
                             action: SnackBarAction(
-                              label: 'Undo',
+                              label: "Undo",
                               onPressed: () {
                                 RecipesProvider.addOrUpdate(
                                   newRecipe: toRemove,

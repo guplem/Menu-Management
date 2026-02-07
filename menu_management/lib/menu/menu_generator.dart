@@ -1,16 +1,16 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/models/cooking.dart';
-import 'package:menu_management/menu/models/meal.dart';
-import 'package:menu_management/menu/models/meal_time.dart';
-import 'package:menu_management/menu/models/menu_configuration.dart';
-import 'package:menu_management/recipes/enums/recipe_type.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/models/cooking.dart";
+import "package:menu_management/menu/models/meal.dart";
+import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
 
-import 'models/menu.dart';
+import "package:menu_management/menu/models/menu.dart";
 
 class MenuGenerator {
   MenuGenerator({required this.baseSeed});

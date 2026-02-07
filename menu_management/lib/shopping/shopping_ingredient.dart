@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
-import 'package:menu_management/recipes/enums/unit.dart';
-import 'package:menu_management/recipes/models/quantity.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/quantity.dart";
 
 class ShoppingIngredient extends StatelessWidget {
   const ShoppingIngredient({

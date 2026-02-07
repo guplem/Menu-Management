@@ -1,19 +1,19 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:freezed_annotation/freezed_annotation.dart";
 // ignore: unused_import
-import 'package:flutter/foundation.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/enums/week_day.dart';
-import 'package:menu_management/menu/models/cooking.dart';
-import 'package:menu_management/menu/models/meal.dart';
-import 'package:menu_management/menu/models/meal_time.dart';
-import 'package:menu_management/recipes/models/ingredient_usage.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/quantity.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
+import "package:flutter/foundation.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/models/cooking.dart";
+import "package:menu_management/menu/models/meal.dart";
+import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 
-part 'menu.freezed.dart';
-part 'menu.g.dart';
+part "menu.freezed.dart";
+part "menu.g.dart";
 
 @freezed
 class Menu with _$Menu {

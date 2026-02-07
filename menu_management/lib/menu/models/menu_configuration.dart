@@ -1,12 +1,12 @@
-import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/menu_provider.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/menu_provider.dart";
+import "package:freezed_annotation/freezed_annotation.dart";
 // ignore: unused_import
-import 'package:flutter/foundation.dart';
-import 'package:menu_management/menu/models/meal_time.dart';
+import "package:flutter/foundation.dart";
+import "package:menu_management/menu/models/meal_time.dart";
 
-part 'menu_configuration.freezed.dart';
-part 'menu_configuration.g.dart';
+part "menu_configuration.freezed.dart";
+part "menu_configuration.g.dart";
 
 @freezed
 class MenuConfiguration with _$MenuConfiguration {

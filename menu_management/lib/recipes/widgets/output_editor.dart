@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/recipes/models/result.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/recipes/models/result.dart";
+import "package:uuid/uuid.dart";
 
 class OutputEditor extends StatefulWidget {
   const OutputEditor({
@@ -43,11 +43,11 @@ class OutputEditor extends StatefulWidget {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             FilledButton(
-              child: const Text('Save'),
+              child: const Text("Save"),
               onPressed: () {
                 onUpdate(newOutput!);
                 Navigator.of(context).pop();
@@ -68,7 +68,7 @@ class _OutputEditorState extends State<OutputEditor> {
   void initState() {
     super.initState();
     if (widget.output == null) {
-      newOutput = Result(id: const Uuid().v1(), description: '');
+      newOutput = Result(id: const Uuid().v1(), description: "");
     } else {
       newOutput = widget.output!;
     }
@@ -94,7 +94,7 @@ class _OutputEditorState extends State<OutputEditor> {
       maxLines: null,
       decoration: const InputDecoration(
         border: OutlineInputBorder(),
-        labelText: 'Description',
+        labelText: "Description",
       ),
       onChanged: (value) {
         updateOutput(newOutput.copyWith(description: value));

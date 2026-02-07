@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/ingredients/widgets/ingredients_page.dart';
-import 'package:menu_management/menu/widgets/menu_configuration_page.dart';
-import 'package:menu_management/persistency.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:provider/provider.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/widgets/ingredients_page.dart";
+import "package:menu_management/menu/widgets/menu_configuration_page.dart";
+import "package:menu_management/persistency.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:provider/provider.dart";
 
-import 'recipes/widgets/recipes_page.dart';
+import "package:menu_management/recipes/widgets/recipes_page.dart";
 
 class Hub extends StatefulWidget {
   const Hub({super.key});
@@ -47,7 +47,7 @@ class _HubState extends State<Hub> {
                         listen: false,
                       ),
                     ),
-                    tooltip: 'Load data from file',
+                    tooltip: "Load data from file",
                   ),
                   const SizedBox(height: 10),
                   // Save functionality not available on mobile platforms
@@ -56,7 +56,7 @@ class _HubState extends State<Hub> {
                     IconButton(
                       icon: const Icon(Icons.save_rounded),
                       onPressed: () => Persistency.saveData(),
-                      tooltip: 'Save data to file',
+                      tooltip: "Save data to file",
                     ),
                   const SizedBox(height: 10),
                 ],
@@ -67,19 +67,19 @@ class _HubState extends State<Hub> {
               NavigationRailDestination(
                 icon: Icon(Icons.shopping_basket_outlined),
                 selectedIcon: Icon(Icons.shopping_basket_rounded),
-                label: Text('Ingredients'),
+                label: Text("Ingredients"),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.book_rounded),
                 selectedIcon: Icon(Icons.menu_book_rounded),
-                label: Text('Recipes'),
+                label: Text("Recipes"),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.set_meal_outlined), // Alternative: restaurant
                 selectedIcon: Icon(
                   Icons.set_meal_rounded,
                 ), // Alternative: restaurant
-                label: Text('Menu'),
+                label: Text("Menu"),
               ),
             ],
           ),
@@ -96,7 +96,7 @@ class _HubState extends State<Hub> {
                   case 2:
                     return const MenuConfigurationPage();
                   default:
-                    return const Center(child: Text('Error'));
+                    return const Center(child: Text("Error"));
                 }
               },
             ),

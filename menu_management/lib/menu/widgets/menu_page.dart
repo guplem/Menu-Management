@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/menu/enums/week_day.dart';
-import 'package:menu_management/menu/menu_provider.dart';
-import 'package:menu_management/menu/models/meal.dart';
-import 'package:menu_management/menu/models/menu.dart';
-import 'package:menu_management/persistency.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:menu_management/shopping/shopping_page.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_provider.dart";
+import "package:menu_management/menu/models/meal.dart";
+import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/persistency.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/shopping/shopping_page.dart";
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key, required this.menu});
@@ -34,7 +34,7 @@ class _MenuPageState extends State<MenuPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('Menu'),
+            const Text("Menu"),
             IconButton(
               tooltip: "Regenerate Menu",
               icon: const Icon(Icons.refresh_rounded),
@@ -196,7 +196,7 @@ class _MenuPageState extends State<MenuPage> {
                                                   actions: <Widget>[
                                                     TextButton(
                                                       child: const Text(
-                                                        'Cancel',
+                                                        "Cancel",
                                                       ),
                                                       onPressed: () =>
                                                           Navigator.of(

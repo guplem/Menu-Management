@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/recipes/models/recipe.dart';
+import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 
 class RecipeTitleEditor extends StatefulWidget {
   const RecipeTitleEditor({
@@ -47,7 +47,7 @@ class _RecipeTitleEditorState extends State<RecipeTitleEditor> {
         maxLines: null,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
-          labelText: 'Output',
+          labelText: "Output",
         ),
         onChanged: (String value) => setState(() {}),
       ),
@@ -60,7 +60,7 @@ class _RecipeTitleEditorState extends State<RecipeTitleEditor> {
                   widget.onUpdate(widget.recipe.copyWith(name: txt));
                   Navigator.of(context).pop();
                 },
-          child: const Text('Save'),
+          child: const Text("Save"),
         ),
       ],
     );

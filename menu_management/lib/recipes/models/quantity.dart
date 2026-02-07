@@ -1,10 +1,10 @@
-import 'package:menu_management/recipes/enums/unit.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:menu_management/recipes/enums/unit.dart";
+import "package:freezed_annotation/freezed_annotation.dart";
 // ignore: unused_import
-import 'package:flutter/foundation.dart';
+import "package:flutter/foundation.dart";
 
-part 'quantity.freezed.dart';
-part 'quantity.g.dart';
+part "quantity.freezed.dart";
+part "quantity.g.dart";
 
 @freezed
 class Quantity with _$Quantity {

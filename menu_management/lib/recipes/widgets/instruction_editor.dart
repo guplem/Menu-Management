@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:menu_management/recipes/models/ingredient_usage.dart';
-import 'package:menu_management/recipes/models/instruction.dart';
-import 'package:menu_management/recipes/models/result.dart';
-import 'package:menu_management/recipes/recipes_provider.dart';
-import 'package:menu_management/recipes/widgets/ingredient_quantity.dart';
-import 'package:menu_management/recipes/widgets/ingredient_selector.dart';
-import 'package:menu_management/recipes/widgets/input_selector.dart';
-import 'package:menu_management/recipes/widgets/output_creator.dart';
-import 'package:menu_management/recipes/widgets/output_editor.dart';
-import 'package:uuid/uuid.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/result.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/recipes/widgets/ingredient_quantity.dart";
+import "package:menu_management/recipes/widgets/ingredient_selector.dart";
+import "package:menu_management/recipes/widgets/input_selector.dart";
+import "package:menu_management/recipes/widgets/output_creator.dart";
+import "package:menu_management/recipes/widgets/output_editor.dart";
+import "package:uuid/uuid.dart";
 
 class InstructionEditor extends StatefulWidget {
   const InstructionEditor({
@@ -48,11 +48,11 @@ class InstructionEditor extends StatefulWidget {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             FilledButton(
-              child: const Text('Save'),
+              child: const Text("Save"),
               onPressed: () {
                 if (newInstruction != null) {
                   RecipesProvider.addOrUpdateInstruction(
@@ -82,7 +82,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
     if (widget.instruction == null) {
       newInstruction = Instruction(
         id: const Uuid().v1(),
-        description: '',
+        description: "",
         cookingTimeMinutes: 10,
         workingTimeMinutes: 10,
       );
@@ -120,7 +120,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
             maxLines: null,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              labelText: 'Description',
+              labelText: "Description",
             ),
             onChanged: (value) {
               updateInstruction(newInstruction.copyWith(description: value));
@@ -138,8 +138,8 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   controller: workingTimeController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Working time',
-                    suffixText: 'min',
+                    labelText: "Working time",
+                    suffixText: "min",
                     suffixIcon: Icon(Icons.restaurant_menu_rounded),
                   ),
                   onChanged: (value) {
@@ -159,8 +159,8 @@ class _InstructionEditorState extends State<InstructionEditor> {
                   controller: cookingTimeController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Cooking time',
-                    suffixText: 'min',
+                    labelText: "Cooking time",
+                    suffixText: "min",
                     suffixIcon: Icon(Icons.takeout_dining_rounded),
                   ),
                   onChanged: (value) {
@@ -176,7 +176,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Total time: ${newInstruction.totalTimeMinutes} min',
+            "Total time: ${newInstruction.totalTimeMinutes} min",
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 15),

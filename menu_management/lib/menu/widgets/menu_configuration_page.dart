@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/menu/enums/meal_type.dart';
-import 'package:menu_management/menu/enums/week_day.dart';
-import 'package:menu_management/menu/menu_provider.dart';
-import 'package:menu_management/menu/models/menu.dart';
-import 'package:menu_management/menu/models/menu_configuration.dart';
-import 'package:menu_management/menu/widgets/menu_page.dart';
-import 'package:menu_management/persistency.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_provider.dart";
+import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/widgets/menu_page.dart";
+import "package:menu_management/persistency.dart";
 
 class MenuConfigurationPage extends StatelessWidget {
   const MenuConfigurationPage({super.key});
@@ -24,7 +24,7 @@ class MenuConfigurationPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Menu Configuration'),
+        title: const Text("Menu Configuration"),
         actions: [
           IconButton(
             tooltip: "Open Menu",
@@ -134,7 +134,7 @@ class MenuConfigurationPage extends StatelessWidget {
                               ),
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: 'Cooking time',
+                                labelText: "Cooking time",
                                 suffixText: "min",
                               ),
                               keyboardType: TextInputType.number,

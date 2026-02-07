@@ -1,12 +1,12 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/menu/models/menu.dart';
-import 'package:menu_management/recipes/models/quantity.dart';
-import 'package:menu_management/shopping/shopping_ingredient.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/shopping/shopping_ingredient.dart";
 
 class ShoppingPage extends StatefulWidget {
   const ShoppingPage({super.key, required this.menu});
@@ -40,7 +40,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping List'),
+        title: const Text("Shopping List"),
         actions: [
           Row(
             children: [
@@ -77,7 +77,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                     : null;
               })
               .whereType<String>()
-              .join('\n');
+              .join("\n");
           // Copy to clipboard
           Clipboard.setData(ClipboardData(text: shoppingList));
         },
