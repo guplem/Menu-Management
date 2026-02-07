@@ -137,7 +137,7 @@ class Debug {
     bool showFullStackTrace = false,
     ColorsConsole messageColor = ColorsConsole.magenta,
   }) {
-    if (kDebugMode)
+    if (kDebugMode) {
       log(
         message,
         signature: signature,
@@ -145,6 +145,7 @@ class Debug {
         maxStackTraceRows: maxStackTraceRows,
         messageColor: messageColor,
       );
+    }
   }
 
   /// Used to log warnings. Things that didn't go as expected, but the app can still continue working properly.

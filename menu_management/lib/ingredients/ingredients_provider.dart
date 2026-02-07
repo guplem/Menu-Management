@@ -41,8 +41,9 @@ class IngredientsProvider extends ChangeNotifier {
     Ingredient? ing = ingredients.firstWhereOrNull(
       (element) => element.id == ingredientId,
     );
-    if (ing == null)
+    if (ing == null) {
       Debug.logError("No ingredient found with id $ingredientId");
+    }
     return ing!;
   }
 
