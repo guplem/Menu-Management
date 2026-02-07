@@ -2,12 +2,13 @@ import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
-// WaitingForUpdate: Once this issue is completed, delete this class. https://github.com/flutter/flutter/issues/119401
+/// A filled card using the secondary container color. Optionally supports an outlined border.
 class FilledCard extends StatelessWidget {
   const FilledCard({
     super.key,
     required this.child,
     this.onTap,
+    this.onLongPress,
     this.padding,
     this.color,
     this.textColor,
@@ -17,6 +18,7 @@ class FilledCard extends StatelessWidget {
 
   final Widget? child;
   final void Function()? onTap;
+  final void Function()? onLongPress;
   final EdgeInsets? padding;
   final Color? color, textColor, borderColor;
   final bool outlined;
@@ -25,6 +27,7 @@ class FilledCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomCard(
       onTap: onTap,
+      onLongPress: onLongPress,
       padding: padding,
       color:
           color ??

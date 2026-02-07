@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 
+/// Extensions on [TimeOfDay] for comparison, formatting, and conversion.
 extension TimeOfDayExtensions on TimeOfDay {
   bool isAfter([TimeOfDay? other]) {
     other ??= TimeOfDay.now();

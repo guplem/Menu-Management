@@ -1,4 +1,6 @@
+/// Extensions on [DateTime] for common date comparison and calculation operations.
 extension DateTimeExtensions on DateTime {
+  /// Returns true if this date is the same calendar day as [other] (defaults to now).
   bool isSameDay([DateTime? other]) {
     other ??= DateTime.now();
     return other.year == year && other.month == month && other.day == day;

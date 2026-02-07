@@ -1,4 +1,6 @@
+/// Extensions on [Map] for index-based access.
 extension MapExtensions on Map {
+  /// Returns the entry at the given [index] in insertion order.
   MapEntry elementAt(int index) {
     return entries.elementAt(index);
   }
