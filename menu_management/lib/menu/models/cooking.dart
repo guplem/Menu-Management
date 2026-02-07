@@ -1,14 +1,12 @@
-import "package:menu_management/recipes/models/recipe.dart";
 import "package:freezed_annotation/freezed_annotation.dart";
-// ignore: unused_import
-import "package:flutter/foundation.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 
 part "cooking.freezed.dart";
 part "cooking.g.dart";
 
 @freezed
 /// A link between a recipe and the amount of meals to cook
-class Cooking with _$Cooking {
+abstract class Cooking with _$Cooking {
   const factory Cooking({
     required Recipe recipe,
 

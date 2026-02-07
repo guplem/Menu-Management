@@ -6,7 +6,7 @@ part of 'recipe.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
+_Recipe _$RecipeFromJson(Map<String, dynamic> json) => _Recipe(
   id: json['id'] as String,
   name: json['name'] as String,
   instructions: (json['instructions'] as List<dynamic>?)?.map((e) => Instruction.fromJson(e as Map<String, dynamic>)).toList() ?? const [],
@@ -20,7 +20,7 @@ _$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
   includeInMenuGeneration: json['includeInMenuGeneration'] as bool? ?? true,
 );
 
-Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) => <String, dynamic>{
+Map<String, dynamic> _$RecipeToJson(_Recipe instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
   'instructions': instance.instructions,

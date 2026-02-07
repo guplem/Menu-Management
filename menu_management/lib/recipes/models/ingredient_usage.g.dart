@@ -6,10 +6,10 @@ part of 'ingredient_usage.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$IngredientUsageImpl _$$IngredientUsageImplFromJson(Map<String, dynamic> json) =>
-    _$IngredientUsageImpl(ingredient: json['ingredient'] as String, quantity: Quantity.fromJson(json['quantity'] as Map<String, dynamic>));
+_IngredientUsage _$IngredientUsageFromJson(Map<String, dynamic> json) =>
+    _IngredientUsage(ingredient: json['ingredient'] as String, quantity: Quantity.fromJson(json['quantity'] as Map<String, dynamic>));
 
-Map<String, dynamic> _$$IngredientUsageImplToJson(_$IngredientUsageImpl instance) => <String, dynamic>{
+Map<String, dynamic> _$IngredientUsageToJson(_IngredientUsage instance) => <String, dynamic>{
   'ingredient': instance.ingredient,
   'quantity': instance.quantity,
 };

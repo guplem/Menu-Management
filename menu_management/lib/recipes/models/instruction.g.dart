@@ -6,7 +6,7 @@ part of 'instruction.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) => _$InstructionImpl(
+_Instruction _$InstructionFromJson(Map<String, dynamic> json) => _Instruction(
   id: json['id'] as String,
   ingredientsUsed: (json['ingredientsUsed'] as List<dynamic>?)?.map((e) => IngredientUsage.fromJson(e as Map<String, dynamic>)).toList() ?? const [],
   workingTimeMinutes: (json['workingTimeMinutes'] as num?)?.toInt() ?? 10,
@@ -16,7 +16,7 @@ _$InstructionImpl _$$InstructionImplFromJson(Map<String, dynamic> json) => _$Ins
   inputs: (json['inputs'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
 );
 
-Map<String, dynamic> _$$InstructionImplToJson(_$InstructionImpl instance) => <String, dynamic>{
+Map<String, dynamic> _$InstructionToJson(_Instruction instance) => <String, dynamic>{
   'id': instance.id,
   'ingredientsUsed': instance.ingredientsUsed,
   'workingTimeMinutes': instance.workingTimeMinutes,

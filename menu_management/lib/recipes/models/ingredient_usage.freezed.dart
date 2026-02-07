@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,181 +9,290 @@ part of 'ingredient_usage.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-IngredientUsage _$IngredientUsageFromJson(Map<String, dynamic> json) {
-  return _IngredientUsage.fromJson(json);
-}
 
 /// @nodoc
 mixin _$IngredientUsage {
-  String get ingredient => throw _privateConstructorUsedError;
-  Quantity get quantity => throw _privateConstructorUsedError;
+
+ String get ingredient; Quantity get quantity;
+/// Create a copy of IngredientUsage
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$IngredientUsageCopyWith<IngredientUsage> get copyWith => _$IngredientUsageCopyWithImpl<IngredientUsage>(this as IngredientUsage, _$identity);
 
   /// Serializes this IngredientUsage to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of IngredientUsage
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $IngredientUsageCopyWith<IngredientUsage> get copyWith => throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IngredientUsage&&(identical(other.ingredient, ingredient) || other.ingredient == ingredient)&&(identical(other.quantity, quantity) || other.quantity == quantity));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,ingredient,quantity);
+
+@override
+String toString() {
+  return 'IngredientUsage(ingredient: $ingredient, quantity: $quantity)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $IngredientUsageCopyWith<$Res> {
-  factory $IngredientUsageCopyWith(IngredientUsage value, $Res Function(IngredientUsage) then) = _$IngredientUsageCopyWithImpl<$Res, IngredientUsage>;
-  @useResult
-  $Res call({String ingredient, Quantity quantity});
+abstract mixin class $IngredientUsageCopyWith<$Res>  {
+  factory $IngredientUsageCopyWith(IngredientUsage value, $Res Function(IngredientUsage) _then) = _$IngredientUsageCopyWithImpl;
+@useResult
+$Res call({
+ String ingredient, Quantity quantity
+});
 
-  $QuantityCopyWith<$Res> get quantity;
+
+$QuantityCopyWith<$Res> get quantity;
+
+}
+/// @nodoc
+class _$IngredientUsageCopyWithImpl<$Res>
+    implements $IngredientUsageCopyWith<$Res> {
+  _$IngredientUsageCopyWithImpl(this._self, this._then);
+
+  final IngredientUsage _self;
+  final $Res Function(IngredientUsage) _then;
+
+/// Create a copy of IngredientUsage
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? ingredient = null,Object? quantity = null,}) {
+  return _then(_self.copyWith(
+ingredient: null == ingredient ? _self.ingredient : ingredient // ignore: cast_nullable_to_non_nullable
+as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as Quantity,
+  ));
+}
+/// Create a copy of IngredientUsage
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$QuantityCopyWith<$Res> get quantity {
+  
+  return $QuantityCopyWith<$Res>(_self.quantity, (value) {
+    return _then(_self.copyWith(quantity: value));
+  });
+}
 }
 
-/// @nodoc
-class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage> implements $IngredientUsageCopyWith<$Res> {
-  _$IngredientUsageCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [IngredientUsage].
+extension IngredientUsagePatterns on IngredientUsage {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of IngredientUsage
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? ingredient = null, Object? quantity = null}) {
-    return _then(
-      _value.copyWith(
-            ingredient: null == ingredient
-                ? _value.ingredient
-                : ingredient // ignore: cast_nullable_to_non_nullable
-                      as String,
-            quantity: null == quantity
-                ? _value.quantity
-                : quantity // ignore: cast_nullable_to_non_nullable
-                      as Quantity,
-          )
-          as $Val,
-    );
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _IngredientUsage value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _IngredientUsage() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// Create a copy of IngredientUsage
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $QuantityCopyWith<$Res> get quantity {
-    return $QuantityCopyWith<$Res>(_value.quantity, (value) {
-      return _then(_value.copyWith(quantity: value) as $Val);
-    });
-  }
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _IngredientUsage value)  $default,){
+final _that = this;
+switch (_that) {
+case _IngredientUsage():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _IngredientUsage value)?  $default,){
+final _that = this;
+switch (_that) {
+case _IngredientUsage() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String ingredient,  Quantity quantity)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _IngredientUsage() when $default != null:
+return $default(_that.ingredient,_that.quantity);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String ingredient,  Quantity quantity)  $default,) {final _that = this;
+switch (_that) {
+case _IngredientUsage():
+return $default(_that.ingredient,_that.quantity);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String ingredient,  Quantity quantity)?  $default,) {final _that = this;
+switch (_that) {
+case _IngredientUsage() when $default != null:
+return $default(_that.ingredient,_that.quantity);case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$IngredientUsageImplCopyWith<$Res> implements $IngredientUsageCopyWith<$Res> {
-  factory _$$IngredientUsageImplCopyWith(_$IngredientUsageImpl value, $Res Function(_$IngredientUsageImpl) then) =
-      __$$IngredientUsageImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String ingredient, Quantity quantity});
-
-  @override
-  $QuantityCopyWith<$Res> get quantity;
-}
-
-/// @nodoc
-class __$$IngredientUsageImplCopyWithImpl<$Res> extends _$IngredientUsageCopyWithImpl<$Res, _$IngredientUsageImpl>
-    implements _$$IngredientUsageImplCopyWith<$Res> {
-  __$$IngredientUsageImplCopyWithImpl(_$IngredientUsageImpl _value, $Res Function(_$IngredientUsageImpl) _then) : super(_value, _then);
-
-  /// Create a copy of IngredientUsage
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? ingredient = null, Object? quantity = null}) {
-    return _then(
-      _$IngredientUsageImpl(
-        ingredient: null == ingredient
-            ? _value.ingredient
-            : ingredient // ignore: cast_nullable_to_non_nullable
-                  as String,
-        quantity: null == quantity
-            ? _value.quantity
-            : quantity // ignore: cast_nullable_to_non_nullable
-                  as Quantity,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$IngredientUsageImpl with DiagnosticableTreeMixin implements _IngredientUsage {
-  const _$IngredientUsageImpl({required this.ingredient, required this.quantity});
 
-  factory _$IngredientUsageImpl.fromJson(Map<String, dynamic> json) => _$$IngredientUsageImplFromJson(json);
+class _IngredientUsage implements IngredientUsage {
+  const _IngredientUsage({required this.ingredient, required this.quantity});
+  factory _IngredientUsage.fromJson(Map<String, dynamic> json) => _$IngredientUsageFromJson(json);
 
-  @override
-  final String ingredient;
-  @override
-  final Quantity quantity;
+@override final  String ingredient;
+@override final  Quantity quantity;
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'IngredientUsage(ingredient: $ingredient, quantity: $quantity)';
-  }
+/// Create a copy of IngredientUsage
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$IngredientUsageCopyWith<_IngredientUsage> get copyWith => __$IngredientUsageCopyWithImpl<_IngredientUsage>(this, _$identity);
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'IngredientUsage'))
-      ..add(DiagnosticsProperty('ingredient', ingredient))
-      ..add(DiagnosticsProperty('quantity', quantity));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$IngredientUsageImpl &&
-            (identical(other.ingredient, ingredient) || other.ingredient == ingredient) &&
-            (identical(other.quantity, quantity) || other.quantity == quantity));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, ingredient, quantity);
-
-  /// Create a copy of IngredientUsage
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith => __$$IngredientUsageImplCopyWithImpl<_$IngredientUsageImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$IngredientUsageImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$IngredientUsageToJson(this, );
 }
 
-abstract class _IngredientUsage implements IngredientUsage {
-  const factory _IngredientUsage({required final String ingredient, required final Quantity quantity}) = _$IngredientUsageImpl;
-
-  factory _IngredientUsage.fromJson(Map<String, dynamic> json) = _$IngredientUsageImpl.fromJson;
-
-  @override
-  String get ingredient;
-  @override
-  Quantity get quantity;
-
-  /// Create a copy of IngredientUsage
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IngredientUsage&&(identical(other.ingredient, ingredient) || other.ingredient == ingredient)&&(identical(other.quantity, quantity) || other.quantity == quantity));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,ingredient,quantity);
+
+@override
+String toString() {
+  return 'IngredientUsage(ingredient: $ingredient, quantity: $quantity)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$IngredientUsageCopyWith<$Res> implements $IngredientUsageCopyWith<$Res> {
+  factory _$IngredientUsageCopyWith(_IngredientUsage value, $Res Function(_IngredientUsage) _then) = __$IngredientUsageCopyWithImpl;
+@override @useResult
+$Res call({
+ String ingredient, Quantity quantity
+});
+
+
+@override $QuantityCopyWith<$Res> get quantity;
+
+}
+/// @nodoc
+class __$IngredientUsageCopyWithImpl<$Res>
+    implements _$IngredientUsageCopyWith<$Res> {
+  __$IngredientUsageCopyWithImpl(this._self, this._then);
+
+  final _IngredientUsage _self;
+  final $Res Function(_IngredientUsage) _then;
+
+/// Create a copy of IngredientUsage
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? ingredient = null,Object? quantity = null,}) {
+  return _then(_IngredientUsage(
+ingredient: null == ingredient ? _self.ingredient : ingredient // ignore: cast_nullable_to_non_nullable
+as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as Quantity,
+  ));
+}
+
+/// Create a copy of IngredientUsage
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$QuantityCopyWith<$Res> get quantity {
+  
+  return $QuantityCopyWith<$Res>(_self.quantity, (value) {
+    return _then(_self.copyWith(quantity: value));
+  });
+}
+}
+
+// dart format on

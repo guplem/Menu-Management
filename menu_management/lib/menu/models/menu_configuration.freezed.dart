@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,203 +9,293 @@ part of 'menu_configuration.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-MenuConfiguration _$MenuConfigurationFromJson(Map<String, dynamic> json) {
-  return _MenuConfiguration.fromJson(json);
-}
 
 /// @nodoc
 mixin _$MenuConfiguration {
-  MealTime get mealTime => throw _privateConstructorUsedError;
-  bool get requiresMeal => throw _privateConstructorUsedError;
-  int get availableCookingTimeMinutes => throw _privateConstructorUsedError;
+
+ MealTime get mealTime; bool get requiresMeal; int get availableCookingTimeMinutes;
+/// Create a copy of MenuConfiguration
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$MenuConfigurationCopyWith<MenuConfiguration> get copyWith => _$MenuConfigurationCopyWithImpl<MenuConfiguration>(this as MenuConfiguration, _$identity);
 
   /// Serializes this MenuConfiguration to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of MenuConfiguration
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $MenuConfigurationCopyWith<MenuConfiguration> get copyWith => throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MenuConfiguration&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal)&&(identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) || other.availableCookingTimeMinutes == availableCookingTimeMinutes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,mealTime,requiresMeal,availableCookingTimeMinutes);
+
+@override
+String toString() {
+  return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $MenuConfigurationCopyWith<$Res> {
-  factory $MenuConfigurationCopyWith(MenuConfiguration value, $Res Function(MenuConfiguration) then) =
-      _$MenuConfigurationCopyWithImpl<$Res, MenuConfiguration>;
-  @useResult
-  $Res call({MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes});
+abstract mixin class $MenuConfigurationCopyWith<$Res>  {
+  factory $MenuConfigurationCopyWith(MenuConfiguration value, $Res Function(MenuConfiguration) _then) = _$MenuConfigurationCopyWithImpl;
+@useResult
+$Res call({
+ MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes
+});
 
-  $MealTimeCopyWith<$Res> get mealTime;
+
+$MealTimeCopyWith<$Res> get mealTime;
+
+}
+/// @nodoc
+class _$MenuConfigurationCopyWithImpl<$Res>
+    implements $MenuConfigurationCopyWith<$Res> {
+  _$MenuConfigurationCopyWithImpl(this._self, this._then);
+
+  final MenuConfiguration _self;
+  final $Res Function(MenuConfiguration) _then;
+
+/// Create a copy of MenuConfiguration
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? mealTime = null,Object? requiresMeal = null,Object? availableCookingTimeMinutes = null,}) {
+  return _then(_self.copyWith(
+mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
+as MealTime,requiresMeal: null == requiresMeal ? _self.requiresMeal : requiresMeal // ignore: cast_nullable_to_non_nullable
+as bool,availableCookingTimeMinutes: null == availableCookingTimeMinutes ? _self.availableCookingTimeMinutes : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+/// Create a copy of MenuConfiguration
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MealTimeCopyWith<$Res> get mealTime {
+  
+  return $MealTimeCopyWith<$Res>(_self.mealTime, (value) {
+    return _then(_self.copyWith(mealTime: value));
+  });
+}
 }
 
-/// @nodoc
-class _$MenuConfigurationCopyWithImpl<$Res, $Val extends MenuConfiguration> implements $MenuConfigurationCopyWith<$Res> {
-  _$MenuConfigurationCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [MenuConfiguration].
+extension MenuConfigurationPatterns on MenuConfiguration {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of MenuConfiguration
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? mealTime = null, Object? requiresMeal = null, Object? availableCookingTimeMinutes = null}) {
-    return _then(
-      _value.copyWith(
-            mealTime: null == mealTime
-                ? _value.mealTime
-                : mealTime // ignore: cast_nullable_to_non_nullable
-                      as MealTime,
-            requiresMeal: null == requiresMeal
-                ? _value.requiresMeal
-                : requiresMeal // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            availableCookingTimeMinutes: null == availableCookingTimeMinutes
-                ? _value.availableCookingTimeMinutes
-                : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
-                      as int,
-          )
-          as $Val,
-    );
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _MenuConfiguration value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _MenuConfiguration() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// Create a copy of MenuConfiguration
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $MealTimeCopyWith<$Res> get mealTime {
-    return $MealTimeCopyWith<$Res>(_value.mealTime, (value) {
-      return _then(_value.copyWith(mealTime: value) as $Val);
-    });
-  }
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _MenuConfiguration value)  $default,){
+final _that = this;
+switch (_that) {
+case _MenuConfiguration():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _MenuConfiguration value)?  $default,){
+final _that = this;
+switch (_that) {
+case _MenuConfiguration() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _MenuConfiguration() when $default != null:
+return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes)  $default,) {final _that = this;
+switch (_that) {
+case _MenuConfiguration():
+return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes)?  $default,) {final _that = this;
+switch (_that) {
+case _MenuConfiguration() when $default != null:
+return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes);case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$MenuConfigurationImplCopyWith<$Res> implements $MenuConfigurationCopyWith<$Res> {
-  factory _$$MenuConfigurationImplCopyWith(_$MenuConfigurationImpl value, $Res Function(_$MenuConfigurationImpl) then) =
-      __$$MenuConfigurationImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes});
-
-  @override
-  $MealTimeCopyWith<$Res> get mealTime;
-}
-
-/// @nodoc
-class __$$MenuConfigurationImplCopyWithImpl<$Res> extends _$MenuConfigurationCopyWithImpl<$Res, _$MenuConfigurationImpl>
-    implements _$$MenuConfigurationImplCopyWith<$Res> {
-  __$$MenuConfigurationImplCopyWithImpl(_$MenuConfigurationImpl _value, $Res Function(_$MenuConfigurationImpl) _then) : super(_value, _then);
-
-  /// Create a copy of MenuConfiguration
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? mealTime = null, Object? requiresMeal = null, Object? availableCookingTimeMinutes = null}) {
-    return _then(
-      _$MenuConfigurationImpl(
-        mealTime: null == mealTime
-            ? _value.mealTime
-            : mealTime // ignore: cast_nullable_to_non_nullable
-                  as MealTime,
-        requiresMeal: null == requiresMeal
-            ? _value.requiresMeal
-            : requiresMeal // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        availableCookingTimeMinutes: null == availableCookingTimeMinutes
-            ? _value.availableCookingTimeMinutes
-            : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$MenuConfigurationImpl extends _MenuConfiguration with DiagnosticableTreeMixin {
-  const _$MenuConfigurationImpl({required this.mealTime, this.requiresMeal = true, this.availableCookingTimeMinutes = 60}) : super._();
 
-  factory _$MenuConfigurationImpl.fromJson(Map<String, dynamic> json) => _$$MenuConfigurationImplFromJson(json);
+class _MenuConfiguration extends MenuConfiguration {
+  const _MenuConfiguration({required this.mealTime, this.requiresMeal = true, this.availableCookingTimeMinutes = 60}): super._();
+  factory _MenuConfiguration.fromJson(Map<String, dynamic> json) => _$MenuConfigurationFromJson(json);
 
-  @override
-  final MealTime mealTime;
-  @override
-  @JsonKey()
-  final bool requiresMeal;
-  @override
-  @JsonKey()
-  final int availableCookingTimeMinutes;
+@override final  MealTime mealTime;
+@override@JsonKey() final  bool requiresMeal;
+@override@JsonKey() final  int availableCookingTimeMinutes;
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes)';
-  }
+/// Create a copy of MenuConfiguration
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$MenuConfigurationCopyWith<_MenuConfiguration> get copyWith => __$MenuConfigurationCopyWithImpl<_MenuConfiguration>(this, _$identity);
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'MenuConfiguration'))
-      ..add(DiagnosticsProperty('mealTime', mealTime))
-      ..add(DiagnosticsProperty('requiresMeal', requiresMeal))
-      ..add(DiagnosticsProperty('availableCookingTimeMinutes', availableCookingTimeMinutes));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$MenuConfigurationImpl &&
-            (identical(other.mealTime, mealTime) || other.mealTime == mealTime) &&
-            (identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal) &&
-            (identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) ||
-                other.availableCookingTimeMinutes == availableCookingTimeMinutes));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, mealTime, requiresMeal, availableCookingTimeMinutes);
-
-  /// Create a copy of MenuConfiguration
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$MenuConfigurationImplCopyWith<_$MenuConfigurationImpl> get copyWith =>
-      __$$MenuConfigurationImplCopyWithImpl<_$MenuConfigurationImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$MenuConfigurationImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$MenuConfigurationToJson(this, );
 }
 
-abstract class _MenuConfiguration extends MenuConfiguration {
-  const factory _MenuConfiguration({required final MealTime mealTime, final bool requiresMeal, final int availableCookingTimeMinutes}) =
-      _$MenuConfigurationImpl;
-  const _MenuConfiguration._() : super._();
-
-  factory _MenuConfiguration.fromJson(Map<String, dynamic> json) = _$MenuConfigurationImpl.fromJson;
-
-  @override
-  MealTime get mealTime;
-  @override
-  bool get requiresMeal;
-  @override
-  int get availableCookingTimeMinutes;
-
-  /// Create a copy of MenuConfiguration
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MenuConfigurationImplCopyWith<_$MenuConfigurationImpl> get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MenuConfiguration&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal)&&(identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) || other.availableCookingTimeMinutes == availableCookingTimeMinutes));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,mealTime,requiresMeal,availableCookingTimeMinutes);
+
+@override
+String toString() {
+  return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$MenuConfigurationCopyWith<$Res> implements $MenuConfigurationCopyWith<$Res> {
+  factory _$MenuConfigurationCopyWith(_MenuConfiguration value, $Res Function(_MenuConfiguration) _then) = __$MenuConfigurationCopyWithImpl;
+@override @useResult
+$Res call({
+ MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes
+});
+
+
+@override $MealTimeCopyWith<$Res> get mealTime;
+
+}
+/// @nodoc
+class __$MenuConfigurationCopyWithImpl<$Res>
+    implements _$MenuConfigurationCopyWith<$Res> {
+  __$MenuConfigurationCopyWithImpl(this._self, this._then);
+
+  final _MenuConfiguration _self;
+  final $Res Function(_MenuConfiguration) _then;
+
+/// Create a copy of MenuConfiguration
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? mealTime = null,Object? requiresMeal = null,Object? availableCookingTimeMinutes = null,}) {
+  return _then(_MenuConfiguration(
+mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
+as MealTime,requiresMeal: null == requiresMeal ? _self.requiresMeal : requiresMeal // ignore: cast_nullable_to_non_nullable
+as bool,availableCookingTimeMinutes: null == availableCookingTimeMinutes ? _self.availableCookingTimeMinutes : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+/// Create a copy of MenuConfiguration
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MealTimeCopyWith<$Res> get mealTime {
+  
+  return $MealTimeCopyWith<$Res>(_self.mealTime, (value) {
+    return _then(_self.copyWith(mealTime: value));
+  });
+}
+}
+
+// dart format on

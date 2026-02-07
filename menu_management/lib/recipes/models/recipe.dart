@@ -1,11 +1,9 @@
+import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/instruction.dart";
-import "package:freezed_annotation/freezed_annotation.dart";
-// ignore: unused_import
-import "package:flutter/foundation.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 
 part "recipe.freezed.dart";
@@ -13,7 +11,7 @@ part "recipe.g.dart";
 
 /// A recipe is a set of instructions
 @freezed
-class Recipe with _$Recipe {
+abstract class Recipe with _$Recipe {
   const factory Recipe({
     required String id,
     required String name,
