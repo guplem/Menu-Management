@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Meal {
 
- Cooking? get cooking; MealTime get mealTime;
+ Cooking? get cooking; MealTime get mealTime; int get people;
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MealCopyWith<Meal> get copyWith => _$MealCopyWithImpl<Meal>(this as Meal, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Meal&&(identical(other.cooking, cooking) || other.cooking == cooking)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Meal&&(identical(other.cooking, cooking) || other.cooking == cooking)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.people, people) || other.people == people));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cooking,mealTime);
+int get hashCode => Object.hash(runtimeType,cooking,mealTime,people);
 
 @override
 String toString() {
-  return 'Meal(cooking: $cooking, mealTime: $mealTime)';
+  return 'Meal(cooking: $cooking, mealTime: $mealTime, people: $people)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $MealCopyWith<$Res>  {
   factory $MealCopyWith(Meal value, $Res Function(Meal) _then) = _$MealCopyWithImpl;
 @useResult
 $Res call({
- Cooking? cooking, MealTime mealTime
+ Cooking? cooking, MealTime mealTime, int people
 });
 
 
@@ -65,11 +65,12 @@ class _$MealCopyWithImpl<$Res>
 
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? cooking = freezed,Object? mealTime = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? cooking = freezed,Object? mealTime = null,Object? people = null,}) {
   return _then(_self.copyWith(
 cooking: freezed == cooking ? _self.cooking : cooking // ignore: cast_nullable_to_non_nullable
 as Cooking?,mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
-as MealTime,
+as MealTime,people: null == people ? _self.people : people // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 /// Create a copy of Meal
@@ -175,10 +176,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Cooking? cooking,  MealTime mealTime)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Cooking? cooking,  MealTime mealTime,  int people)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Meal() when $default != null:
-return $default(_that.cooking,_that.mealTime);case _:
+return $default(_that.cooking,_that.mealTime,_that.people);case _:
   return orElse();
 
 }
@@ -196,10 +197,10 @@ return $default(_that.cooking,_that.mealTime);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Cooking? cooking,  MealTime mealTime)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Cooking? cooking,  MealTime mealTime,  int people)  $default,) {final _that = this;
 switch (_that) {
 case _Meal():
-return $default(_that.cooking,_that.mealTime);case _:
+return $default(_that.cooking,_that.mealTime,_that.people);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -216,10 +217,10 @@ return $default(_that.cooking,_that.mealTime);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Cooking? cooking,  MealTime mealTime)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Cooking? cooking,  MealTime mealTime,  int people)?  $default,) {final _that = this;
 switch (_that) {
 case _Meal() when $default != null:
-return $default(_that.cooking,_that.mealTime);case _:
+return $default(_that.cooking,_that.mealTime,_that.people);case _:
   return null;
 
 }
@@ -231,11 +232,12 @@ return $default(_that.cooking,_that.mealTime);case _:
 @JsonSerializable()
 
 class _Meal extends Meal {
-  const _Meal({required this.cooking, required this.mealTime}): super._();
+  const _Meal({required this.cooking, required this.mealTime, this.people = 2}): super._();
   factory _Meal.fromJson(Map<String, dynamic> json) => _$MealFromJson(json);
 
 @override final  Cooking? cooking;
 @override final  MealTime mealTime;
+@override@JsonKey() final  int people;
 
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
@@ -250,16 +252,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Meal&&(identical(other.cooking, cooking) || other.cooking == cooking)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Meal&&(identical(other.cooking, cooking) || other.cooking == cooking)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.people, people) || other.people == people));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cooking,mealTime);
+int get hashCode => Object.hash(runtimeType,cooking,mealTime,people);
 
 @override
 String toString() {
-  return 'Meal(cooking: $cooking, mealTime: $mealTime)';
+  return 'Meal(cooking: $cooking, mealTime: $mealTime, people: $people)';
 }
 
 
@@ -270,7 +272,7 @@ abstract mixin class _$MealCopyWith<$Res> implements $MealCopyWith<$Res> {
   factory _$MealCopyWith(_Meal value, $Res Function(_Meal) _then) = __$MealCopyWithImpl;
 @override @useResult
 $Res call({
- Cooking? cooking, MealTime mealTime
+ Cooking? cooking, MealTime mealTime, int people
 });
 
 
@@ -287,11 +289,12 @@ class __$MealCopyWithImpl<$Res>
 
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? cooking = freezed,Object? mealTime = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? cooking = freezed,Object? mealTime = null,Object? people = null,}) {
   return _then(_Meal(
 cooking: freezed == cooking ? _self.cooking : cooking // ignore: cast_nullable_to_non_nullable
 as Cooking?,mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
-as MealTime,
+as MealTime,people: null == people ? _self.people : people // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

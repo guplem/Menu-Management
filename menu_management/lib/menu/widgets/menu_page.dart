@@ -175,6 +175,36 @@ class _MenuPageState extends State<MenuPage> {
                                             maxLines: 3,
                                           ),
                                   ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove, size: 18),
+                                        onPressed: meal.people <= 0
+                                            ? null
+                                            : () => setState(() {
+                                                menu = menu.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people - 1);
+                                              }),
+                                      ),
+                                      Text("${meal.people}"),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        meal.people <= 0
+                                            ? Icons.person_outline_rounded
+                                            : meal.people <= 1
+                                            ? Icons.person_rounded
+                                            : Icons.people_alt_rounded,
+                                        size: 18,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add, size: 18),
+                                        onPressed: () => setState(() {
+                                          menu = menu.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people + 1);
+                                        }),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),

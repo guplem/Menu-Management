@@ -20,7 +20,6 @@ class ShoppingPage extends StatefulWidget {
 class _ShoppingPageState extends State<ShoppingPage> {
   late final Map<String, List<Quantity>> ingredientsRequired;
   late final Map<String, List<Quantity>> ingredientsOwned;
-  int people = 2;
 
   @override
   void initState() {
@@ -36,17 +35,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Shopping List"),
-        actions: [
-          Row(
-            children: [
-              IconButton(icon: const Icon(Icons.remove), onPressed: people <= 1 ? null : () => setState(() => people -= 1)),
-              Text("$people"),
-              const SizedBox(width: 10),
-              Icon(people <= 1 ? Icons.person_rounded : Icons.people_alt_rounded),
-              IconButton(icon: const Icon(Icons.add), onPressed: () => setState(() => people += 1)),
-            ],
-          ),
-        ],
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: "Copy to clipboard",
@@ -71,10 +59,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
         itemBuilder: (context, index) {
           return ShoppingIngredient(
             ingredient: getProvider<IngredientsProvider>(context, listen: true).get(ingredientsRequired.keyAt(index)),
-            quantitiesDesiredPerPerson: ingredientsRequired.valueAt(index),
+            quantitiesDesired: ingredientsRequired.valueAt(index),
             ownedQuantities: ingredientsOwned[ingredientsRequired.keyAt(index)]!,
             calculatedRemainingQuantities: remainingAmounts(ingredient: ingredientsRequired.keyAt(index)),
-            people: people,
             onOwnedAmountChanged: (List<Quantity> ownedQuantities) {
               setState(() => ingredientsOwned[ingredientsRequired.keyAt(index)] = ownedQuantities);
             },
@@ -91,7 +78,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
     return required.map((quantityRequired) {
       Quantity ownedQuantity = owned.firstWhere((ownedQty) => ownedQty.unit == quantityRequired.unit);
-      double amount = quantityRequired.amount * people - ownedQuantity.amount;
+      double amount = quantityRequired.amount - ownedQuantity.amount;
       return Quantity(amount: max(0, amount).roundToDouble(), unit: quantityRequired.unit);
     }).toList();
   }

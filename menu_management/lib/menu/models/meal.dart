@@ -8,7 +8,7 @@ part "meal.g.dart";
 /// A meal is a cooking of a recipe at a certain time, for a menu
 @freezed
 abstract class Meal with _$Meal {
-  const factory Meal({required Cooking? cooking, required MealTime mealTime}) = _Meal;
+  const factory Meal({required Cooking? cooking, required MealTime mealTime, @Default(2) int people}) = _Meal;
 
   factory Meal.fromJson(Map<String, Object?> json) => _$MealFromJson(json);
 

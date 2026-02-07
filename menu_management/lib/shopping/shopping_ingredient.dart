@@ -8,17 +8,15 @@ class ShoppingIngredient extends StatelessWidget {
   const ShoppingIngredient({
     super.key,
     required this.ingredient,
-    required this.quantitiesDesiredPerPerson,
+    required this.quantitiesDesired,
     required this.onOwnedAmountChanged,
-    required this.people,
     required this.ownedQuantities,
     required this.calculatedRemainingQuantities,
   });
 
   final Ingredient ingredient;
-  final List<Quantity> quantitiesDesiredPerPerson;
+  final List<Quantity> quantitiesDesired;
   final List<Quantity> ownedQuantities;
-  final int people;
   final void Function(List<Quantity> newOwnedQuantities) onOwnedAmountChanged;
   final List<Quantity> calculatedRemainingQuantities;
 
@@ -37,8 +35,8 @@ class ShoppingIngredient extends StatelessWidget {
                 color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: areAllRemainingQuantitiesZero ? 0.1 : 1),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: quantitiesDesiredPerPerson.map((Quantity quantity) {
-                    String amountRounded = (quantity.amount * people).toStringAsFixed(0);
+                  children: quantitiesDesired.map((Quantity quantity) {
+                    String amountRounded = quantity.amount.toStringAsFixed(0);
                     String unit = quantity.unit.toString().split(".").last;
                     return Padding(
                       padding: const EdgeInsets.all(4.0),
@@ -50,7 +48,7 @@ class ShoppingIngredient extends StatelessWidget {
                             width: 220,
                             child: TextFieldOwnedAmount(
                               unit: unit,
-                              desiredAmount: quantity.amount * people,
+                              desiredAmount: quantity.amount,
                               onOwnedAmountChanged: (value) => informOfOwnedQuantitiesWith(value, quantity.unit),
                             ),
                           ),

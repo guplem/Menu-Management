@@ -80,6 +80,7 @@ abstract class Menu with _$Menu {
       return Meal(
         mealTime: meal.mealTime,
         cooking: recipe == null ? null : Cooking(recipe: recipe, yield: yield),
+        people: meal.people,
       );
     }).toList();
 
@@ -92,6 +93,18 @@ abstract class Menu with _$Menu {
     for (Meal meal in meals) {
       if (meal.cooking == null) continue;
       int yields = meal.cooking!.yield;
+
+      // Calculate the total people across all meals sharing this recipe.
+      // Only the first occurrence (yield > 0) aggregates ingredient amounts.
+      int peopleFactor;
+      if (yields > 0) {
+        peopleFactor = meals
+            .where((Meal m) => m.cooking?.recipe == meal.cooking?.recipe)
+            .fold(0, (int sum, Meal m) => sum + m.people);
+      } else {
+        peopleFactor = 0;
+      }
+
       for (Instruction instruction in meal.cooking!.recipe.instructions) {
         for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
           if (ingredients[ingredientUsage.ingredient] == null) {
@@ -100,7 +113,7 @@ abstract class Menu with _$Menu {
           if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
             ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
           }
-          double amountToAdd = ingredientUsage.quantity.amount * yields;
+          double amountToAdd = ingredientUsage.quantity.amount * peopleFactor;
           Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
             (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
           );
@@ -112,6 +125,15 @@ abstract class Menu with _$Menu {
     }
 
     return ingredients;
+  }
+
+  Menu copyWithUpdatedPeople({required MealTime mealTime, required int people}) {
+    List<Meal> newMeals = [...meals];
+    int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
+    if (index != -1) {
+      newMeals[index] = newMeals[index].copyWith(people: people);
+    }
+    return copyWith(meals: newMeals);
   }
 
   String toStringBeautified() {
