@@ -22,6 +22,7 @@ _$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
   lunch: json['lunch'] as bool? ?? true,
   dinner: json['dinner'] as bool? ?? true,
   canBeStored: json['canBeStored'] as bool? ?? true,
+  includeInMenuGeneration: json['includeInMenuGeneration'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
@@ -36,6 +37,7 @@ Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
       'lunch': instance.lunch,
       'dinner': instance.dinner,
       'canBeStored': instance.canBeStored,
+      'includeInMenuGeneration': instance.includeInMenuGeneration,
     };
 
 const _$RecipeTypeEnumMap = {

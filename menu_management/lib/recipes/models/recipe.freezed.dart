@@ -31,6 +31,7 @@ mixin _$Recipe {
   bool get lunch => throw _privateConstructorUsedError;
   bool get dinner => throw _privateConstructorUsedError;
   bool get canBeStored => throw _privateConstructorUsedError;
+  bool get includeInMenuGeneration => throw _privateConstructorUsedError;
 
   /// Serializes this Recipe to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,6 +58,7 @@ abstract class $RecipeCopyWith<$Res> {
     bool lunch,
     bool dinner,
     bool canBeStored,
+    bool includeInMenuGeneration,
   });
 }
 
@@ -85,6 +87,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? lunch = null,
     Object? dinner = null,
     Object? canBeStored = null,
+    Object? includeInMenuGeneration = null,
   }) {
     return _then(
       _value.copyWith(
@@ -128,6 +131,10 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
                 ? _value.canBeStored
                 : canBeStored // ignore: cast_nullable_to_non_nullable
                       as bool,
+            includeInMenuGeneration: null == includeInMenuGeneration
+                ? _value.includeInMenuGeneration
+                : includeInMenuGeneration // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -153,6 +160,7 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
     bool lunch,
     bool dinner,
     bool canBeStored,
+    bool includeInMenuGeneration,
   });
 }
 
@@ -180,6 +188,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? lunch = null,
     Object? dinner = null,
     Object? canBeStored = null,
+    Object? includeInMenuGeneration = null,
   }) {
     return _then(
       _$RecipeImpl(
@@ -223,6 +232,10 @@ class __$$RecipeImplCopyWithImpl<$Res>
             ? _value.canBeStored
             : canBeStored // ignore: cast_nullable_to_non_nullable
                   as bool,
+        includeInMenuGeneration: null == includeInMenuGeneration
+            ? _value.includeInMenuGeneration
+            : includeInMenuGeneration // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -242,6 +255,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
     this.lunch = true,
     this.dinner = true,
     this.canBeStored = true,
+    this.includeInMenuGeneration = true,
   }) : _instructions = instructions,
        super._();
 
@@ -282,10 +296,13 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final bool canBeStored;
+  @override
+  @JsonKey()
+  final bool includeInMenuGeneration;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, canBeStored: $canBeStored)';
+    return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, canBeStored: $canBeStored, includeInMenuGeneration: $includeInMenuGeneration)';
   }
 
   @override
@@ -302,7 +319,10 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('type', type))
       ..add(DiagnosticsProperty('lunch', lunch))
       ..add(DiagnosticsProperty('dinner', dinner))
-      ..add(DiagnosticsProperty('canBeStored', canBeStored));
+      ..add(DiagnosticsProperty('canBeStored', canBeStored))
+      ..add(
+        DiagnosticsProperty('includeInMenuGeneration', includeInMenuGeneration),
+      );
   }
 
   @override
@@ -325,7 +345,12 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
             (identical(other.lunch, lunch) || other.lunch == lunch) &&
             (identical(other.dinner, dinner) || other.dinner == dinner) &&
             (identical(other.canBeStored, canBeStored) ||
-                other.canBeStored == canBeStored));
+                other.canBeStored == canBeStored) &&
+            (identical(
+                  other.includeInMenuGeneration,
+                  includeInMenuGeneration,
+                ) ||
+                other.includeInMenuGeneration == includeInMenuGeneration));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -342,6 +367,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
     lunch,
     dinner,
     canBeStored,
+    includeInMenuGeneration,
   );
 
   /// Create a copy of Recipe
@@ -370,6 +396,7 @@ abstract class _Recipe extends Recipe {
     final bool lunch,
     final bool dinner,
     final bool canBeStored,
+    final bool includeInMenuGeneration,
   }) = _$RecipeImpl;
   const _Recipe._() : super._();
 
@@ -395,6 +422,8 @@ abstract class _Recipe extends Recipe {
   bool get dinner;
   @override
   bool get canBeStored;
+  @override
+  bool get includeInMenuGeneration;
 
   /// Create a copy of Recipe
   /// with the given fields replaced by the non-null parameter values.

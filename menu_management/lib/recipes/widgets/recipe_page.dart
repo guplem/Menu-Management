@@ -115,6 +115,23 @@ class RecipePage extends StatelessWidget {
           ),
         ),
         Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              const SizedBox(width: 3),
+              const Text("Include in menu generation? "),
+              const SizedBox(width: 5),
+              Switch(
+                thumbIcon: switchIcon,
+                value: recipe.includeInMenuGeneration,
+                onChanged: (bool value) {
+                  recipe.copyWith(includeInMenuGeneration: value).saveToProvider();
+                },
+              ),
+            ],
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
             children: [

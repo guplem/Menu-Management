@@ -25,6 +25,7 @@ class Recipe with _$Recipe {
     @Default(true) bool lunch,
     @Default(true) bool dinner,
     @Default(true) bool canBeStored,
+    @Default(true) bool includeInMenuGeneration,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);

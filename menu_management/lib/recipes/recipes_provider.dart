@@ -45,6 +45,7 @@ class RecipesProvider extends ChangeNotifier {
     bool? vegetables,
   }) {
     return recipes.where((recipe) {
+      if (!recipe.includeInMenuGeneration) return false;
       if (recipe.type != type) return false;
       if (carbs != null && recipe.carbs != carbs) return false;
       if (proteins != null && recipe.proteins != proteins) return false;
