@@ -54,8 +54,8 @@ class RecipePage extends StatelessWidget {
 
   // ignore: non_constant_identifier_names
   Widget RecipeConfiguration({required BuildContext context, required Recipe recipe}) {
-    final MaterialStateProperty<Icon?> switchIcon = MaterialStateProperty.resolveWith<Icon?>((states) {
-      if (states.contains(MaterialState.selected)) {
+    final WidgetStateProperty<Icon?> switchIcon = WidgetStateProperty.resolveWith<Icon?>((states) {
+      if (states.contains(WidgetState.selected)) {
         return const Icon(Icons.check_rounded);
       }
       return const Icon(Icons.close);

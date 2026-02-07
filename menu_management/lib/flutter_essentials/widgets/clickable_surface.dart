@@ -11,7 +11,7 @@ class ClickableSurface extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: MouseRegion(
-        cursor: onTap != null ? MaterialStateMouseCursor.clickable : SystemMouseCursors.forbidden,
+        cursor: onTap != null ? WidgetStateMouseCursor.clickable : SystemMouseCursors.forbidden,
         child: child,
       ),
     );

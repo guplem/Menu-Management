@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/menu/models/menu.dart';
 import 'package:menu_management/recipes/models/quantity.dart';
 import 'package:menu_management/shopping/shopping_ingredient.dart';
