@@ -19,8 +19,7 @@ class Instruction with _$Instruction {
     @Default([]) List<String> inputs,
   }) = _Instruction;
 
-  factory Instruction.fromJson(Map<String, Object?> json) =>
-      _$InstructionFromJson(json);
+  factory Instruction.fromJson(Map<String, Object?> json) => _$InstructionFromJson(json);
 
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Instruction._();

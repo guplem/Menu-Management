@@ -30,11 +30,7 @@ class LoadingSpinnerIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
-      children: [
-        getSpinner(),
-        if (text != null) const Gap.vertical(),
-        if (text != null) Text(text!),
-      ],
+      children: [getSpinner(), if (text != null) const Gap.vertical(), if (text != null) Text(text!)],
     );
   }
 }
@@ -58,11 +54,7 @@ class LoadingSpinnerIndicatorFullscreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        LoadingSpinnerIndicator.getSpinner(),
-        if (text != null) const Gap.vertical(),
-        if (text != null) Text(text!),
-      ],
+      children: [LoadingSpinnerIndicator.getSpinner(), if (text != null) const Gap.vertical(), if (text != null) Text(text!)],
     );
   }
 }

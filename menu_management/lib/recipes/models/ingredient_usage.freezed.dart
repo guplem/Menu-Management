@@ -30,16 +30,12 @@ mixin _$IngredientUsage {
   /// Create a copy of IngredientUsage
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $IngredientUsageCopyWith<IngredientUsage> get copyWith =>
-      throw _privateConstructorUsedError;
+  $IngredientUsageCopyWith<IngredientUsage> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $IngredientUsageCopyWith<$Res> {
-  factory $IngredientUsageCopyWith(
-    IngredientUsage value,
-    $Res Function(IngredientUsage) then,
-  ) = _$IngredientUsageCopyWithImpl<$Res, IngredientUsage>;
+  factory $IngredientUsageCopyWith(IngredientUsage value, $Res Function(IngredientUsage) then) = _$IngredientUsageCopyWithImpl<$Res, IngredientUsage>;
   @useResult
   $Res call({String ingredient, Quantity quantity});
 
@@ -47,8 +43,7 @@ abstract class $IngredientUsageCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage>
-    implements $IngredientUsageCopyWith<$Res> {
+class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage> implements $IngredientUsageCopyWith<$Res> {
   _$IngredientUsageCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -88,12 +83,9 @@ class _$IngredientUsageCopyWithImpl<$Res, $Val extends IngredientUsage>
 }
 
 /// @nodoc
-abstract class _$$IngredientUsageImplCopyWith<$Res>
-    implements $IngredientUsageCopyWith<$Res> {
-  factory _$$IngredientUsageImplCopyWith(
-    _$IngredientUsageImpl value,
-    $Res Function(_$IngredientUsageImpl) then,
-  ) = __$$IngredientUsageImplCopyWithImpl<$Res>;
+abstract class _$$IngredientUsageImplCopyWith<$Res> implements $IngredientUsageCopyWith<$Res> {
+  factory _$$IngredientUsageImplCopyWith(_$IngredientUsageImpl value, $Res Function(_$IngredientUsageImpl) then) =
+      __$$IngredientUsageImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String ingredient, Quantity quantity});
@@ -103,13 +95,9 @@ abstract class _$$IngredientUsageImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$IngredientUsageImplCopyWithImpl<$Res>
-    extends _$IngredientUsageCopyWithImpl<$Res, _$IngredientUsageImpl>
+class __$$IngredientUsageImplCopyWithImpl<$Res> extends _$IngredientUsageCopyWithImpl<$Res, _$IngredientUsageImpl>
     implements _$$IngredientUsageImplCopyWith<$Res> {
-  __$$IngredientUsageImplCopyWithImpl(
-    _$IngredientUsageImpl _value,
-    $Res Function(_$IngredientUsageImpl) _then,
-  ) : super(_value, _then);
+  __$$IngredientUsageImplCopyWithImpl(_$IngredientUsageImpl _value, $Res Function(_$IngredientUsageImpl) _then) : super(_value, _then);
 
   /// Create a copy of IngredientUsage
   /// with the given fields replaced by the non-null parameter values.
@@ -133,16 +121,10 @@ class __$$IngredientUsageImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$IngredientUsageImpl
-    with DiagnosticableTreeMixin
-    implements _IngredientUsage {
-  const _$IngredientUsageImpl({
-    required this.ingredient,
-    required this.quantity,
-  });
+class _$IngredientUsageImpl with DiagnosticableTreeMixin implements _IngredientUsage {
+  const _$IngredientUsageImpl({required this.ingredient, required this.quantity});
 
-  factory _$IngredientUsageImpl.fromJson(Map<String, dynamic> json) =>
-      _$$IngredientUsageImplFromJson(json);
+  factory _$IngredientUsageImpl.fromJson(Map<String, dynamic> json) => _$$IngredientUsageImplFromJson(json);
 
   @override
   final String ingredient;
@@ -168,10 +150,8 @@ class _$IngredientUsageImpl
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$IngredientUsageImpl &&
-            (identical(other.ingredient, ingredient) ||
-                other.ingredient == ingredient) &&
-            (identical(other.quantity, quantity) ||
-                other.quantity == quantity));
+            (identical(other.ingredient, ingredient) || other.ingredient == ingredient) &&
+            (identical(other.quantity, quantity) || other.quantity == quantity));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -183,11 +163,7 @@ class _$IngredientUsageImpl
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith =>
-      __$$IngredientUsageImplCopyWithImpl<_$IngredientUsageImpl>(
-        this,
-        _$identity,
-      );
+  _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith => __$$IngredientUsageImplCopyWithImpl<_$IngredientUsageImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -196,13 +172,9 @@ class _$IngredientUsageImpl
 }
 
 abstract class _IngredientUsage implements IngredientUsage {
-  const factory _IngredientUsage({
-    required final String ingredient,
-    required final Quantity quantity,
-  }) = _$IngredientUsageImpl;
+  const factory _IngredientUsage({required final String ingredient, required final Quantity quantity}) = _$IngredientUsageImpl;
 
-  factory _IngredientUsage.fromJson(Map<String, dynamic> json) =
-      _$IngredientUsageImpl.fromJson;
+  factory _IngredientUsage.fromJson(Map<String, dynamic> json) = _$IngredientUsageImpl.fromJson;
 
   @override
   String get ingredient;
@@ -213,6 +185,5 @@ abstract class _IngredientUsage implements IngredientUsage {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$IngredientUsageImplCopyWith<_$IngredientUsageImpl> get copyWith => throw _privateConstructorUsedError;
 }

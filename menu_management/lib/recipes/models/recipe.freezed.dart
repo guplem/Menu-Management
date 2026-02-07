@@ -44,8 +44,7 @@ mixin _$Recipe {
 
 /// @nodoc
 abstract class $RecipeCopyWith<$Res> {
-  factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) then) =
-      _$RecipeCopyWithImpl<$Res, Recipe>;
+  factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) then) = _$RecipeCopyWithImpl<$Res, Recipe>;
   @useResult
   $Res call({
     String id,
@@ -63,8 +62,7 @@ abstract class $RecipeCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
-    implements $RecipeCopyWith<$Res> {
+class _$RecipeCopyWithImpl<$Res, $Val extends Recipe> implements $RecipeCopyWith<$Res> {
   _$RecipeCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -143,10 +141,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
 
 /// @nodoc
 abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
-  factory _$$RecipeImplCopyWith(
-    _$RecipeImpl value,
-    $Res Function(_$RecipeImpl) then,
-  ) = __$$RecipeImplCopyWithImpl<$Res>;
+  factory _$$RecipeImplCopyWith(_$RecipeImpl value, $Res Function(_$RecipeImpl) then) = __$$RecipeImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
@@ -165,13 +160,8 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$RecipeImplCopyWithImpl<$Res>
-    extends _$RecipeCopyWithImpl<$Res, _$RecipeImpl>
-    implements _$$RecipeImplCopyWith<$Res> {
-  __$$RecipeImplCopyWithImpl(
-    _$RecipeImpl _value,
-    $Res Function(_$RecipeImpl) _then,
-  ) : super(_value, _then);
+class __$$RecipeImplCopyWithImpl<$Res> extends _$RecipeCopyWithImpl<$Res, _$RecipeImpl> implements _$$RecipeImplCopyWith<$Res> {
+  __$$RecipeImplCopyWithImpl(_$RecipeImpl _value, $Res Function(_$RecipeImpl) _then) : super(_value, _then);
 
   /// Create a copy of Recipe
   /// with the given fields replaced by the non-null parameter values.
@@ -259,8 +249,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   }) : _instructions = instructions,
        super._();
 
-  factory _$RecipeImpl.fromJson(Map<String, dynamic> json) =>
-      _$$RecipeImplFromJson(json);
+  factory _$RecipeImpl.fromJson(Map<String, dynamic> json) => _$$RecipeImplFromJson(json);
 
   @override
   final String id;
@@ -320,9 +309,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('lunch', lunch))
       ..add(DiagnosticsProperty('dinner', dinner))
       ..add(DiagnosticsProperty('canBeStored', canBeStored))
-      ..add(
-        DiagnosticsProperty('includeInMenuGeneration', includeInMenuGeneration),
-      );
+      ..add(DiagnosticsProperty('includeInMenuGeneration', includeInMenuGeneration));
   }
 
   @override
@@ -332,25 +319,15 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
             other is _$RecipeImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
-            const DeepCollectionEquality().equals(
-              other._instructions,
-              _instructions,
-            ) &&
+            const DeepCollectionEquality().equals(other._instructions, _instructions) &&
             (identical(other.carbs, carbs) || other.carbs == carbs) &&
-            (identical(other.proteins, proteins) ||
-                other.proteins == proteins) &&
-            (identical(other.vegetables, vegetables) ||
-                other.vegetables == vegetables) &&
+            (identical(other.proteins, proteins) || other.proteins == proteins) &&
+            (identical(other.vegetables, vegetables) || other.vegetables == vegetables) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.lunch, lunch) || other.lunch == lunch) &&
             (identical(other.dinner, dinner) || other.dinner == dinner) &&
-            (identical(other.canBeStored, canBeStored) ||
-                other.canBeStored == canBeStored) &&
-            (identical(
-                  other.includeInMenuGeneration,
-                  includeInMenuGeneration,
-                ) ||
-                other.includeInMenuGeneration == includeInMenuGeneration));
+            (identical(other.canBeStored, canBeStored) || other.canBeStored == canBeStored) &&
+            (identical(other.includeInMenuGeneration, includeInMenuGeneration) || other.includeInMenuGeneration == includeInMenuGeneration));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -375,8 +352,7 @@ class _$RecipeImpl extends _Recipe with DiagnosticableTreeMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith =>
-      __$$RecipeImplCopyWithImpl<_$RecipeImpl>(this, _$identity);
+  _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith => __$$RecipeImplCopyWithImpl<_$RecipeImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -429,6 +405,5 @@ abstract class _Recipe extends Recipe {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$RecipeImplCopyWith<_$RecipeImpl> get copyWith => throw _privateConstructorUsedError;
 }

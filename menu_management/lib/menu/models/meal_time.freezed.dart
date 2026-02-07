@@ -31,21 +31,18 @@ mixin _$MealTime {
   /// Create a copy of MealTime
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $MealTimeCopyWith<MealTime> get copyWith =>
-      throw _privateConstructorUsedError;
+  $MealTimeCopyWith<MealTime> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $MealTimeCopyWith<$Res> {
-  factory $MealTimeCopyWith(MealTime value, $Res Function(MealTime) then) =
-      _$MealTimeCopyWithImpl<$Res, MealTime>;
+  factory $MealTimeCopyWith(MealTime value, $Res Function(MealTime) then) = _$MealTimeCopyWithImpl<$Res, MealTime>;
   @useResult
   $Res call({WeekDay weekDay, MealType mealType});
 }
 
 /// @nodoc
-class _$MealTimeCopyWithImpl<$Res, $Val extends MealTime>
-    implements $MealTimeCopyWith<$Res> {
+class _$MealTimeCopyWithImpl<$Res, $Val extends MealTime> implements $MealTimeCopyWith<$Res> {
   _$MealTimeCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -75,25 +72,16 @@ class _$MealTimeCopyWithImpl<$Res, $Val extends MealTime>
 }
 
 /// @nodoc
-abstract class _$$MealTimeImplCopyWith<$Res>
-    implements $MealTimeCopyWith<$Res> {
-  factory _$$MealTimeImplCopyWith(
-    _$MealTimeImpl value,
-    $Res Function(_$MealTimeImpl) then,
-  ) = __$$MealTimeImplCopyWithImpl<$Res>;
+abstract class _$$MealTimeImplCopyWith<$Res> implements $MealTimeCopyWith<$Res> {
+  factory _$$MealTimeImplCopyWith(_$MealTimeImpl value, $Res Function(_$MealTimeImpl) then) = __$$MealTimeImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({WeekDay weekDay, MealType mealType});
 }
 
 /// @nodoc
-class __$$MealTimeImplCopyWithImpl<$Res>
-    extends _$MealTimeCopyWithImpl<$Res, _$MealTimeImpl>
-    implements _$$MealTimeImplCopyWith<$Res> {
-  __$$MealTimeImplCopyWithImpl(
-    _$MealTimeImpl _value,
-    $Res Function(_$MealTimeImpl) _then,
-  ) : super(_value, _then);
+class __$$MealTimeImplCopyWithImpl<$Res> extends _$MealTimeCopyWithImpl<$Res, _$MealTimeImpl> implements _$$MealTimeImplCopyWith<$Res> {
+  __$$MealTimeImplCopyWithImpl(_$MealTimeImpl _value, $Res Function(_$MealTimeImpl) _then) : super(_value, _then);
 
   /// Create a copy of MealTime
   /// with the given fields replaced by the non-null parameter values.
@@ -118,11 +106,9 @@ class __$$MealTimeImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$MealTimeImpl extends _MealTime with DiagnosticableTreeMixin {
-  const _$MealTimeImpl({required this.weekDay, required this.mealType})
-    : super._();
+  const _$MealTimeImpl({required this.weekDay, required this.mealType}) : super._();
 
-  factory _$MealTimeImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MealTimeImplFromJson(json);
+  factory _$MealTimeImpl.fromJson(Map<String, dynamic> json) => _$$MealTimeImplFromJson(json);
 
   /// 0 = Saturday, 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday
   @override
@@ -150,8 +136,7 @@ class _$MealTimeImpl extends _MealTime with DiagnosticableTreeMixin {
         (other.runtimeType == runtimeType &&
             other is _$MealTimeImpl &&
             (identical(other.weekDay, weekDay) || other.weekDay == weekDay) &&
-            (identical(other.mealType, mealType) ||
-                other.mealType == mealType));
+            (identical(other.mealType, mealType) || other.mealType == mealType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -163,8 +148,7 @@ class _$MealTimeImpl extends _MealTime with DiagnosticableTreeMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MealTimeImplCopyWith<_$MealTimeImpl> get copyWith =>
-      __$$MealTimeImplCopyWithImpl<_$MealTimeImpl>(this, _$identity);
+  _$$MealTimeImplCopyWith<_$MealTimeImpl> get copyWith => __$$MealTimeImplCopyWithImpl<_$MealTimeImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -173,14 +157,10 @@ class _$MealTimeImpl extends _MealTime with DiagnosticableTreeMixin {
 }
 
 abstract class _MealTime extends MealTime {
-  const factory _MealTime({
-    required final WeekDay weekDay,
-    required final MealType mealType,
-  }) = _$MealTimeImpl;
+  const factory _MealTime({required final WeekDay weekDay, required final MealType mealType}) = _$MealTimeImpl;
   const _MealTime._() : super._();
 
-  factory _MealTime.fromJson(Map<String, dynamic> json) =
-      _$MealTimeImpl.fromJson;
+  factory _MealTime.fromJson(Map<String, dynamic> json) = _$MealTimeImpl.fromJson;
 
   /// 0 = Saturday, 1 = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday
   @override
@@ -192,6 +172,5 @@ abstract class _MealTime extends MealTime {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MealTimeImplCopyWith<_$MealTimeImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$MealTimeImplCopyWith<_$MealTimeImpl> get copyWith => throw _privateConstructorUsedError;
 }

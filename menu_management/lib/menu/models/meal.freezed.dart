@@ -35,8 +35,7 @@ mixin _$Meal {
 
 /// @nodoc
 abstract class $MealCopyWith<$Res> {
-  factory $MealCopyWith(Meal value, $Res Function(Meal) then) =
-      _$MealCopyWithImpl<$Res, Meal>;
+  factory $MealCopyWith(Meal value, $Res Function(Meal) then) = _$MealCopyWithImpl<$Res, Meal>;
   @useResult
   $Res call({Cooking? cooking, MealTime mealTime});
 
@@ -45,8 +44,7 @@ abstract class $MealCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$MealCopyWithImpl<$Res, $Val extends Meal>
-    implements $MealCopyWith<$Res> {
+class _$MealCopyWithImpl<$Res, $Val extends Meal> implements $MealCopyWith<$Res> {
   _$MealCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -101,10 +99,7 @@ class _$MealCopyWithImpl<$Res, $Val extends Meal>
 
 /// @nodoc
 abstract class _$$MealImplCopyWith<$Res> implements $MealCopyWith<$Res> {
-  factory _$$MealImplCopyWith(
-    _$MealImpl value,
-    $Res Function(_$MealImpl) then,
-  ) = __$$MealImplCopyWithImpl<$Res>;
+  factory _$$MealImplCopyWith(_$MealImpl value, $Res Function(_$MealImpl) then) = __$$MealImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({Cooking? cooking, MealTime mealTime});
@@ -116,11 +111,8 @@ abstract class _$$MealImplCopyWith<$Res> implements $MealCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$MealImplCopyWithImpl<$Res>
-    extends _$MealCopyWithImpl<$Res, _$MealImpl>
-    implements _$$MealImplCopyWith<$Res> {
-  __$$MealImplCopyWithImpl(_$MealImpl _value, $Res Function(_$MealImpl) _then)
-    : super(_value, _then);
+class __$$MealImplCopyWithImpl<$Res> extends _$MealCopyWithImpl<$Res, _$MealImpl> implements _$$MealImplCopyWith<$Res> {
+  __$$MealImplCopyWithImpl(_$MealImpl _value, $Res Function(_$MealImpl) _then) : super(_value, _then);
 
   /// Create a copy of Meal
   /// with the given fields replaced by the non-null parameter values.
@@ -147,8 +139,7 @@ class __$$MealImplCopyWithImpl<$Res>
 class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
   const _$MealImpl({required this.cooking, required this.mealTime}) : super._();
 
-  factory _$MealImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MealImplFromJson(json);
+  factory _$MealImpl.fromJson(Map<String, dynamic> json) => _$$MealImplFromJson(json);
 
   @override
   final Cooking? cooking;
@@ -175,8 +166,7 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
         (other.runtimeType == runtimeType &&
             other is _$MealImpl &&
             (identical(other.cooking, cooking) || other.cooking == cooking) &&
-            (identical(other.mealTime, mealTime) ||
-                other.mealTime == mealTime));
+            (identical(other.mealTime, mealTime) || other.mealTime == mealTime));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -188,8 +178,7 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MealImplCopyWith<_$MealImpl> get copyWith =>
-      __$$MealImplCopyWithImpl<_$MealImpl>(this, _$identity);
+  _$$MealImplCopyWith<_$MealImpl> get copyWith => __$$MealImplCopyWithImpl<_$MealImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -198,10 +187,7 @@ class _$MealImpl extends _Meal with DiagnosticableTreeMixin {
 }
 
 abstract class _Meal extends Meal {
-  const factory _Meal({
-    required final Cooking? cooking,
-    required final MealTime mealTime,
-  }) = _$MealImpl;
+  const factory _Meal({required final Cooking? cooking, required final MealTime mealTime}) = _$MealImpl;
   const _Meal._() : super._();
 
   factory _Meal.fromJson(Map<String, dynamic> json) = _$MealImpl.fromJson;
@@ -215,6 +201,5 @@ abstract class _Meal extends Meal {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MealImplCopyWith<_$MealImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$MealImplCopyWith<_$MealImpl> get copyWith => throw _privateConstructorUsedError;
 }

@@ -1,12 +1,7 @@
 import "package:flutter/material.dart";
 
 class FloatingButtonVisibility extends StatelessWidget {
-  const FloatingButtonVisibility({
-    super.key,
-    this.duration = kThemeAnimationDuration,
-    required this.visible,
-    required this.child,
-  });
+  const FloatingButtonVisibility({super.key, this.duration = kThemeAnimationDuration, required this.visible, required this.child});
 
   final Duration duration;
   final bool visible;
@@ -17,11 +12,7 @@ class FloatingButtonVisibility extends StatelessWidget {
     return AnimatedSlide(
       duration: duration,
       offset: visible ? Offset.zero : const Offset(0, 2),
-      child: AnimatedOpacity(
-        duration: duration,
-        opacity: visible ? 1 : 0,
-        child: child,
-      ),
+      child: AnimatedOpacity(duration: duration, opacity: visible ? 1 : 0, child: child),
     );
   }
 }

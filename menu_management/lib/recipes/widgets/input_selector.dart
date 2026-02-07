@@ -5,12 +5,7 @@ import "package:menu_management/recipes/recipes_provider.dart";
 import "package:uuid/uuid.dart";
 
 class InputSelector extends StatefulWidget {
-  const InputSelector({
-    super.key,
-    required this.onUpdate,
-    required this.instruction,
-    required this.recipeId,
-  });
+  const InputSelector({super.key, required this.onUpdate, required this.instruction, required this.recipeId});
 
   final Function(Instruction newInstruction) onUpdate;
   final Instruction? instruction;
@@ -31,9 +26,7 @@ class InputSelector extends StatefulWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
-            "Select an Output from another step as Input for this",
-          ),
+          title: const Text("Select an Output from another step as Input for this"),
           content: InputSelector(
             instruction: originalInstruction,
             onUpdate: (Instruction instruction) {
@@ -65,21 +58,9 @@ class _InputSelectorState extends State<InputSelector> {
   @override
   void initState() {
     super.initState();
-    newInstruction =
-        widget.instruction ??
-        Instruction(
-          id: const Uuid().v1(),
-          description: "",
-          ingredientsUsed: [],
-          outputs: [],
-        );
-    allPossibleInputs = RecipesProvider().getRecipeInputsAvailability(
-      recipeId: widget.recipeId,
-      forInstruction: newInstruction.id,
-    );
-    allPossibleInputs.addAll({
-      for (Result output in newInstruction.outputs) output: false,
-    });
+    newInstruction = widget.instruction ?? Instruction(id: const Uuid().v1(), description: "", ingredientsUsed: [], outputs: []);
+    allPossibleInputs = RecipesProvider().getRecipeInputsAvailability(recipeId: widget.recipeId, forInstruction: newInstruction.id);
+    allPossibleInputs.addAll({for (Result output in newInstruction.outputs) output: false});
   }
 
   void updateInstruction(Instruction instruction) {
@@ -96,25 +77,17 @@ class _InputSelectorState extends State<InputSelector> {
             CheckboxListTile(
               title: Text(possibleInput.description),
               isError: !(allPossibleInputs[possibleInput] ?? true),
-              enabled:
-                  newInstruction.inputs.contains(possibleInput.id) ||
-                  (allPossibleInputs[possibleInput] ?? false),
+              enabled: newInstruction.inputs.contains(possibleInput.id) || (allPossibleInputs[possibleInput] ?? false),
               value: newInstruction.inputs.contains(possibleInput.id),
               onChanged: (bool? value) {
                 if (value == null) return;
-                List<Result> instructionInputs = RecipesProvider().getResults(
-                  newInstruction.inputs,
-                );
+                List<Result> instructionInputs = RecipesProvider().getResults(newInstruction.inputs);
                 if (value) {
                   instructionInputs.add(possibleInput);
                 } else {
                   instructionInputs.remove(possibleInput);
                 }
-                updateInstruction(
-                  newInstruction.copyWith(
-                    inputs: instructionInputs.map((e) => e.id).toList(),
-                  ),
-                );
+                updateInstruction(newInstruction.copyWith(inputs: instructionInputs.map((e) => e.id).toList()));
               },
             ),
         ],

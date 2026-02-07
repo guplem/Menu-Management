@@ -30,23 +30,18 @@ mixin _$Ingredient {
   /// Create a copy of Ingredient
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $IngredientCopyWith<Ingredient> get copyWith =>
-      throw _privateConstructorUsedError;
+  $IngredientCopyWith<Ingredient> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $IngredientCopyWith<$Res> {
-  factory $IngredientCopyWith(
-    Ingredient value,
-    $Res Function(Ingredient) then,
-  ) = _$IngredientCopyWithImpl<$Res, Ingredient>;
+  factory $IngredientCopyWith(Ingredient value, $Res Function(Ingredient) then) = _$IngredientCopyWithImpl<$Res, Ingredient>;
   @useResult
   $Res call({String id, String name});
 }
 
 /// @nodoc
-class _$IngredientCopyWithImpl<$Res, $Val extends Ingredient>
-    implements $IngredientCopyWith<$Res> {
+class _$IngredientCopyWithImpl<$Res, $Val extends Ingredient> implements $IngredientCopyWith<$Res> {
   _$IngredientCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -76,25 +71,16 @@ class _$IngredientCopyWithImpl<$Res, $Val extends Ingredient>
 }
 
 /// @nodoc
-abstract class _$$IngredientImplCopyWith<$Res>
-    implements $IngredientCopyWith<$Res> {
-  factory _$$IngredientImplCopyWith(
-    _$IngredientImpl value,
-    $Res Function(_$IngredientImpl) then,
-  ) = __$$IngredientImplCopyWithImpl<$Res>;
+abstract class _$$IngredientImplCopyWith<$Res> implements $IngredientCopyWith<$Res> {
+  factory _$$IngredientImplCopyWith(_$IngredientImpl value, $Res Function(_$IngredientImpl) then) = __$$IngredientImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, String name});
 }
 
 /// @nodoc
-class __$$IngredientImplCopyWithImpl<$Res>
-    extends _$IngredientCopyWithImpl<$Res, _$IngredientImpl>
-    implements _$$IngredientImplCopyWith<$Res> {
-  __$$IngredientImplCopyWithImpl(
-    _$IngredientImpl _value,
-    $Res Function(_$IngredientImpl) _then,
-  ) : super(_value, _then);
+class __$$IngredientImplCopyWithImpl<$Res> extends _$IngredientCopyWithImpl<$Res, _$IngredientImpl> implements _$$IngredientImplCopyWith<$Res> {
+  __$$IngredientImplCopyWithImpl(_$IngredientImpl _value, $Res Function(_$IngredientImpl) _then) : super(_value, _then);
 
   /// Create a copy of Ingredient
   /// with the given fields replaced by the non-null parameter values.
@@ -121,8 +107,7 @@ class __$$IngredientImplCopyWithImpl<$Res>
 class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
   const _$IngredientImpl({required this.id, required this.name});
 
-  factory _$IngredientImpl.fromJson(Map<String, dynamic> json) =>
-      _$$IngredientImplFromJson(json);
+  factory _$IngredientImpl.fromJson(Map<String, dynamic> json) => _$$IngredientImplFromJson(json);
 
   @override
   final String id;
@@ -161,8 +146,7 @@ class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$IngredientImplCopyWith<_$IngredientImpl> get copyWith =>
-      __$$IngredientImplCopyWithImpl<_$IngredientImpl>(this, _$identity);
+  _$$IngredientImplCopyWith<_$IngredientImpl> get copyWith => __$$IngredientImplCopyWithImpl<_$IngredientImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -171,13 +155,9 @@ class _$IngredientImpl with DiagnosticableTreeMixin implements _Ingredient {
 }
 
 abstract class _Ingredient implements Ingredient {
-  const factory _Ingredient({
-    required final String id,
-    required final String name,
-  }) = _$IngredientImpl;
+  const factory _Ingredient({required final String id, required final String name}) = _$IngredientImpl;
 
-  factory _Ingredient.fromJson(Map<String, dynamic> json) =
-      _$IngredientImpl.fromJson;
+  factory _Ingredient.fromJson(Map<String, dynamic> json) = _$IngredientImpl.fromJson;
 
   @override
   String get id;
@@ -188,6 +168,5 @@ abstract class _Ingredient implements Ingredient {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$IngredientImplCopyWith<_$IngredientImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$IngredientImplCopyWith<_$IngredientImpl> get copyWith => throw _privateConstructorUsedError;
 }

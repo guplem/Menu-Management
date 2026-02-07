@@ -22,10 +22,7 @@ class MenuProvider extends ChangeNotifier {
   final List<MenuConfiguration> _configurations = [
     // SATURDAY
     const MenuConfiguration(
-      mealTime: MealTime(
-        weekDay: WeekDay.saturday,
-        mealType: MealType.breakfast,
-      ),
+      mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.breakfast),
       availableCookingTimeMinutes: 60,
       requiresMeal: true,
     ),
@@ -73,10 +70,7 @@ class MenuProvider extends ChangeNotifier {
     ),
     // TUESDAY
     const MenuConfiguration(
-      mealTime: MealTime(
-        weekDay: WeekDay.tuesday,
-        mealType: MealType.breakfast,
-      ),
+      mealTime: MealTime(weekDay: WeekDay.tuesday, mealType: MealType.breakfast),
       availableCookingTimeMinutes: 60,
       requiresMeal: true,
     ),
@@ -92,10 +86,7 @@ class MenuProvider extends ChangeNotifier {
     ),
     // WEDNESDAY
     const MenuConfiguration(
-      mealTime: MealTime(
-        weekDay: WeekDay.wednesday,
-        mealType: MealType.breakfast,
-      ),
+      mealTime: MealTime(weekDay: WeekDay.wednesday, mealType: MealType.breakfast),
       availableCookingTimeMinutes: 60,
       requiresMeal: true,
     ),
@@ -111,10 +102,7 @@ class MenuProvider extends ChangeNotifier {
     ),
     // THURSDAY
     const MenuConfiguration(
-      mealTime: MealTime(
-        weekDay: WeekDay.thursday,
-        mealType: MealType.breakfast,
-      ),
+      mealTime: MealTime(weekDay: WeekDay.thursday, mealType: MealType.breakfast),
       availableCookingTimeMinutes: 60,
       requiresMeal: true,
     ),
@@ -148,20 +136,11 @@ class MenuProvider extends ChangeNotifier {
 
   List<MenuConfiguration> get configurations => _configurations;
 
-  static MenuConfiguration listenableOf(
-    BuildContext context, {
-    required WeekDay weekDay,
-    required MealType mealType,
-  }) => getProvider<MenuProvider>(
-    context,
-    listen: true,
-  ).get(mealType: mealType, weekDay: weekDay);
+  static MenuConfiguration listenableOf(BuildContext context, {required WeekDay weekDay, required MealType mealType}) =>
+      getProvider<MenuProvider>(context, listen: true).get(mealType: mealType, weekDay: weekDay);
 
   MenuConfiguration getConfigurationForMeal(MealTime mealTime) {
-    return configurations.firstWhere(
-      (MenuConfiguration configuration) =>
-          configuration.mealTime.isSameTime(mealTime),
-    );
+    return configurations.firstWhere((MenuConfiguration configuration) => configuration.mealTime.isSameTime(mealTime));
   }
 
   void setData(List<MenuConfiguration> recipes) {
@@ -170,29 +149,21 @@ class MenuProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  MenuConfiguration get({
-    required WeekDay weekDay,
-    required MealType mealType,
-  }) {
+  MenuConfiguration get({required WeekDay weekDay, required MealType mealType}) {
     return configurations.firstWhere((element) {
-      return element.mealTime.weekDay == weekDay &&
-          element.mealTime.mealType == mealType;
+      return element.mealTime.weekDay == weekDay && element.mealTime.mealType == mealType;
     });
   }
 
   static void update({required MenuConfiguration newConfiguration}) {
     final int index = instance.configurations.indexWhere(
-      (element) =>
-          element.mealTime.weekDay == newConfiguration.mealTime.weekDay &&
-          element.mealTime.mealType == newConfiguration.mealTime.mealType,
+      (element) => element.mealTime.weekDay == newConfiguration.mealTime.weekDay && element.mealTime.mealType == newConfiguration.mealTime.mealType,
     );
     if (index >= 0) {
       instance.configurations[index] = newConfiguration;
       instance.notifyListeners();
     } else {
-      Debug.logError(
-        "No configuration found for ${newConfiguration.mealTime.weekDay} ${newConfiguration.mealTime.mealType}",
-      );
+      Debug.logError("No configuration found for ${newConfiguration.mealTime.weekDay} ${newConfiguration.mealTime.mealType}");
     }
   }
 

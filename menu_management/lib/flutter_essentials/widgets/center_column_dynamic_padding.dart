@@ -6,26 +6,17 @@ class SmartPaddingCenterColumn extends StatelessWidget {
   final int elevation;
   final bool padding;
 
-  const SmartPaddingCenterColumn({
-    this.elevation = 0,
-    super.key,
-    this.child,
-    this.padding = true,
-  });
+  const SmartPaddingCenterColumn({this.elevation = 0, super.key, this.child, this.padding = true});
 
   @override
   Widget build(BuildContext context) {
-    bool isVertical =
-        MediaQuery.of(context).orientation == Orientation.portrait;
+    bool isVertical = MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isVertical
             ? (padding ? ThemeCustom.spaceHorizontal : 0)
-            : (MediaQuery.of(context).size.width -
-                          MediaQuery.of(context).size.height) /
-                      1.7 +
-                  ThemeCustom.spaceHorizontal * elevation,
+            : (MediaQuery.of(context).size.width - MediaQuery.of(context).size.height) / 1.7 + ThemeCustom.spaceHorizontal * elevation,
       ),
       child: child,
     );

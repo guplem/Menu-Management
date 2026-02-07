@@ -18,8 +18,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
       appBar: AppBar(title: const Text("Ingredients")),
       body: Builder(
         builder: (context) {
-          IngredientsProvider ingredientsProvider =
-              getProvider<IngredientsProvider>(context, listen: true);
+          IngredientsProvider ingredientsProvider = getProvider<IngredientsProvider>(context, listen: true);
           return ListView.builder(
             itemCount: ingredientsProvider.ingredients.length + 1,
             itemBuilder: (context, index) {
@@ -34,8 +33,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    Ingredient toRemove =
-                        ingredientsProvider.ingredients[index];
+                    Ingredient toRemove = ingredientsProvider.ingredients[index];
                     IngredientsProvider.remove(ingredientId: toRemove.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -43,9 +41,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                         action: SnackBarAction(
                           label: "Undo",
                           onPressed: () {
-                            IngredientsProvider.addOrUpdate(
-                              newIngredient: toRemove,
-                            );
+                            IngredientsProvider.addOrUpdate(newIngredient: toRemove);
                           },
                         ),
                       ),

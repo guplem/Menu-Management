@@ -7,16 +7,12 @@ part of 'meal_time.dart';
 // **************************************************************************
 
 _$MealTimeImpl _$$MealTimeImplFromJson(Map<String, dynamic> json) =>
-    _$MealTimeImpl(
-      weekDay: $enumDecode(_$WeekDayEnumMap, json['weekDay']),
-      mealType: $enumDecode(_$MealTypeEnumMap, json['mealType']),
-    );
+    _$MealTimeImpl(weekDay: $enumDecode(_$WeekDayEnumMap, json['weekDay']), mealType: $enumDecode(_$MealTypeEnumMap, json['mealType']));
 
-Map<String, dynamic> _$$MealTimeImplToJson(_$MealTimeImpl instance) =>
-    <String, dynamic>{
-      'weekDay': _$WeekDayEnumMap[instance.weekDay]!,
-      'mealType': _$MealTypeEnumMap[instance.mealType]!,
-    };
+Map<String, dynamic> _$$MealTimeImplToJson(_$MealTimeImpl instance) => <String, dynamic>{
+  'weekDay': _$WeekDayEnumMap[instance.weekDay]!,
+  'mealType': _$MealTypeEnumMap[instance.mealType]!,
+};
 
 const _$WeekDayEnumMap = {
   WeekDay.saturday: 'saturday',
@@ -28,8 +24,4 @@ const _$WeekDayEnumMap = {
   WeekDay.friday: 'friday',
 };
 
-const _$MealTypeEnumMap = {
-  MealType.breakfast: 'breakfast',
-  MealType.lunch: 'lunch',
-  MealType.dinner: 'dinner',
-};
+const _$MealTypeEnumMap = {MealType.breakfast: 'breakfast', MealType.lunch: 'lunch', MealType.dinner: 'dinner'};

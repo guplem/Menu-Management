@@ -30,21 +30,18 @@ mixin _$Quantity {
   /// Create a copy of Quantity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $QuantityCopyWith<Quantity> get copyWith =>
-      throw _privateConstructorUsedError;
+  $QuantityCopyWith<Quantity> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $QuantityCopyWith<$Res> {
-  factory $QuantityCopyWith(Quantity value, $Res Function(Quantity) then) =
-      _$QuantityCopyWithImpl<$Res, Quantity>;
+  factory $QuantityCopyWith(Quantity value, $Res Function(Quantity) then) = _$QuantityCopyWithImpl<$Res, Quantity>;
   @useResult
   $Res call({double amount, Unit unit});
 }
 
 /// @nodoc
-class _$QuantityCopyWithImpl<$Res, $Val extends Quantity>
-    implements $QuantityCopyWith<$Res> {
+class _$QuantityCopyWithImpl<$Res, $Val extends Quantity> implements $QuantityCopyWith<$Res> {
   _$QuantityCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -74,25 +71,16 @@ class _$QuantityCopyWithImpl<$Res, $Val extends Quantity>
 }
 
 /// @nodoc
-abstract class _$$QuantityImplCopyWith<$Res>
-    implements $QuantityCopyWith<$Res> {
-  factory _$$QuantityImplCopyWith(
-    _$QuantityImpl value,
-    $Res Function(_$QuantityImpl) then,
-  ) = __$$QuantityImplCopyWithImpl<$Res>;
+abstract class _$$QuantityImplCopyWith<$Res> implements $QuantityCopyWith<$Res> {
+  factory _$$QuantityImplCopyWith(_$QuantityImpl value, $Res Function(_$QuantityImpl) then) = __$$QuantityImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({double amount, Unit unit});
 }
 
 /// @nodoc
-class __$$QuantityImplCopyWithImpl<$Res>
-    extends _$QuantityCopyWithImpl<$Res, _$QuantityImpl>
-    implements _$$QuantityImplCopyWith<$Res> {
-  __$$QuantityImplCopyWithImpl(
-    _$QuantityImpl _value,
-    $Res Function(_$QuantityImpl) _then,
-  ) : super(_value, _then);
+class __$$QuantityImplCopyWithImpl<$Res> extends _$QuantityCopyWithImpl<$Res, _$QuantityImpl> implements _$$QuantityImplCopyWith<$Res> {
+  __$$QuantityImplCopyWithImpl(_$QuantityImpl _value, $Res Function(_$QuantityImpl) _then) : super(_value, _then);
 
   /// Create a copy of Quantity
   /// with the given fields replaced by the non-null parameter values.
@@ -119,8 +107,7 @@ class __$$QuantityImplCopyWithImpl<$Res>
 class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
   const _$QuantityImpl({required this.amount, required this.unit});
 
-  factory _$QuantityImpl.fromJson(Map<String, dynamic> json) =>
-      _$$QuantityImplFromJson(json);
+  factory _$QuantityImpl.fromJson(Map<String, dynamic> json) => _$$QuantityImplFromJson(json);
 
   @override
   final double amount;
@@ -159,8 +146,7 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$QuantityImplCopyWith<_$QuantityImpl> get copyWith =>
-      __$$QuantityImplCopyWithImpl<_$QuantityImpl>(this, _$identity);
+  _$$QuantityImplCopyWith<_$QuantityImpl> get copyWith => __$$QuantityImplCopyWithImpl<_$QuantityImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -169,13 +155,9 @@ class _$QuantityImpl with DiagnosticableTreeMixin implements _Quantity {
 }
 
 abstract class _Quantity implements Quantity {
-  const factory _Quantity({
-    required final double amount,
-    required final Unit unit,
-  }) = _$QuantityImpl;
+  const factory _Quantity({required final double amount, required final Unit unit}) = _$QuantityImpl;
 
-  factory _Quantity.fromJson(Map<String, dynamic> json) =
-      _$QuantityImpl.fromJson;
+  factory _Quantity.fromJson(Map<String, dynamic> json) = _$QuantityImpl.fromJson;
 
   @override
   double get amount;
@@ -186,6 +168,5 @@ abstract class _Quantity implements Quantity {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$QuantityImplCopyWith<_$QuantityImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$QuantityImplCopyWith<_$QuantityImpl> get copyWith => throw _privateConstructorUsedError;
 }

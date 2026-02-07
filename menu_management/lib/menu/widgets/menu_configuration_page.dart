@@ -14,13 +14,12 @@ class MenuConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WidgetStateProperty<Icon?> switchIcon =
-        WidgetStateProperty.resolveWith<Icon?>((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const Icon(Icons.fastfood_rounded);
-          }
-          return const Icon(Icons.close);
-        });
+    final WidgetStateProperty<Icon?> switchIcon = WidgetStateProperty.resolveWith<Icon?>((states) {
+      if (states.contains(WidgetState.selected)) {
+        return const Icon(Icons.fastfood_rounded);
+      }
+      return const Icon(Icons.close);
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -32,11 +31,7 @@ class MenuConfigurationPage extends StatelessWidget {
             onPressed: () async {
               Menu? loadedMenu = await Persistency.loadMenu();
               if (loadedMenu != null && context.mounted) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MenuPage(menu: loadedMenu),
-                  ),
-                );
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(menu: loadedMenu)));
               }
             },
           ),
@@ -49,9 +44,7 @@ class MenuConfigurationPage extends StatelessWidget {
           // TODO: pass a random seed to generate a random menu
           Menu menu = MenuProvider.generateMenu(initialSeed: 1);
           // Navigate to MenuPage
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => MenuPage(menu: menu)));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(menu: menu)));
         },
       ),
       body: ListView.builder(
@@ -68,21 +61,15 @@ class MenuConfigurationPage extends StatelessWidget {
                   padding: const EdgeInsets.all(15),
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
-                    child: Text(
-                      WeekDay.fromValue(
-                            weekDayValue,
-                          ).name.capitalizeFirstLetter() ??
-                          "null",
-                    ),
+                    child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
                   ),
                 ),
                 ...List.generate(3, (mealTypeValue) {
-                  MenuConfiguration menuConfiguration =
-                      MenuProvider.listenableOf(
-                        context,
-                        weekDay: WeekDay.fromValue(weekDayValue),
-                        mealType: MealType.fromValue(mealTypeValue),
-                      );
+                  MenuConfiguration menuConfiguration = MenuProvider.listenableOf(
+                    context,
+                    weekDay: WeekDay.fromValue(weekDayValue),
+                    mealType: MealType.fromValue(mealTypeValue),
+                  );
 
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -91,27 +78,17 @@ class MenuConfigurationPage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           DefaultTextStyle(
-                            style: Theme.of(context).textTheme.titleMedium!
-                                .copyWith(
-                                  color: menuConfiguration.requiresMeal
-                                      ? null
-                                      : Theme.of(context).colorScheme.outline,
-                                ),
-                            child: Text(
-                              MealType.fromValue(
-                                    mealTypeValue,
-                                  ).name.capitalizeFirstLetter() ??
-                                  "null",
-                            ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium!.copyWith(color: menuConfiguration.requiresMeal ? null : Theme.of(context).colorScheme.outline),
+                            child: Text(MealType.fromValue(mealTypeValue).name.capitalizeFirstLetter() ?? "null"),
                           ),
                           const SizedBox(height: 5),
                           Switch(
                             thumbIcon: switchIcon,
                             value: menuConfiguration.requiresMeal,
                             onChanged: (requiredMeal) {
-                              menuConfiguration
-                                  .copyWith(requiresMeal: requiredMeal)
-                                  .saveToProvider();
+                              menuConfiguration.copyWith(requiresMeal: requiredMeal).saveToProvider();
                             },
                           ),
                           const SizedBox(height: 5),
@@ -121,37 +98,17 @@ class MenuConfigurationPage extends StatelessWidget {
                               enabled: menuConfiguration.requiresMeal,
                               controller: TextEditingController.fromValue(
                                 TextEditingValue(
-                                  text: menuConfiguration
-                                      .availableCookingTimeMinutes
-                                      .toString(),
-                                  selection: TextSelection.collapsed(
-                                    offset: menuConfiguration
-                                        .availableCookingTimeMinutes
-                                        .toString()
-                                        .length,
-                                  ),
+                                  text: menuConfiguration.availableCookingTimeMinutes.toString(),
+                                  selection: TextSelection.collapsed(offset: menuConfiguration.availableCookingTimeMinutes.toString().length),
                                 ),
                               ),
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: "Cooking time",
-                                suffixText: "min",
-                              ),
+                              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Cooking time", suffixText: "min"),
                               keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                               onChanged: (String cookingTimeInput) {
-                                int? cookingTimeMinutes = int.tryParse(
-                                  cookingTimeInput,
-                                );
+                                int? cookingTimeMinutes = int.tryParse(cookingTimeInput);
                                 if (cookingTimeMinutes != null) {
-                                  menuConfiguration
-                                      .copyWith(
-                                        availableCookingTimeMinutes:
-                                            cookingTimeMinutes,
-                                      )
-                                      .saveToProvider();
+                                  menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes).saveToProvider();
                                 }
                               },
                             ),

@@ -33,20 +33,14 @@ class CustomCard extends StatelessWidget {
       child: Card(
         color: color,
         elevation: elevation,
-        shape: RoundedRectangleBorder(
-          borderRadius: ThemeCustom.borderRadiusStandard,
-          side: borderSide ?? BorderSide.none,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: ThemeCustom.borderRadiusStandard, side: borderSide ?? BorderSide.none),
         child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,
           borderRadius: ThemeCustom.borderRadiusStandard,
           child: DefaultTextStyle.merge(
             style: TextStyle(color: textColor),
-            child: Padding(
-              padding: padding ?? ThemeCustom.paddingInnerCard,
-              child: child,
-            ),
+            child: Padding(padding: padding ?? ThemeCustom.paddingInnerCard, child: child),
           ),
         ),
       ),

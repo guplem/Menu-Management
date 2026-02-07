@@ -22,8 +22,7 @@ Instruction _$InstructionFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Instruction {
   String get id => throw _privateConstructorUsedError;
-  List<IngredientUsage> get ingredientsUsed =>
-      throw _privateConstructorUsedError;
+  List<IngredientUsage> get ingredientsUsed => throw _privateConstructorUsedError;
   int get workingTimeMinutes => throw _privateConstructorUsedError;
   int get cookingTimeMinutes => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
@@ -36,16 +35,12 @@ mixin _$Instruction {
   /// Create a copy of Instruction
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $InstructionCopyWith<Instruction> get copyWith =>
-      throw _privateConstructorUsedError;
+  $InstructionCopyWith<Instruction> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $InstructionCopyWith<$Res> {
-  factory $InstructionCopyWith(
-    Instruction value,
-    $Res Function(Instruction) then,
-  ) = _$InstructionCopyWithImpl<$Res, Instruction>;
+  factory $InstructionCopyWith(Instruction value, $Res Function(Instruction) then) = _$InstructionCopyWithImpl<$Res, Instruction>;
   @useResult
   $Res call({
     String id,
@@ -59,8 +54,7 @@ abstract class $InstructionCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
-    implements $InstructionCopyWith<$Res> {
+class _$InstructionCopyWithImpl<$Res, $Val extends Instruction> implements $InstructionCopyWith<$Res> {
   _$InstructionCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -118,12 +112,8 @@ class _$InstructionCopyWithImpl<$Res, $Val extends Instruction>
 }
 
 /// @nodoc
-abstract class _$$InstructionImplCopyWith<$Res>
-    implements $InstructionCopyWith<$Res> {
-  factory _$$InstructionImplCopyWith(
-    _$InstructionImpl value,
-    $Res Function(_$InstructionImpl) then,
-  ) = __$$InstructionImplCopyWithImpl<$Res>;
+abstract class _$$InstructionImplCopyWith<$Res> implements $InstructionCopyWith<$Res> {
+  factory _$$InstructionImplCopyWith(_$InstructionImpl value, $Res Function(_$InstructionImpl) then) = __$$InstructionImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
@@ -138,13 +128,8 @@ abstract class _$$InstructionImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$InstructionImplCopyWithImpl<$Res>
-    extends _$InstructionCopyWithImpl<$Res, _$InstructionImpl>
-    implements _$$InstructionImplCopyWith<$Res> {
-  __$$InstructionImplCopyWithImpl(
-    _$InstructionImpl _value,
-    $Res Function(_$InstructionImpl) _then,
-  ) : super(_value, _then);
+class __$$InstructionImplCopyWithImpl<$Res> extends _$InstructionCopyWithImpl<$Res, _$InstructionImpl> implements _$$InstructionImplCopyWith<$Res> {
+  __$$InstructionImplCopyWithImpl(_$InstructionImpl _value, $Res Function(_$InstructionImpl) _then) : super(_value, _then);
 
   /// Create a copy of Instruction
   /// with the given fields replaced by the non-null parameter values.
@@ -210,8 +195,7 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
        _inputs = inputs,
        super._();
 
-  factory _$InstructionImpl.fromJson(Map<String, dynamic> json) =>
-      _$$InstructionImplFromJson(json);
+  factory _$InstructionImpl.fromJson(Map<String, dynamic> json) => _$$InstructionImplFromJson(json);
 
   @override
   final String id;
@@ -275,16 +259,10 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
         (other.runtimeType == runtimeType &&
             other is _$InstructionImpl &&
             (identical(other.id, id) || other.id == id) &&
-            const DeepCollectionEquality().equals(
-              other._ingredientsUsed,
-              _ingredientsUsed,
-            ) &&
-            (identical(other.workingTimeMinutes, workingTimeMinutes) ||
-                other.workingTimeMinutes == workingTimeMinutes) &&
-            (identical(other.cookingTimeMinutes, cookingTimeMinutes) ||
-                other.cookingTimeMinutes == cookingTimeMinutes) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
+            const DeepCollectionEquality().equals(other._ingredientsUsed, _ingredientsUsed) &&
+            (identical(other.workingTimeMinutes, workingTimeMinutes) || other.workingTimeMinutes == workingTimeMinutes) &&
+            (identical(other.cookingTimeMinutes, cookingTimeMinutes) || other.cookingTimeMinutes == cookingTimeMinutes) &&
+            (identical(other.description, description) || other.description == description) &&
             const DeepCollectionEquality().equals(other._outputs, _outputs) &&
             const DeepCollectionEquality().equals(other._inputs, _inputs));
   }
@@ -307,8 +285,7 @@ class _$InstructionImpl extends _Instruction with DiagnosticableTreeMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
-      __$$InstructionImplCopyWithImpl<_$InstructionImpl>(this, _$identity);
+  _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith => __$$InstructionImplCopyWithImpl<_$InstructionImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -328,8 +305,7 @@ abstract class _Instruction extends Instruction {
   }) = _$InstructionImpl;
   const _Instruction._() : super._();
 
-  factory _Instruction.fromJson(Map<String, dynamic> json) =
-      _$InstructionImpl.fromJson;
+  factory _Instruction.fromJson(Map<String, dynamic> json) = _$InstructionImpl.fromJson;
 
   @override
   String get id;
@@ -350,6 +326,5 @@ abstract class _Instruction extends Instruction {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$InstructionImplCopyWith<_$InstructionImpl> get copyWith => throw _privateConstructorUsedError;
 }

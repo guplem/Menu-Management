@@ -31,19 +31,10 @@ class FilledCard extends StatelessWidget {
       padding: padding,
       color:
           color ??
-          ThemeCustom.colorScheme(
-            context,
-          ).secondaryContainer, // Material3 Specs are with surfaceVariant, but secondaryContainer looks better IMO
+          ThemeCustom.colorScheme(context).secondaryContainer, // Material3 Specs are with surfaceVariant, but secondaryContainer looks better IMO
       textColor:
-          textColor ??
-          ThemeCustom.colorScheme(
-            context,
-          ).onSecondaryContainer, // Material3 Specs are with onSurfaceVariant, but looks better IMO
-      borderSide: !outlined
-          ? null
-          : BorderSide(
-              color: borderColor ?? ThemeCustom.colorScheme(context).outline,
-            ),
+          textColor ?? ThemeCustom.colorScheme(context).onSecondaryContainer, // Material3 Specs are with onSurfaceVariant, but looks better IMO
+      borderSide: !outlined ? null : BorderSide(color: borderColor ?? ThemeCustom.colorScheme(context).outline),
       elevation: 0,
       child: child,
     );

@@ -5,19 +5,11 @@ import "package:menu_management/recipes/models/result.dart";
 import "package:uuid/uuid.dart";
 
 class OutputCreator extends StatefulWidget {
-  const OutputCreator({
-    super.key,
-    required this.onUpdate,
-    required this.instruction,
-  });
+  const OutputCreator({super.key, required this.onUpdate, required this.instruction});
   final Function(Instruction newInstruction) onUpdate;
   final Instruction instruction;
 
-  static void show({
-    required BuildContext context,
-    required Instruction instruction,
-    required Function(Instruction instruction) onUpdate,
-  }) {
+  static void show({required BuildContext context, required Instruction instruction, required Function(Instruction instruction) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -47,10 +39,7 @@ class _OutputCreatorState extends State<OutputCreator> {
       content: TextField(
         controller: outputController,
         maxLines: null,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: "Output",
-        ),
+        decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Output"),
         onChanged: (String value) => setState(() {}),
       ),
       actions: <Widget>[
@@ -59,15 +48,8 @@ class _OutputCreatorState extends State<OutputCreator> {
               ? null
               : () {
                   String txt = outputController.text;
-                  Result newOutput = Result(
-                    id: const Uuid().v1(),
-                    description: txt,
-                  );
-                  widget.onUpdate(
-                    widget.instruction.copyWith(
-                      outputs: [...widget.instruction.outputs, newOutput],
-                    ),
-                  );
+                  Result newOutput = Result(id: const Uuid().v1(), description: txt);
+                  widget.onUpdate(widget.instruction.copyWith(outputs: [...widget.instruction.outputs, newOutput]));
                   Navigator.of(context).pop();
                 },
           child: const Text("Add"),

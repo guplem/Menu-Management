@@ -5,12 +5,11 @@ import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
-
-import "package:menu_management/menu/models/menu.dart";
 
 class MenuGenerator {
   MenuGenerator({required this.baseSeed});
@@ -31,16 +30,9 @@ class MenuGenerator {
     menu = null;
 
     List<MenuConfiguration> breakfastConfigurations = configurations
-        .where(
-          (element) =>
-              element.requiresMeal &&
-              element.mealTime.mealType == MealType.breakfast,
-        )
+        .where((element) => element.requiresMeal && element.mealTime.mealType == MealType.breakfast)
         .toList();
-    Set<Recipe> breakfastsRecipes = RecipesProvider()
-        .getOfType(type: RecipeType.breakfast)
-        .shuffled(Random(seed))
-        .toSet();
+    Set<Recipe> breakfastsRecipes = RecipesProvider().getOfType(type: RecipeType.breakfast).shuffled(Random(seed)).toSet();
     Debug.logWarning(breakfastsRecipes.isEmpty, "No breakfasts found");
     Map<MealTime, Recipe?> breakfastRecipes = getRecipesFor(
       recipesToConsider: breakfastsRecipes,
@@ -48,39 +40,22 @@ class MenuGenerator {
     );
 
     List<MenuConfiguration> mealsConfigurations = configurations
-        .where(
-          (element) =>
-              element.requiresMeal &&
-              (element.mealTime.mealType == MealType.lunch ||
-                  element.mealTime.mealType == MealType.dinner),
-        )
+        .where((element) => element.requiresMeal && (element.mealTime.mealType == MealType.lunch || element.mealTime.mealType == MealType.dinner))
         .toList();
-    Set<Recipe> mealsRecipes = RecipesProvider()
-        .getOfType(type: RecipeType.meal)
-        .shuffled(Random(seed))
-        .toSet();
+    Set<Recipe> mealsRecipes = RecipesProvider().getOfType(type: RecipeType.meal).shuffled(Random(seed)).toSet();
     Debug.logWarning(mealsRecipes.isEmpty, "No meals found");
-    Map<MealTime, Recipe?> mealsRecipesMap = getRecipesFor(
-      recipesToConsider: mealsRecipes,
-      configurationsToFindRecipesFor: mealsConfigurations,
-    );
+    Map<MealTime, Recipe?> mealsRecipesMap = getRecipesFor(recipesToConsider: mealsRecipes, configurationsToFindRecipesFor: mealsConfigurations);
 
-    Map<MealTime, Recipe?> allSelected = {
-      ...breakfastRecipes,
-      ...mealsRecipesMap,
-    };
+    Map<MealTime, Recipe?> allSelected = {...breakfastRecipes, ...mealsRecipesMap};
 
-    List<Meal> meals = configurations
-        .where((element) => element.requiresMeal)
-        .map((config) {
-          Recipe? recipe = allSelected[config.mealTime];
+    List<Meal> meals = configurations.where((element) => element.requiresMeal).map((config) {
+      Recipe? recipe = allSelected[config.mealTime];
 
-          return Meal(
-            mealTime: config.mealTime,
-            cooking: recipe == null ? null : Cooking(recipe: recipe, yield: -1),
-          );
-        })
-        .toList();
+      return Meal(
+        mealTime: config.mealTime,
+        cooking: recipe == null ? null : Cooking(recipe: recipe, yield: -1),
+      );
+    }).toList();
 
     menu = Menu(meals: meals).copyWithUpdatedYields();
   }
@@ -126,22 +101,15 @@ class MenuGenerator {
     }
 
     // Prioritize the recipes that have been selected already (and can be stored)
-    List<Recipe> shuffledCandidates = candidates
-        .shuffled(Random(seed))
-        .toList();
-    List<Recipe> uniqueCandidatesAlreadySelected = alreadySelected
-        .shuffled(Random(seed))
-        .toSet()
-        .toList();
+    List<Recipe> shuffledCandidates = candidates.shuffled(Random(seed)).toList();
+    List<Recipe> uniqueCandidatesAlreadySelected = alreadySelected.shuffled(Random(seed)).toSet().toList();
     for (Recipe recipe in uniqueCandidatesAlreadySelected) {
       if (recipe.canBeStored && shuffledCandidates.contains(recipe)) {
         shuffledCandidates.remove(recipe);
         shuffledCandidates.insert(0, recipe);
       }
       // Prioritize those candidates that have not been selected too many times
-      int timesSelected = alreadySelected
-          .where((element) => element == recipe)
-          .length;
+      int timesSelected = alreadySelected.count((element) => element == recipe);
       if (timesSelected >= maxNumberOfTimesTheSameRecipeShouldBeUsed) {
         shuffledCandidates.remove(recipe);
         shuffledCandidates.add(recipe);
@@ -149,48 +117,21 @@ class MenuGenerator {
     }
 
     // Get the for each type of recipe
-    List<Recipe> carbsCandidates = shuffledCandidates
-        .where((element) => element.carbs)
-        .toList();
-    List<Recipe> proteinsCandidates = shuffledCandidates
-        .where((element) => element.proteins)
-        .toList();
-    List<Recipe> vegetablesCandidates = shuffledCandidates
-        .where((element) => element.vegetables)
-        .toList();
-    List<Recipe> otherCandidates = shuffledCandidates
-        .where(
-          (element) =>
-              !element.carbs && !element.proteins && !element.vegetables,
-        )
-        .toList();
+    List<Recipe> carbsCandidates = shuffledCandidates.where((element) => element.carbs).toList();
+    List<Recipe> proteinsCandidates = shuffledCandidates.where((element) => element.proteins).toList();
+    List<Recipe> vegetablesCandidates = shuffledCandidates.where((element) => element.vegetables).toList();
+    List<Recipe> otherCandidates = shuffledCandidates.where((element) => !element.carbs && !element.proteins && !element.vegetables).toList();
     Recipe? carbsRecipe = carbsCandidates.firstWhereOrNull(
-      (recipe) => recipe.fitsConfiguration(
-        configuration,
-        needToBeStored: needToBeStored,
-        strictMealTime: strictMealTime,
-      ),
+      (recipe) => recipe.fitsConfiguration(configuration, needToBeStored: needToBeStored, strictMealTime: strictMealTime),
     );
     Recipe? proteinsRecipe = proteinsCandidates.firstWhereOrNull(
-      (recipe) => recipe.fitsConfiguration(
-        configuration,
-        needToBeStored: needToBeStored,
-        strictMealTime: strictMealTime,
-      ),
+      (recipe) => recipe.fitsConfiguration(configuration, needToBeStored: needToBeStored, strictMealTime: strictMealTime),
     );
     Recipe? vegetablesRecipe = vegetablesCandidates.firstWhereOrNull(
-      (recipe) => recipe.fitsConfiguration(
-        configuration,
-        needToBeStored: needToBeStored,
-        strictMealTime: strictMealTime,
-      ),
+      (recipe) => recipe.fitsConfiguration(configuration, needToBeStored: needToBeStored, strictMealTime: strictMealTime),
     );
     Recipe? otherRecipe = otherCandidates.firstWhereOrNull(
-      (recipe) => recipe.fitsConfiguration(
-        configuration,
-        needToBeStored: needToBeStored,
-        strictMealTime: strictMealTime,
-      ),
+      (recipe) => recipe.fitsConfiguration(configuration, needToBeStored: needToBeStored, strictMealTime: strictMealTime),
     );
 
     // Get the recipes prioritizing the least selected ones
@@ -221,54 +162,27 @@ class MenuGenerator {
     required MenuConfiguration previousThan,
     required List<MenuConfiguration> possibleConfigurations,
   }) {
-    List<MenuConfiguration> sortedConfigurations = [
-      previousThan,
-      ...possibleConfigurations,
-    ].sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
+    List<MenuConfiguration> sortedConfigurations = [previousThan, ...possibleConfigurations].sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
     int previousThanIndex = sortedConfigurations.indexOf(previousThan);
     return sortedConfigurations.sublist(0, previousThanIndex);
   }
 
-  Map<MealTime, Recipe?> getRecipesFor({
-    required List<MenuConfiguration> configurationsToFindRecipesFor,
-    required Set<Recipe> recipesToConsider,
-  }) {
+  Map<MealTime, Recipe?> getRecipesFor({required List<MenuConfiguration> configurationsToFindRecipesFor, required Set<Recipe> recipesToConsider}) {
     Map<MealTime, Recipe?> result = {};
 
     configurationsToFindRecipesFor.shuffle(Random(seed));
-    int configurationsThatCanBeCookedAtTheSpot = configurationsToFindRecipesFor
-        .where((element) => element.canBeCookedAtTheSpot)
-        .length;
-    int configurationsThatCannotBeCookedAtTheSpot =
-        configurationsToFindRecipesFor
-            .where((element) => !element.canBeCookedAtTheSpot)
-            .length;
+    int configurationsThatCanBeCookedAtTheSpot = configurationsToFindRecipesFor.where((element) => element.canBeCookedAtTheSpot).length;
+    int configurationsThatCannotBeCookedAtTheSpot = configurationsToFindRecipesFor.where((element) => !element.canBeCookedAtTheSpot).length;
     int totalConfigurations = configurationsToFindRecipesFor.length;
-    double percentageOfConfigurationsThatCanBeCookedAtTheSpot =
-        configurationsThatCanBeCookedAtTheSpot / totalConfigurations;
-    int maxNumberOfTimesTheSameRecipeShouldBeUsed =
-        (totalConfigurations *
-                (percentageOfConfigurationsThatCanBeCookedAtTheSpot / 3.1))
-            .ceil();
-    List<Recipe> selectedRecipesWithRepetitions = result.values
-        .whereType<Recipe>()
-        .toList();
-    Debug.log(
-      "Number of selected reicpes with repetitions: ${selectedRecipesWithRepetitions.length}",
-    );
-    int numberOfTimesTheRecipeHasBeenUsed(Recipe recipe) =>
-        selectedRecipesWithRepetitions
-            .where((element) => element == recipe)
-            .length;
-    Recipe? recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast() =>
-        selectedRecipesWithRepetitions.isEmpty
+    double percentageOfConfigurationsThatCanBeCookedAtTheSpot = configurationsThatCanBeCookedAtTheSpot / totalConfigurations;
+    int maxNumberOfTimesTheSameRecipeShouldBeUsed = (totalConfigurations * (percentageOfConfigurationsThatCanBeCookedAtTheSpot / 3.1)).ceil();
+    List<Recipe> selectedRecipesWithRepetitions = result.values.whereType<Recipe>().toList();
+    Debug.log("Number of selected reicpes with repetitions: ${selectedRecipesWithRepetitions.length}");
+    int numberOfTimesTheRecipeHasBeenUsed(Recipe recipe) => selectedRecipesWithRepetitions.count((element) => element == recipe);
+    Recipe? recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast() => selectedRecipesWithRepetitions.isEmpty
         ? null
         : selectedRecipesWithRepetitions.reduce(
-            (value, element) =>
-                numberOfTimesTheRecipeHasBeenUsed(value) <
-                    numberOfTimesTheRecipeHasBeenUsed(element)
-                ? value
-                : element,
+            (value, element) => numberOfTimesTheRecipeHasBeenUsed(value) < numberOfTimesTheRecipeHasBeenUsed(element) ? value : element,
           );
 
     Debug.logDev(
@@ -283,17 +197,11 @@ class MenuGenerator {
     );
 
     // Sort by available cooking time
-    List<MenuConfiguration> configsByAvailableTime =
-        [...configurationsToFindRecipesFor]
-            .sorted(
-              (a, b) => a.availableCookingTimeMinutes.compareTo(
-                b.availableCookingTimeMinutes,
-              ),
-            )
-            .toList();
+    List<MenuConfiguration> configsByAvailableTime = [
+      ...configurationsToFindRecipesFor,
+    ].sorted((a, b) => a.availableCookingTimeMinutes.compareTo(b.availableCookingTimeMinutes)).toList();
     for (int i = 0; i < configsByAvailableTime.length; i++) {
-      MenuConfiguration configWithTheLeastAvailableTime =
-          configsByAvailableTime[i];
+      MenuConfiguration configWithTheLeastAvailableTime = configsByAvailableTime[i];
       Debug.logDev(
         "Looking for recipe for ${configWithTheLeastAvailableTime.mealTime} (${configWithTheLeastAvailableTime.availableCookingTimeMinutes} minutes available)",
       );
@@ -306,8 +214,7 @@ class MenuGenerator {
 
       // Get the recipe for the configuration with the least available cooking time
       Recipe? recipe = getValidRecipeForConfiguration(
-        maxNumberOfTimesTheSameRecipeShouldBeUsed:
-            maxNumberOfTimesTheSameRecipeShouldBeUsed,
+        maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed,
         strictMealTime: true,
         configuration: configWithTheLeastAvailableTime,
         candidates: recipesToConsider,
@@ -316,49 +223,37 @@ class MenuGenerator {
       );
       if (recipe != null) {
         // Valid recipe found. Set it for the configuration
-        Debug.logSuccess(
-          "Valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}",
-        );
+        Debug.logSuccess("Valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}");
         result[configWithTheLeastAvailableTime.mealTime] = recipe;
       } else {
-        Debug.log(
-          "No valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}",
-        );
+        Debug.log("No valid recipe found straight away for ${configWithTheLeastAvailableTime.mealTime}");
         // Valid recipe not found. Try to get the recipe for the nearest previous moment
-        List<MenuConfiguration> possibleMoments = [
-          ...configurationsToFindRecipesFor,
-        ].sublist(i);
+        List<MenuConfiguration> possibleMoments = [...configurationsToFindRecipesFor].sublist(i);
 
         // Remove those that can not cook at the spot
         possibleMoments.removeWhere((element) => !element.canBeCookedAtTheSpot);
 
         // List all the configuration that are form moments previous than the current one
-        List<MenuConfiguration> previousMomentConfigurations =
-            getPreviousMomentConfigurations(
-              previousThan: configWithTheLeastAvailableTime,
-              possibleConfigurations: configurationsToFindRecipesFor,
-            );
+        List<MenuConfiguration> previousMomentConfigurations = getPreviousMomentConfigurations(
+          previousThan: configWithTheLeastAvailableTime,
+          possibleConfigurations: configurationsToFindRecipesFor,
+        );
 
         // Filter out the configurations that have already been set
-        possibleMoments.removeWhere(
-          (MenuConfiguration config) => result.containsKey(config.mealTime),
-        );
+        possibleMoments.removeWhere((MenuConfiguration config) => result.containsKey(config.mealTime));
 
         Debug.logUpdate(
           "Looking for recipe in other (previous) moments... ${previousMomentConfigurations.length} previous moments available: ${previousMomentConfigurations.map((e) => e.mealTime).join(", ")}",
         );
 
         // Check if all the previous moments have already been set
-        List<MenuConfiguration> previousMomentsWithAlreadySelectedMeal =
-            previousMomentConfigurations
-                .where((element) => result.containsKey(element.mealTime))
-                .toList();
-        if (previousMomentsWithAlreadySelectedMeal.length >=
-            previousMomentConfigurations.length) {
+        List<MenuConfiguration> previousMomentsWithAlreadySelectedMeal = previousMomentConfigurations
+            .where((element) => result.containsKey(element.mealTime))
+            .toList();
+        if (previousMomentsWithAlreadySelectedMeal.length >= previousMomentConfigurations.length) {
           Debug.logUpdate("All the previous moments have already been set");
           // All the previous moments have already been set.
-          Recipe? recipe =
-              recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast();
+          Recipe? recipe = recipeFromTheSelectedOnesThatHasBeenSelectedTheLeast();
           if (recipe != null) {
             result[configWithTheLeastAvailableTime.mealTime] = recipe;
           } else {
@@ -368,24 +263,18 @@ class MenuGenerator {
           // There are previous moments that have not been set yet.
           Debug.log("There are previous moments that have not been set yet");
           // Remove the previous moments that have already been set
-          previousMomentConfigurations.removeWhere(
-            (MenuConfiguration config) => result.containsKey(config.mealTime),
-          );
+          previousMomentConfigurations.removeWhere((MenuConfiguration config) => result.containsKey(config.mealTime));
           Debug.log(
             "Previous moments that have not been set yet (${previousMomentConfigurations.length}): ${previousMomentConfigurations.map((e) => e.mealTime).join(", ")}",
           );
 
           while (previousMomentConfigurations.isNotEmpty) {
             // Select the previous moment configuration, being the one that is further away from the current moment (as early as possible)
-            MenuConfiguration selectedPreviousMomentConfiguration =
-                previousMomentConfigurations.first;
-            Debug.log(
-              "Checking if it is possible to cook in ${selectedPreviousMomentConfiguration.mealTime}",
-            );
+            MenuConfiguration selectedPreviousMomentConfiguration = previousMomentConfigurations.first;
+            Debug.log("Checking if it is possible to cook in ${selectedPreviousMomentConfiguration.mealTime}");
             // There is a previous moment. Try to get the recipe for it
             recipe = getValidRecipeForConfiguration(
-              maxNumberOfTimesTheSameRecipeShouldBeUsed:
-                  maxNumberOfTimesTheSameRecipeShouldBeUsed,
+              maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed,
               strictMealTime: false,
               configuration: selectedPreviousMomentConfiguration,
               candidates: recipesToConsider,
@@ -393,17 +282,11 @@ class MenuGenerator {
               alreadySelected: result.values.whereType<Recipe>().toList(),
             );
             if (recipe == null) {
-              Debug.logUpdate(
-                "It is not possible to cook in ${selectedPreviousMomentConfiguration.mealTime}",
-              );
+              Debug.logUpdate("It is not possible to cook in ${selectedPreviousMomentConfiguration.mealTime}");
               // Valid recipe not found for the previous moment. Remove the previous moment from the possible moments
-              previousMomentConfigurations.remove(
-                selectedPreviousMomentConfiguration,
-              );
+              previousMomentConfigurations.remove(selectedPreviousMomentConfiguration);
             } else {
-              Debug.logSuccess(
-                "Valid recipe found for ${selectedPreviousMomentConfiguration.mealTime}",
-              );
+              Debug.logSuccess("Valid recipe found for ${selectedPreviousMomentConfiguration.mealTime}");
               // Valid recipe found for the previous moment.
               if (!result.values.contains(recipe)) {
                 // The recipe has not been selected yet. Set it for the configuration, otherwise, keep the one that has already been selected
@@ -431,16 +314,12 @@ class MenuGenerator {
     }
     // For each of the configurations that have not been set, try to get a recipe from the previous moments
     for (MenuConfiguration configuration in configurationsThatHaveNotBeenSet) {
-      Debug.log(
-        "Trying to fill the gap for ${configuration.mealTime}",
-        signature: "🔎",
-      );
+      Debug.log("Trying to fill the gap for ${configuration.mealTime}", signature: "🔎");
       // Get the previous moments from the configurations that have already been set
-      List<MenuConfiguration> previousMealTimes =
-          getPreviousMomentConfigurations(
-            previousThan: configuration,
-            possibleConfigurations: configurationsThatHaveBeenSet.toList(),
-          );
+      List<MenuConfiguration> previousMealTimes = getPreviousMomentConfigurations(
+        previousThan: configuration,
+        possibleConfigurations: configurationsThatHaveBeenSet.toList(),
+      );
       if (previousMealTimes.isNotEmpty) {
         // Get the recipes that have already been selected for the previous moments to consider them as candidates for the current configuration (missing a recipe)
         Set<Recipe> recipesToConsider = {};
@@ -453,12 +332,9 @@ class MenuGenerator {
         // Get a valid recipe for the configuration from the previous moments
         if (recipesToConsider.isNotEmpty) {
           Recipe? recipe = getValidRecipeForConfiguration(
-            maxNumberOfTimesTheSameRecipeShouldBeUsed:
-                maxNumberOfTimesTheSameRecipeShouldBeUsed,
+            maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed,
             strictMealTime: false,
-            configuration: configuration.copyWith(
-              availableCookingTimeMinutes: 24 * 60,
-            ),
+            configuration: configuration.copyWith(availableCookingTimeMinutes: 24 * 60),
             candidates: recipesToConsider,
             needToBeStored: true,
             alreadySelected: result.values.whereType<Recipe>().toList(),
@@ -479,16 +355,10 @@ class MenuGenerator {
             );
           }
         } else {
-          Debug.log(
-            "No recipes to consider for ${configuration.mealTime}",
-            signature: "🦢",
-          );
+          Debug.log("No recipes to consider for ${configuration.mealTime}", signature: "🦢");
         }
       } else {
-        Debug.log(
-          "No previous moments found for ${configuration.mealTime}",
-          signature: "🫗",
-        );
+        Debug.log("No previous moments found for ${configuration.mealTime}", signature: "🫗");
       }
     }
 

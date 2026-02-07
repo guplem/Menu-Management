@@ -37,8 +37,7 @@ mixin _$Cooking {
 
 /// @nodoc
 abstract class $CookingCopyWith<$Res> {
-  factory $CookingCopyWith(Cooking value, $Res Function(Cooking) then) =
-      _$CookingCopyWithImpl<$Res, Cooking>;
+  factory $CookingCopyWith(Cooking value, $Res Function(Cooking) then) = _$CookingCopyWithImpl<$Res, Cooking>;
   @useResult
   $Res call({Recipe recipe, int yield});
 
@@ -46,8 +45,7 @@ abstract class $CookingCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$CookingCopyWithImpl<$Res, $Val extends Cooking>
-    implements $CookingCopyWith<$Res> {
+class _$CookingCopyWithImpl<$Res, $Val extends Cooking> implements $CookingCopyWith<$Res> {
   _$CookingCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -88,10 +86,7 @@ class _$CookingCopyWithImpl<$Res, $Val extends Cooking>
 
 /// @nodoc
 abstract class _$$CookingImplCopyWith<$Res> implements $CookingCopyWith<$Res> {
-  factory _$$CookingImplCopyWith(
-    _$CookingImpl value,
-    $Res Function(_$CookingImpl) then,
-  ) = __$$CookingImplCopyWithImpl<$Res>;
+  factory _$$CookingImplCopyWith(_$CookingImpl value, $Res Function(_$CookingImpl) then) = __$$CookingImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({Recipe recipe, int yield});
@@ -101,13 +96,8 @@ abstract class _$$CookingImplCopyWith<$Res> implements $CookingCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$CookingImplCopyWithImpl<$Res>
-    extends _$CookingCopyWithImpl<$Res, _$CookingImpl>
-    implements _$$CookingImplCopyWith<$Res> {
-  __$$CookingImplCopyWithImpl(
-    _$CookingImpl _value,
-    $Res Function(_$CookingImpl) _then,
-  ) : super(_value, _then);
+class __$$CookingImplCopyWithImpl<$Res> extends _$CookingCopyWithImpl<$Res, _$CookingImpl> implements _$$CookingImplCopyWith<$Res> {
+  __$$CookingImplCopyWithImpl(_$CookingImpl _value, $Res Function(_$CookingImpl) _then) : super(_value, _then);
 
   /// Create a copy of Cooking
   /// with the given fields replaced by the non-null parameter values.
@@ -134,8 +124,7 @@ class __$$CookingImplCopyWithImpl<$Res>
 class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
   const _$CookingImpl({required this.recipe, required this.yield});
 
-  factory _$CookingImpl.fromJson(Map<String, dynamic> json) =>
-      _$$CookingImplFromJson(json);
+  factory _$CookingImpl.fromJson(Map<String, dynamic> json) => _$$CookingImplFromJson(json);
 
   @override
   final Recipe recipe;
@@ -176,8 +165,7 @@ class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$CookingImplCopyWith<_$CookingImpl> get copyWith =>
-      __$$CookingImplCopyWithImpl<_$CookingImpl>(this, _$identity);
+  _$$CookingImplCopyWith<_$CookingImpl> get copyWith => __$$CookingImplCopyWithImpl<_$CookingImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -186,10 +174,7 @@ class _$CookingImpl with DiagnosticableTreeMixin implements _Cooking {
 }
 
 abstract class _Cooking implements Cooking {
-  const factory _Cooking({
-    required final Recipe recipe,
-    required final int yield,
-  }) = _$CookingImpl;
+  const factory _Cooking({required final Recipe recipe, required final int yield}) = _$CookingImpl;
 
   factory _Cooking.fromJson(Map<String, dynamic> json) = _$CookingImpl.fromJson;
 
@@ -204,6 +189,5 @@ abstract class _Cooking implements Cooking {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CookingImplCopyWith<_$CookingImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$CookingImplCopyWith<_$CookingImpl> get copyWith => throw _privateConstructorUsedError;
 }

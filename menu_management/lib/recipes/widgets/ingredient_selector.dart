@@ -9,11 +9,7 @@ import "package:menu_management/recipes/widgets/ingredient_quantity.dart";
 import "package:uuid/uuid.dart";
 
 class IngredientSelector extends StatefulWidget {
-  const IngredientSelector({
-    super.key,
-    required this.onUpdate,
-    required this.instruction,
-  });
+  const IngredientSelector({super.key, required this.onUpdate, required this.instruction});
 
   final Function(Instruction newInstruction) onUpdate;
   final Instruction instruction;
@@ -81,58 +77,46 @@ class _IngredientSelectorState extends State<IngredientSelector> {
           SearchAnchor.bar(
             viewConstraints: const BoxConstraints(minHeight: 50),
             barHintText: "Search Ingredients",
-            suggestionsBuilder:
-                (BuildContext context, SearchController controller) {
-                  // return [SizedBox.shrink()]; // Not even with this, the suggestions take the whole height
-                  if (controller.text.isEmpty) {
-                    if (IngredientsProvider.instance.searchHistory.isNotEmpty) {
-                      return getHistoryList(controller);
-                    }
-                    return <Widget>[
-                      const Center(child: Text("No search history.")),
-                    ];
-                  }
-                  Iterable<Widget> suggestions = getSuggestions(controller);
+            suggestionsBuilder: (BuildContext context, SearchController controller) {
+              // return [SizedBox.shrink()]; // Not even with this, the suggestions take the whole height
+              if (controller.text.isEmpty) {
+                if (IngredientsProvider.instance.searchHistory.isNotEmpty) {
+                  return getHistoryList(controller);
+                }
+                return <Widget>[const Center(child: Text("No search history."))];
+              }
+              Iterable<Widget> suggestions = getSuggestions(controller);
 
-                  if (suggestions.isEmpty || controller.text.length > 1) {
-                    bool showCreateEnabled = IngredientsProvider.instance
-                        .isValidNewIngredient(controller.text);
-                    return <Widget>[
-                      const SizedBox(height: 15),
-                      const Center(child: Text("No results.")),
-                      const SizedBox(height: 15),
-                      Center(
-                        child: OutlinedButton.icon(
-                          onPressed: !showCreateEnabled
-                              ? null
-                              : () {
-                                  // Create a new ingredient
-                                  final Ingredient newIngredient = Ingredient(
-                                    name: controller.text,
-                                    id: const Uuid().v1(),
-                                  );
-                                  IngredientsProvider.addOrUpdate(
-                                    newIngredient: newIngredient,
-                                  );
-                                  // Add the ingredient to the list
-                                  selectIngredient(
-                                    controller: controller,
-                                    ingredient: newIngredient,
-                                  );
-                                },
-                          label: const Text("Create new ingredient"),
-                          icon: const Icon(Icons.add_circle_rounded),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      const Divider(),
-                      ...suggestions,
-                      ...getHistoryList(controller),
-                    ];
-                  }
+              if (suggestions.isEmpty || controller.text.length > 1) {
+                bool showCreateEnabled = IngredientsProvider.instance.isValidNewIngredient(controller.text);
+                return <Widget>[
+                  const SizedBox(height: 15),
+                  const Center(child: Text("No results.")),
+                  const SizedBox(height: 15),
+                  Center(
+                    child: OutlinedButton.icon(
+                      onPressed: !showCreateEnabled
+                          ? null
+                          : () {
+                              // Create a new ingredient
+                              final Ingredient newIngredient = Ingredient(name: controller.text, id: const Uuid().v1());
+                              IngredientsProvider.addOrUpdate(newIngredient: newIngredient);
+                              // Add the ingredient to the list
+                              selectIngredient(controller: controller, ingredient: newIngredient);
+                            },
+                      label: const Text("Create new ingredient"),
+                      icon: const Icon(Icons.add_circle_rounded),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  const Divider(),
+                  ...suggestions,
+                  ...getHistoryList(controller),
+                ];
+              }
 
-                  return suggestions.toList();
-                },
+              return suggestions.toList();
+            },
           ),
           const SizedBox(height: 15),
           ...newInstruction.ingredientsUsed.map(
@@ -145,9 +129,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                   if (newUsage != null) {
                     // Update the ingredient
                     updatedInstruction = newInstruction.copyWith(
-                      ingredientsUsed: newInstruction.ingredientsUsed.map((
-                        IngredientUsage ing,
-                      ) {
+                      ingredientsUsed: newInstruction.ingredientsUsed.map((IngredientUsage ing) {
                         if (ing.ingredient == ingredientUsage.ingredient) {
                           return newUsage;
                         }
@@ -158,10 +140,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                     // Remove the ingredient
                     updatedInstruction = newInstruction.copyWith(
                       ingredientsUsed: newInstruction.ingredientsUsed
-                          .where(
-                            (IngredientUsage ing) =>
-                                ing.ingredient != ingredientUsage.ingredient,
-                          )
+                          .where((IngredientUsage ing) => ing.ingredient != ingredientUsage.ingredient)
                           .toList(),
                     );
                   }
@@ -181,38 +160,19 @@ class _IngredientSelectorState extends State<IngredientSelector> {
     List<Ingredient> ingredients = IngredientsProvider.instance.ingredients;
 
     return ingredients
-        .where(
-          (Ingredient ingredient) =>
-              ingredient.name.toLowerCase().contains(input),
-        )
-        .map(
-          (Ingredient ingredient) => IngredientSuggestion(
-            ingredient: ingredient,
-            controller: controller,
-            isHistory: false,
-          ),
-        );
+        .where((Ingredient ingredient) => ingredient.name.toLowerCase().contains(input))
+        .map((Ingredient ingredient) => IngredientSuggestion(ingredient: ingredient, controller: controller, isHistory: false));
   }
 
   Iterable<Widget> getHistoryList(SearchController controller) {
     return IngredientsProvider.instance.searchHistory.map(
-      (Ingredient ingredient) => IngredientSuggestion(
-        ingredient: ingredient,
-        controller: controller,
-        isHistory: true,
-      ),
+      (Ingredient ingredient) => IngredientSuggestion(ingredient: ingredient, controller: controller, isHistory: true),
     );
   }
 
   // ignore: non_constant_identifier_names
-  Widget IngredientSuggestion({
-    required Ingredient ingredient,
-    required SearchController controller,
-    required bool isHistory,
-  }) {
-    bool alreadyUsed = newInstruction.ingredientsUsed.any(
-      (IngredientUsage ing) => ing.ingredient == ingredient.id,
-    );
+  Widget IngredientSuggestion({required Ingredient ingredient, required SearchController controller, required bool isHistory}) {
+    bool alreadyUsed = newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient.id);
     return ListTile(
       title: Text(ingredient.name),
       leading: isHistory ? const Icon(Icons.history_rounded) : null,
@@ -220,9 +180,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
         icon: const Icon(Icons.call_missed_rounded),
         onPressed: () {
           controller.text = ingredient.name;
-          controller.selection = TextSelection.collapsed(
-            offset: controller.text.length,
-          );
+          controller.selection = TextSelection.collapsed(offset: controller.text.length);
         },
       ),
       onTap: alreadyUsed
@@ -233,14 +191,9 @@ class _IngredientSelectorState extends State<IngredientSelector> {
     );
   }
 
-  void selectIngredient({
-    required Ingredient ingredient,
-    required SearchController controller,
-  }) {
+  void selectIngredient({required Ingredient ingredient, required SearchController controller}) {
     // Check if the ingredient is already in the list
-    if (newInstruction.ingredientsUsed.any(
-      (IngredientUsage ing) => ing.ingredient == ingredient.id,
-    )) {
+    if (newInstruction.ingredientsUsed.any((IngredientUsage ing) => ing.ingredient == ingredient.id)) {
       return;
     }
     // Close the search bar
@@ -250,11 +203,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
       ingredient: ingredient.id,
       quantity: const Quantity(amount: 1, unit: Unit.pieces),
     );
-    updateInstruction(
-      newInstruction.copyWith(
-        ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage],
-      ),
-    );
+    updateInstruction(newInstruction.copyWith(ingredientsUsed: [...newInstruction.ingredientsUsed, ingredientUsage]));
     IngredientsProvider.addIngredientToHistory(ingredient);
   }
 }

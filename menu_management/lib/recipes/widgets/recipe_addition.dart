@@ -49,11 +49,7 @@ class _RecipeAdditionState extends State<RecipeAddition> {
       return;
     }
     RecipesProvider.addOrUpdate(
-      newRecipe: Recipe(
-        id: const Uuid().v1(),
-        name: _controller.text,
-        instructions: [],
-      ),
+      newRecipe: Recipe(id: const Uuid().v1(), name: _controller.text, instructions: []),
     );
     setState(() {
       _controller.clear();

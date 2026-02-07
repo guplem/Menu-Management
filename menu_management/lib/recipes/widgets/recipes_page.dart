@@ -23,9 +23,7 @@ class _RecipesPageState extends State<RecipesPage> {
         title: Text(
           selectedRecipeId == null
               ? "Recipes"
-              : getProvider<RecipesProvider>(context, listen: true).recipes
-                    .firstWhere((element) => element.id == selectedRecipeId)
-                    .name,
+              : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipeId).name,
         ),
         actions: [
           if (selectedRecipeId != null)
@@ -39,19 +37,12 @@ class _RecipesPageState extends State<RecipesPage> {
                 },
               ),
             ),
-          if (selectedRecipeId != null)
-            IconButton(
-              icon: const Icon(Icons.close_rounded),
-              onPressed: () => setState(() => selectedRecipeId = null),
-            ),
+          if (selectedRecipeId != null) IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => setState(() => selectedRecipeId = null)),
         ],
       ),
       body: Builder(
         builder: (context) {
-          RecipesProvider recipesProvider = getProvider<RecipesProvider>(
-            context,
-            listen: true,
-          );
+          RecipesProvider recipesProvider = getProvider<RecipesProvider>(context, listen: true);
 
           if (selectedRecipeId != null) {
             return RecipePage(recipeId: selectedRecipeId!);
@@ -76,9 +67,7 @@ class _RecipesPageState extends State<RecipesPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "${recipesProvider.recipes[index].totalTimeMinutes} min",
-                    ),
+                    Text("${recipesProvider.recipes[index].totalTimeMinutes} min"),
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.delete),
@@ -91,9 +80,7 @@ class _RecipesPageState extends State<RecipesPage> {
                             action: SnackBarAction(
                               label: "Undo",
                               onPressed: () {
-                                RecipesProvider.addOrUpdate(
-                                  newRecipe: toRemove,
-                                );
+                                RecipesProvider.addOrUpdate(newRecipe: toRemove);
                               },
                             ),
                           ),

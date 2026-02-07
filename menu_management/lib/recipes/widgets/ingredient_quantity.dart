@@ -6,11 +6,7 @@ import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 
 class IngredientQuantity extends StatefulWidget {
-  const IngredientQuantity({
-    super.key,
-    required this.onUpdate,
-    required this.ingredientUsage,
-  });
+  const IngredientQuantity({super.key, required this.onUpdate, required this.ingredientUsage});
 
   final IngredientUsage ingredientUsage;
   final Function(IngredientUsage? ingredientUsage) onUpdate;
@@ -56,17 +52,9 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
       children: [
         QuantityEditor(),
         const SizedBox(width: 20),
-        Text(
-          getProvider<IngredientsProvider>(
-            context,
-            listen: true,
-          ).get(widget.ingredientUsage.ingredient).name,
-        ),
+        Text(getProvider<IngredientsProvider>(context, listen: true).get(widget.ingredientUsage.ingredient).name),
         const SizedBox(width: 20),
-        IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () => updateIngredientUsage(null),
-        ),
+        IconButton(icon: const Icon(Icons.delete), onPressed: () => updateIngredientUsage(null)),
       ],
     );
   }
@@ -80,23 +68,13 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
           width: 120,
           child: TextField(
             keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r"[\d.]+")),
-            ],
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[\d.]+"))],
             controller: amountController,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: "New",
-              errorText: isInvalidAmount ? "Invalid Amount" : null,
-            ),
+            decoration: InputDecoration(border: const OutlineInputBorder(), labelText: "New", errorText: isInvalidAmount ? "Invalid Amount" : null),
             onChanged: (value) {
               double? amount = double.tryParse(value);
               if (amount != null) {
-                updateIngredientUsage(
-                  ingredientUsage.copyWith(
-                    quantity: ingredientUsage.quantity.copyWith(amount: amount),
-                  ),
-                );
+                updateIngredientUsage(ingredientUsage.copyWith(quantity: ingredientUsage.quantity.copyWith(amount: amount)));
               }
               setState(() {
                 isInvalidAmount = amount == null;
@@ -108,21 +86,12 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
         // Unit Dropdown
         DropdownButton<Unit>(
           items: Unit.values.map((Unit unit) {
-            return DropdownMenuItem(
-              value: unit,
-              child: Text(
-                unit.toString().split(".")[1].capitalizeFirstLetter() ?? "",
-              ),
-            );
+            return DropdownMenuItem(value: unit, child: Text(unit.toString().split(".").elementAtOrNull(1)?.capitalizeFirstLetter() ?? ""));
           }).toList(),
           value: ingredientUsage.quantity.unit,
           onChanged: (Unit? unit) {
             if (unit != null) {
-              updateIngredientUsage(
-                ingredientUsage.copyWith(
-                  quantity: ingredientUsage.quantity.copyWith(unit: unit),
-                ),
-              );
+              updateIngredientUsage(ingredientUsage.copyWith(quantity: ingredientUsage.quantity.copyWith(unit: unit)));
             }
           },
         ),

@@ -69,6 +69,5 @@ class HttpStatusCode {
   static const int notExtended = 510;
   static const int networkAuthenticationRequired = 511;
 
-  static bool isAnyError(int status) =>
-      isClientError(status) || isServerError(status);
+  static bool isAnyError(int status) => isClientError(status) || isServerError(status);
 }

@@ -6,12 +6,7 @@ class SwitchButton extends StatefulWidget {
   final Widget child;
   final void Function(bool)? onUpdate;
 
-  const SwitchButton({
-    super.key,
-    required this.selected,
-    required this.child,
-    required this.onUpdate,
-  });
+  const SwitchButton({super.key, required this.selected, required this.child, required this.onUpdate});
 
   @override
   State<SwitchButton> createState() => _SwitchButtonState();
@@ -44,10 +39,7 @@ class _SwitchButtonState extends State<SwitchButton> {
         child: widget.child,
       );
     }
-    return OutlinedButton(
-      onPressed: widget.onUpdate == null ? null : switchState,
-      child: widget.child,
-    );
+    return OutlinedButton(onPressed: widget.onUpdate == null ? null : switchState, child: widget.child);
   }
 
   void switchState() {

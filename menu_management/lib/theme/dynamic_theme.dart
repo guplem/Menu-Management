@@ -10,23 +10,13 @@ class DynamicTheme extends ChangeNotifier {
   int lastMaterialVersion = ThemeCustom.defaultMaterialVersion;
   ThemeMode lastThemeMode = ThemeCustom.defaultThemeMode;
 
-  void updateTheme({
-    Color? color,
-    int? materialVersion = 3,
-    ThemeMode? themeMode,
-  }) {
+  void updateTheme({Color? color, int? materialVersion = 3, ThemeMode? themeMode}) {
     Color newColor = color ?? lastColor;
     int newMaterialVersion = materialVersion ?? lastMaterialVersion;
     ThemeMode newThemeMode = themeMode ?? lastThemeMode;
 
-    if (lastColor != color ||
-        lastThemeMode != themeMode ||
-        lastMaterialVersion != materialVersion) {
-      lastTheme = ThemeCustom.getTheme(
-        color: newColor,
-        materialVersion: newMaterialVersion,
-        themeMode: newThemeMode,
-      );
+    if (lastColor != color || lastThemeMode != themeMode || lastMaterialVersion != materialVersion) {
+      lastTheme = ThemeCustom.getTheme(color: newColor, materialVersion: newMaterialVersion, themeMode: newThemeMode);
       lastColor = newColor;
       lastMaterialVersion = newMaterialVersion;
       lastThemeMode = newThemeMode;

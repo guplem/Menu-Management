@@ -8,11 +8,7 @@ part "ingredient_usage.g.dart";
 
 @freezed
 class IngredientUsage with _$IngredientUsage {
-  const factory IngredientUsage({
-    required String ingredient,
-    required Quantity quantity,
-  }) = _IngredientUsage;
+  const factory IngredientUsage({required String ingredient, required Quantity quantity}) = _IngredientUsage;
 
-  factory IngredientUsage.fromJson(Map<String, Object?> json) =>
-      _$IngredientUsageFromJson(json);
+  factory IngredientUsage.fromJson(Map<String, Object?> json) => _$IngredientUsageFromJson(json);
 }

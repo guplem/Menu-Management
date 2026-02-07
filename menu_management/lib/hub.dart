@@ -38,26 +38,15 @@ class _HubState extends State<Hub> {
                   IconButton(
                     icon: const Icon(Icons.drive_folder_upload_rounded),
                     onPressed: () => Persistency.loadData(
-                      ingredientsProvider: Provider.of<IngredientsProvider>(
-                        context,
-                        listen: false,
-                      ),
-                      recipesProvider: Provider.of<RecipesProvider>(
-                        context,
-                        listen: false,
-                      ),
+                      ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
+                      recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
                     ),
                     tooltip: "Load data from file",
                   ),
                   const SizedBox(height: 10),
                   // Save functionality not available on mobile platforms
-                  if (Theme.of(context).platform != TargetPlatform.iOS &&
-                      Theme.of(context).platform != TargetPlatform.android)
-                    IconButton(
-                      icon: const Icon(Icons.save_rounded),
-                      onPressed: () => Persistency.saveData(),
-                      tooltip: "Save data to file",
-                    ),
+                  if (Theme.of(context).platform != TargetPlatform.iOS && Theme.of(context).platform != TargetPlatform.android)
+                    IconButton(icon: const Icon(Icons.save_rounded), onPressed: () => Persistency.saveData(), tooltip: "Save data to file"),
                   const SizedBox(height: 10),
                 ],
               ),
@@ -69,16 +58,10 @@ class _HubState extends State<Hub> {
                 selectedIcon: Icon(Icons.shopping_basket_rounded),
                 label: Text("Ingredients"),
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.book_rounded),
-                selectedIcon: Icon(Icons.menu_book_rounded),
-                label: Text("Recipes"),
-              ),
+              NavigationRailDestination(icon: Icon(Icons.book_rounded), selectedIcon: Icon(Icons.menu_book_rounded), label: Text("Recipes")),
               NavigationRailDestination(
                 icon: Icon(Icons.set_meal_outlined), // Alternative: restaurant
-                selectedIcon: Icon(
-                  Icons.set_meal_rounded,
-                ), // Alternative: restaurant
+                selectedIcon: Icon(Icons.set_meal_rounded), // Alternative: restaurant
                 label: Text("Menu"),
               ),
             ],

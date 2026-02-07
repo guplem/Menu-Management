@@ -1,6 +1,6 @@
-import "package:freezed_annotation/freezed_annotation.dart";
 // ignore: unused_import
 import "package:flutter/foundation.dart";
+import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
@@ -24,46 +24,28 @@ class Menu with _$Menu {
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Menu._();
 
-  Menu copyWithUpdatedRecipe({
-    required MealTime mealTime,
-    required Recipe recipe,
-  }) {
+  Menu copyWithUpdatedRecipe({required MealTime mealTime, required Recipe recipe}) {
     // Prepare relevant data
-    Meal mealToUpdate = meals.firstWhere(
-      (meal) => meal.mealTime.isSameTime(mealTime),
-    );
+    Meal mealToUpdate = meals.firstWhere((meal) => meal.mealTime.isSameTime(mealTime));
 
     // No need to update the meal if it already has the recipe we want to update it to
     if (mealToUpdate.cooking?.recipe.id == recipe.id) return this;
 
-    mealToUpdate = mealToUpdate.copyWithUpdatedCooking(
-      Cooking(recipe: recipe, yield: 1),
-    );
+    mealToUpdate = mealToUpdate.copyWithUpdatedCooking(Cooking(recipe: recipe, yield: 1));
 
     // Generate the updated meals list
     List<Meal> newMeals = [...meals];
-    newMeals[newMeals.indexWhere(
-          (meal) => meal.mealTime.isSameTime(mealToUpdate.mealTime),
-        )] =
-        mealToUpdate;
+    newMeals[newMeals.indexWhere((meal) => meal.mealTime.isSameTime(mealToUpdate.mealTime))] = mealToUpdate;
 
     return copyWith(meals: newMeals).copyWithUpdatedYields();
   }
 
   List<Meal?> mealsOfDay(WeekDay weekDay) {
-    List<Meal> dayMeals = meals
-        .where((meal) => meal.mealTime.weekDay == weekDay)
-        .toList();
+    List<Meal> dayMeals = meals.where((meal) => meal.mealTime.weekDay == weekDay).toList();
     List<Meal?> dayMealsWithNulls = List.filled(3, null, growable: false);
-    dayMealsWithNulls[0] = dayMeals.firstWhereOrNull(
-      (meal) => meal.mealTime.mealType == MealType.breakfast,
-    );
-    dayMealsWithNulls[1] = dayMeals.firstWhereOrNull(
-      (meal) => meal.mealTime.mealType == MealType.lunch,
-    );
-    dayMealsWithNulls[2] = dayMeals.firstWhereOrNull(
-      (meal) => meal.mealTime.mealType == MealType.dinner,
-    );
+    dayMealsWithNulls[0] = dayMeals.firstWhereOrNull((meal) => meal.mealTime.mealType == MealType.breakfast);
+    dayMealsWithNulls[1] = dayMeals.firstWhereOrNull((meal) => meal.mealTime.mealType == MealType.lunch);
+    dayMealsWithNulls[2] = dayMeals.firstWhereOrNull((meal) => meal.mealTime.mealType == MealType.dinner);
     return dayMealsWithNulls;
   }
 
@@ -71,9 +53,7 @@ class Menu with _$Menu {
     List<Meal> oldMeals = [...this.meals];
 
     bool isFirstTimeOfRecipe(MealTime time, Recipe recipe) {
-      List<Meal> sortedMealTimes = oldMeals
-          .sorted((a, b) => a.goesBefore(b) ? -1 : 1)
-          .toList();
+      List<Meal> sortedMealTimes = oldMeals.sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
       for (int i = 0; i < sortedMealTimes.length; i++) {
         MealTime t = sortedMealTimes[i].mealTime;
         Recipe? r = sortedMealTimes[i].cooking?.recipe;
@@ -93,11 +73,7 @@ class Menu with _$Menu {
       int yield = 1;
       if (recipe != null && recipe.canBeStored) {
         if (isFirstTimeOfRecipe(meal.mealTime, recipe)) {
-          yield = oldMeals.fold(
-            0,
-            (previousValue, Meal element) =>
-                previousValue + (element.cooking?.recipe == recipe ? 1 : 0),
-          );
+          yield = oldMeals.count((Meal element) => element.cooking?.recipe == recipe);
         } else {
           yield = 0;
         }
@@ -123,26 +99,14 @@ class Menu with _$Menu {
           if (ingredients[ingredientUsage.ingredient] == null) {
             ingredients[ingredientUsage.ingredient] = [];
           }
-          if (!ingredients[ingredientUsage.ingredient]!.any(
-            (registeredQuantity) =>
-                registeredQuantity.unit == ingredientUsage.quantity.unit,
-          )) {
-            ingredients[ingredientUsage.ingredient]!.add(
-              Quantity(
-                amount: 0 /*placeholder*/,
-                unit: ingredientUsage.quantity.unit,
-              ),
-            );
+          if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
+            ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
           }
           double amountToAdd = ingredientUsage.quantity.amount * yields;
-          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!
-              .firstWhere(
-                (registeredQuantity) =>
-                    registeredQuantity.unit == ingredientUsage.quantity.unit,
-              );
-          Quantity newQuantity = oldQuantity.copyWith(
-            amount: amountToAdd + oldQuantity.amount,
+          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
+            (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
           );
+          Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
           ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
           ingredients[ingredientUsage.ingredient]!.add(newQuantity);
         }
@@ -168,9 +132,7 @@ class Menu with _$Menu {
         Meal? meal = dayMeals[i];
         String? mealType = MealType.values[i].name.capitalizeFirstLetter();
         String recipe = meal?.cooking?.recipe.name ?? "-";
-        recipe += meal?.cooking == null
-            ? ""
-            : " (${meal?.cooking?.yield.toString()} pp)";
+        recipe += meal?.cooking == null ? "" : " (${meal?.cooking?.yield.toString()} pp)";
         result += "  $mealType: $recipe\n";
       }
       result += "\n";

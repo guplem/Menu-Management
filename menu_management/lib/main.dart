@@ -29,11 +29,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.lightGreen,
-            brightness:
-                PlatformDispatcher.instance.platformBrightness ==
-                    Brightness.light
-                ? Brightness.light
-                : Brightness.dark,
+            brightness: PlatformDispatcher.instance.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
           ),
           useMaterial3: true,
         ),
@@ -42,14 +38,8 @@ class MyApp extends StatelessWidget {
             // Load data on startup
             if (!kDebugMode) {
               Persistency.loadData(
-                ingredientsProvider: Provider.of<IngredientsProvider>(
-                  context,
-                  listen: false,
-                ),
-                recipesProvider: Provider.of<RecipesProvider>(
-                  context,
-                  listen: false,
-                ),
+                ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
+                recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
               );
             }
 

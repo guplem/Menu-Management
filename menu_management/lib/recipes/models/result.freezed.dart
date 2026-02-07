@@ -35,15 +35,13 @@ mixin _$Result {
 
 /// @nodoc
 abstract class $ResultCopyWith<$Res> {
-  factory $ResultCopyWith(Result value, $Res Function(Result) then) =
-      _$ResultCopyWithImpl<$Res, Result>;
+  factory $ResultCopyWith(Result value, $Res Function(Result) then) = _$ResultCopyWithImpl<$Res, Result>;
   @useResult
   $Res call({String id, String description});
 }
 
 /// @nodoc
-class _$ResultCopyWithImpl<$Res, $Val extends Result>
-    implements $ResultCopyWith<$Res> {
+class _$ResultCopyWithImpl<$Res, $Val extends Result> implements $ResultCopyWith<$Res> {
   _$ResultCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -74,23 +72,15 @@ class _$ResultCopyWithImpl<$Res, $Val extends Result>
 
 /// @nodoc
 abstract class _$$ResultImplCopyWith<$Res> implements $ResultCopyWith<$Res> {
-  factory _$$ResultImplCopyWith(
-    _$ResultImpl value,
-    $Res Function(_$ResultImpl) then,
-  ) = __$$ResultImplCopyWithImpl<$Res>;
+  factory _$$ResultImplCopyWith(_$ResultImpl value, $Res Function(_$ResultImpl) then) = __$$ResultImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, String description});
 }
 
 /// @nodoc
-class __$$ResultImplCopyWithImpl<$Res>
-    extends _$ResultCopyWithImpl<$Res, _$ResultImpl>
-    implements _$$ResultImplCopyWith<$Res> {
-  __$$ResultImplCopyWithImpl(
-    _$ResultImpl _value,
-    $Res Function(_$ResultImpl) _then,
-  ) : super(_value, _then);
+class __$$ResultImplCopyWithImpl<$Res> extends _$ResultCopyWithImpl<$Res, _$ResultImpl> implements _$$ResultImplCopyWith<$Res> {
+  __$$ResultImplCopyWithImpl(_$ResultImpl _value, $Res Function(_$ResultImpl) _then) : super(_value, _then);
 
   /// Create a copy of Result
   /// with the given fields replaced by the non-null parameter values.
@@ -117,8 +107,7 @@ class __$$ResultImplCopyWithImpl<$Res>
 class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
   const _$ResultImpl({required this.id, required this.description});
 
-  factory _$ResultImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ResultImplFromJson(json);
+  factory _$ResultImpl.fromJson(Map<String, dynamic> json) => _$$ResultImplFromJson(json);
 
   @override
   final String id;
@@ -145,8 +134,7 @@ class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
         (other.runtimeType == runtimeType &&
             other is _$ResultImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.description, description) ||
-                other.description == description));
+            (identical(other.description, description) || other.description == description));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -158,8 +146,7 @@ class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$ResultImplCopyWith<_$ResultImpl> get copyWith =>
-      __$$ResultImplCopyWithImpl<_$ResultImpl>(this, _$identity);
+  _$$ResultImplCopyWith<_$ResultImpl> get copyWith => __$$ResultImplCopyWithImpl<_$ResultImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -168,10 +155,7 @@ class _$ResultImpl with DiagnosticableTreeMixin implements _Result {
 }
 
 abstract class _Result implements Result {
-  const factory _Result({
-    required final String id,
-    required final String description,
-  }) = _$ResultImpl;
+  const factory _Result({required final String id, required final String description}) = _$ResultImpl;
 
   factory _Result.fromJson(Map<String, dynamic> json) = _$ResultImpl.fromJson;
 
@@ -184,6 +168,5 @@ abstract class _Result implements Result {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ResultImplCopyWith<_$ResultImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$ResultImplCopyWith<_$ResultImpl> get copyWith => throw _privateConstructorUsedError;
 }

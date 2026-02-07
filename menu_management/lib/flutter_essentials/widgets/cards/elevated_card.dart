@@ -4,13 +4,7 @@ import "package:menu_management/theme/theme_custom.dart";
 
 /// A card with a slight elevation shadow.
 class ElevatedCard extends StatelessWidget {
-  const ElevatedCard({
-    super.key,
-    required this.child,
-    this.onTap,
-    this.onLongPress,
-    this.padding,
-  });
+  const ElevatedCard({super.key, required this.child, this.onTap, this.onLongPress, this.padding});
 
   final Widget? child;
   final void Function()? onTap;

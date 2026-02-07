@@ -34,15 +34,13 @@ mixin _$Menu {
 
 /// @nodoc
 abstract class $MenuCopyWith<$Res> {
-  factory $MenuCopyWith(Menu value, $Res Function(Menu) then) =
-      _$MenuCopyWithImpl<$Res, Menu>;
+  factory $MenuCopyWith(Menu value, $Res Function(Menu) then) = _$MenuCopyWithImpl<$Res, Menu>;
   @useResult
   $Res call({List<Meal> meals});
 }
 
 /// @nodoc
-class _$MenuCopyWithImpl<$Res, $Val extends Menu>
-    implements $MenuCopyWith<$Res> {
+class _$MenuCopyWithImpl<$Res, $Val extends Menu> implements $MenuCopyWith<$Res> {
   _$MenuCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -69,21 +67,15 @@ class _$MenuCopyWithImpl<$Res, $Val extends Menu>
 
 /// @nodoc
 abstract class _$$MenuImplCopyWith<$Res> implements $MenuCopyWith<$Res> {
-  factory _$$MenuImplCopyWith(
-    _$MenuImpl value,
-    $Res Function(_$MenuImpl) then,
-  ) = __$$MenuImplCopyWithImpl<$Res>;
+  factory _$$MenuImplCopyWith(_$MenuImpl value, $Res Function(_$MenuImpl) then) = __$$MenuImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({List<Meal> meals});
 }
 
 /// @nodoc
-class __$$MenuImplCopyWithImpl<$Res>
-    extends _$MenuCopyWithImpl<$Res, _$MenuImpl>
-    implements _$$MenuImplCopyWith<$Res> {
-  __$$MenuImplCopyWithImpl(_$MenuImpl _value, $Res Function(_$MenuImpl) _then)
-    : super(_value, _then);
+class __$$MenuImplCopyWithImpl<$Res> extends _$MenuCopyWithImpl<$Res, _$MenuImpl> implements _$$MenuImplCopyWith<$Res> {
+  __$$MenuImplCopyWithImpl(_$MenuImpl _value, $Res Function(_$MenuImpl) _then) : super(_value, _then);
 
   /// Create a copy of Menu
   /// with the given fields replaced by the non-null parameter values.
@@ -104,12 +96,9 @@ class __$$MenuImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$MenuImpl extends _Menu with DiagnosticableTreeMixin {
-  const _$MenuImpl({final List<Meal> meals = const []})
-    : _meals = meals,
-      super._();
+  const _$MenuImpl({final List<Meal> meals = const []}) : _meals = meals, super._();
 
-  factory _$MenuImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MenuImplFromJson(json);
+  factory _$MenuImpl.fromJson(Map<String, dynamic> json) => _$$MenuImplFromJson(json);
 
   final List<Meal> _meals;
   @override
@@ -136,23 +125,19 @@ class _$MenuImpl extends _Menu with DiagnosticableTreeMixin {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$MenuImpl &&
-            const DeepCollectionEquality().equals(other._meals, _meals));
+        (other.runtimeType == runtimeType && other is _$MenuImpl && const DeepCollectionEquality().equals(other._meals, _meals));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_meals));
+  int get hashCode => Object.hash(runtimeType, const DeepCollectionEquality().hash(_meals));
 
   /// Create a copy of Menu
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MenuImplCopyWith<_$MenuImpl> get copyWith =>
-      __$$MenuImplCopyWithImpl<_$MenuImpl>(this, _$identity);
+  _$$MenuImplCopyWith<_$MenuImpl> get copyWith => __$$MenuImplCopyWithImpl<_$MenuImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -173,6 +158,5 @@ abstract class _Menu extends Menu {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MenuImplCopyWith<_$MenuImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$MenuImplCopyWith<_$MenuImpl> get copyWith => throw _privateConstructorUsedError;
 }

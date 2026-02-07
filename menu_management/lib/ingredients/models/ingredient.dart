@@ -7,9 +7,7 @@ part "ingredient.g.dart";
 
 @freezed
 class Ingredient with _$Ingredient {
-  const factory Ingredient({required String id, required String name}) =
-      _Ingredient;
+  const factory Ingredient({required String id, required String name}) = _Ingredient;
 
-  factory Ingredient.fromJson(Map<String, Object?> json) =>
-      _$IngredientFromJson(json);
+  factory Ingredient.fromJson(Map<String, Object?> json) => _$IngredientFromJson(json);
 }

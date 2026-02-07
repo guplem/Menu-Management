@@ -9,8 +9,7 @@ class IngredientsProvider extends ChangeNotifier {
     return instance;
   }
 
-  static final IngredientsProvider instance =
-      IngredientsProvider._privateConstructor();
+  static final IngredientsProvider instance = IngredientsProvider._privateConstructor();
   IngredientsProvider._privateConstructor() {
     Debug.log("Creating IngredientsProvider instance", maxStackTraceRows: 4);
   }
@@ -20,8 +19,7 @@ class IngredientsProvider extends ChangeNotifier {
 
   bool isValidNewIngredient(String newIngredientName) {
     bool ingredientExists = _ingredients.any((existentIngredient) {
-      return existentIngredient.name.trim().toLowerCase() ==
-          newIngredientName.trim().toLowerCase();
+      return existentIngredient.name.trim().toLowerCase() == newIngredientName.trim().toLowerCase();
     });
     return !ingredientExists;
   }
@@ -38,9 +36,7 @@ class IngredientsProvider extends ChangeNotifier {
   }
 
   Ingredient get(String ingredientId) {
-    Ingredient? ing = ingredients.firstWhereOrNull(
-      (element) => element.id == ingredientId,
-    );
+    Ingredient? ing = ingredients.firstWhereOrNull((element) => element.id == ingredientId);
     if (ing == null) {
       Debug.logError("No ingredient found with id $ingredientId");
     }
@@ -48,9 +44,7 @@ class IngredientsProvider extends ChangeNotifier {
   }
 
   static void addOrUpdate({required Ingredient newIngredient}) {
-    final int index = instance.ingredients.indexWhere(
-      (element) => element.id == newIngredient.id,
-    );
+    final int index = instance.ingredients.indexWhere((element) => element.id == newIngredient.id);
     if (index >= 0) {
       instance.ingredients[index] = newIngredient;
     } else {

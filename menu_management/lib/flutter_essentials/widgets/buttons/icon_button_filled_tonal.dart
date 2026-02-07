@@ -4,11 +4,7 @@ import "package:menu_management/theme/theme_custom.dart";
 // WaitingForUpdate: Once this issue is completed, delete this class. https://github.com/flutter/flutter/issues/111800
 // https://m3.material.io/components/icon-buttons/specs#c2ca424b-2ad7-40e6-8946-47fb1918060a
 class IconButtonFilledTonal extends StatelessWidget {
-  const IconButtonFilledTonal({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-  });
+  const IconButtonFilledTonal({super.key, required this.onPressed, required this.icon});
 
   final void Function()? onPressed;
   final Widget icon;
@@ -34,10 +30,6 @@ class IconButtonFilledTonal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      style: getStyle(context),
-      onPressed: onPressed,
-      icon: icon,
-    );
+    return IconButton(style: getStyle(context), onPressed: onPressed, icon: icon);
   }
 }

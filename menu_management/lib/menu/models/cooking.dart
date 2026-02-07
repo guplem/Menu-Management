@@ -16,6 +16,5 @@ class Cooking with _$Cooking {
     required int yield,
   }) = _Cooking;
 
-  factory Cooking.fromJson(Map<String, Object?> json) =>
-      _$CookingFromJson(json);
+  factory Cooking.fromJson(Map<String, Object?> json) => _$CookingFromJson(json);
 }

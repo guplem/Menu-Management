@@ -3,19 +3,11 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
 class RecipeTitleEditor extends StatefulWidget {
-  const RecipeTitleEditor({
-    super.key,
-    required this.onUpdate,
-    required this.recipe,
-  });
+  const RecipeTitleEditor({super.key, required this.onUpdate, required this.recipe});
   final Function(Recipe newRecipe) onUpdate;
   final Recipe recipe;
 
-  static void show({
-    required BuildContext context,
-    required Recipe recipe,
-    required Function(Recipe recipe) onUpdate,
-  }) {
+  static void show({required BuildContext context, required Recipe recipe, required Function(Recipe recipe) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -45,10 +37,7 @@ class _RecipeTitleEditorState extends State<RecipeTitleEditor> {
       content: TextField(
         controller: outputController,
         maxLines: null,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: "Output",
-        ),
+        decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Output"),
         onChanged: (String value) => setState(() {}),
       ),
       actions: <Widget>[

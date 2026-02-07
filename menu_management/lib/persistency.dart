@@ -30,9 +30,7 @@ class Persistency {
       // User canceled the picker
     } else {
       // Get the data
-      List<Ingredient> ingredients = [
-        ...IngredientsProvider.instance.ingredients,
-      ];
+      List<Ingredient> ingredients = [...IngredientsProvider.instance.ingredients];
       List<Recipe> recipes = [...RecipesProvider.instance.recipes];
 
       // Prepare the file
@@ -71,10 +69,7 @@ class Persistency {
     }
   }
 
-  static Future<void> loadData({
-    required IngredientsProvider ingredientsProvider,
-    required RecipesProvider recipesProvider,
-  }) async {
+  static Future<void> loadData({required IngredientsProvider ingredientsProvider, required RecipesProvider recipesProvider}) async {
     // TODO: check if there is data in the providers and ask for confirmation before loading the file
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -116,11 +111,8 @@ class Persistency {
   }
 
   static Future<void> saveMenu(Menu menu) async {
-    DateTime nextSaturday = DateTime.now().add(
-      Duration(days: 6 - DateTime.now().weekday),
-    );
-    String date =
-        "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
+    DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
+    String date = "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
 
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
