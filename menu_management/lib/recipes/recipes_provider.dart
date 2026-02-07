@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
 import 'package:menu_management/recipes/enums/recipe_type.dart';
 import 'package:menu_management/recipes/models/ingredient_usage.dart';
@@ -23,7 +23,7 @@ class RecipesProvider extends ChangeNotifier {
   final List<Recipe> _recipes = [];
   List<Recipe> get recipes => _recipes;
 
-  static Recipe listenableOf(context, recipeId) =>
+  static Recipe listenableOf(BuildContext context, String recipeId) =>
       getProvider<RecipesProvider>(context, listen: true).get(recipeId);
 
   //#region RECIPES

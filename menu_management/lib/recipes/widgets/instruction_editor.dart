@@ -26,7 +26,7 @@ class InstructionEditor extends StatefulWidget {
   @override
   State<InstructionEditor> createState() => _InstructionEditorState();
 
-  static show({
+  static void show({
     required BuildContext context,
     required Instruction? originalInstruction,
     required String recipeId,
@@ -101,7 +101,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
     widget.onUpdate(instruction);
   }
 
-  onDispose() {
+  void onDispose() {
     descriptionController.dispose();
     workingTimeController.dispose();
     cookingTimeController.dispose();

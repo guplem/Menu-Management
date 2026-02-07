@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
-import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:menu_management/ingredients/ingredients_provider.dart';
+import 'package:menu_management/ingredients/models/ingredient.dart';
 import 'package:uuid/uuid.dart';
 
 class IngredientAddition extends StatefulWidget {
@@ -14,7 +14,7 @@ class IngredientAddition extends StatefulWidget {
 class _IngredientAdditionState extends State<IngredientAddition> {
   final TextEditingController _controller = TextEditingController();
 
-  onDispose() {
+  void onDispose() {
     _controller.dispose();
     super.dispose();
   }

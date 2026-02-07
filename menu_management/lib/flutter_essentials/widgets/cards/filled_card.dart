@@ -5,7 +5,7 @@ import "package:menu_management/theme/theme_custom.dart";
 // WaitingForUpdate: Once this issue is completed, delete this class. https://github.com/flutter/flutter/issues/119401
 class FilledCard extends StatelessWidget {
   const FilledCard({
-    Key? key,
+    super.key,
     required this.child,
     this.onTap,
     this.padding,
@@ -13,7 +13,7 @@ class FilledCard extends StatelessWidget {
     this.textColor,
     this.outlined = false,
     this.borderColor,
-  }) : super(key: key);
+  });
 
   final Widget? child;
   final void Function()? onTap;

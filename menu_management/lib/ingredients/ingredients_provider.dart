@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:menu_management/flutter_essentials/library.dart';
 import 'package:menu_management/ingredients/models/ingredient.dart';
 
@@ -28,7 +28,7 @@ class IngredientsProvider extends ChangeNotifier {
 
   List<Ingredient> searchHistory = <Ingredient>[];
 
-  static Ingredient listenableOf(context, ingredientId) =>
+  static Ingredient listenableOf(BuildContext context, String ingredientId) =>
       getProvider<IngredientsProvider>(context, listen: true).get(ingredientId);
 
   void setData(List<Ingredient> ingredients) {

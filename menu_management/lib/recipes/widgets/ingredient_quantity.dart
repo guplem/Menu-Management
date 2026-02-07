@@ -42,7 +42,7 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
     widget.onUpdate(ingredientUsage);
   }
 
-  onDispose() {
+  void onDispose() {
     amountController.dispose();
     super.dispose();
   }

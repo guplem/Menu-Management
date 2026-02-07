@@ -3,8 +3,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 
 class LoadingSpinnerIndicator extends StatelessWidget {
   /// Use Small for buttons, inline loading indicators, ...
-  const LoadingSpinnerIndicator({Key? key, this.text, this.small = false})
-    : super(key: key);
+  const LoadingSpinnerIndicator({super.key, this.text, this.small = false});
 
   final String? text;
   final bool small;
@@ -41,8 +40,7 @@ class LoadingSpinnerIndicator extends StatelessWidget {
 }
 
 class LoadingSpinnerIndicatorFullscreen extends StatelessWidget {
-  const LoadingSpinnerIndicatorFullscreen({Key? key, this.text})
-    : super(key: key);
+  const LoadingSpinnerIndicatorFullscreen({super.key, this.text});
 
   final String? text;
 

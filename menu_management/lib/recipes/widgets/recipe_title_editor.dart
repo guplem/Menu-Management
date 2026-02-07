@@ -4,14 +4,14 @@ import 'package:menu_management/recipes/models/recipe.dart';
 
 class RecipeTitleEditor extends StatefulWidget {
   const RecipeTitleEditor({
-    Key? key,
+    super.key,
     required this.onUpdate,
     required this.recipe,
-  }) : super(key: key);
+  });
   final Function(Recipe newRecipe) onUpdate;
   final Recipe recipe;
 
-  static show({
+  static void show({
     required BuildContext context,
     required Recipe recipe,
     required Function(Recipe recipe) onUpdate,

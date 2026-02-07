@@ -1,8 +1,7 @@
 import "package:flutter/material.dart";
 
 class ClickableSurface extends StatelessWidget {
-  const ClickableSurface({Key? key, required this.child, this.onTap})
-    : super(key: key);
+  const ClickableSurface({super.key, required this.child, this.onTap});
 
   final Widget child;
   final void Function()? onTap;

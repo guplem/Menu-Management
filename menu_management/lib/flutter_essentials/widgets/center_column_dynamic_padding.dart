@@ -8,10 +8,10 @@ class SmartPaddingCenterColumn extends StatelessWidget {
 
   const SmartPaddingCenterColumn({
     this.elevation = 0,
-    Key? key,
+    super.key,
     this.child,
     this.padding = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

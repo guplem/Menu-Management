@@ -14,7 +14,7 @@ class RecipeAddition extends StatefulWidget {
 class _RecipeAdditionState extends State<RecipeAddition> {
   final TextEditingController _controller = TextEditingController();
 
-  onDispose() {
+  void onDispose() {
     _controller.dispose();
     super.dispose();
   }

@@ -7,11 +7,11 @@ class SwitchButton extends StatefulWidget {
   final void Function(bool)? onUpdate;
 
   const SwitchButton({
-    Key? key,
+    super.key,
     required this.selected,
     required this.child,
     required this.onUpdate,
-  }) : super(key: key);
+  });
 
   @override
   State<SwitchButton> createState() => _SwitchButtonState();

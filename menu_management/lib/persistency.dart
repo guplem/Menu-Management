@@ -17,7 +17,7 @@ class Persistency {
 
   Persistency._internal();
 
-  static saveData() async {
+  static Future<void> saveData() async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: 'Select where to save the data',
@@ -71,7 +71,7 @@ class Persistency {
     }
   }
 
-  static loadData({
+  static Future<void> loadData({
     required IngredientsProvider ingredientsProvider,
     required RecipesProvider recipesProvider,
   }) async {
@@ -115,7 +115,7 @@ class Persistency {
     }
   }
 
-  static saveMenu(Menu menu) async {
+  static Future<void> saveMenu(Menu menu) async {
     DateTime nextSaturday = DateTime.now().add(
       Duration(days: 6 - DateTime.now().weekday),
     );

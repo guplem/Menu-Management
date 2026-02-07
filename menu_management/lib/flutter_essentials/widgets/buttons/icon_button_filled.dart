@@ -5,10 +5,10 @@ import "package:menu_management/theme/theme_custom.dart";
 // https://m3.material.io/components/icon-buttons/specs#c2ca424b-2ad7-40e6-8946-47fb1918060a
 class IconButtonFilled extends StatelessWidget {
   const IconButtonFilled({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.icon,
-  }) : super(key: key);
+  });
 
   final void Function()? onPressed;
   final Widget icon;

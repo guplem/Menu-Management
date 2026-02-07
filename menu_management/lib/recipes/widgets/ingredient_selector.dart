@@ -21,7 +21,7 @@ class IngredientSelector extends StatefulWidget {
   @override
   State<IngredientSelector> createState() => _IngredientSelectorState();
 
-  static show({
+  static void show({
     required BuildContext context,
     required Instruction originalInstruction,
     required String recipeId,
@@ -126,7 +126,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                       ),
                       const SizedBox(height: 15),
                       const Divider(),
-                      ...suggestions.toList(),
+                      ...suggestions,
                       ...getHistoryList(controller),
                     ];
                   }
@@ -135,44 +135,41 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                 },
           ),
           const SizedBox(height: 15),
-          ...newInstruction.ingredientsUsed
-              .map(
-                (IngredientUsage ingredientUsage) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 7.0),
-                  child: IngredientQuantity(
-                    ingredientUsage: ingredientUsage,
-                    onUpdate: (IngredientUsage? newUsage) {
-                      Instruction updatedInstruction;
-                      if (newUsage != null) {
-                        // Update the ingredient
-                        updatedInstruction = newInstruction.copyWith(
-                          ingredientsUsed: newInstruction.ingredientsUsed.map((
-                            IngredientUsage ing,
-                          ) {
-                            if (ing.ingredient == ingredientUsage.ingredient) {
-                              return newUsage;
-                            }
-                            return ing;
-                          }).toList(),
-                        );
-                      } else {
-                        // Remove the ingredient
-                        updatedInstruction = newInstruction.copyWith(
-                          ingredientsUsed: newInstruction.ingredientsUsed
-                              .where(
-                                (IngredientUsage ing) =>
-                                    ing.ingredient !=
-                                    ingredientUsage.ingredient,
-                              )
-                              .toList(),
-                        );
-                      }
-                      updateInstruction(updatedInstruction);
-                    },
-                  ),
-                ),
-              )
-              .toList(),
+          ...newInstruction.ingredientsUsed.map(
+            (IngredientUsage ingredientUsage) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7.0),
+              child: IngredientQuantity(
+                ingredientUsage: ingredientUsage,
+                onUpdate: (IngredientUsage? newUsage) {
+                  Instruction updatedInstruction;
+                  if (newUsage != null) {
+                    // Update the ingredient
+                    updatedInstruction = newInstruction.copyWith(
+                      ingredientsUsed: newInstruction.ingredientsUsed.map((
+                        IngredientUsage ing,
+                      ) {
+                        if (ing.ingredient == ingredientUsage.ingredient) {
+                          return newUsage;
+                        }
+                        return ing;
+                      }).toList(),
+                    );
+                  } else {
+                    // Remove the ingredient
+                    updatedInstruction = newInstruction.copyWith(
+                      ingredientsUsed: newInstruction.ingredientsUsed
+                          .where(
+                            (IngredientUsage ing) =>
+                                ing.ingredient != ingredientUsage.ingredient,
+                          )
+                          .toList(),
+                    );
+                  }
+                  updateInstruction(updatedInstruction);
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );

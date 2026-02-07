@@ -6,14 +6,14 @@ import 'package:uuid/uuid.dart';
 
 class OutputCreator extends StatefulWidget {
   const OutputCreator({
-    Key? key,
+    super.key,
     required this.onUpdate,
     required this.instruction,
-  }) : super(key: key);
+  });
   final Function(Instruction newInstruction) onUpdate;
   final Instruction instruction;
 
-  static show({
+  static void show({
     required BuildContext context,
     required Instruction instruction,
     required Function(Instruction instruction) onUpdate,

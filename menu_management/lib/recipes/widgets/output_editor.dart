@@ -18,7 +18,7 @@ class OutputEditor extends StatefulWidget {
   @override
   State<OutputEditor> createState() => _OutputEditorState();
 
-  static show({
+  static void show({
     required BuildContext context,
     required Result? originalOutput,
     required String recipeId,
@@ -75,7 +75,7 @@ class _OutputEditorState extends State<OutputEditor> {
     descriptionController.text = newOutput.description;
   }
 
-  onDispose() {
+  void onDispose() {
     descriptionController.dispose();
     super.dispose();
   }

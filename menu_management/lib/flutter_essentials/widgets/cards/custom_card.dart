@@ -3,7 +3,7 @@ import "package:menu_management/theme/theme_custom.dart";
 
 class CustomCard extends StatelessWidget {
   const CustomCard({
-    Key? key,
+    super.key,
     required this.child,
     this.onTap,
     this.padding,
@@ -11,7 +11,7 @@ class CustomCard extends StatelessWidget {
     this.textColor,
     this.elevation,
     this.borderSide,
-  }) : super(key: key);
+  });
 
   final Widget? child;
   final void Function()? onTap;

@@ -19,7 +19,7 @@ class InputSelector extends StatefulWidget {
   @override
   State<InputSelector> createState() => _InputSelectorState();
 
-  static show({
+  static void show({
     required BuildContext context,
     required Instruction originalInstruction,
     required String recipeId,
