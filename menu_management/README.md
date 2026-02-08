@@ -7,6 +7,7 @@
     + [Menu Generation Flow](#menu-generation-flow)
     + [Menu Generation Algorithm](#menu-generation-algorithm)
     + [Multi-Step Recipes with Inputs/Outputs](#multi-step-recipes-with-inputsoutputs)
+    + [Cook Mode (Play Recipe)](#cook-mode-play-recipe)
   * [Contributing](#contributing)
     + [Software Requirements](#software-requirements)
     + [Setup](#setup)
@@ -154,6 +155,37 @@ For complex recipes with intermediate steps, the app supports tracking intermedi
 - Prevents circular dependencies (instruction cannot use its own outputs)
 - Helps organize complex recipes into logical, ordered steps
 - UI validates that inputs reference existing outputs from earlier instructions
+
+### Cook Mode (Play Recipe)
+
+The app provides a step-by-step cooking guide accessible via the **play button** (▶) on the recipe details page. This feature helps users follow a recipe hands-free, one instruction at a time.
+
+**Features:**
+
+| Feature | Description |
+|---------|-------------|
+| **Servings selector** | Adjust the number of servings in the top bar; all ingredient quantities scale automatically (base recipe = 1 serving) |
+| **Step-by-step navigation** | View one instruction at a time with a progress indicator; tap previous/next preview cards to navigate |
+| **Ingredient list** | Each step shows its required ingredients with adjusted quantities and any inputs from previous steps |
+| **Input references** | Inputs from earlier steps appear visually distinct (tertiary color); tapping one opens a dialog with the source step summary and a button to jump to it |
+| **Step outputs** | Intermediate results produced by the current step are displayed at the end of the instruction card |
+| **Cooking timers** | If a step has cooking time, a timer can be started; timers persist across step navigation and notify the user with a snackbar when finished |
+| **Multi-timer tracking** | Active timers from other steps are visible below the current step's timer, showing remaining time with a cancel button; tapping navigates to that step |
+| **Exit warning** | If timers are running and the user tries to leave, a confirmation dialog warns that all timers will be cancelled |
+
+**UI Layout (top to bottom):**
+1. App bar with recipe name and servings selector
+2. Progress indicator (step N of M)
+3. Ingredients for the current step (inputs first, then regular ingredients)
+4. Current instruction card with working/cooking time chips and outputs
+5. Timer controls for the current step
+6. Other active timers (from different steps)
+7. Previous and next step preview cards
+
+**Implementation:**
+- `PlayRecipePage` (`lib/recipes/widgets/play_recipe_page.dart`) — a `StatefulWidget` opened via `Navigator.push` from the recipes page
+- Timers are managed in-memory and are **not** persisted; leaving the page cancels all timers
+- No new dependencies are required; the feature uses Material 3 components and the existing `flutter_essentials` library
 
 ## Contributing
 
@@ -326,7 +358,8 @@ lib/
 │   │   ├── quantity.dart          # Amount + unit
 │   │   └── result.dart            # Intermediate cooking result
 │   └── widgets/
-│       └── recipes_page.dart      # Recipe management UI
+│       ├── recipes_page.dart      # Recipe management UI
+│       └── play_recipe_page.dart  # Step-by-step cooking guide with timers
 ├── menu/
 │   ├── menu_provider.dart         # Menu configuration state
 │   ├── menu_generator.dart        # Core menu generation algorithm

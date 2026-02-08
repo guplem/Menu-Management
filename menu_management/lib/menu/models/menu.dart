@@ -98,9 +98,7 @@ abstract class Menu with _$Menu {
       // Only the first occurrence (yield > 0) aggregates ingredient amounts.
       int peopleFactor;
       if (yields > 0) {
-        peopleFactor = meals
-            .where((Meal m) => m.cooking?.recipe == meal.cooking?.recipe)
-            .fold(0, (int sum, Meal m) => sum + m.people);
+        peopleFactor = meals.where((Meal m) => m.cooking?.recipe == meal.cooking?.recipe).fold(0, (int sum, Meal m) => sum + m.people);
       } else {
         peopleFactor = 0;
       }

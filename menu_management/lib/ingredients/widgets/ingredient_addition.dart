@@ -4,8 +4,6 @@ import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:uuid/uuid.dart";
 
-
-
 class IngredientAddition extends StatefulWidget {
   final void Function(String value)? onUpdate;
   const IngredientAddition({super.key, this.onUpdate});

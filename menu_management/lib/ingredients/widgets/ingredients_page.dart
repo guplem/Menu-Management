@@ -28,9 +28,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
             itemCount: filtered.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
-                return IngredientAddition(
-                  onUpdate: (value) => setState(() => _search = value),
-                );
+                return IngredientAddition(onUpdate: (value) => setState(() => _search = value));
               }
 
               index--;

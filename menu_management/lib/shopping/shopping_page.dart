@@ -33,9 +33,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Shopping List"),
-      ),
+      appBar: AppBar(title: const Text("Shopping List")),
       floatingActionButton: FloatingActionButton(
         tooltip: "Copy to clipboard",
         onPressed: () {
