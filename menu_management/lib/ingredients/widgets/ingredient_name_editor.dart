@@ -9,11 +9,7 @@ class IngredientNameEditor extends StatefulWidget {
   final Ingredient ingredient;
   final Function(Ingredient updatedIngredient) onUpdate;
 
-  static void show({
-    required BuildContext context,
-    required Ingredient ingredient,
-    required Function(Ingredient updatedIngredient) onUpdate,
-  }) {
+  static void show({required BuildContext context, required Ingredient ingredient, required Function(Ingredient updatedIngredient) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -47,11 +43,8 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
       title: const Text("Edit Ingredient Name"),
       content: TextField(
         controller: _controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: "Ingredient Name",
-        ),
-        onChanged: (String value) => setState(() {}),
+        decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Ingredient Name"),
+        onChanged: (String value) => setState(() {}), // Trigger rebuild to update Save button state
       ),
       actions: <Widget>[
         TextButton(

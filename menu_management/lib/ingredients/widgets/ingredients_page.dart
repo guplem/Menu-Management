@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/widgets/ingredient_addition.dart";
 import "package:menu_management/ingredients/widgets/ingredient_name_editor.dart";
-import "package:menu_management/ingredients/ingredients_provider.dart";
 
 class IngredientsPage extends StatefulWidget {
   const IngredientsPage({super.key});
@@ -41,7 +41,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                     context: context,
                     ingredient: filtered[index],
                     onUpdate: (updatedIngredient) {
-                      setState(() {});
+                      setState(() {}); // Trigger rebuild to reflect changes
                     },
                   );
                 },
