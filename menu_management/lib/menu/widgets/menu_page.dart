@@ -114,7 +114,7 @@ class _MenuPageState extends State<MenuPage> {
                           ? const OutlinedCard(child: SizedBox(height: 50, width: 140))
                           : OutlinedCard(
                               borderColor: highlightedMeal?.cooking?.recipe == meal.cooking?.recipe && meal.cooking != null
-                                  ? Theme.of(context).colorScheme.secondaryContainer
+                                  ? Theme.of(context).colorScheme.primaryContainer
                                   : null,
                               onTap: () async {
                                 showDialog(
