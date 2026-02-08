@@ -434,7 +434,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
     final List<_StepTimer> otherTimers = _otherActiveTimers(_currentStep);
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: otherTimers.isEmpty ? CrossAxisAlignment.center : CrossAxisAlignment.end,
       children: [
         // Left: Previous step
         Expanded(
