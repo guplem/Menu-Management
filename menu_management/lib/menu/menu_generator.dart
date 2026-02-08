@@ -168,6 +168,10 @@ class MenuGenerator {
   }
 
   Map<MealTime, Recipe?> getRecipesFor({required List<MenuConfiguration> configurationsToFindRecipesFor, required Set<Recipe> recipesToConsider}) {
+    if (configurationsToFindRecipesFor.isEmpty) {
+      return {};
+    }
+
     Map<MealTime, Recipe?> result = {};
 
     configurationsToFindRecipesFor.shuffle(Random(seed));
