@@ -4,8 +4,11 @@ import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:uuid/uuid.dart";
 
+
+
 class IngredientAddition extends StatefulWidget {
-  const IngredientAddition({super.key});
+  final void Function(String value)? onUpdate;
+  const IngredientAddition({super.key, this.onUpdate});
 
   @override
   State<IngredientAddition> createState() => _IngredientAdditionState();
@@ -14,7 +17,8 @@ class IngredientAddition extends StatefulWidget {
 class _IngredientAdditionState extends State<IngredientAddition> {
   final TextEditingController _controller = TextEditingController();
 
-  void onDispose() {
+  @override
+  void dispose() {
     _controller.dispose();
     super.dispose();
   }
@@ -23,7 +27,6 @@ class _IngredientAdditionState extends State<IngredientAddition> {
   Widget build(BuildContext context) {
     return ListTile(
       title: TextField(
-        // focusNode: FocusNode()..requestFocus(),
         controller: _controller,
         decoration: InputDecoration(
           labelText: "Ingredient name",
@@ -37,7 +40,10 @@ class _IngredientAdditionState extends State<IngredientAddition> {
                   },
           ),
         ),
-        onChanged: (value) => setState(() {}),
+        onChanged: (value) {
+          setState(() {});
+          widget.onUpdate?.call(value);
+        },
         onEditingComplete: addIngredient,
         onSubmitted: (value) => addIngredient(),
       ),
@@ -53,6 +59,7 @@ class _IngredientAdditionState extends State<IngredientAddition> {
     );
     setState(() {
       _controller.clear();
+      widget.onUpdate?.call("");
     });
   }
 }

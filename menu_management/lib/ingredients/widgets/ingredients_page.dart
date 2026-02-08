@@ -12,6 +12,8 @@ class IngredientsPage extends StatefulWidget {
 }
 
 class _IngredientsPageState extends State<IngredientsPage> {
+  String _search = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,21 +21,26 @@ class _IngredientsPageState extends State<IngredientsPage> {
       body: Builder(
         builder: (context) {
           IngredientsProvider ingredientsProvider = getProvider<IngredientsProvider>(context, listen: true);
+          final filtered = _search.trim().isEmpty
+              ? ingredientsProvider.ingredients
+              : ingredientsProvider.ingredients.where((i) => i.name.toLowerCase().contains(_search.trim().toLowerCase())).toList();
           return ListView.builder(
-            itemCount: ingredientsProvider.ingredients.length + 1,
+            itemCount: filtered.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
-                return const IngredientAddition();
+                return IngredientAddition(
+                  onUpdate: (value) => setState(() => _search = value),
+                );
               }
 
               index--;
 
               return ListTile(
-                title: Text(ingredientsProvider.ingredients[index].name),
+                title: Text(filtered[index].name),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    Ingredient toRemove = ingredientsProvider.ingredients[index];
+                    Ingredient toRemove = filtered[index];
                     IngredientsProvider.remove(ingredientId: toRemove.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

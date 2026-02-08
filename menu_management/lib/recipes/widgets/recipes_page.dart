@@ -15,6 +15,7 @@ class RecipesPage extends StatefulWidget {
 
 class _RecipesPageState extends State<RecipesPage> {
   String? selectedRecipeId;
+  String _search = "";
 
   @override
   Widget build(BuildContext context) {
@@ -48,31 +49,37 @@ class _RecipesPageState extends State<RecipesPage> {
             return RecipePage(recipeId: selectedRecipeId!);
           }
 
+          final filtered = _search.trim().isEmpty
+              ? recipesProvider.recipes
+              : recipesProvider.recipes.where((r) => r.name.toLowerCase().contains(_search.trim().toLowerCase())).toList();
+
           return ListView.builder(
-            itemCount: recipesProvider.recipes.length + 1,
+            itemCount: filtered.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
-                return const RecipeAddition();
+                return RecipeAddition(
+                  onUpdate: (value) => setState(() => _search = value),
+                );
               }
 
               index--;
 
               return ListTile(
-                title: Text(recipesProvider.recipes[index].name),
+                title: Text(filtered[index].name),
                 onTap: () {
                   setState(() {
-                    selectedRecipeId = recipesProvider.recipes[index].id;
+                    selectedRecipeId = filtered[index].id;
                   });
                 },
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("${recipesProvider.recipes[index].totalTimeMinutes} min"),
+                    Text("${filtered[index].totalTimeMinutes} min"),
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {
-                        Recipe toRemove = recipesProvider.recipes[index];
+                        Recipe toRemove = filtered[index];
                         RecipesProvider.remove(recipeId: toRemove.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

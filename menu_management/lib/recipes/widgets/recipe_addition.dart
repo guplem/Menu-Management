@@ -4,8 +4,11 @@ import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:uuid/uuid.dart";
 
+
+
 class RecipeAddition extends StatefulWidget {
-  const RecipeAddition({super.key});
+  final void Function(String value)? onUpdate;
+  const RecipeAddition({super.key, this.onUpdate});
 
   @override
   State<RecipeAddition> createState() => _RecipeAdditionState();
@@ -14,7 +17,8 @@ class RecipeAddition extends StatefulWidget {
 class _RecipeAdditionState extends State<RecipeAddition> {
   final TextEditingController _controller = TextEditingController();
 
-  void onDispose() {
+  @override
+  void dispose() {
     _controller.dispose();
     super.dispose();
   }
@@ -23,7 +27,6 @@ class _RecipeAdditionState extends State<RecipeAddition> {
   Widget build(BuildContext context) {
     return ListTile(
       title: TextField(
-        // focusNode: FocusNode()..requestFocus(),
         controller: _controller,
         decoration: InputDecoration(
           labelText: "Recipe name",
@@ -37,7 +40,10 @@ class _RecipeAdditionState extends State<RecipeAddition> {
                   },
           ),
         ),
-        onChanged: (value) => setState(() {}),
+        onChanged: (value) {
+          setState(() {});
+          widget.onUpdate?.call(value);
+        },
         onEditingComplete: addRecipe,
         onSubmitted: (value) => addRecipe(),
       ),
@@ -53,6 +59,7 @@ class _RecipeAdditionState extends State<RecipeAddition> {
     );
     setState(() {
       _controller.clear();
+      widget.onUpdate?.call("");
     });
   }
 }
