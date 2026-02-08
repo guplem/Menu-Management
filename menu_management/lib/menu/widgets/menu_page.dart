@@ -116,96 +116,90 @@ class _MenuPageState extends State<MenuPage> {
                               borderColor: highlightedMeal?.cooking?.recipe == meal.cooking?.recipe && meal.cooking != null
                                   ? Theme.of(context).colorScheme.secondaryContainer
                                   : null,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (highlightedMeal == meal)
+                              onTap: () async {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text("Select a new recipe"),
+                                      content: ConstrainedBox(
+                                        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: RecipesProvider.instance.recipes.map((Recipe recipe) {
+                                              return ListTile(
+                                                title: Text(recipe.name),
+                                                onTap: () {
+                                                  setState(() {
+                                                    menu = menu.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe);
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ),
+                                      actions: <Widget>[TextButton(child: const Text("Cancel"), onPressed: () => Navigator.of(context).pop())],
+                                    );
+                                  },
+                                );
+                              },
+                              child: SizedBox(
+                                height: 200,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: .spaceBetween,
+                                  children: [
+                                    DefaultTextStyle(
+                                      style: Theme.of(context).textTheme.titleMedium!,
+                                      child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null")),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    SizedBox(
+                                      width: 140,
+                                      child: meal.cooking == null
+                                          ? const Icon(Icons.warning_rounded)
+                                          : Text(
+                                              "(${meal.cooking?.yield}) ${meal.cooking?.recipe.name}",
+                                              textAlign: TextAlign.center,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 3,
+                                            ),
+                                    ),
+                                    const SizedBox(height: 5),
                                     Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         IconButton(
-                                          icon: const Icon(Icons.edit_rounded),
-                                          onPressed: () async {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return AlertDialog(
-                                                  title: const Text("Select a new recipe"),
-                                                  content: ConstrainedBox(
-                                                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
-                                                    child: SingleChildScrollView(
-                                                      child: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: RecipesProvider.instance.recipes.map((Recipe recipe) {
-                                                          return ListTile(
-                                                            title: Text(recipe.name),
-                                                            onTap: () {
-                                                              setState(() {
-                                                                menu = menu.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe);
-                                                              });
-                                                              Navigator.of(context).pop();
-                                                            },
-                                                          );
-                                                        }).toList(),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  actions: <Widget>[
-                                                    TextButton(child: const Text("Cancel"), onPressed: () => Navigator.of(context).pop()),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
+                                          icon: const Icon(Icons.remove, size: 18),
+                                          onPressed: meal.people <= 0
+                                              ? null
+                                              : () => setState(() {
+                                                  menu = menu.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people - 1);
+                                                }),
+                                        ),
+                                        Text("${meal.people}"),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          meal.people <= 0
+                                              ? Icons.person_outline_rounded
+                                              : meal.people <= 1
+                                              ? Icons.person_rounded
+                                              : Icons.people_alt_rounded,
+                                          size: 18,
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.add, size: 18),
+                                          onPressed: () => setState(() {
+                                            menu = menu.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people + 1);
+                                          }),
                                         ),
                                       ],
                                     ),
-                                  DefaultTextStyle(
-                                    style: Theme.of(context).textTheme.titleMedium!,
-                                    child: Text((meal.mealTime.mealType.name.capitalizeFirstLetter() ?? "null")),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  SizedBox(
-                                    width: 140,
-                                    child: meal.cooking == null
-                                        ? const Icon(Icons.warning_rounded)
-                                        : Text(
-                                            "(${meal.cooking?.yield}) ${meal.cooking?.recipe.name}",
-                                            textAlign: TextAlign.center,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 3,
-                                          ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove, size: 18),
-                                        onPressed: meal.people <= 0
-                                            ? null
-                                            : () => setState(() {
-                                                menu = menu.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people - 1);
-                                              }),
-                                      ),
-                                      Text("${meal.people}"),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        meal.people <= 0
-                                            ? Icons.person_outline_rounded
-                                            : meal.people <= 1
-                                            ? Icons.person_rounded
-                                            : Icons.people_alt_rounded,
-                                        size: 18,
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.add, size: 18),
-                                        onPressed: () => setState(() {
-                                          menu = menu.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people + 1);
-                                        }),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                     ),
