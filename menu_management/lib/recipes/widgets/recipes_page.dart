@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/recipes/widgets/export_recipe_to_markdown.dart";
 import "package:menu_management/recipes/widgets/play_recipe_page.dart";
 import "package:menu_management/recipes/widgets/recipe_addition.dart";
 import "package:menu_management/recipes/widgets/recipe_page.dart";
@@ -43,10 +44,7 @@ class _RecipesPageState extends State<RecipesPage> {
                   ? "Recipes"
                   : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipeId).name,
             ),
-          ],
-        ),
-        actions: [
-          if (selectedRecipeId != null)
+            Gap.horizontal(),
             IconButton(
               icon: const Icon(Icons.edit_rounded),
               onPressed: () => RecipeTitleEditor.show(
@@ -57,9 +55,13 @@ class _RecipesPageState extends State<RecipesPage> {
                 },
               ),
             ),
-          if (selectedRecipeId != null)
-            IconButton(
+          ],
+        ),
+        actions: [
+          if (selectedRecipeId != null) ...[
+            TextButton.icon(
               icon: const Icon(Icons.delete_rounded),
+              label: const Text("Delete"),
               onPressed: () {
                 final Recipe toRemove = RecipesProvider.instance.get(selectedRecipeId!);
                 RecipesProvider.remove(recipeId: toRemove.id);
@@ -78,7 +80,16 @@ class _RecipesPageState extends State<RecipesPage> {
                 );
               },
             ),
-          Gap.horizontal(),
+            Gap.horizontal(),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.copy_rounded),
+              label: const Text("Export Markdown"),
+              onPressed: () {
+                ExportRecipeToMarkdown.show(context: context, recipe: RecipesProvider.instance.get(selectedRecipeId!));
+              },
+            ),
+            Gap.horizontal(),
+          ],
         ],
       ),
       floatingActionButton: selectedRecipeId != null
