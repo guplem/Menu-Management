@@ -18,6 +18,15 @@ class _RecipesPageState extends State<RecipesPage> {
   String? selectedRecipeId;
   String _search = "";
 
+  void playRecipe() {
+    final Recipe recipe = RecipesProvider.instance.get(selectedRecipeId!);
+    if (recipe.instructions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Add at least one step before cooking this recipe.")));
+      return;
+    }
+    PlayRecipePage.show(context: context, recipe: recipe);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,22 +48,32 @@ class _RecipesPageState extends State<RecipesPage> {
                 },
               ),
             ),
+          if (selectedRecipeId != null)
+            IconButton(
+              icon: const Icon(Icons.delete_rounded),
+              onPressed: () {
+                final Recipe toRemove = RecipesProvider.instance.get(selectedRecipeId!);
+                RecipesProvider.remove(recipeId: toRemove.id);
+                selectedRecipeId = null;
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Recipe "${toRemove.name}" removed'),
+                    action: SnackBarAction(
+                      label: "Undo",
+                      onPressed: () {
+                        RecipesProvider.addOrUpdate(newRecipe: toRemove);
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
           if (selectedRecipeId != null) IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => setState(() => selectedRecipeId = null)),
         ],
       ),
       floatingActionButton: selectedRecipeId != null
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                final Recipe recipe = RecipesProvider.instance.get(selectedRecipeId!);
-                if (recipe.instructions.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Add at least one step before cooking this recipe.")));
-                  return;
-                }
-                PlayRecipePage.show(context: context, recipe: recipe);
-              },
-              icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text("Cook"),
-            )
+          ? FloatingActionButton.extended(onPressed: playRecipe, icon: const Icon(Icons.play_arrow_rounded), label: const Text("Cook"))
           : null,
       body: Builder(
         builder: (context) {
@@ -85,27 +104,19 @@ class _RecipesPageState extends State<RecipesPage> {
                   });
                 },
                 trailing: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text("${filtered[index].totalTimeMinutes} min"),
-                    const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.delete),
                       onPressed: () {
-                        Recipe toRemove = filtered[index];
-                        RecipesProvider.remove(recipeId: toRemove.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Recipe "${toRemove.name}" removed'),
-                            action: SnackBarAction(
-                              label: "Undo",
-                              onPressed: () {
-                                RecipesProvider.addOrUpdate(newRecipe: toRemove);
-                              },
-                            ),
-                          ),
-                        );
+                        setState(() {
+                          selectedRecipeId = filtered[index].id;
+                        });
+                        playRecipe();
                       },
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      tooltip: "Cook",
                     ),
                   ],
                 ),
