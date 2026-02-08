@@ -103,9 +103,10 @@ class _RecipesPageState extends State<RecipesPage> {
             return RecipePage(recipeId: selectedRecipeId!);
           }
 
-          final filtered = _search.trim().isEmpty
+          final normalizedSearch = _search.normalizeForSearch(removeSpaces: true);
+          final filtered = normalizedSearch.isEmpty
               ? recipesProvider.recipes
-              : recipesProvider.recipes.where((r) => r.name.toLowerCase().contains(_search.trim().toLowerCase())).toList();
+              : recipesProvider.recipes.where((r) => r.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)).toList();
 
           return ListView.builder(
             itemCount: filtered.length + 1,

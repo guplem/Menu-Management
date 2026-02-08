@@ -22,9 +22,10 @@ class _IngredientsPageState extends State<IngredientsPage> {
       body: Builder(
         builder: (context) {
           IngredientsProvider ingredientsProvider = getProvider<IngredientsProvider>(context, listen: true);
-          final filtered = _search.trim().isEmpty
+          final normalizedSearch = _search.normalizeForSearch(removeSpaces: true);
+          final filtered = normalizedSearch.isEmpty
               ? ingredientsProvider.ingredients
-              : ingredientsProvider.ingredients.where((i) => i.name.toLowerCase().contains(_search.trim().toLowerCase())).toList();
+              : ingredientsProvider.ingredients.where((i) => i.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)).toList();
           return ListView.builder(
             itemCount: filtered.length + 1,
             itemBuilder: (context, index) {
