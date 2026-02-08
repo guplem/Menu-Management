@@ -31,10 +31,19 @@ class _RecipesPageState extends State<RecipesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          selectedRecipeId == null
-              ? "Recipes"
-              : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipeId).name,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (selectedRecipeId != null)
+              IconButton(onPressed: () => setState(() => selectedRecipeId = null), icon: const Icon(Icons.arrow_back_rounded)),
+            Gap.horizontal(),
+            Text(
+              selectedRecipeId == null
+                  ? "Recipes"
+                  : getProvider<RecipesProvider>(context, listen: true).recipes.firstWhere((element) => element.id == selectedRecipeId).name,
+            ),
+          ],
         ),
         actions: [
           if (selectedRecipeId != null)
@@ -69,7 +78,7 @@ class _RecipesPageState extends State<RecipesPage> {
                 );
               },
             ),
-          if (selectedRecipeId != null) IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => setState(() => selectedRecipeId = null)),
+          Gap.horizontal(),
         ],
       ),
       floatingActionButton: selectedRecipeId != null
