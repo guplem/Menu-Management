@@ -17,6 +17,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var color = ColorScheme.fromSeed(
+      seedColor: Colors.lightGreen,
+      brightness: PlatformDispatcher.instance.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
+    );
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => IngredientsProvider()),
@@ -27,9 +32,10 @@ class MyApp extends StatelessWidget {
         title: "Menu and Recipes Manager",
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.lightGreen,
-            brightness: PlatformDispatcher.instance.platformBrightness == Brightness.light ? Brightness.light : Brightness.dark,
+          colorScheme: color,
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: color.surfaceContainer,
+            contentTextStyle: TextStyle(color: color.onSurface),
           ),
           useMaterial3: true,
         ),
