@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/widgets/ingredient_addition.dart";
+import "package:menu_management/ingredients/widgets/ingredient_name_editor.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 
 class IngredientsPage extends StatefulWidget {
@@ -35,6 +36,15 @@ class _IngredientsPageState extends State<IngredientsPage> {
 
               return ListTile(
                 title: Text(filtered[index].name),
+                onTap: () {
+                  IngredientNameEditor.show(
+                    context: context,
+                    ingredient: filtered[index],
+                    onUpdate: (updatedIngredient) {
+                      setState(() {});
+                    },
+                  );
+                },
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
