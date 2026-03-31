@@ -1,5 +1,18 @@
 # Menu-Management
 
+## Development Setup
+
+Install NuGet CLI (required by the `audioplayers_windows` plugin to fetch native dependencies):
+
+```
+winget install Microsoft.NuGet
+nuget sources add -Name nuget.org -Source https://api.nuget.org/v3/index.json
+```
+
+The second command adds the default package source, which may not be configured automatically after installation.
+
+## Release
+
 To create a new release of the App execute in windows the file named `build_and_copy.bat`.
 This will create a new portable release and copy it to the desktop.
 
