@@ -4,8 +4,8 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/menu_provider.dart";
-import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/widgets/menu_page.dart";
 import "package:menu_management/persistency.dart";
 
@@ -29,9 +29,9 @@ class MenuConfigurationPage extends StatelessWidget {
             tooltip: "Open Menu",
             icon: const Icon(Icons.file_open),
             onPressed: () async {
-              Menu? loadedMenu = await Persistency.loadMenu();
+              MultiWeekMenu? loadedMenu = await Persistency.loadMultiWeekMenu();
               if (loadedMenu != null && context.mounted) {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(menu: loadedMenu)));
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: loadedMenu)));
               }
             },
           ),
@@ -41,10 +41,8 @@ class MenuConfigurationPage extends StatelessWidget {
         tooltip: "Generate Menu",
         child: const Icon(Icons.auto_awesome_sharp),
         onPressed: () {
-          // TODO: pass a random seed to generate a random menu
-          Menu menu = MenuProvider.generateMenu(initialSeed: 1);
-          // Navigate to MenuPage
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(menu: menu)));
+          MultiWeekMenu multiWeekMenu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: multiWeekMenu)));
         },
       ),
       body: ListView.builder(

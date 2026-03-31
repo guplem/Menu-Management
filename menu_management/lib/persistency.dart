@@ -5,6 +5,7 @@ import "package:file_picker/file_picker.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 
@@ -110,7 +111,7 @@ class Persistency {
     }
   }
 
-  static Future<void> saveMenu(Menu menu) async {
+  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu) async {
     DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
     String date = "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
 
@@ -127,14 +128,14 @@ class Persistency {
     } else {
       // Prepare the file
       File file = File(outputFile);
-      String data = jsonEncode(menu.toJson());
+      String data = jsonEncode(multiWeekMenu.toJson());
 
       // Save to file
       file.writeAsString(data);
     }
   }
 
-  static Future<Menu?> loadMenu() async {
+  static Future<MultiWeekMenu?> loadMultiWeekMenu() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: "Select the menu to load",
       allowMultiple: false,
@@ -155,10 +156,13 @@ class Persistency {
       // Parse the data
       Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
 
-      // Convert to INGREDIENT objects
-      Menu menu = Menu.fromJson(json);
-
-      return menu;
+      // Support loading old single-week .tsm files by checking for "weeks" key
+      if (json.containsKey("weeks")) {
+        return MultiWeekMenu.fromJson(json);
+      } else {
+        Menu singleWeek = Menu.fromJson(json);
+        return MultiWeekMenu(weeks: [singleWeek]);
+      }
     }
     return null;
   }

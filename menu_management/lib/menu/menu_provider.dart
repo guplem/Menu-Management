@@ -6,6 +6,7 @@ import "package:menu_management/menu/menu_generator.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
 
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.
@@ -167,8 +168,14 @@ class MenuProvider extends ChangeNotifier {
     }
   }
 
-  static Menu generateMenu({required int initialSeed}) {
+  static MultiWeekMenu generateMenu({required int initialSeed}) {
     MenuGenerator generator = MenuGenerator(baseSeed: initialSeed);
+    generator.generate(configurations: instance.configurations);
+    return MultiWeekMenu(weeks: [generator.menu!]);
+  }
+
+  static Menu generateAdditionalWeek({required int seed}) {
+    MenuGenerator generator = MenuGenerator(baseSeed: seed);
     generator.generate(configurations: instance.configurations);
     return generator.menu!;
   }
