@@ -65,7 +65,7 @@ UI (Widgets)  -->  State (Providers)  -->  Data (Freezed Models)
 |--------|----------|------------|---------|
 | `ingredients/` | `IngredientsProvider` | `Ingredient` | CRUD for food items |
 | `recipes/` | `RecipesProvider` | `Recipe`, `Instruction`, `IngredientUsage`, `Quantity`, `Result` | Recipe management with multi-step instructions, inputs/outputs |
-| `menu/` | `MenuProvider` | `Menu`, `Meal`, `MealTime`, `Cooking`, `MenuConfiguration` | 21 meal slots (7 days x 3 meals), generation algorithm |
+| `menu/` | `MenuProvider` | `MultiWeekMenu`, `Menu`, `Meal`, `MealTime`, `Cooking`, `MenuConfiguration` | Multi-week menus (each week = 21 meal slots), generation algorithm |
 | `shopping/` | (derived) | `ShoppingIngredient` | Aggregated shopping list from generated menu |
 | `theme/` | - | `DynamicTheme`, `ThemeCustom` | Material 3 theming |
 
@@ -85,6 +85,18 @@ Core logic in `menu_generator.dart`. Multi-phase assignment with priority orderi
 ## Pattern Scout (mandatory)
 
 Before implementing any new feature, widget, provider, or model, run the `pattern-scout` agent (`.claude/agents/pattern-scout.md`). It analyzes the codebase for similar implementations and reports established patterns, naming conventions, file locations, and structure. Treat its output as the baseline to follow unless you have a concrete reason to deviate, and explain that reasoning when you do.
+
+## Test-Driven Development (mandatory)
+
+All changes must follow red-green TDD:
+
+1. **RED**: Write failing tests first that describe the expected behavior.
+2. **GREEN**: Write the minimum code to make the tests pass.
+3. Repeat for each incremental behavior.
+
+Tests live in `menu_management/test/`. Run with `cd menu_management && flutter test test/<file>.dart`.
+
+This applies to new features, bug fixes, and refactors. Do not write production code without a failing test driving it.
 
 ## Key Patterns
 
@@ -148,6 +160,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0005](adr/0005-multi-step-recipes-with-inputs-outputs.md) | Multi-step recipes with inputs/outputs dependency chain |
 | [0006](adr/0006-cook-mode-play-recipe.md) | Cook mode: step-by-step cooking guide with timers and scaling |
 | [0007](adr/0007-flutter-essentials-as-local-library.md) | flutter_essentials as a local library directory, not a separate package |
+| [0008](adr/0008-multi-week-menus.md) | Multi-week menus: MultiWeekMenu wraps List\<Menu\>, independent generation per week |
 
 **When to consult ADRs:** Before changing state management, data models, persistence, or introducing new architectural patterns. Run the `adr-checker` agent (`.claude/agents/adr-checker.md`) in consult mode to find relevant ADRs.
 
