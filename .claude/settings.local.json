@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/guple/Documents/GitHub/Menu-Management -maxdepth 3 -type f \\\\\\(-name *.md -o -name .github \\\\\\))"
+    ]
+  }
+}
