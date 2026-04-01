@@ -161,7 +161,7 @@ class Persistency {
         return MultiWeekMenu.fromJson(json);
       } else {
         Menu singleWeek = Menu.fromJson(json);
-        return MultiWeekMenu(weeks: [singleWeek]);
+        return MultiWeekMenu.validated(weeks: [singleWeek]);
       }
     }
     return null;

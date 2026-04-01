@@ -171,7 +171,7 @@ class MenuProvider extends ChangeNotifier {
   static MultiWeekMenu generateMenu({required int initialSeed}) {
     MenuGenerator generator = MenuGenerator(baseSeed: initialSeed);
     generator.generate(configurations: instance.configurations);
-    return MultiWeekMenu(weeks: [generator.menu!]);
+    return MultiWeekMenu.validated(weeks: [generator.menu!]);
   }
 
   static Menu generateAdditionalWeek({required int seed}) {

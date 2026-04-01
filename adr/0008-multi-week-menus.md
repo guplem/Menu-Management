@@ -16,6 +16,7 @@ Key design choices:
 - **Aggregated shopping**: `MultiWeekMenu.allIngredients` merges ingredient quantities across all weeks, combining same-unit amounts per ingredient.
 - **Independent generation**: Each additional week is generated independently with its own seed, reusing the same `MenuConfiguration` settings. This means each week gets a different menu while respecting the same time constraints.
 - **Backward-compatible persistence**: The `loadMultiWeekMenu` method detects whether a `.tsm` file contains the new `MultiWeekMenu` format (has "weeks" key) or the old single-`Menu` format, and wraps old files in a single-week `MultiWeekMenu`.
+- **Minimum one week invariant**: The default Freezed constructor allows empty weeks (needed for JSON deserialization). Production code uses `MultiWeekMenu.validated(weeks: ...)` which throws `ArgumentError` on empty lists. `removeLastWeek()` also guards against going below one week.
 - **UI navigation**: Week switching uses left/right chevrons in the app bar. Add/remove week uses +/- circle buttons. When only one week exists, the navigation arrows are hidden.
 
 ## Consequences

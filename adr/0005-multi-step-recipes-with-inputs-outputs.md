@@ -23,9 +23,18 @@ This creates an explicit dependency chain between instructions within a single r
 4. Instruction 4: Combine and serve -> inputs: `["bolognese-sauce", "cooked-pasta"]`
 
 ### Validation rules
-- An instruction can only reference outputs from **previous** instructions (enforced by `RecipesProvider.getRecipeInputsAvailability()`)
-- An instruction cannot reference its own outputs (no circular dependencies)
-- The UI only shows available inputs when editing an instruction
+
+`RecipesProvider.getRecipeInputsAvailability()` determines which outputs are available as inputs for a given instruction. An output is marked **unavailable** if any of the following are true:
+
+- It is already consumed as an input by another instruction (no sharing outputs between steps)
+- Its result ID matches the target instruction's ID (name-collision guard)
+- It is produced by an instruction that comes **after** the target instruction (no forward references)
+
+In other words, an instruction can only reference unclaimed outputs from **previous** instructions.
+
+Note: the check does not broadly prevent an instruction from referencing its own outputs by ownership. It only blocks a result whose ID happens to equal the instruction ID. In practice, outputs of the current instruction are typically excluded by the forward-reference rule since they are not produced by a prior instruction.
+
+The UI only shows available inputs when editing an instruction.
 
 ### Cook Mode integration
 - In Play Recipe mode, input references appear visually distinct (tertiary color)

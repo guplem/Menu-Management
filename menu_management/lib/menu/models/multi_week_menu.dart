@@ -14,6 +14,13 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
 
   const MultiWeekMenu._();
 
+  /// Validates that the menu has at least one week.
+  /// Use this factory instead of the default constructor when creating from user actions.
+  factory MultiWeekMenu.validated({required List<Menu> weeks}) {
+    if (weeks.isEmpty) throw ArgumentError("MultiWeekMenu must have at least one week");
+    return MultiWeekMenu(weeks: weeks);
+  }
+
   int get weekCount => weeks.length;
 
   MultiWeekMenu addWeek(Menu week) {

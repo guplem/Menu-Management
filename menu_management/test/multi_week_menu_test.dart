@@ -1,3 +1,5 @@
+import "dart:convert";
+
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
@@ -48,9 +50,8 @@ void main() {
       expect(multiWeek.weekCount, 2);
     });
 
-    test("cannot be created with zero weeks", () {
-      final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: []);
-      expect(multiWeek.weekCount, 0);
+    test("validated factory throws on zero weeks", () {
+      expect(() => MultiWeekMenu.validated(weeks: []), throwsArgumentError);
     });
   });
 
@@ -160,6 +161,46 @@ void main() {
 
       expect(output.contains("Week 1"), true);
       expect(output.contains("Week 2"), true);
+    });
+  });
+
+  group("MultiWeekMenu backward-compatible JSON loading", () {
+    test("loads new multi-week format with weeks key", () {
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final Menu week1 = _singleMealMenu(recipe: recipe);
+      final MultiWeekMenu original = MultiWeekMenu(weeks: [week1]);
+
+      String encoded = jsonEncode(original.toJson());
+      Map<String, dynamic> json = jsonDecode(encoded);
+
+      expect(json.containsKey("weeks"), true);
+      final MultiWeekMenu restored = MultiWeekMenu.fromJson(json);
+      expect(restored.weekCount, 1);
+      expect(restored.weeks.first.meals.first.cooking?.recipe.name, "Pasta");
+    });
+
+    test("old single-week Menu JSON lacks weeks key", () {
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final Menu singleWeek = _singleMealMenu(recipe: recipe);
+
+      String encoded = jsonEncode(singleWeek.toJson());
+      Map<String, dynamic> json = jsonDecode(encoded);
+
+      // Old format has "meals" at top level, no "weeks"
+      expect(json.containsKey("weeks"), false);
+      expect(json.containsKey("meals"), true);
+
+      // Simulate backward-compatible load logic from Persistency.loadMultiWeekMenu
+      MultiWeekMenu loaded;
+      if (json.containsKey("weeks")) {
+        loaded = MultiWeekMenu.fromJson(json);
+      } else {
+        Menu menu = Menu.fromJson(json);
+        loaded = MultiWeekMenu.validated(weeks: [menu]);
+      }
+
+      expect(loaded.weekCount, 1);
+      expect(loaded.weeks.first.meals.first.cooking?.recipe.name, "Pasta");
     });
   });
 }
