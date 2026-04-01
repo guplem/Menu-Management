@@ -40,7 +40,8 @@ All Flutter source code lives under `menu_management/`.
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `cd menu_management && ./build_and_copy.bat` | Windows only; copies portable build to Desktop |
-| Run single test | `cd menu_management && flutter test test/<file>.dart` | No active test suite currently |
+| Run all tests | `cd menu_management && flutter test test/` | 249 tests across 7 files |
+| Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 
 ## Architecture
