@@ -18,6 +18,107 @@ class Persistency {
 
   Persistency._internal();
 
+  // ============================================================
+  // Last session tracking
+  // ============================================================
+
+  static File get _lastSessionFile {
+    String appData = Platform.environment["APPDATA"] ?? Platform.environment["HOME"] ?? ".";
+    Directory dir = Directory("$appData/MenuManagement");
+    if (!dir.existsSync()) dir.createSync(recursive: true);
+    return File("${dir.path}/last_session.json");
+  }
+
+  static Map<String, String?> _readLastSession() {
+    try {
+      File file = _lastSessionFile;
+      if (file.existsSync()) {
+        return Map<String, String?>.from(jsonDecode(file.readAsStringSync()));
+      }
+    } catch (_) {
+      // Ignore errors reading last session
+    }
+    return {};
+  }
+
+  static void _saveLastSession({String? tsrPath, String? tsmPath}) {
+    try {
+      Map<String, String?> session = _readLastSession();
+      if (tsrPath != null) session["tsrPath"] = tsrPath;
+      if (tsmPath != null) session["tsmPath"] = tsmPath;
+      _lastSessionFile.writeAsStringSync(jsonEncode(session));
+    } catch (_) {
+      // Ignore errors saving last session
+    }
+  }
+
+  /// Returns the last saved/loaded .tsr path, or null if none.
+  static String? get lastTsrPath => _readLastSession()["tsrPath"];
+
+  /// Returns the last saved/loaded .tsm path, or null if none.
+  static String? get lastTsmPath => _readLastSession()["tsmPath"];
+
+  // ============================================================
+  // Load from a specific file path (no picker)
+  // ============================================================
+
+  /// Loads ingredients and recipes from a specific .tsr file path.
+  /// Returns true if successful, false if the file doesn't exist or can't be read.
+  static Future<bool> loadDataFromPath({
+    required String path,
+    required IngredientsProvider ingredientsProvider,
+    required RecipesProvider recipesProvider,
+  }) async {
+    try {
+      File file = File(path);
+      if (!file.existsSync()) return false;
+
+      String data = await file.readAsString();
+      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+
+      List<Ingredient> ingredients = [];
+      for (Map<String, dynamic> ingredient in json["Ingredients"]) {
+        ingredients.add(Ingredient.fromJson(ingredient));
+      }
+
+      List<Recipe> recipes = [];
+      for (Map<String, dynamic> recipe in json["Recipes"]) {
+        recipes.add(Recipe.fromJson(recipe));
+      }
+
+      ingredientsProvider.setData(ingredients);
+      recipesProvider.setData(recipes);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Loads a MultiWeekMenu from a specific .tsm file path.
+  /// Returns null if the file doesn't exist or can't be read.
+  static Future<MultiWeekMenu?> loadMenuFromPath(String path) async {
+    try {
+      File file = File(path);
+      if (!file.existsSync()) return null;
+
+      String data = await file.readAsString();
+      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+
+      if (json.containsKey("weeks")) {
+        return MultiWeekMenu.fromJson(json);
+      } else {
+        Menu singleWeek = Menu.fromJson(json);
+        return MultiWeekMenu.validated(weeks: [singleWeek]);
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ============================================================
+  // Save / Load with file picker
+  // ============================================================
+
   static Future<void> saveData() async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
@@ -66,7 +167,8 @@ class Persistency {
 
       // Close JSON and save to file
       data += "}";
-      file.writeAsString(data);
+      await file.writeAsString(data);
+      _saveLastSession(tsrPath: outputFile);
     }
   }
 
@@ -108,6 +210,7 @@ class Persistency {
       // Update the providers
       ingredientsProvider.setData(ingredients);
       recipesProvider.setData(recipes);
+      _saveLastSession(tsrPath: result.files.single.path!);
     }
   }
 
@@ -131,7 +234,8 @@ class Persistency {
       String data = jsonEncode(multiWeekMenu.toJson());
 
       // Save to file
-      file.writeAsString(data);
+      await file.writeAsString(data);
+      _saveLastSession(tsmPath: outputFile);
     }
   }
 
@@ -158,8 +262,10 @@ class Persistency {
 
       // Support loading old single-week .tsm files by checking for "weeks" key
       if (json.containsKey("weeks")) {
+        _saveLastSession(tsmPath: result.files.single.path!);
         return MultiWeekMenu.fromJson(json);
       } else {
+        _saveLastSession(tsmPath: result.files.single.path!);
         Menu singleWeek = Menu.fromJson(json);
         return MultiWeekMenu.validated(weeks: [singleWeek]);
       }
