@@ -1,6 +1,5 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
-import "package:menu_management/default_data.dart";
 import "package:menu_management/hub.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/menu/menu_provider.dart";
@@ -17,7 +16,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     var color = ColorScheme.fromSeed(
@@ -56,56 +54,153 @@ class _AppHome extends StatefulWidget {
 }
 
 class _AppHomeState extends State<_AppHome> {
-  bool _dataLoaded = false;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showStartupDialogs());
   }
 
-  Future<void> _loadData() async {
+  Future<void> _showStartupDialogs() async {
     final IngredientsProvider ingredientsProvider = Provider.of<IngredientsProvider>(context, listen: false);
     final RecipesProvider recipesProvider = Provider.of<RecipesProvider>(context, listen: false);
 
-    // Try loading from last session first
-    bool recipesLoaded = false;
+    // Dialog 1: Load recipe book?
     String? lastTsrPath = Persistency.lastTsrPath;
-    if (lastTsrPath != null) {
-      recipesLoaded = await Persistency.loadDataFromPath(
-        path: lastTsrPath,
-        ingredientsProvider: ingredientsProvider,
-        recipesProvider: recipesProvider,
-      );
-    }
+    String? recipeChoice = await _showLoadDialog(
+      title: "Load a recipe book?",
+      lastSessionLabel: lastTsrPath != null ? "Load last saved" : null,
+      defaultLabel: "Load default",
+    );
 
-    // Fall back to bundled defaults
-    if (!recipesLoaded) {
-      await DefaultData.loadDefaultRecipes(
+    if (!mounted) return;
+
+    bool recipesLoaded = false;
+    if (recipeChoice == "last_session") {
+      recipesLoaded = await Persistency.loadDataFromPath(
+        path: lastTsrPath!,
         ingredientsProvider: ingredientsProvider,
         recipesProvider: recipesProvider,
       );
+      if (!recipesLoaded && mounted) {
+        await _showErrorDialog("Could not load the last saved recipe book. The file may have been moved or corrupted.");
+      }
+    } else if (recipeChoice == "default") {
+      recipesLoaded = await _tryLoadDefaultRecipes(ingredientsProvider, recipesProvider);
     }
 
     if (!mounted) return;
-    setState(() => _dataLoaded = true);
+    setState(() => _initialized = true);
 
-    // Try loading menu from last session first, then fall back to default
-    MultiWeekMenu? menu;
+    // Only ask about menu if recipes were loaded
+    if (!recipesLoaded) return;
+
+    // Dialog 2: Load weekly menu?
     String? lastTsmPath = Persistency.lastTsmPath;
-    if (lastTsmPath != null) {
-      menu = await Persistency.loadMenuFromPath(lastTsmPath);
-    }
-    menu ??= await DefaultData.loadDefaultMenu();
+    String? menuChoice = await _showLoadDialog(
+      title: "Load a weekly menu?",
+      lastSessionLabel: lastTsmPath != null ? "Load last saved" : null,
+      defaultLabel: "Load default",
+    );
 
-    if (mounted) {
+    if (!mounted) return;
+
+    MultiWeekMenu? menu;
+    if (menuChoice == "last_session") {
+      menu = await Persistency.loadMenuFromPath(lastTsmPath!);
+      if (menu == null && mounted) {
+        await _showErrorDialog("Could not load the last saved menu. The file may have been moved or corrupted.");
+      }
+    } else if (menuChoice == "default") {
+      menu = await _tryLoadDefaultMenu();
+    }
+
+    if (menu != null && mounted) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: menu!)));
     }
   }
 
+  Future<bool> _tryLoadDefaultRecipes(IngredientsProvider ingredientsProvider, RecipesProvider recipesProvider) async {
+    try {
+      await Persistency.loadDefaultRecipes(
+        ingredientsProvider: ingredientsProvider,
+        recipesProvider: recipesProvider,
+      );
+      return true;
+    } catch (e) {
+      if (mounted) {
+        await _showErrorDialog("Could not load the default recipe book: $e");
+      }
+      return false;
+    }
+  }
+
+  Future<MultiWeekMenu?> _tryLoadDefaultMenu() async {
+    try {
+      return await Persistency.loadDefaultMenu();
+    } catch (e) {
+      if (mounted) {
+        await _showErrorDialog("Could not load the default menu: $e");
+      }
+      return null;
+    }
+  }
+
+  /// Shows a dialog with up to 3 options: last session, default, no.
+  /// Returns "last_session", "default", or "no".
+  Future<String?> _showLoadDialog({
+    required String title,
+    required String? lastSessionLabel,
+    required String defaultLabel,
+  }) {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(title),
+          actions: [
+            if (lastSessionLabel != null)
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop("last_session"),
+                child: Text(lastSessionLabel),
+              ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop("default"),
+              child: Text(defaultLabel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop("no"),
+              child: const Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showErrorDialog(String message) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!_dataLoaded) {
+    if (!_initialized) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 

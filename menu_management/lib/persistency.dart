@@ -2,6 +2,7 @@ import "dart:convert";
 import "dart:io";
 
 import "package:file_picker/file_picker.dart";
+import "package:flutter/services.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -74,20 +75,7 @@ class Persistency {
       if (!file.existsSync()) return false;
 
       String data = await file.readAsString();
-      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
-
-      List<Ingredient> ingredients = [];
-      for (Map<String, dynamic> ingredient in json["Ingredients"]) {
-        ingredients.add(Ingredient.fromJson(ingredient));
-      }
-
-      List<Recipe> recipes = [];
-      for (Map<String, dynamic> recipe in json["Recipes"]) {
-        recipes.add(Recipe.fromJson(recipe));
-      }
-
-      ingredientsProvider.setData(ingredients);
-      recipesProvider.setData(recipes);
+      _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
       return true;
     } catch (_) {
       return false;
@@ -102,16 +90,62 @@ class Persistency {
       if (!file.existsSync()) return null;
 
       String data = await file.readAsString();
-      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
-
-      if (json.containsKey("weeks")) {
-        return MultiWeekMenu.fromJson(json);
-      } else {
-        Menu singleWeek = Menu.fromJson(json);
-        return MultiWeekMenu.validated(weeks: [singleWeek]);
-      }
+      return _parseMenuFromJson(data);
     } catch (_) {
       return null;
+    }
+  }
+
+  // ============================================================
+  // Load bundled defaults from assets
+  // ============================================================
+
+  /// Loads the bundled RecipeBook.tsr asset into the providers.
+  static Future<void> loadDefaultRecipes({
+    required IngredientsProvider ingredientsProvider,
+    required RecipesProvider recipesProvider,
+  }) async {
+    String data = await rootBundle.loadString("assets/RecipeBook.tsr");
+    _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
+  }
+
+  /// Loads the bundled DefaultMenu.tsm asset into a MultiWeekMenu.
+  static Future<MultiWeekMenu> loadDefaultMenu() async {
+    String data = await rootBundle.loadString("assets/DefaultMenu.tsm");
+    return _parseMenuFromJson(data);
+  }
+
+  // ============================================================
+  // Shared parsing helpers
+  // ============================================================
+
+  /// Parses .tsr JSON content and updates the providers.
+  static void _parseTsrIntoProviders(String data, IngredientsProvider ingredientsProvider, RecipesProvider recipesProvider) {
+    Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+
+    List<Ingredient> ingredients = [];
+    for (Map<String, dynamic> ingredient in json["Ingredients"]) {
+      ingredients.add(Ingredient.fromJson(ingredient));
+    }
+
+    List<Recipe> recipes = [];
+    for (Map<String, dynamic> recipe in json["Recipes"]) {
+      recipes.add(Recipe.fromJson(recipe));
+    }
+
+    ingredientsProvider.setData(ingredients);
+    recipesProvider.setData(recipes);
+  }
+
+  /// Parses .tsm JSON content into a MultiWeekMenu. Supports both multi-week and single-week formats.
+  static MultiWeekMenu _parseMenuFromJson(String data) {
+    Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+
+    if (json.containsKey("weeks")) {
+      return MultiWeekMenu.fromJson(json);
+    } else {
+      Menu singleWeek = Menu.fromJson(json);
+      return MultiWeekMenu.validated(weeks: [singleWeek]);
     }
   }
 
@@ -189,27 +223,8 @@ class Persistency {
       // Prepare the file
       File file = File(result.files.single.path!);
 
-      // Read the file
       String data = await file.readAsString();
-
-      // Parse the data
-      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
-
-      // Convert to INGREDIENT objects
-      List<Ingredient> ingredients = [];
-      for (Map<String, dynamic> ingredient in json["Ingredients"]) {
-        ingredients.add(Ingredient.fromJson(ingredient));
-      }
-
-      // Convert to RECIPE objects
-      List<Recipe> recipes = [];
-      for (Map<String, dynamic> recipe in json["Recipes"]) {
-        recipes.add(Recipe.fromJson(recipe));
-      }
-
-      // Update the providers
-      ingredientsProvider.setData(ingredients);
-      recipesProvider.setData(recipes);
+      _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
       _saveLastSession(tsrPath: result.files.single.path!);
     }
   }
@@ -254,21 +269,9 @@ class Persistency {
       // Prepare the file
       File file = File(result.files.single.path!);
 
-      // Read the file
       String data = await file.readAsString();
-
-      // Parse the data
-      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
-
-      // Support loading old single-week .tsm files by checking for "weeks" key
-      if (json.containsKey("weeks")) {
-        _saveLastSession(tsmPath: result.files.single.path!);
-        return MultiWeekMenu.fromJson(json);
-      } else {
-        _saveLastSession(tsmPath: result.files.single.path!);
-        Menu singleWeek = Menu.fromJson(json);
-        return MultiWeekMenu.validated(weeks: [singleWeek]);
-      }
+      _saveLastSession(tsmPath: result.files.single.path!);
+      return _parseMenuFromJson(data);
     }
     return null;
   }
