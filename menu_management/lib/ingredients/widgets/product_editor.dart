@@ -5,15 +5,16 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 
 class ProductEditor extends StatefulWidget {
-  const ProductEditor({super.key, required this.ingredient});
+  const ProductEditor({super.key, required this.ingredient, required this.onUpdate});
 
   final Ingredient ingredient;
+  final Function(Ingredient updatedIngredient) onUpdate;
 
-  static void show({required BuildContext context, required Ingredient ingredient}) {
+  static void show({required BuildContext context, required Ingredient ingredient, required Function(Ingredient updatedIngredient) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {
-        return ProductEditor(ingredient: ingredient);
+        return ProductEditor(ingredient: ingredient, onUpdate: onUpdate);
       },
     );
   }
@@ -100,6 +101,7 @@ class _ProductEditorState extends State<ProductEditor> {
           TextButton(
             onPressed: () {
               Ingredient updated = widget.ingredient.copyWith(product: null);
+              widget.onUpdate(updated);
               IngredientsProvider.addOrUpdate(newIngredient: updated);
               Navigator.of(context).pop();
             },
@@ -119,6 +121,7 @@ class _ProductEditorState extends State<ProductEditor> {
                     unit: _selectedUnit,
                   );
                   Ingredient updated = widget.ingredient.copyWith(product: product);
+                  widget.onUpdate(updated);
                   IngredientsProvider.addOrUpdate(newIngredient: updated);
                   Navigator.of(context).pop();
                 }

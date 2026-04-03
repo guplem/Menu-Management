@@ -56,7 +56,13 @@ class _IngredientsPageState extends State<IngredientsPage> {
                         color: filtered[index].product != null ? Theme.of(context).colorScheme.primary : null,
                       ),
                       onPressed: () {
-                        ProductEditor.show(context: context, ingredient: filtered[index]);
+                        ProductEditor.show(
+                          context: context,
+                          ingredient: filtered[index],
+                          onUpdate: (updatedIngredient) {
+                            setState(() {});
+                          },
+                        );
                       },
                     ),
                     IconButton(

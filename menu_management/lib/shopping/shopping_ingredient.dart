@@ -80,14 +80,12 @@ class ShoppingIngredient extends StatelessWidget {
   }
 
   String _formatDesiredAmount(Quantity quantity) {
-    String amountRounded = quantity.amount.toStringAsFixed(0);
-    String unit = quantity.unit.toString().split(".").last;
-    if (ingredient.product != null && ingredient.product!.unit == quantity.unit) {
-      int packs = ingredient.product!.packsNeeded(quantity.amount);
-      String totalInPack = (packs * ingredient.product!.totalQuantityPerPack).toStringAsFixed(0);
-      return "$packs packs ($totalInPack $unit)";
+    if (ingredient.product != null) {
+      return ingredient.product!.formatQuantityForDisplay(quantity.amount, quantity.unit);
     }
-    return "$amountRounded $unit";
+    String amountRounded = quantity.amount.toStringAsFixed(0);
+    String unitName = quantity.unit.toString().split(".").last;
+    return "$amountRounded $unitName";
   }
 
   void informOfOwnedQuantitiesWith(double newOwnedValue, Unit quantityUnit) {

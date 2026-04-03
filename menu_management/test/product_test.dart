@@ -63,6 +63,28 @@ void main() {
       });
     });
 
+    group("formatQuantityForDisplay", () {
+      test("returns pack format when unit matches", () {
+        Product product = _product(itemsPerPack: 4, quantityPerItem: 100, unit: Unit.grams);
+        expect(product.formatQuantityForDisplay(500, Unit.grams), "2 packs (800 grams)");
+      });
+
+      test("returns raw amount when unit does not match", () {
+        Product product = _product(unit: Unit.grams);
+        expect(product.formatQuantityForDisplay(500, Unit.centiliters), "500 centiliters");
+      });
+
+      test("rounds raw amount to integer", () {
+        Product product = _product(unit: Unit.grams);
+        expect(product.formatQuantityForDisplay(333.7, Unit.centiliters), "334 centiliters");
+      });
+
+      test("returns 1 pack when amount is less than one pack and unit matches", () {
+        Product product = _product(itemsPerPack: 1, quantityPerItem: 500, unit: Unit.grams);
+        expect(product.formatQuantityForDisplay(200, Unit.grams), "1 packs (500 grams)");
+      });
+    });
+
     group("defaults", () {
       test("itemsPerPack defaults to 1", () {
         Product product = const Product(link: "https://example.com", quantityPerItem: 250, unit: Unit.grams);

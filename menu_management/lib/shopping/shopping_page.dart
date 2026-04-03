@@ -46,13 +46,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 if (!remaining.any((quantity) => quantity.amount > 0)) return null;
                 Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
                 String amounts = remaining.where((quantity) => quantity.amount > 0).map((Quantity quantity) {
-                  String unit = quantity.unit.toString().split(".").last;
-                  if (ingredient.product != null && ingredient.product!.unit == quantity.unit) {
-                    int packs = ingredient.product!.packsNeeded(quantity.amount);
-                    String totalInPack = (packs * ingredient.product!.totalQuantityPerPack).toStringAsFixed(0);
-                    return "$packs packs ($totalInPack $unit)";
+                  if (ingredient.product != null) {
+                    return ingredient.product!.formatQuantityForDisplay(quantity.amount, quantity.unit);
                   }
-                  return "${quantity.amount} $unit";
+                  String unitName = quantity.unit.toString().split(".").last;
+                  return "${quantity.amount.toStringAsFixed(0)} $unitName";
                 }).join(" + ");
                 return "${ingredient.name}: $amounts";
               })
