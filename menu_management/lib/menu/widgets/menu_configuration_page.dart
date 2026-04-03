@@ -8,6 +8,7 @@ import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/widgets/menu_page.dart";
 import "package:menu_management/persistency.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
 
 class MenuConfigurationPage extends StatelessWidget {
   const MenuConfigurationPage({super.key});
@@ -29,7 +30,7 @@ class MenuConfigurationPage extends StatelessWidget {
             tooltip: "Open Menu",
             icon: const Icon(Icons.file_open),
             onPressed: () async {
-              MultiWeekMenu? loadedMenu = await Persistency.loadMultiWeekMenu();
+              MultiWeekMenu? loadedMenu = await Persistency.loadMultiWeekMenu(recipesById: RecipesProvider.instance.recipesById);
               if (loadedMenu != null && context.mounted) {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: loadedMenu)));
               }
@@ -41,7 +42,7 @@ class MenuConfigurationPage extends StatelessWidget {
         tooltip: "Generate Menu",
         child: const Icon(Icons.auto_awesome_sharp),
         onPressed: () {
-          MultiWeekMenu multiWeekMenu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
+          MultiWeekMenu multiWeekMenu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: multiWeekMenu)));
         },
       ),
@@ -86,7 +87,7 @@ class MenuConfigurationPage extends StatelessWidget {
                             thumbIcon: switchIcon,
                             value: menuConfiguration.requiresMeal,
                             onChanged: (requiredMeal) {
-                              menuConfiguration.copyWith(requiresMeal: requiredMeal).saveToProvider();
+                              MenuProvider.update(newConfiguration: menuConfiguration.copyWith(requiresMeal: requiredMeal));
                             },
                           ),
                           const SizedBox(height: 5),
@@ -106,7 +107,7 @@ class MenuConfigurationPage extends StatelessWidget {
                               onChanged: (String cookingTimeInput) {
                                 int? cookingTimeMinutes = int.tryParse(cookingTimeInput);
                                 if (cookingTimeMinutes != null) {
-                                  menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes).saveToProvider();
+                                  MenuProvider.update(newConfiguration: menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes));
                                 }
                               },
                             ),

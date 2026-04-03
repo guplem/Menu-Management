@@ -120,7 +120,7 @@ void main() {
   group("RecipesProvider", () {
     setUp(() {
       // Reset state before each test. Also reset ingredients to avoid _checkIngredientsValidity issues
-      RecipesProvider.instance.setData([]);
+      RecipesProvider.instance.setData([], ingredientsById: {});
       IngredientsProvider.instance.setData([]);
     });
 
@@ -156,7 +156,7 @@ void main() {
       });
 
       test("throws for unknown id", () {
-        expect(() => RecipesProvider.instance.get("nonexistent"), throwsStateError);
+        expect(() => RecipesProvider.instance.get("nonexistent"), throwsA(isA<String>()));
       });
     });
 
@@ -339,7 +339,7 @@ void main() {
     group("setData", () {
       test("replaces all recipes", () {
         RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "old", name: "Old"));
-        RecipesProvider.instance.setData([const Recipe(id: "new1", name: "New1"), const Recipe(id: "new2", name: "New2")]);
+        RecipesProvider.instance.setData([const Recipe(id: "new1", name: "New1"), const Recipe(id: "new2", name: "New2")], ingredientsById: {});
         expect(RecipesProvider.instance.recipes.length, 2);
         expect(RecipesProvider.instance.recipes.first.id, "new1");
       });

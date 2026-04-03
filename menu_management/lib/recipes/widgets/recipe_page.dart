@@ -70,9 +70,9 @@ class RecipePage extends StatelessWidget {
                   selected: recipe.type == type,
                   onSelected: (bool value) {
                     if (value && type == RecipeType.breakfast) {
-                      recipe.copyWith(type: type, lunch: false, dinner: false).saveToProvider();
+                      RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(type: type, lunch: false, dinner: false));
                     } else {
-                      recipe.copyWith(type: type).saveToProvider();
+                      RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(type: type));
                     }
                   },
                 ),
@@ -91,7 +91,7 @@ class RecipePage extends StatelessWidget {
                 thumbIcon: switchIcon,
                 value: recipe.canBeStored,
                 onChanged: (bool value) {
-                  recipe.copyWith(canBeStored: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(canBeStored: value));
                 },
               ),
             ],
@@ -108,7 +108,7 @@ class RecipePage extends StatelessWidget {
                 thumbIcon: switchIcon,
                 value: recipe.includeInMenuGeneration,
                 onChanged: (bool value) {
-                  recipe.copyWith(includeInMenuGeneration: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(includeInMenuGeneration: value));
                 },
               ),
             ],
@@ -124,7 +124,7 @@ class RecipePage extends StatelessWidget {
                 label: const Text("Lunch"),
                 selected: recipe.lunch,
                 onSelected: (value) {
-                  recipe.copyWith(lunch: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(lunch: value));
                 },
               ),
               const SizedBox(width: 10),
@@ -132,7 +132,7 @@ class RecipePage extends StatelessWidget {
                 label: const Text("Dinner"),
                 selected: recipe.dinner,
                 onSelected: (value) {
-                  recipe.copyWith(dinner: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(dinner: value));
                 },
               ),
             ],
@@ -149,7 +149,7 @@ class RecipePage extends StatelessWidget {
                 label: const Text("Carbs"),
                 selected: recipe.carbs,
                 onSelected: (value) {
-                  recipe.copyWith(carbs: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(carbs: value));
                 },
               ),
               const SizedBox(width: 10),
@@ -157,7 +157,7 @@ class RecipePage extends StatelessWidget {
                 label: const Text("Protein"),
                 selected: recipe.proteins,
                 onSelected: (value) {
-                  recipe.copyWith(proteins: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(proteins: value));
                 },
               ),
               const SizedBox(width: 10),
@@ -165,7 +165,7 @@ class RecipePage extends StatelessWidget {
                 label: const Text("Vegetables"),
                 selected: recipe.vegetables,
                 onSelected: (value) {
-                  recipe.copyWith(vegetables: value).saveToProvider();
+                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(vegetables: value));
                 },
               ),
               const SizedBox(width: 10),

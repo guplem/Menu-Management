@@ -22,20 +22,20 @@ abstract class Menu with _$Menu {
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Menu._();
 
-  Menu copyWithUpdatedRecipe({required MealTime mealTime, required Recipe recipe}) {
+  Menu copyWithUpdatedRecipe({required MealTime mealTime, required Recipe recipe, required Map<String, Recipe> recipesById}) {
     // Prepare relevant data
     Meal mealToUpdate = meals.firstWhere((meal) => meal.mealTime.isSameTime(mealTime));
 
     // No need to update the meal if it already has the recipe we want to update it to
-    if (mealToUpdate.cooking?.recipe.id == recipe.id) return this;
+    if (mealToUpdate.cooking?.recipeId == recipe.id) return this;
 
-    mealToUpdate = mealToUpdate.copyWithUpdatedCooking(Cooking(recipe: recipe, yield: 1));
+    mealToUpdate = mealToUpdate.copyWithUpdatedCooking(Cooking(recipeId: recipe.id, yield: 1));
 
     // Generate the updated meals list
     List<Meal> newMeals = [...meals];
     newMeals[newMeals.indexWhere((meal) => meal.mealTime.isSameTime(mealToUpdate.mealTime))] = mealToUpdate;
 
-    return copyWith(meals: newMeals).copyWithUpdatedYields();
+    return copyWith(meals: newMeals).copyWithUpdatedYields(recipesById: recipesById);
   }
 
   List<Meal?> mealsOfDay(WeekDay weekDay) {
@@ -47,17 +47,17 @@ abstract class Menu with _$Menu {
     return dayMealsWithNulls;
   }
 
-  Menu copyWithUpdatedYields() {
+  Menu copyWithUpdatedYields({required Map<String, Recipe> recipesById}) {
     List<Meal> oldMeals = [...this.meals];
 
-    bool isFirstTimeOfRecipe(MealTime time, Recipe recipe) {
+    bool isFirstTimeOfRecipe(MealTime time, String recipeId) {
       List<Meal> sortedMealTimes = oldMeals.sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
       for (int i = 0; i < sortedMealTimes.length; i++) {
         MealTime t = sortedMealTimes[i].mealTime;
-        Recipe? r = sortedMealTimes[i].cooking?.recipe;
-        if (r == recipe && t.goesBefore(time)) {
+        String? r = sortedMealTimes[i].cooking?.recipeId;
+        if (r == recipeId && t.goesBefore(time)) {
           return false;
-        } else if (r == recipe && (t == time || time.goesBefore(t))) {
+        } else if (r == recipeId && (t == time || time.goesBefore(t))) {
           return true;
         }
       }
@@ -66,12 +66,13 @@ abstract class Menu with _$Menu {
     }
 
     List<Meal> meals = oldMeals.map((meal) {
-      Recipe? recipe = meal.cooking?.recipe;
+      String? recipeId = meal.cooking?.recipeId;
+      Recipe? recipe = recipeId != null ? recipesById[recipeId] : null;
 
       int yield = 1;
       if (recipe != null && recipe.canBeStored) {
-        if (isFirstTimeOfRecipe(meal.mealTime, recipe)) {
-          yield = oldMeals.count((Meal element) => element.cooking?.recipe == recipe);
+        if (isFirstTimeOfRecipe(meal.mealTime, recipeId!)) {
+          yield = oldMeals.count((Meal element) => element.cooking?.recipeId == recipeId);
         } else {
           yield = 0;
         }
@@ -79,7 +80,7 @@ abstract class Menu with _$Menu {
 
       return Meal(
         mealTime: meal.mealTime,
-        cooking: recipe == null ? null : Cooking(recipe: recipe, yield: yield),
+        cooking: recipeId == null ? null : Cooking(recipeId: recipeId, yield: yield),
         people: meal.people,
       );
     }).toList();
@@ -87,7 +88,7 @@ abstract class Menu with _$Menu {
     return copyWith(meals: meals);
   }
 
-  Map<String, List<Quantity>> get allIngredients {
+  Map<String, List<Quantity>> allIngredients({required Map<String, Recipe> recipesById}) {
     Map<String, List<Quantity>> ingredients = {};
 
     for (Meal meal in meals) {
@@ -98,12 +99,15 @@ abstract class Menu with _$Menu {
       // Only the first occurrence (yield > 0) aggregates ingredient amounts.
       int peopleFactor;
       if (yields > 0) {
-        peopleFactor = meals.where((Meal m) => m.cooking?.recipe == meal.cooking?.recipe).fold(0, (int sum, Meal m) => sum + m.people);
+        peopleFactor = meals.where((Meal m) => m.cooking?.recipeId == meal.cooking?.recipeId).fold(0, (int sum, Meal m) => sum + m.people);
       } else {
         peopleFactor = 0;
       }
 
-      for (Instruction instruction in meal.cooking!.recipe.instructions) {
+      Recipe? recipe = recipesById[meal.cooking!.recipeId];
+      if (recipe == null) continue;
+
+      for (Instruction instruction in recipe.instructions) {
         for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
           if (ingredients[ingredientUsage.ingredient] == null) {
             ingredients[ingredientUsage.ingredient] = [];
@@ -134,7 +138,7 @@ abstract class Menu with _$Menu {
     return copyWith(meals: newMeals);
   }
 
-  String toStringBeautified() {
+  String toStringBeautified({required Map<String, Recipe> recipesById}) {
     // Format:
     // Weekday
     //   Breakfast: recipe (yield pp)
@@ -149,9 +153,9 @@ abstract class Menu with _$Menu {
       for (int i = 0; i < dayMeals.length; i++) {
         Meal? meal = dayMeals[i];
         String? mealType = MealType.values[i].name.capitalizeFirstLetter();
-        String recipe = meal?.cooking?.recipe.name ?? "-";
-        recipe += meal?.cooking == null ? "" : " (${meal?.cooking?.yield.toString()} pp)";
-        result += "  $mealType: $recipe\n";
+        String recipeName = (meal?.cooking != null ? recipesById[meal!.cooking!.recipeId]?.name : null) ?? "-";
+        recipeName += meal?.cooking == null ? "" : " (${meal?.cooking?.yield.toString()} pp)";
+        result += "  $mealType: $recipeName\n";
       }
       result += "\n";
     }

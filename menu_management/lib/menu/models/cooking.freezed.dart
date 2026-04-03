@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Cooking {
 
- Recipe get recipe;/// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
+ String get recipeId;/// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
  int get yield;
 /// Create a copy of Cooking
 /// with the given fields replaced by the non-null parameter values.
@@ -29,16 +29,16 @@ $CookingCopyWith<Cooking> get copyWith => _$CookingCopyWithImpl<Cooking>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Cooking&&(identical(other.recipe, recipe) || other.recipe == recipe)&&(identical(other.yield, yield) || other.yield == yield));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Cooking&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.yield, yield) || other.yield == yield));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,recipe,yield);
+int get hashCode => Object.hash(runtimeType,recipeId,yield);
 
 @override
 String toString() {
-  return 'Cooking(recipe: $recipe, yield: $yield)';
+  return 'Cooking(recipeId: $recipeId, yield: $yield)';
 }
 
 
@@ -49,11 +49,11 @@ abstract mixin class $CookingCopyWith<$Res>  {
   factory $CookingCopyWith(Cooking value, $Res Function(Cooking) _then) = _$CookingCopyWithImpl;
 @useResult
 $Res call({
- Recipe recipe, int yield
+ String recipeId, int yield
 });
 
 
-$RecipeCopyWith<$Res> get recipe;
+
 
 }
 /// @nodoc
@@ -66,23 +66,14 @@ class _$CookingCopyWithImpl<$Res>
 
 /// Create a copy of Cooking
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? recipe = null,Object? yield = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? recipeId = null,Object? yield = null,}) {
   return _then(_self.copyWith(
-recipe: null == recipe ? _self.recipe : recipe // ignore: cast_nullable_to_non_nullable
-as Recipe,yield: null == yield ? _self.yield : yield // ignore: cast_nullable_to_non_nullable
+recipeId: null == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
+as String,yield: null == yield ? _self.yield : yield // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
-/// Create a copy of Cooking
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$RecipeCopyWith<$Res> get recipe {
-  
-  return $RecipeCopyWith<$Res>(_self.recipe, (value) {
-    return _then(_self.copyWith(recipe: value));
-  });
-}
+
 }
 
 
@@ -164,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Recipe recipe,  int yield)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String recipeId,  int yield)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Cooking() when $default != null:
-return $default(_that.recipe,_that.yield);case _:
+return $default(_that.recipeId,_that.yield);case _:
   return orElse();
 
 }
@@ -185,10 +176,10 @@ return $default(_that.recipe,_that.yield);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Recipe recipe,  int yield)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String recipeId,  int yield)  $default,) {final _that = this;
 switch (_that) {
 case _Cooking():
-return $default(_that.recipe,_that.yield);case _:
+return $default(_that.recipeId,_that.yield);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +196,10 @@ return $default(_that.recipe,_that.yield);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Recipe recipe,  int yield)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String recipeId,  int yield)?  $default,) {final _that = this;
 switch (_that) {
 case _Cooking() when $default != null:
-return $default(_that.recipe,_that.yield);case _:
+return $default(_that.recipeId,_that.yield);case _:
   return null;
 
 }
@@ -220,10 +211,10 @@ return $default(_that.recipe,_that.yield);case _:
 @JsonSerializable()
 
 class _Cooking implements Cooking {
-  const _Cooking({required this.recipe, required this.yield});
+  const _Cooking({required this.recipeId, required this.yield});
   factory _Cooking.fromJson(Map<String, dynamic> json) => _$CookingFromJson(json);
 
-@override final  Recipe recipe;
+@override final  String recipeId;
 /// The amount of meals to cook. [yield] =~ meals. 0 means it should already be cooked. Total servings = people * [yield]
 @override final  int yield;
 
@@ -240,16 +231,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Cooking&&(identical(other.recipe, recipe) || other.recipe == recipe)&&(identical(other.yield, yield) || other.yield == yield));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Cooking&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.yield, yield) || other.yield == yield));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,recipe,yield);
+int get hashCode => Object.hash(runtimeType,recipeId,yield);
 
 @override
 String toString() {
-  return 'Cooking(recipe: $recipe, yield: $yield)';
+  return 'Cooking(recipeId: $recipeId, yield: $yield)';
 }
 
 
@@ -260,11 +251,11 @@ abstract mixin class _$CookingCopyWith<$Res> implements $CookingCopyWith<$Res> {
   factory _$CookingCopyWith(_Cooking value, $Res Function(_Cooking) _then) = __$CookingCopyWithImpl;
 @override @useResult
 $Res call({
- Recipe recipe, int yield
+ String recipeId, int yield
 });
 
 
-@override $RecipeCopyWith<$Res> get recipe;
+
 
 }
 /// @nodoc
@@ -277,24 +268,15 @@ class __$CookingCopyWithImpl<$Res>
 
 /// Create a copy of Cooking
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? recipe = null,Object? yield = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? recipeId = null,Object? yield = null,}) {
   return _then(_Cooking(
-recipe: null == recipe ? _self.recipe : recipe // ignore: cast_nullable_to_non_nullable
-as Recipe,yield: null == yield ? _self.yield : yield // ignore: cast_nullable_to_non_nullable
+recipeId: null == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
+as String,yield: null == yield ? _self.yield : yield // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
 
-/// Create a copy of Cooking
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$RecipeCopyWith<$Res> get recipe {
-  
-  return $RecipeCopyWith<$Res>(_self.recipe, (value) {
-    return _then(_self.copyWith(recipe: value));
-  });
-}
+
 }
 
 // dart format on

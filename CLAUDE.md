@@ -76,12 +76,13 @@ Core logic in `menu_generator.dart`. Multi-phase assignment with priority orderi
 
 ### Persistence
 
-`persistency.dart` handles file I/O. Data is saved/loaded as `.tsr` files (JSON-based). On release builds, the app auto-loads the last saved file. Save is unavailable on iOS/Android due to `FilePicker` limitations.
+`persistency.dart` handles file I/O. Save is unavailable on iOS/Android due to `FilePicker` limitations. See [ADR 0003](adr/0003-tsr-file-persistence.md) and [ADR 0009](adr/0009-cooking-recipe-id-reference.md).
 
+- **`.tsr` files**: JSON with top-level `"Ingredients"` and `"Recipes"` arrays. On save, `ref_name` fields are injected into `IngredientUsage` entries for human readability.
+- **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning.
 - Data is **not** automatically saved -- users must manually save via the save button
-- Data is **not** automatically loaded in debug mode (see `main.dart`)
-- Menu configurations and generated menus are **not** persisted (generated on-demand)
-- `.tsr` file structure: JSON with top-level `"Ingredients"` and `"Recipes"` arrays
+- On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
+- Menu configurations are **not** persisted (generated on-demand)
 
 ## Pattern Scout (mandatory)
 
@@ -119,11 +120,11 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 - Use `const` constructors where possible
 - Add empty `const Model._()` constructor to enable custom methods
 - Prefer derived getters over storing redundant state
-- Key business logic methods:
+- Key business logic methods (methods needing cross-entity data receive `Map<String, Recipe> recipesById`):
   - `Recipe.fitsConfiguration()`: Check if recipe matches meal requirements
-  - `Menu.copyWithUpdatedRecipe()`: Update a meal's recipe and recalculate yields
-  - `Menu.copyWithUpdatedYields()`: Calculate yields based on recipe reuse
-  - `Menu.allIngredients`: Aggregate all ingredients across meals (respects yields)
+  - `Menu.copyWithUpdatedRecipe(recipesById:)`: Update a meal's recipe and recalculate yields
+  - `Menu.copyWithUpdatedYields(recipesById:)`: Calculate yields based on recipe reuse
+  - `Menu.allIngredients(recipesById:)`: Aggregate all ingredients across meals (respects yields)
   - `MenuConfiguration.canBeCookedAtTheSpot`: Derived from time availability
 
 ### Search
@@ -162,6 +163,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0006](adr/0006-cook-mode-play-recipe.md) | Cook mode: step-by-step cooking guide with timers and scaling |
 | [0007](adr/0007-flutter-essentials-as-local-library.md) | flutter_essentials as a local library directory, not a separate package |
 | [0008](adr/0008-multi-week-menus.md) | Multi-week menus: MultiWeekMenu wraps List\<Menu\>, independent generation per week |
+| [0009](adr/0009-cooking-recipe-id-reference.md) | Cooking stores recipe ID (not full Recipe), parameterized model methods, ref_name for readability |
 
 **When to consult ADRs:** Before changing state management, data models, persistence, or introducing new architectural patterns. Run the `adr-checker` agent (`.claude/agents/adr-checker.md`) in consult mode to find relevant ADRs.
 

@@ -23,7 +23,7 @@ Recipe _testRecipe({required String id, required String name, List<Instruction> 
 Meal _testMeal({required WeekDay weekDay, required MealType mealType, Recipe? recipe, int yield = 1}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    cooking: recipe != null ? Cooking(recipe: recipe, yield: yield) : null,
+    cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null,
   );
 }
 
@@ -31,6 +31,8 @@ Meal _testMeal({required WeekDay weekDay, required MealType mealType, Recipe? re
 Menu _singleMealMenu({required Recipe recipe, WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch}) {
   return Menu(meals: [_testMeal(weekDay: weekDay, mealType: mealType, recipe: recipe)]);
 }
+
+Map<String, Recipe> _recipesMap(List<Recipe> recipes) => {for (Recipe r in recipes) r.id: r};
 
 void main() {
   group("MultiWeekMenu construction", () {
@@ -106,7 +108,7 @@ void main() {
       final MultiWeekMenu updated = original.updateWeekAt(0, updatedWeek1);
 
       expect(updated.weeks[0].meals.length, 1);
-      expect(updated.weeks[0].meals.first.cooking?.recipe.name, "Pasta");
+      expect(updated.weeks[0].meals.first.cooking?.recipeId, "r1");
       // Original unchanged
       expect(original.weeks[0].meals.length, 0);
     });
@@ -127,6 +129,7 @@ void main() {
           ),
         ],
       );
+      Map<String, Recipe> recipesById = _recipesMap([pastaRecipe]);
 
       final Menu week1 = Menu(
         meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pastaRecipe)],
@@ -136,7 +139,7 @@ void main() {
       );
 
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
-      final Map<String, List<Quantity>> allIngredients = multiWeek.allIngredients;
+      final Map<String, List<Quantity>> allIngredients = multiWeek.allIngredients(recipesById: recipesById);
 
       // flour: 200g * 2 people * week1 + 200g * 2 people * week2 = 800g
       expect(allIngredients.containsKey("flour"), true);
@@ -146,18 +149,19 @@ void main() {
 
     test("returns empty map when no weeks have ingredients", () {
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [const Menu(), const Menu()]);
-      expect(multiWeek.allIngredients, isEmpty);
+      expect(multiWeek.allIngredients(recipesById: {}), isEmpty);
     });
   });
 
   group("MultiWeekMenu toStringBeautified", () {
     test("labels each week in the output", () {
       final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      Map<String, Recipe> recipesById = _recipesMap([recipe]);
       final Menu week1 = _singleMealMenu(recipe: recipe);
       final Menu week2 = _singleMealMenu(recipe: recipe);
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
 
-      final String output = multiWeek.toStringBeautified();
+      final String output = multiWeek.toStringBeautified(recipesById: recipesById);
 
       expect(output.contains("Week 1"), true);
       expect(output.contains("Week 2"), true);
@@ -176,7 +180,7 @@ void main() {
       expect(json.containsKey("weeks"), true);
       final MultiWeekMenu restored = MultiWeekMenu.fromJson(json);
       expect(restored.weekCount, 1);
-      expect(restored.weeks.first.meals.first.cooking?.recipe.name, "Pasta");
+      expect(restored.weeks.first.meals.first.cooking?.recipeId, "r1");
     });
 
     test("old single-week Menu JSON lacks weeks key", () {
@@ -200,7 +204,7 @@ void main() {
       }
 
       expect(loaded.weekCount, 1);
-      expect(loaded.weeks.first.meals.first.cooking?.recipe.name, "Pasta");
+      expect(loaded.weeks.first.meals.first.cooking?.recipeId, "r1");
     });
   });
 }

@@ -7,6 +7,7 @@ import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 
 // Alter data should be done through the static methods.
 // Fetching data should be done through the listenableOf method or through the provider in the tree.
@@ -141,7 +142,11 @@ class MenuProvider extends ChangeNotifier {
       getProvider<MenuProvider>(context, listen: true).get(mealType: mealType, weekDay: weekDay);
 
   MenuConfiguration getConfigurationForMeal(MealTime mealTime) {
-    return configurations.firstWhere((MenuConfiguration configuration) => configuration.mealTime.isSameTime(mealTime));
+    MenuConfiguration? config = configurations.firstWhereOrNull((MenuConfiguration configuration) => configuration.mealTime.isSameTime(mealTime));
+    if (config == null) {
+      Debug.logError("No configuration found for ${mealTime.weekDay} ${mealTime.mealType}");
+    }
+    return config!;
   }
 
   void setData(List<MenuConfiguration> recipes) {
@@ -151,9 +156,13 @@ class MenuProvider extends ChangeNotifier {
   }
 
   MenuConfiguration get({required WeekDay weekDay, required MealType mealType}) {
-    return configurations.firstWhere((element) {
+    MenuConfiguration? config = configurations.firstWhereOrNull((element) {
       return element.mealTime.weekDay == weekDay && element.mealTime.mealType == mealType;
     });
+    if (config == null) {
+      Debug.logError("No configuration found for $weekDay $mealType");
+    }
+    return config!;
   }
 
   static void update({required MenuConfiguration newConfiguration}) {
@@ -168,15 +177,15 @@ class MenuProvider extends ChangeNotifier {
     }
   }
 
-  static MultiWeekMenu generateMenu({required int initialSeed}) {
+  static MultiWeekMenu generateMenu({required int initialSeed, required List<Recipe> recipes}) {
     MenuGenerator generator = MenuGenerator(baseSeed: initialSeed);
-    generator.generate(configurations: instance.configurations);
+    generator.generate(configurations: instance.configurations, recipes: recipes);
     return MultiWeekMenu.validated(weeks: [generator.menu!]);
   }
 
-  static Menu generateAdditionalWeek({required int seed}) {
+  static Menu generateAdditionalWeek({required int seed, required List<Recipe> recipes}) {
     MenuGenerator generator = MenuGenerator(baseSeed: seed);
-    generator.generate(configurations: instance.configurations);
+    generator.generate(configurations: instance.configurations, recipes: recipes);
     return generator.menu!;
   }
 }

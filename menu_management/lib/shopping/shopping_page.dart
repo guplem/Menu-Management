@@ -5,6 +5,7 @@ import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
 
@@ -24,7 +25,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
   @override
   void initState() {
     super.initState();
-    ingredientsRequired = widget.multiWeekMenu.allIngredients;
+    ingredientsRequired = widget.multiWeekMenu.allIngredients(recipesById: RecipesProvider.instance.recipesById);
     ingredientsOwned = ingredientsRequired.map(
       (key, value) => MapEntry(key, value.map((quantity) => Quantity(amount: 0, unit: quantity.unit)).toList()),
     );

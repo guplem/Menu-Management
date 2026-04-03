@@ -3,8 +3,8 @@ import "dart:convert";
 import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
-import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/models/recipe.dart";
@@ -18,7 +18,7 @@ void main() {
 
   setUp(() {
     IngredientsProvider.instance.setData([]);
-    RecipesProvider.instance.setData([]);
+    RecipesProvider.instance.setData([], ingredientsById: {});
   });
 
   // ── Helper: parse expected data straight from the asset files ──
@@ -31,6 +31,15 @@ void main() {
   Future<Map<String, dynamic>> loadRawTsm() async {
     String data = await rootBundle.loadString("assets/DefaultMenu.tsm");
     return Map<String, dynamic>.from(jsonDecode(data));
+  }
+
+  /// Loads recipes into providers so recipesById is available for menu loading.
+  Future<Map<String, Recipe>> loadRecipesAndGetMap() async {
+    await Persistency.loadDefaultRecipes(
+      ingredientsProvider: IngredientsProvider.instance,
+      recipesProvider: RecipesProvider.instance,
+    );
+    return RecipesProvider.instance.recipesById;
   }
 
   group("loadDefaultRecipes", () {
@@ -96,8 +105,9 @@ void main() {
     test("loads the correct number of weeks from the asset", () async {
       Map<String, dynamic> rawTsm = await loadRawTsm();
       int expectedWeeks = (rawTsm["weeks"] as List).length;
+      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
 
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
 
       expect(menu.weekCount, expectedWeeks);
     });
@@ -105,8 +115,9 @@ void main() {
     test("each week has the correct number of meals", () async {
       Map<String, dynamic> rawTsm = await loadRawTsm();
       List<dynamic> rawWeeks = rawTsm["weeks"];
+      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
 
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
 
       for (int i = 0; i < menu.weekCount; i++) {
         int expectedMeals = (rawWeeks[i]["meals"] as List).length;
@@ -115,7 +126,8 @@ void main() {
     });
 
     test("all meals have a recipe assigned", () async {
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu();
+      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
 
       for (int w = 0; w < menu.weekCount; w++) {
         for (var meal in menu.weeks[w].meals) {
@@ -124,11 +136,12 @@ void main() {
       }
     });
 
-    test("meal recipes and yields match the asset exactly", () async {
+    test("meal recipeIds and yields match the asset exactly", () async {
       Map<String, dynamic> rawTsm = await loadRawTsm();
       List<dynamic> rawWeeks = rawTsm["weeks"];
+      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
 
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
 
       for (int w = 0; w < menu.weekCount; w++) {
         List<dynamic> rawMeals = rawWeeks[w]["meals"];
@@ -136,10 +149,10 @@ void main() {
           var loaded = menu.weeks[w].meals[m];
           Map<String, dynamic> raw = rawMeals[m];
 
-          String rawRecipeName = raw["cooking"]["recipe"]["name"];
+          String rawRecipeId = raw["cooking"]["recipeId"];
           int rawYield = raw["cooking"]["yield"];
 
-          expect(loaded.cooking!.recipe.name, rawRecipeName, reason: "Week ${w + 1} meal $m recipe name");
+          expect(loaded.cooking!.recipeId, rawRecipeId, reason: "Week ${w + 1} meal $m recipeId");
           expect(cookingYield(loaded.cooking!), rawYield, reason: "Week ${w + 1} meal $m yield");
         }
       }

@@ -29,10 +29,12 @@ Meal _meal({
 }) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    cooking: recipe != null ? Cooking(recipe: recipe, yield: yield) : null,
+    cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null,
     people: people,
   );
 }
+
+Map<String, Recipe> _recipesMap(List<Recipe> recipes) => {for (Recipe r in recipes) r.id: r};
 
 void main() {
   // ── MealTime ──
@@ -128,10 +130,10 @@ void main() {
     test("copyWithUpdatedCooking replaces cooking", () {
       Recipe recipe = _recipe();
       Meal meal = _meal();
-      Cooking newCooking = Cooking(recipe: recipe, yield: 3);
+      Cooking newCooking = Cooking(recipeId: recipe.id, yield: 3);
       Meal updated = meal.copyWithUpdatedCooking(newCooking);
       expect(updated.cooking?.yield, 3);
-      expect(updated.cooking?.recipe.name, "Test Recipe");
+      expect(updated.cooking?.recipeId, recipe.id);
     });
 
     test("copyWithUpdatedCooking can set cooking to null", () {
@@ -273,19 +275,21 @@ void main() {
       test("replaces recipe at the specified meal time", () {
         Recipe original = _recipe(id: "r1", name: "Pasta");
         Recipe replacement = _recipe(id: "r2", name: "Salad");
+        Map<String, Recipe> recipesById = _recipesMap([original, replacement]);
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
         Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: original)]);
 
-        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, recipe: replacement);
-        expect(updated.meals.first.cooking?.recipe.name, "Salad");
+        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, recipe: replacement, recipesById: recipesById);
+        expect(updated.meals.first.cooking?.recipeId, "r2");
       });
 
       test("returns same menu if recipe is already set", () {
         Recipe recipe = _recipe(id: "r1", name: "Pasta");
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
         Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)]);
 
-        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, recipe: recipe);
+        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, recipe: recipe, recipesById: recipesById);
         expect(identical(updated, menu), true);
       });
     });
@@ -293,13 +297,14 @@ void main() {
     group("copyWithUpdatedYields", () {
       test("first occurrence of storable recipe gets full yield count", () {
         Recipe recipe = _recipe(id: "r1", canBeStored: true);
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: -1),
           _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: -1),
           _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: -1),
         ]);
 
-        Menu updated = menu.copyWithUpdatedYields();
+        Menu updated = menu.copyWithUpdatedYields(recipesById: recipesById);
         // First occurrence: yield = total count of this recipe = 3
         expect(updated.meals[0].cooking?.yield, 3);
         // Later occurrences: yield = 0 (use leftovers)
@@ -309,12 +314,13 @@ void main() {
 
       test("non-storable recipe always gets yield 1", () {
         Recipe recipe = _recipe(id: "r1", canBeStored: false);
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: -1),
           _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: -1),
         ]);
 
-        Menu updated = menu.copyWithUpdatedYields();
+        Menu updated = menu.copyWithUpdatedYields(recipesById: recipesById);
         expect(updated.meals[0].cooking?.yield, 1);
         expect(updated.meals[1].cooking?.yield, 1);
       });
@@ -323,7 +329,7 @@ void main() {
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch),
         ]);
-        Menu updated = menu.copyWithUpdatedYields();
+        Menu updated = menu.copyWithUpdatedYields(recipesById: {});
         expect(updated.meals.first.cooking, null);
       });
     });
@@ -340,12 +346,13 @@ void main() {
             ),
           ],
         );
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         // One meal with yield 1, 2 people => 100 * 2 = 200g
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 1, people: 2),
         ]);
 
-        Map<String, List<Quantity>> ingredients = menu.allIngredients;
+        Map<String, List<Quantity>> ingredients = menu.allIngredients(recipesById: recipesById);
         expect(ingredients["flour"]!.first.amount, 200.0);
         expect(ingredients["flour"]!.first.unit, Unit.grams);
       });
@@ -361,11 +368,12 @@ void main() {
             ),
           ],
         );
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2),
         ]);
 
-        Map<String, List<Quantity>> ingredients = menu.allIngredients;
+        Map<String, List<Quantity>> ingredients = menu.allIngredients(recipesById: recipesById);
         expect(ingredients["flour"]!.first.amount, 0.0);
       });
 
@@ -381,6 +389,7 @@ void main() {
             ),
           ],
         );
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         // First meal: yield > 0, aggregates people from both meals
         // Second meal: yield 0, contributes nothing
         Menu menu = Menu(meals: [
@@ -388,24 +397,25 @@ void main() {
           _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 3),
         ]);
 
-        Map<String, List<Quantity>> ingredients = menu.allIngredients;
+        Map<String, List<Quantity>> ingredients = menu.allIngredients(recipesById: recipesById);
         // peopleFactor = 2 + 3 = 5, amount = 100 * 5 = 500
         expect(ingredients["flour"]!.first.amount, 500.0);
       });
 
       test("returns empty map for no meals", () {
         const Menu menu = Menu(meals: []);
-        expect(menu.allIngredients, isEmpty);
+        expect(menu.allIngredients(recipesById: {}), isEmpty);
       });
     });
 
     group("toStringBeautified", () {
       test("contains all weekday names", () {
         Recipe recipe = _recipe(name: "Pasta");
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe),
         ]);
-        String output = menu.toStringBeautified();
+        String output = menu.toStringBeautified(recipesById: recipesById);
         expect(output.contains("Saturday"), true);
         expect(output.contains("Sunday"), true);
         expect(output.contains("Friday"), true);
@@ -413,16 +423,17 @@ void main() {
 
       test("shows dash for missing meals", () {
         const Menu menu = Menu(meals: []);
-        String output = menu.toStringBeautified();
+        String output = menu.toStringBeautified(recipesById: {});
         expect(output.contains("-"), true);
       });
 
       test("shows recipe name and yield for assigned meals", () {
         Recipe recipe = _recipe(name: "Pasta");
+        Map<String, Recipe> recipesById = _recipesMap([recipe]);
         Menu menu = Menu(meals: [
           _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2),
         ]);
-        String output = menu.toStringBeautified();
+        String output = menu.toStringBeautified(recipesById: recipesById);
         expect(output.contains("Pasta"), true);
         expect(output.contains("2 pp"), true);
       });
@@ -432,17 +443,15 @@ void main() {
   // ── Cooking ──
 
   group("Cooking", () {
-    test("holds recipe and yield", () {
-      Recipe recipe = _recipe();
-      Cooking cooking = Cooking(recipe: recipe, yield: 3);
-      expect(cooking.recipe, recipe);
+    test("holds recipeId and yield", () {
+      Cooking cooking = const Cooking(recipeId: "r1", yield: 3);
+      expect(cooking.recipeId, "r1");
       expect(cooking.yield, 3);
     });
 
     test("equality by value", () {
-      Recipe recipe = _recipe();
-      Cooking a = Cooking(recipe: recipe, yield: 1);
-      Cooking b = Cooking(recipe: recipe, yield: 1);
+      Cooking a = const Cooking(recipeId: "r1", yield: 1);
+      Cooking b = const Cooking(recipeId: "r1", yield: 1);
       expect(a, b);
     });
   });
@@ -473,7 +482,7 @@ void main() {
       String encoded = jsonEncode(original.toJson());
       Meal restored = Meal.fromJson(jsonDecode(encoded));
       expect(restored.people, 4);
-      expect(restored.cooking?.recipe.name, "Test Recipe");
+      expect(restored.cooking?.recipeId, "r1");
     });
 
     test("Menu round-trips through JSON encode/decode", () {
@@ -482,7 +491,7 @@ void main() {
       String encoded = jsonEncode(original.toJson());
       Menu restored = Menu.fromJson(jsonDecode(encoded));
       expect(restored.meals.length, 1);
-      expect(restored.meals.first.cooking?.recipe.name, "Test Recipe");
+      expect(restored.meals.first.cooking?.recipeId, "r1");
     });
   });
 }

@@ -4,7 +4,6 @@ import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/instruction.dart";
-import "package:menu_management/recipes/recipes_provider.dart";
 
 part "recipe.freezed.dart";
 part "recipe.g.dart";
@@ -30,10 +29,6 @@ abstract class Recipe with _$Recipe {
 
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Recipe._();
-
-  void saveToProvider() {
-    RecipesProvider.addOrUpdate(newRecipe: this);
-  }
 
   int get workingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.workingTimeMinutes);
   int get cookingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);

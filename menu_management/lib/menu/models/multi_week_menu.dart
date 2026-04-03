@@ -2,6 +2,7 @@ import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 
 part "multi_week_menu.freezed.dart";
 part "multi_week_menu.g.dart";
@@ -38,11 +39,11 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return copyWith(weeks: newWeeks);
   }
 
-  Map<String, List<Quantity>> get allIngredients {
+  Map<String, List<Quantity>> allIngredients({required Map<String, Recipe> recipesById}) {
     Map<String, List<Quantity>> combined = {};
 
     for (Menu week in weeks) {
-      Map<String, List<Quantity>> weekIngredients = week.allIngredients;
+      Map<String, List<Quantity>> weekIngredients = week.allIngredients(recipesById: recipesById);
       for (MapEntry<String, List<Quantity>> entry in weekIngredients.entries) {
         if (combined[entry.key] == null) {
           combined[entry.key] = [];
@@ -62,11 +63,11 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return combined;
   }
 
-  String toStringBeautified() {
+  String toStringBeautified({required Map<String, Recipe> recipesById}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
       result += "Week ${i + 1}\n";
-      result += "${weeks[i].toStringBeautified()}\n\n";
+      result += "${weeks[i].toStringBeautified(recipesById: recipesById)}\n\n";
     }
     return result.trim();
   }

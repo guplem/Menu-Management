@@ -30,11 +30,13 @@ class _MenuPageState extends State<MenuPage> {
     multiWeekMenu = widget.multiWeekMenu;
   }
 
+  Map<String, Recipe> get _recipesById => RecipesProvider.instance.recipesById;
+
   Menu get currentWeek => multiWeekMenu.weeks[currentWeekIndex];
 
   void _addWeek() {
     setState(() {
-      Menu newWeek = MenuProvider.generateAdditionalWeek(seed: DateTime.now().millisecondsSinceEpoch);
+      Menu newWeek = MenuProvider.generateAdditionalWeek(seed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
       multiWeekMenu = multiWeekMenu.addWeek(newWeek);
       currentWeekIndex = multiWeekMenu.weekCount - 1;
     });
@@ -62,7 +64,7 @@ class _MenuPageState extends State<MenuPage> {
               icon: const Icon(Icons.refresh_rounded),
               onPressed: () {
                 setState(() {
-                  MultiWeekMenu regenerated = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch);
+                  MultiWeekMenu regenerated = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
                   multiWeekMenu = regenerated;
                   currentWeekIndex = 0;
                 });
@@ -89,7 +91,7 @@ class _MenuPageState extends State<MenuPage> {
             tooltip: "Copy to clipboard",
             child: const Icon(Icons.copy_rounded),
             onPressed: () {
-              final String menuString = multiWeekMenu.toStringBeautified();
+              final String menuString = multiWeekMenu.toStringBeautified(recipesById: _recipesById);
               Clipboard.setData(ClipboardData(text: menuString));
             },
           ),
@@ -98,7 +100,7 @@ class _MenuPageState extends State<MenuPage> {
             tooltip: "Save Menu",
             child: const Icon(Icons.save_rounded),
             onPressed: () {
-              Persistency.saveMenu(multiWeekMenu);
+              Persistency.saveMenu(multiWeekMenu, recipesById: _recipesById);
             },
           ),
         ],
@@ -137,7 +139,7 @@ class _MenuPageState extends State<MenuPage> {
                       child: meal == null
                           ? const OutlinedCard(child: SizedBox(height: 50, width: 140))
                           : OutlinedCard(
-                              borderColor: highlightedMeal?.cooking?.recipe == meal.cooking?.recipe && meal.cooking != null
+                              borderColor: highlightedMeal?.cooking?.recipeId == meal.cooking?.recipeId && meal.cooking != null
                                   ? Theme.of(context).colorScheme.primaryContainer
                                   : null,
                               onTap: () async {
@@ -156,7 +158,7 @@ class _MenuPageState extends State<MenuPage> {
                                                 title: Text(recipe.name),
                                                 onTap: () {
                                                   setState(() {
-                                                    Menu updatedWeek = currentWeek.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe);
+                                                    Menu updatedWeek = currentWeek.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe, recipesById: _recipesById);
                                                     multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
                                                   });
                                                   Navigator.of(context).pop();
@@ -187,7 +189,7 @@ class _MenuPageState extends State<MenuPage> {
                                       child: meal.cooking == null
                                           ? const Icon(Icons.warning_rounded)
                                           : Text(
-                                              "(${meal.cooking?.yield}) ${meal.cooking?.recipe.name}",
+                                              "(${meal.cooking?.yield}) ${_recipesById[meal.cooking?.recipeId]?.name ?? "?"}",
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 3,

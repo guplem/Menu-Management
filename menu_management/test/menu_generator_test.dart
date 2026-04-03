@@ -93,7 +93,7 @@ List<MenuConfiguration> _lunchDinnerOnlyConfigurations({int cookingTimeMinutes =
 void main() {
   setUp(() {
     IngredientsProvider.instance.setData([]);
-    RecipesProvider.instance.setData([]);
+    RecipesProvider.instance.setData([], ingredientsById: {});
     // Always provide at least one breakfast recipe to avoid Debug.logWarning assertion
     RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b_default", name: "Default Breakfast"));
   });
@@ -110,7 +110,7 @@ void main() {
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       // 21 slots required, all should have a meal
@@ -123,7 +123,7 @@ void main() {
 
       List<MenuConfiguration> configs = _lunchDinnerOnlyConfigurations();
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       // Only lunch + dinner slots (14) should be in the menu, not breakfasts
@@ -142,16 +142,16 @@ void main() {
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       for (Meal meal in menu.meals) {
         if (meal.mealTime.mealType == MealType.breakfast && meal.cooking != null) {
-          expect(meal.cooking!.recipe.type, RecipeType.breakfast,
+          expect(RecipesProvider.instance.get(meal.cooking!.recipeId).type, RecipeType.breakfast,
               reason: "Breakfast slot at ${meal.mealTime.weekDay} should have a breakfast recipe");
         }
         if ((meal.mealTime.mealType == MealType.lunch || meal.mealTime.mealType == MealType.dinner) && meal.cooking != null) {
-          expect(meal.cooking!.recipe.type, RecipeType.meal,
+          expect(RecipesProvider.instance.get(meal.cooking!.recipeId).type, RecipeType.meal,
               reason: "Lunch/dinner slot at ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a meal recipe");
         }
       }
@@ -166,15 +166,15 @@ void main() {
       List<MenuConfiguration> configs = _fullWeekConfigurations();
 
       MenuGenerator gen1 = MenuGenerator(baseSeed: 99);
-      gen1.generate(configurations: configs);
+      gen1.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
 
       MenuGenerator gen2 = MenuGenerator(baseSeed: 99);
-      gen2.generate(configurations: configs);
+      gen2.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
 
       for (int i = 0; i < gen1.menu!.meals.length; i++) {
         expect(
-          gen1.menu!.meals[i].cooking?.recipe.id,
-          gen2.menu!.meals[i].cooking?.recipe.id,
+          gen1.menu!.meals[i].cooking?.recipeId,
+          gen2.menu!.meals[i].cooking?.recipeId,
           reason: "Slot $i should have the same recipe for the same seed",
         );
       }
@@ -189,15 +189,15 @@ void main() {
       List<MenuConfiguration> configs = _fullWeekConfigurations();
 
       MenuGenerator gen1 = MenuGenerator(baseSeed: 1);
-      gen1.generate(configurations: configs);
+      gen1.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
 
       MenuGenerator gen2 = MenuGenerator(baseSeed: 9999);
-      gen2.generate(configurations: configs);
+      gen2.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
 
       // At least one slot should differ
       bool anyDifference = false;
       for (int i = 0; i < gen1.menu!.meals.length; i++) {
-        if (gen1.menu!.meals[i].cooking?.recipe.id != gen2.menu!.meals[i].cooking?.recipe.id) {
+        if (gen1.menu!.meals[i].cooking?.recipeId != gen2.menu!.meals[i].cooking?.recipeId) {
           anyDifference = true;
           break;
         }
@@ -226,12 +226,12 @@ void main() {
       ];
 
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       // Both slots should have the same recipe
-      expect(menu.meals[0].cooking?.recipe.id, "m1");
-      expect(menu.meals[1].cooking?.recipe.id, "m1");
+      expect(menu.meals[0].cooking?.recipeId, "m1");
+      expect(menu.meals[1].cooking?.recipeId, "m1");
 
       // First occurrence has yield = total count, rest have yield = 0
       List<Meal> sorted = [...menu.meals]..sort((a, b) => a.goesBefore(b) ? -1 : 1);
@@ -262,7 +262,7 @@ void main() {
       ];
 
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       // Both slots should be filled (the zero-time slot from leftovers)
@@ -319,7 +319,7 @@ void main() {
       ];
 
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       expect(menu.meals.length, 1);
@@ -337,7 +337,7 @@ void main() {
       ];
 
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      generator.generate(configurations: configs);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
       expect(menu.meals, isEmpty);

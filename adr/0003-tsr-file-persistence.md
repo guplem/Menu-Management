@@ -10,9 +10,9 @@ Persist data as JSON-based files via `FilePicker`, using two distinct formats:
 
 - **`.tsr` files** -- Store ingredients and recipes. JSON structure has top-level `"Ingredients"` and `"Recipes"` arrays. Saved/loaded through `Persistency.saveData()` / `Persistency.loadData()`.
 
-- **`.tsm` files** -- Store generated menus (single-week or multi-week). Saved through `Persistency.saveMenu()`, loaded through `Persistency.loadMultiWeekMenu()`. The loader is backward-compatible: if the JSON contains a `"weeks"` key it is parsed as `MultiWeekMenu`; otherwise it is treated as a single `Menu` and wrapped in a one-week `MultiWeekMenu`.
+- **`.tsm` files** -- Store generated menus (single-week or multi-week). Each meal's `Cooking` object stores a `recipeId` (UUID string) referencing a recipe in the recipe book, plus a `ref_name` field for human readability (ignored by the app on load). Saved through `Persistency.saveMenu()`, loaded through `Persistency.loadMultiWeekMenu()`. The loader detects whether the JSON contains a `"weeks"` key (multi-week format) or just `"meals"` (old single-week format) and handles both. On load, each `recipeId` is validated against the loaded recipe book; meals referencing missing recipes have their cooking set to null with a warning logged.
 
-On release builds, `main.dart` calls `Persistency.loadData()` at startup, which opens a file picker dialog prompting the user to select a `.tsr` file. This does not happen in debug mode. Menu files (`.tsm`) are never auto-loaded.
+On startup, sequential dialogs ask the user whether to load recipes (last saved, bundled defaults, or skip) and then whether to load a menu (same options). The app tracks the last saved/loaded `.tsr` and `.tsm` paths in `%APPDATA%/MenuManagement/last_session.json`.
 
 ## Consequences
 

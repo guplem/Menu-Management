@@ -17,6 +17,8 @@ class IngredientsProvider extends ChangeNotifier {
   final List<Ingredient> _ingredients = [];
   List<Ingredient> get ingredients => _ingredients;
 
+  Map<String, Ingredient> get ingredientsById => {for (Ingredient i in _ingredients) i.id: i};
+
   bool isValidNewIngredient(String newIngredientName) {
     bool ingredientExists = _ingredients.any((existentIngredient) {
       return existentIngredient.name.trim().toLowerCase() == newIngredientName.trim().toLowerCase();

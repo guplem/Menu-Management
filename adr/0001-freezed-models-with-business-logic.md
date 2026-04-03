@@ -13,3 +13,4 @@ Use Freezed for all data models. Embed domain-specific business logic as methods
 - Models are the single source of truth for both data shape and domain rules.
 - No separate "service" or "use case" layer needed for domain logic.
 - Generated files (`*.freezed.dart`, `*.g.dart`) must be committed and regenerated after model changes.
+- **Parameterized methods for cross-model lookups**: When a model method needs data from another entity (e.g., resolving a recipe ID to a full Recipe), the required data is passed as a `Map` parameter (e.g., `Map<String, Recipe> recipesById`). This keeps models pure and testable without introducing provider dependencies or a service layer. See ADR 0009 for the motivating change.

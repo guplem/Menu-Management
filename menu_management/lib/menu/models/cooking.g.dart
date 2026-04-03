@@ -7,11 +7,11 @@ part of 'cooking.dart';
 // **************************************************************************
 
 _Cooking _$CookingFromJson(Map<String, dynamic> json) => _Cooking(
-  recipe: Recipe.fromJson(json['recipe'] as Map<String, dynamic>),
+  recipeId: json['recipeId'] as String,
   yield: (json['yield'] as num).toInt(),
 );
 
 Map<String, dynamic> _$CookingToJson(_Cooking instance) => <String, dynamic>{
-  'recipe': instance.recipe,
+  'recipeId': instance.recipeId,
   'yield': instance.yield,
 };

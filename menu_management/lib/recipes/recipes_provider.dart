@@ -1,5 +1,5 @@
 import "package:flutter/widgets.dart";
-import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
@@ -23,18 +23,24 @@ class RecipesProvider extends ChangeNotifier {
   final List<Recipe> _recipes = [];
   List<Recipe> get recipes => _recipes;
 
+  Map<String, Recipe> get recipesById => {for (Recipe r in _recipes) r.id: r};
+
   static Recipe listenableOf(BuildContext context, String recipeId) => getProvider<RecipesProvider>(context, listen: true).get(recipeId);
 
   //#region RECIPES
-  void setData(List<Recipe> recipes) {
+  void setData(List<Recipe> recipes, {required Map<String, Ingredient> ingredientsById}) {
     _recipes.clear();
     _recipes.addAll(recipes);
     notifyListeners();
-    _checkIngredientsValidity();
+    _checkIngredientsValidity(ingredientsById: ingredientsById);
   }
 
   Recipe get(String recipeId) {
-    return recipes.firstWhere((element) => element.id == recipeId);
+    Recipe? recipe = recipes.firstWhereOrNull((element) => element.id == recipeId);
+    if (recipe == null) {
+      Debug.logError("No recipe found with id $recipeId");
+    }
+    return recipe!;
   }
 
   List<Recipe> getOfType({required RecipeType type, bool? carbs, bool? proteins, bool? vegetables}) {
@@ -133,13 +139,13 @@ class RecipesProvider extends ChangeNotifier {
   }
   //#endregion
 
-  void _checkIngredientsValidity() {
+  void _checkIngredientsValidity({required Map<String, Ingredient> ingredientsById}) {
     for (Recipe recipe in recipes) {
       for (Instruction instruction in recipe.instructions) {
         for (IngredientUsage usage in instruction.ingredientsUsed) {
-          // Just to check that nothing breaks and it is found.
-          IngredientsProvider.instance.get(usage.ingredient);
-          // TODO: wrap the "get" in a try-catch and display a warning if an ingredient is not found
+          if (!ingredientsById.containsKey(usage.ingredient)) {
+            Debug.logError("Recipe '${recipe.name}' references unknown ingredient ID '${usage.ingredient}'");
+          }
         }
       }
     }

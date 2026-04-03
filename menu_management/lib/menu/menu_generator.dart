@@ -9,7 +9,6 @@ import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/recipe.dart";
-import "package:menu_management/recipes/recipes_provider.dart";
 
 class MenuGenerator {
   MenuGenerator({required this.baseSeed});
@@ -24,15 +23,20 @@ class MenuGenerator {
 
   Menu? menu;
 
-  void generate({required List<MenuConfiguration> configurations}) {
+  void generate({required List<MenuConfiguration> configurations, required List<Recipe> recipes}) {
     Debug.log("Generating menu...");
 
     menu = null;
 
+    Map<String, Recipe> recipesById = {for (Recipe r in recipes) r.id: r};
+
+    List<Recipe> breakfastRecipesList = recipes.where((r) => r.includeInMenuGeneration && r.type == RecipeType.breakfast).toList();
+    List<Recipe> mealRecipesList = recipes.where((r) => r.includeInMenuGeneration && r.type == RecipeType.meal).toList();
+
     List<MenuConfiguration> breakfastConfigurations = configurations
         .where((element) => element.requiresMeal && element.mealTime.mealType == MealType.breakfast)
         .toList();
-    Set<Recipe> breakfastsRecipes = RecipesProvider().getOfType(type: RecipeType.breakfast).shuffled(Random(seed)).toSet();
+    Set<Recipe> breakfastsRecipes = breakfastRecipesList.shuffled(Random(seed)).toSet();
     Debug.logWarning(breakfastsRecipes.isEmpty, "No breakfasts found");
     Map<MealTime, Recipe?> breakfastRecipes = getRecipesFor(
       recipesToConsider: breakfastsRecipes,
@@ -42,7 +46,7 @@ class MenuGenerator {
     List<MenuConfiguration> mealsConfigurations = configurations
         .where((element) => element.requiresMeal && (element.mealTime.mealType == MealType.lunch || element.mealTime.mealType == MealType.dinner))
         .toList();
-    Set<Recipe> mealsRecipes = RecipesProvider().getOfType(type: RecipeType.meal).shuffled(Random(seed)).toSet();
+    Set<Recipe> mealsRecipes = mealRecipesList.shuffled(Random(seed)).toSet();
     Debug.logWarning(mealsRecipes.isEmpty, "No meals found");
     Map<MealTime, Recipe?> mealsRecipesMap = getRecipesFor(recipesToConsider: mealsRecipes, configurationsToFindRecipesFor: mealsConfigurations);
 
@@ -53,11 +57,11 @@ class MenuGenerator {
 
       return Meal(
         mealTime: config.mealTime,
-        cooking: recipe == null ? null : Cooking(recipe: recipe, yield: -1),
+        cooking: recipe == null ? null : Cooking(recipeId: recipe.id, yield: -1),
       );
     }).toList();
 
-    menu = Menu(meals: meals).copyWithUpdatedYields();
+    menu = Menu(meals: meals).copyWithUpdatedYields(recipesById: recipesById);
   }
 
   Recipe? getValidRecipeForConfiguration({

@@ -46,7 +46,15 @@ class _HubState extends State<Hub> {
                   const SizedBox(height: 10),
                   // Save functionality not available on mobile platforms
                   if (Theme.of(context).platform != TargetPlatform.iOS && Theme.of(context).platform != TargetPlatform.android)
-                    IconButton(icon: const Icon(Icons.save_rounded), onPressed: () => Persistency.saveData(), tooltip: "Save data to file"),
+                    IconButton(
+                      icon: const Icon(Icons.save_rounded),
+                      onPressed: () => Persistency.saveData(
+                        ingredients: IngredientsProvider.instance.ingredients,
+                        recipes: RecipesProvider.instance.recipes,
+                        ingredientsById: IngredientsProvider.instance.ingredientsById,
+                      ),
+                      tooltip: "Save data to file",
+                    ),
                   const SizedBox(height: 10),
                 ],
               ),

@@ -3,8 +3,10 @@ import "dart:io";
 
 import "package:file_picker/file_picker.dart";
 import "package:flutter/services.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/models/recipe.dart";
@@ -84,13 +86,13 @@ class Persistency {
 
   /// Loads a MultiWeekMenu from a specific .tsm file path.
   /// Returns null if the file doesn't exist or can't be read.
-  static Future<MultiWeekMenu?> loadMenuFromPath(String path) async {
+  static Future<MultiWeekMenu?> loadMenuFromPath(String path, {required Map<String, Recipe> recipesById}) async {
     try {
       File file = File(path);
       if (!file.existsSync()) return null;
 
       String data = await file.readAsString();
-      return _parseMenuFromJson(data);
+      return _parseMenuFromJson(data, recipesById: recipesById);
     } catch (_) {
       return null;
     }
@@ -110,9 +112,9 @@ class Persistency {
   }
 
   /// Loads the bundled DefaultMenu.tsm asset into a MultiWeekMenu.
-  static Future<MultiWeekMenu> loadDefaultMenu() async {
+  static Future<MultiWeekMenu> loadDefaultMenu({required Map<String, Recipe> recipesById}) async {
     String data = await rootBundle.loadString("assets/DefaultMenu.tsm");
-    return _parseMenuFromJson(data);
+    return _parseMenuFromJson(data, recipesById: recipesById);
   }
 
   // ============================================================
@@ -134,18 +136,88 @@ class Persistency {
     }
 
     ingredientsProvider.setData(ingredients);
-    recipesProvider.setData(recipes);
+    Map<String, Ingredient> ingredientsById = ingredientsProvider.ingredientsById;
+    recipesProvider.setData(recipes, ingredientsById: ingredientsById);
   }
 
   /// Parses .tsm JSON content into a MultiWeekMenu. Supports both multi-week and single-week formats.
-  static MultiWeekMenu _parseMenuFromJson(String data) {
+  /// Validates that all referenced recipeIds exist in [recipesById]. Missing recipes are nullified with a warning.
+  static MultiWeekMenu _parseMenuFromJson(String data, {required Map<String, Recipe> recipesById}) {
     Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
 
+    MultiWeekMenu rawMenu;
     if (json.containsKey("weeks")) {
-      return MultiWeekMenu.fromJson(json);
+      rawMenu = MultiWeekMenu.fromJson(json);
     } else {
       Menu singleWeek = Menu.fromJson(json);
-      return MultiWeekMenu.validated(weeks: [singleWeek]);
+      rawMenu = MultiWeekMenu.validated(weeks: [singleWeek]);
+    }
+
+    // Validate: warn and strip meals with missing recipe IDs
+    List<String> warnings = [];
+    List<Menu> validatedWeeks = rawMenu.weeks.map((Menu week) {
+      List<Meal> validMeals = week.meals.map((Meal meal) {
+        if (meal.cooking == null) return meal;
+        if (!recipesById.containsKey(meal.cooking!.recipeId)) {
+          warnings.add("Missing recipe '${meal.cooking!.recipeId}' at ${meal.mealTime.weekDay.name} ${meal.mealTime.mealType.name}");
+          return meal.copyWith(cooking: null);
+        }
+        return meal;
+      }).toList();
+      return week.copyWith(meals: validMeals);
+    }).toList();
+
+    if (warnings.isNotEmpty) {
+      Debug.logWarning(true, "Menu loaded with missing recipes:\n${warnings.join('\n')}", asAssertion: false);
+    }
+
+    return MultiWeekMenu(weeks: validatedWeeks);
+  }
+
+  // ============================================================
+  // ref_name injection for human-readable files
+  // ============================================================
+
+  /// Injects ref_name fields into .tsm JSON for human readability.
+  /// ref_name is ignored by fromJson on load.
+  static void _injectMenuRefNames(Map<String, dynamic> menuJson, {required Map<String, Recipe> recipesById}) {
+    List<dynamic> weeks;
+    if (menuJson.containsKey("weeks")) {
+      weeks = menuJson["weeks"];
+    } else if (menuJson.containsKey("meals")) {
+      weeks = [menuJson];
+    } else {
+      return;
+    }
+
+    for (Map<String, dynamic> week in weeks) {
+      for (Map<String, dynamic> meal in week["meals"]) {
+        if (meal["cooking"] != null) {
+          Map<String, dynamic> cooking = meal["cooking"];
+          String? recipeId = cooking["recipeId"];
+          if (recipeId != null) {
+            cooking["ref_name"] = recipesById[recipeId]?.name ?? "UNKNOWN";
+          }
+        }
+      }
+    }
+  }
+
+  /// Injects ref_name fields into .tsr recipe JSON for IngredientUsage entries.
+  static void _injectRecipeRefNames(Map<String, dynamic> tsrJson, {required Map<String, Ingredient> ingredientsById}) {
+
+    if (tsrJson["Recipes"] == null) return;
+    for (Map<String, dynamic> recipe in tsrJson["Recipes"]) {
+      if (recipe["instructions"] == null) continue;
+      for (Map<String, dynamic> instruction in recipe["instructions"]) {
+        if (instruction["ingredientsUsed"] == null) continue;
+        for (Map<String, dynamic> usage in instruction["ingredientsUsed"]) {
+          String? ingredientId = usage["ingredient"];
+          if (ingredientId != null) {
+            usage["ref_name"] = ingredientsById[ingredientId]?.name ?? "UNKNOWN";
+          }
+        }
+      }
     }
   }
 
@@ -153,7 +225,11 @@ class Persistency {
   // Save / Load with file picker
   // ============================================================
 
-  static Future<void> saveData() async {
+  static Future<void> saveData({
+    required List<Ingredient> ingredients,
+    required List<Recipe> recipes,
+    required Map<String, Ingredient> ingredientsById,
+  }) async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: "Select where to save the data",
@@ -165,42 +241,17 @@ class Persistency {
     if (outputFile == null) {
       // User canceled the picker
     } else {
-      // Get the data
-      List<Ingredient> ingredients = [...IngredientsProvider.instance.ingredients];
-      List<Recipe> recipes = [...RecipesProvider.instance.recipes];
+      // Build JSON map, inject ref_names, then encode
+      Map<String, dynamic> tsrJson = {
+        "Ingredients": ingredients.map((i) => i.toJson()).toList(),
+        "Recipes": recipes.map((r) => r.toJson()).toList(),
+      };
+      _injectRecipeRefNames(tsrJson, ingredientsById: ingredientsById);
 
       // Prepare the file
       File file = File(outputFile);
-      String data = "{\n";
+      String data = jsonEncode(tsrJson);
 
-      // Add INGREDIENTS to the file's data
-      data += '"Ingredients":[\n';
-      for (Ingredient ingredient in ingredients) {
-        data += "${jsonEncode(ingredient.toJson())}\n";
-        // Add a comma if not the last
-        if (ingredient != ingredients.last) {
-          data += ",";
-        }
-      }
-      data += "]";
-      data += ",";
-      data += "\n";
-
-      // Add RECIPES to the file's data
-      data += '"Recipes":[\n';
-      for (Recipe recipe in recipes) {
-        data += "${jsonEncode(recipe.toJson())}\n";
-        // Add a comma if not the last
-        if (recipe != recipes.last) {
-          data += ",";
-        }
-      }
-      data += "]";
-      // data += ','; // A coma is not needed after the last element
-      data += "\n";
-
-      // Close JSON and save to file
-      data += "}";
       await file.writeAsString(data);
       _saveLastSession(tsrPath: outputFile);
     }
@@ -229,7 +280,7 @@ class Persistency {
     }
   }
 
-  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu) async {
+  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required Map<String, Recipe> recipesById}) async {
     DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
     String date = "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
 
@@ -244,9 +295,11 @@ class Persistency {
     if (outputFile == null) {
       // User canceled the picker
     } else {
-      // Prepare the file
+      // Prepare the file with ref_name injection for human readability
       File file = File(outputFile);
-      String data = jsonEncode(multiWeekMenu.toJson());
+      Map<String, dynamic> json = multiWeekMenu.toJson();
+      _injectMenuRefNames(json, recipesById: recipesById);
+      String data = jsonEncode(json);
 
       // Save to file
       await file.writeAsString(data);
@@ -254,7 +307,7 @@ class Persistency {
     }
   }
 
-  static Future<MultiWeekMenu?> loadMultiWeekMenu() async {
+  static Future<MultiWeekMenu?> loadMultiWeekMenu({required Map<String, Recipe> recipesById}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: "Select the menu to load",
       allowMultiple: false,
@@ -271,7 +324,7 @@ class Persistency {
 
       String data = await file.readAsString();
       _saveLastSession(tsmPath: result.files.single.path!);
-      return _parseMenuFromJson(data);
+      return _parseMenuFromJson(data, recipesById: recipesById);
     }
     return null;
   }

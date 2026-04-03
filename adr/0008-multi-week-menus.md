@@ -13,7 +13,7 @@ Introduce a `MultiWeekMenu` Freezed model that wraps `List<Menu> weeks`. Each we
 Key design choices:
 
 - **Composition over modification**: `MultiWeekMenu` composes multiple `Menu` objects rather than extending or modifying `Menu`. Each week's yield calculations remain self-contained.
-- **Aggregated shopping**: `MultiWeekMenu.allIngredients` merges ingredient quantities across all weeks, combining same-unit amounts per ingredient.
+- **Aggregated shopping**: `MultiWeekMenu.allIngredients(recipesById:)` merges ingredient quantities across all weeks, combining same-unit amounts per ingredient. Requires a recipe lookup map since `Cooking` stores recipe IDs, not full objects (see ADR 0009).
 - **Independent generation**: Each additional week is generated independently with its own seed, reusing the same `MenuConfiguration` settings. This means each week gets a different menu while respecting the same time constraints.
 - **Backward-compatible persistence**: The `loadMultiWeekMenu` method detects whether a `.tsm` file contains the new `MultiWeekMenu` format (has "weeks" key) or the old single-`Menu` format, and wraps old files in a single-week `MultiWeekMenu`.
 - **Minimum one week invariant**: The default Freezed constructor allows empty weeks (needed for JSON deserialization). Production code uses `MultiWeekMenu.validated(weeks: ...)` which throws `ArgumentError` on empty lists. `removeLastWeek()` also guards against going below one week.
@@ -22,7 +22,7 @@ Key design choices:
 ## Consequences
 
 - `MenuPage` now receives `MultiWeekMenu` instead of `Menu`. All per-week edits (recipe swap, people count) go through `MultiWeekMenu.updateWeekAt()`.
-- `ShoppingPage` receives `MultiWeekMenu` and uses its aggregated `allIngredients` getter.
+- `ShoppingPage` receives `MultiWeekMenu` and uses its aggregated `allIngredients(recipesById:)` method.
 - `Persistency.saveMenu` and `loadMultiWeekMenu` handle the new format. Old `.tsm` files remain loadable.
 - Yield calculation is per-week only. A recipe used in week 1 and week 2 will have independent yield counts (no cross-week leftover tracking). This is intentional: weeks are assumed to be cooked independently.
 - `MenuProvider.generateMenu` now returns `MultiWeekMenu` (single week). `MenuProvider.generateAdditionalWeek` generates a standalone `Menu` for appending.
