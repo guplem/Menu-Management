@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Flutter desktop app for weekly meal planning. Users create ingredients, build recipes, configure time constraints per meal slot, and generate optimized weekly menus with auto-aggregated shopping lists. All Flutter source code lives under `menu_management/`.
+
+Before implementing any non-trivial feature, delegate to the **pattern-scout** agent.
+
+Before implementing features that touch state management, data models, persistence, menu generation, or app architecture, delegate to the **adr-checker** agent in **consult mode**. After such changes, delegate in **maintain mode**.
+
+After writing or modifying code, delegate to the **test-runner** agent.
+
+After completing changes that affect documented content, delegate to the **docs-checker** agent.
+
+When the user's request is broad or exploratory, ask whether they'd like to run multi-agent research (`/research-agents`) before proceeding.
+
 ## Living Document
 
 This file is self-improving. When you discover something worth recording, update it immediately:
@@ -23,12 +35,6 @@ Document non-obvious behavior -- things a competent agent would get wrong withou
 | `CLAUDE.md` | AI agents | Architecture, patterns, coding rules, gotchas, procedures |
 
 No duplication between them. If setup instructions are in README, CLAUDE.md only references them or includes a quick command table.
-
-## Project Overview
-
-Flutter desktop app for weekly meal planning. Users create ingredients, build recipes, configure time constraints per meal slot, and generate optimized weekly menus with auto-aggregated shopping lists.
-
-All Flutter source code lives under `menu_management/`.
 
 ## Commands
 
@@ -83,10 +89,6 @@ Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>
 - Data is **not** automatically saved -- users must manually save via the save button
 - On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
 - Menu configurations are **not** persisted (generated on-demand)
-
-## Pattern Scout (mandatory)
-
-Before implementing any new feature, widget, provider, or model, run the `pattern-scout` agent (`.claude/agents/pattern-scout.md`). It analyzes the codebase for similar implementations and reports established patterns, naming conventions, file locations, and structure. Treat its output as the baseline to follow unless you have a concrete reason to deviate, and explain that reasoning when you do.
 
 ## Test-Driven Development (mandatory)
 
@@ -168,9 +170,9 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0008](adr/0008-multi-week-menus.md) | Multi-week menus: MultiWeekMenu wraps List\<Menu\>, independent generation per week |
 | [0009](adr/0009-cooking-recipe-id-reference.md) | Cooking stores recipe ID (not full Recipe), parameterized model methods, ref_name for readability |
 
-**When to consult ADRs:** Before changing state management, data models, persistence, or introducing new architectural patterns. Run the `adr-checker` agent (`.claude/agents/adr-checker.md`) in consult mode to find relevant ADRs.
+**Create a new ADR** when making an architectural decision with trade-offs worth preserving. Use the next sequential number.
 
-**When to create/update ADRs:** After making decisions that change how the app is structured, how data flows, or how features are wired together. Run the `adr-checker` agent in maintain mode to determine if a new ADR is needed or an existing one should be updated.
+**Keep ADRs current.** When a change affects an existing decision, update the relevant ADR. If a decision is superseded, mark the old ADR as superseded and reference the new one.
 
 ## Gotchas
 
@@ -178,3 +180,33 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 - `*.g.dart` and `*.freezed.dart` are committed to the repo (no build step in CI).
 - The `flutter_essentials/` library is a local package inside `lib/`, not a separate pub package.
 - Platform target is desktop-first. Mobile platforms have limited save/load support.
+
+## GitHub Issues, PRs, and Other Artifacts
+
+- **Always self-assign PRs** when creating them.
+- **Always link PRs to issues** using `Closes #N` in the PR body so issues auto-close on merge.
+- **Always add the `waiting-for-human-check` label** when creating GitHub issues, pull requests, or any other reviewable artifact. This signals that no human has verified the content yet -- it is direct AI output. Once a human reviews it, the label is removed. The label communicates state (unreviewed), not origin.
+
+If the repository does not have a `waiting-for-human-check` label, create it first:
+```bash
+gh label create "waiting-for-human-check" --description "No human has verified this yet -- direct AI output" --color "D93F0B"
+```
+
+## Self-Updating Rules
+
+When you discover something during a task that was **non-obvious and would save time in future sessions**, add it to the relevant `CLAUDE.md`. Examples: an undocumented implicit dependency, a silent failure mode, a config quirk that causes hard-to-diagnose bugs.
+
+This also applies when the user tells you to do something **"every time"**, **"always"**, or **"never"**: immediately persist it rather than applying it only for the current session. Always prefer the most specific scope: project-level over global when the rule only applies to this repo.
+
+**Also add** a rule whenever the codebase does something in a way that diverges from what a software developer or an AI would naturally write. If the correct approach here is not the standard/obvious one, a future agent will implement it the wrong way without an explicit rule.
+
+**Do NOT add:**
+- Standard patterns discoverable via normal code reading or search
+- Things already covered by existing rules
+- One-off context unlikely to recur
+
+The bar: if a future agent could reasonably figure it out within a few seconds of exploration, don't add it. Only record knowledge that took a painful detour to uncover, or that diverges from what any competent developer would write by default.
+
+## Deployment
+
+Desktop-only distribution. `build_and_copy.bat` builds a Windows release and copies the portable EXE to the Desktop. No CI/CD pipeline -- builds are manual.
