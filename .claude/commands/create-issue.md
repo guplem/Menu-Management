@@ -288,10 +288,15 @@ If changes requested, apply them and re-present.
 
 ## 9. Create the Issue
 
+Always include the `waiting-for-human-check` label. If it doesn't exist in the repo, create it first:
+```bash
+gh label create "waiting-for-human-check" --description "No human has verified this yet -- direct AI output" --color "D93F0B" 2>/dev/null || true
+```
+
 ```bash
 gh issue create \
   --title "$SELECTED_TITLE" \
-  --label "<label1>,<label2>" \
+  --label "<label1>,<label2>,waiting-for-human-check" \
   --body "$(cat <<'EOF'
 <full issue body>
 EOF
