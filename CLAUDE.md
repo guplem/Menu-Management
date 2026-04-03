@@ -72,11 +72,11 @@ UI (Widgets)  -->  State (Providers)  -->  Data (Freezed Models)
 
 ### Menu Generation Algorithm
 
-Core logic in `menu_generator.dart`. Multi-phase assignment with priority ordering, yield calculation for leftovers, and time-constraint fitting. See [ADR 0004](adr/0004-menu-generation-algorithm.md) for detailed algorithm documentation.
+Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>` and `List<MenuConfiguration>` as parameters, never accesses providers. Multi-phase assignment with priority ordering, yield calculation for leftovers, and time-constraint fitting. See [ADR 0004](adr/0004-menu-generation-algorithm.md) for detailed algorithm documentation.
 
 ### Persistence
 
-`persistency.dart` handles file I/O. Save is unavailable on iOS/Android due to `FilePicker` limitations. See [ADR 0003](adr/0003-tsr-file-persistence.md) and [ADR 0009](adr/0009-cooking-recipe-id-reference.md).
+`persistency.dart` handles file I/O. Fully parameterized: all public methods receive data as parameters (ingredients, recipes, lookup maps), never accessing provider singletons internally. Save is unavailable on iOS/Android due to `FilePicker` limitations. See [ADR 0003](adr/0003-tsr-file-persistence.md) and [ADR 0009](adr/0009-cooking-recipe-id-reference.md).
 
 - **`.tsr` files**: JSON with top-level `"Ingredients"` and `"Recipes"` arrays. On save, `ref_name` fields are injected into `IngredientUsage` entries for human readability.
 - **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning.
@@ -107,6 +107,8 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 - Use `listenableOf()` helper for context-based listening to individual items
 - Always call `notifyListeners()` after state changes
 - Use `listen: false` when reading without reacting to changes (avoids expensive rebuilds)
+- **Provider access is restricted to the UI layer** (widgets, hub.dart, main.dart). Non-UI code (models, generators, persistency helpers) never imports or accesses `Provider.instance`; it receives all required data as parameters.
+- Symmetric provider API: both `IngredientsProvider` and `RecipesProvider` expose `get(id)` (with `firstWhereOrNull` + `Debug.logError` + null assertion), a `byId` getter (`ingredientsById` / `recipesById`) for O(1) lookup, and `addOrUpdate()` / `remove()` static methods for mutation.
 - Provider responsibilities:
   - `IngredientsProvider`: CRUD for ingredients, search history
   - `RecipesProvider`: CRUD for recipes/instructions, filtering by type/nutrition, result/input tracking
@@ -117,6 +119,7 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 - All data models use Freezed for immutability, `copyWith`, equality, and JSON serialization
 - Generated files (`*.freezed.dart`, `*.g.dart`) are excluded from analysis
 - Business logic methods are embedded directly on models (e.g., `Recipe.fitsConfiguration()`, `Menu.copyWithUpdatedYields()`)
+- **Models never import or call providers.** Cross-entity references use string IDs (e.g., `Cooking.recipeId`, `IngredientUsage.ingredient`), not embedded objects. When a method needs data from another entity, the caller passes it as a parameter (e.g., `Map<String, Recipe> recipesById`).
 - Use `const` constructors where possible
 - Add empty `const Model._()` constructor to enable custom methods
 - Prefer derived getters over storing redundant state

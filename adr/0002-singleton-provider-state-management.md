@@ -19,3 +19,5 @@ Two patterns exist depending on whether the provider manages a dynamic collectio
 - Simple, predictable state flow with no extra dependencies.
 - Providers are singletons, so state is global and persists for the app lifetime.
 - The two patterns reflect different domain semantics: CRUD for open-ended collections vs. in-place mutation for a fixed grid.
+- **Provider access is restricted to the UI layer** (widgets, hub.dart, main.dart). Non-UI code (models, generators, persistency) receives all required data as parameters and never imports or accesses `Provider.instance`. This keeps non-UI code pure and testable.
+- Dynamic-collection providers expose a symmetric API: `get(id)` (using `firstWhereOrNull` + `Debug.logError` + null assertion), a `byId` getter (`ingredientsById` / `recipesById`) for O(1) Map lookup, `setData()` for bulk replacement, and static `addOrUpdate()` / `remove()` for mutation.
