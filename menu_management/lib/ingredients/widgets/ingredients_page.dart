@@ -4,6 +4,7 @@ import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/widgets/ingredient_addition.dart";
 import "package:menu_management/ingredients/widgets/ingredient_name_editor.dart";
+import "package:menu_management/ingredients/widgets/product_editor.dart";
 
 class IngredientsPage extends StatefulWidget {
   const IngredientsPage({super.key});
@@ -46,23 +47,37 @@ class _IngredientsPageState extends State<IngredientsPage> {
                     },
                   );
                 },
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    Ingredient toRemove = filtered[index];
-                    IngredientsProvider.remove(ingredientId: toRemove.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Ingredient "${toRemove.name}" removed'),
-                        action: SnackBarAction(
-                          label: "Undo",
-                          onPressed: () {
-                            IngredientsProvider.addOrUpdate(newIngredient: toRemove);
-                          },
-                        ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.shopping_bag,
+                        color: filtered[index].product != null ? Theme.of(context).colorScheme.primary : null,
                       ),
-                    );
-                  },
+                      onPressed: () {
+                        ProductEditor.show(context: context, ingredient: filtered[index]);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        Ingredient toRemove = filtered[index];
+                        IngredientsProvider.remove(ingredientId: toRemove.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Ingredient "${toRemove.name}" removed'),
+                            action: SnackBarAction(
+                              label: "Undo",
+                              onPressed: () {
+                                IngredientsProvider.addOrUpdate(newIngredient: toRemove);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               );
             },

@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -42,9 +43,18 @@ class _ShoppingPageState extends State<ShoppingPage> {
           String shoppingList = ingredientsRequired.entries
               .map((entry) {
                 List<Quantity> remaining = remainingAmounts(ingredient: entry.key);
-                return remaining.any((quantity) => quantity.amount > 0)
-                    ? "${IngredientsProvider.instance.get(entry.key).name}: ${remaining.where((quantity) => quantity.amount > 0).map((quantity) => "${quantity.amount} ${quantity.unit.toString().split(".").last}").join(' + ')}"
-                    : null;
+                if (!remaining.any((quantity) => quantity.amount > 0)) return null;
+                Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
+                String amounts = remaining.where((quantity) => quantity.amount > 0).map((Quantity quantity) {
+                  String unit = quantity.unit.toString().split(".").last;
+                  if (ingredient.product != null && ingredient.product!.unit == quantity.unit) {
+                    int packs = ingredient.product!.packsNeeded(quantity.amount);
+                    String totalInPack = (packs * ingredient.product!.totalQuantityPerPack).toStringAsFixed(0);
+                    return "$packs packs ($totalInPack $unit)";
+                  }
+                  return "${quantity.amount} $unit";
+                }).join(" + ");
+                return "${ingredient.name}: $amounts";
               })
               .whereNotNull()
               .join("\n");
