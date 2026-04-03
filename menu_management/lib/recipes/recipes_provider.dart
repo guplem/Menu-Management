@@ -23,16 +23,14 @@ class RecipesProvider extends ChangeNotifier {
   final List<Recipe> _recipes = [];
   List<Recipe> get recipes => _recipes;
 
-  Map<String, Recipe> get recipesById => {for (Recipe r in _recipes) r.id: r};
-
   static Recipe listenableOf(BuildContext context, String recipeId) => getProvider<RecipesProvider>(context, listen: true).get(recipeId);
 
   //#region RECIPES
-  void setData(List<Recipe> recipes, {required Map<String, Ingredient> ingredientsById}) {
+  void setData(List<Recipe> recipes, {required List<Ingredient> ingredients}) {
     _recipes.clear();
     _recipes.addAll(recipes);
     notifyListeners();
-    _checkIngredientsValidity(ingredientsById: ingredientsById);
+    _checkIngredientsValidity(ingredients: ingredients);
   }
 
   Recipe get(String recipeId) {
@@ -139,11 +137,11 @@ class RecipesProvider extends ChangeNotifier {
   }
   //#endregion
 
-  void _checkIngredientsValidity({required Map<String, Ingredient> ingredientsById}) {
+  void _checkIngredientsValidity({required List<Ingredient> ingredients}) {
     for (Recipe recipe in recipes) {
       for (Instruction instruction in recipe.instructions) {
         for (IngredientUsage usage in instruction.ingredientsUsed) {
-          if (!ingredientsById.containsKey(usage.ingredient)) {
+          if (!ingredients.any((i) => i.id == usage.ingredient)) {
             Debug.logError("Recipe '${recipe.name}' references unknown ingredient ID '${usage.ingredient}'");
           }
         }

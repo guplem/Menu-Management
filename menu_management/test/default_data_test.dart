@@ -18,7 +18,7 @@ void main() {
 
   setUp(() {
     IngredientsProvider.instance.setData([]);
-    RecipesProvider.instance.setData([], ingredientsById: {});
+    RecipesProvider.instance.setData([], ingredients: []);
   });
 
   // ── Helper: parse expected data straight from the asset files ──
@@ -33,13 +33,13 @@ void main() {
     return Map<String, dynamic>.from(jsonDecode(data));
   }
 
-  /// Loads recipes into providers so recipesById is available for menu loading.
-  Future<Map<String, Recipe>> loadRecipesAndGetMap() async {
+  /// Loads recipes into providers so they are available for menu loading.
+  Future<List<Recipe>> loadRecipesAndGetList() async {
     await Persistency.loadDefaultRecipes(
       ingredientsProvider: IngredientsProvider.instance,
       recipesProvider: RecipesProvider.instance,
     );
-    return RecipesProvider.instance.recipesById;
+    return RecipesProvider.instance.recipes;
   }
 
   group("loadDefaultRecipes", () {
@@ -105,9 +105,9 @@ void main() {
     test("loads the correct number of weeks from the asset", () async {
       Map<String, dynamic> rawTsm = await loadRawTsm();
       int expectedWeeks = (rawTsm["weeks"] as List).length;
-      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
+      List<Recipe> recipes = await loadRecipesAndGetList();
 
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
 
       expect(menu.weekCount, expectedWeeks);
     });
@@ -115,9 +115,9 @@ void main() {
     test("each week has the correct number of meals", () async {
       Map<String, dynamic> rawTsm = await loadRawTsm();
       List<dynamic> rawWeeks = rawTsm["weeks"];
-      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
+      List<Recipe> recipes = await loadRecipesAndGetList();
 
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
 
       for (int i = 0; i < menu.weekCount; i++) {
         int expectedMeals = (rawWeeks[i]["meals"] as List).length;
@@ -126,8 +126,8 @@ void main() {
     });
 
     test("all meals have a recipe assigned", () async {
-      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
+      List<Recipe> recipes = await loadRecipesAndGetList();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
 
       for (int w = 0; w < menu.weekCount; w++) {
         for (var meal in menu.weeks[w].meals) {
@@ -139,9 +139,9 @@ void main() {
     test("meal recipeIds and yields match the asset exactly", () async {
       Map<String, dynamic> rawTsm = await loadRawTsm();
       List<dynamic> rawWeeks = rawTsm["weeks"];
-      Map<String, Recipe> recipesById = await loadRecipesAndGetMap();
+      List<Recipe> recipes = await loadRecipesAndGetList();
 
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipesById: recipesById);
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
 
       for (int w = 0; w < menu.weekCount; w++) {
         List<dynamic> rawMeals = rawWeeks[w]["meals"];

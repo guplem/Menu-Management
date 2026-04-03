@@ -25,7 +25,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
   @override
   void initState() {
     super.initState();
-    ingredientsRequired = widget.multiWeekMenu.allIngredients(recipesById: RecipesProvider.instance.recipesById);
+    ingredientsRequired = widget.multiWeekMenu.allIngredients(recipes: RecipesProvider.instance.recipes);
     ingredientsOwned = ingredientsRequired.map(
       (key, value) => MapEntry(key, value.map((quantity) => Quantity(amount: 0, unit: quantity.unit)).toList()),
     );

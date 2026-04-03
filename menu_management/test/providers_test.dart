@@ -120,7 +120,7 @@ void main() {
   group("RecipesProvider", () {
     setUp(() {
       // Reset state before each test. Also reset ingredients to avoid _checkIngredientsValidity issues
-      RecipesProvider.instance.setData([], ingredientsById: {});
+      RecipesProvider.instance.setData([], ingredients: []);
       IngredientsProvider.instance.setData([]);
     });
 
@@ -339,7 +339,7 @@ void main() {
     group("setData", () {
       test("replaces all recipes", () {
         RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "old", name: "Old"));
-        RecipesProvider.instance.setData([const Recipe(id: "new1", name: "New1"), const Recipe(id: "new2", name: "New2")], ingredientsById: {});
+        RecipesProvider.instance.setData([const Recipe(id: "new1", name: "New1"), const Recipe(id: "new2", name: "New2")], ingredients: []);
         expect(RecipesProvider.instance.recipes.length, 2);
         expect(RecipesProvider.instance.recipes.first.id, "new1");
       });

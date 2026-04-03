@@ -93,7 +93,7 @@ List<MenuConfiguration> _lunchDinnerOnlyConfigurations({int cookingTimeMinutes =
 void main() {
   setUp(() {
     IngredientsProvider.instance.setData([]);
-    RecipesProvider.instance.setData([], ingredientsById: {});
+    RecipesProvider.instance.setData([], ingredients: []);
     // Always provide at least one breakfast recipe to avoid Debug.logWarning assertion
     RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b_default", name: "Default Breakfast"));
   });

@@ -30,7 +30,7 @@ class MenuConfigurationPage extends StatelessWidget {
             tooltip: "Open Menu",
             icon: const Icon(Icons.file_open),
             onPressed: () async {
-              MultiWeekMenu? loadedMenu = await Persistency.loadMultiWeekMenu(recipesById: RecipesProvider.instance.recipesById);
+              MultiWeekMenu? loadedMenu = await Persistency.loadMultiWeekMenu(recipes: RecipesProvider.instance.recipes);
               if (loadedMenu != null && context.mounted) {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: loadedMenu)));
               }

@@ -108,7 +108,7 @@ class _AppHomeState extends State<_AppHome> {
 
     MultiWeekMenu? menu;
     if (menuChoice == "last_session") {
-      menu = await Persistency.loadMenuFromPath(lastTsmPath!, recipesById: recipesProvider.recipesById);
+      menu = await Persistency.loadMenuFromPath(lastTsmPath!, recipes: recipesProvider.recipes);
       if (menu == null && mounted) {
         await _showErrorDialog("Could not load the last saved menu. The file may have been moved or corrupted.");
       }
@@ -138,7 +138,7 @@ class _AppHomeState extends State<_AppHome> {
 
   Future<MultiWeekMenu?> _tryLoadDefaultMenu() async {
     try {
-      return await Persistency.loadDefaultMenu(recipesById: RecipesProvider.instance.recipesById);
+      return await Persistency.loadDefaultMenu(recipes: RecipesProvider.instance.recipes);
     } catch (e) {
       if (mounted) {
         await _showErrorDialog("Could not load the default menu: $e");

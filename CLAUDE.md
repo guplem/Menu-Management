@@ -108,7 +108,7 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 - Always call `notifyListeners()` after state changes
 - Use `listen: false` when reading without reacting to changes (avoids expensive rebuilds)
 - **Provider access is restricted to the UI layer** (widgets, hub.dart, main.dart). Non-UI code (models, generators, persistency helpers) never imports or accesses `Provider.instance`; it receives all required data as parameters.
-- Symmetric provider API: both `IngredientsProvider` and `RecipesProvider` expose `get(id)` (with `firstWhereOrNull` + `Debug.logError` + null assertion), a `byId` getter (`ingredientsById` / `recipesById`) for O(1) lookup, and `addOrUpdate()` / `remove()` static methods for mutation.
+- Symmetric provider API: both `IngredientsProvider` and `RecipesProvider` expose `get(id)` (with `firstWhereOrNull` + `Debug.logError` + null assertion), a list getter (`.ingredients` / `.recipes`), and `addOrUpdate()` / `remove()` static methods for mutation.
 - Provider responsibilities:
   - `IngredientsProvider`: CRUD for ingredients, search history
   - `RecipesProvider`: CRUD for recipes/instructions, filtering by type/nutrition, result/input tracking
@@ -119,15 +119,15 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 - All data models use Freezed for immutability, `copyWith`, equality, and JSON serialization
 - Generated files (`*.freezed.dart`, `*.g.dart`) are excluded from analysis
 - Business logic methods are embedded directly on models (e.g., `Recipe.fitsConfiguration()`, `Menu.copyWithUpdatedYields()`)
-- **Models never import or call providers.** Cross-entity references use string IDs (e.g., `Cooking.recipeId`, `IngredientUsage.ingredient`), not embedded objects. When a method needs data from another entity, the caller passes it as a parameter (e.g., `Map<String, Recipe> recipesById`).
+- **Models never import or call providers.** Cross-entity references use string IDs (e.g., `Cooking.recipeId`, `IngredientUsage.ingredient`), not embedded objects. When a method needs data from another entity, the caller passes it as a list (e.g., `List<Recipe> recipes`).
 - Use `const` constructors where possible
 - Add empty `const Model._()` constructor to enable custom methods
 - Prefer derived getters over storing redundant state
-- Key business logic methods (methods needing cross-entity data receive `Map<String, Recipe> recipesById`):
+- Key business logic methods (methods needing cross-entity data receive `List<Recipe> recipes`):
   - `Recipe.fitsConfiguration()`: Check if recipe matches meal requirements
-  - `Menu.copyWithUpdatedRecipe(recipesById:)`: Update a meal's recipe and recalculate yields
-  - `Menu.copyWithUpdatedYields(recipesById:)`: Calculate yields based on recipe reuse
-  - `Menu.allIngredients(recipesById:)`: Aggregate all ingredients across meals (respects yields)
+  - `Menu.copyWithUpdatedRecipe(recipes:)`: Update a meal's recipe and recalculate yields
+  - `Menu.copyWithUpdatedYields(recipes:)`: Calculate yields based on recipe reuse
+  - `Menu.allIngredients(recipes:)`: Aggregate all ingredients across meals (respects yields)
   - `MenuConfiguration.canBeCookedAtTheSpot`: Derived from time availability
 
 ### Search

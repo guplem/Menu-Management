@@ -30,7 +30,7 @@ class _MenuPageState extends State<MenuPage> {
     multiWeekMenu = widget.multiWeekMenu;
   }
 
-  Map<String, Recipe> get _recipesById => RecipesProvider.instance.recipesById;
+  List<Recipe> get _recipes => RecipesProvider.instance.recipes;
 
   Menu get currentWeek => multiWeekMenu.weeks[currentWeekIndex];
 
@@ -91,7 +91,7 @@ class _MenuPageState extends State<MenuPage> {
             tooltip: "Copy to clipboard",
             child: const Icon(Icons.copy_rounded),
             onPressed: () {
-              final String menuString = multiWeekMenu.toStringBeautified(recipesById: _recipesById);
+              final String menuString = multiWeekMenu.toStringBeautified(recipes: _recipes);
               Clipboard.setData(ClipboardData(text: menuString));
             },
           ),
@@ -100,7 +100,7 @@ class _MenuPageState extends State<MenuPage> {
             tooltip: "Save Menu",
             child: const Icon(Icons.save_rounded),
             onPressed: () {
-              Persistency.saveMenu(multiWeekMenu, recipesById: _recipesById);
+              Persistency.saveMenu(multiWeekMenu, recipes: _recipes);
             },
           ),
         ],
@@ -158,7 +158,7 @@ class _MenuPageState extends State<MenuPage> {
                                                 title: Text(recipe.name),
                                                 onTap: () {
                                                   setState(() {
-                                                    Menu updatedWeek = currentWeek.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe, recipesById: _recipesById);
+                                                    Menu updatedWeek = currentWeek.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe, recipes: _recipes);
                                                     multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
                                                   });
                                                   Navigator.of(context).pop();
@@ -189,7 +189,7 @@ class _MenuPageState extends State<MenuPage> {
                                       child: meal.cooking == null
                                           ? const Icon(Icons.warning_rounded)
                                           : Text(
-                                              "(${meal.cooking?.yield}) ${_recipesById[meal.cooking?.recipeId]?.name ?? "?"}",
+                                              "(${meal.cooking?.yield}) ${_recipes.firstWhereOrNull((r) => r.id == meal.cooking?.recipeId)?.name ?? "?"}",
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 3,

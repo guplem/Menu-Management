@@ -39,7 +39,6 @@ Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lun
   );
 }
 
-Map<String, Recipe> _recipesMap(List<Recipe> recipes) => {for (Recipe r in recipes) r.id: r};
 
 String _validTsmContent() {
   Menu week = Menu(meals: [
@@ -62,7 +61,7 @@ void main() {
 
   setUp(() {
     IngredientsProvider.instance.setData([]);
-    RecipesProvider.instance.setData([], ingredientsById: {});
+    RecipesProvider.instance.setData([], ingredients: []);
     tempDir = Directory.systemTemp.createTempSync("persistency_test_");
   });
 
@@ -151,12 +150,12 @@ void main() {
     test("loads a multi-week menu from a valid .tsm file", () async {
       Recipe r1 = _recipe();
       Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
-      Map<String, Recipe> recipesById = _recipesMap([r1, r2]);
+      List<Recipe> recipes = [r1, r2];
 
       File tsmFile = File("${tempDir.path}/test.tsm");
       tsmFile.writeAsStringSync(_validTsmContent());
 
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipesById: recipesById);
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: recipes);
 
       expect(menu, isNotNull);
       expect(menu!.weekCount, 1);
@@ -165,12 +164,12 @@ void main() {
 
     test("loads old single-week format and wraps in MultiWeekMenu", () async {
       Recipe r1 = _recipe();
-      Map<String, Recipe> recipesById = _recipesMap([r1]);
+      List<Recipe> recipes = [r1];
 
       File tsmFile = File("${tempDir.path}/old_format.tsm");
       tsmFile.writeAsStringSync(_validSingleWeekTsmContent());
 
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipesById: recipesById);
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: recipes);
 
       expect(menu, isNotNull);
       expect(menu!.weekCount, 1);
@@ -178,7 +177,7 @@ void main() {
     });
 
     test("returns null for non-existent file", () async {
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath("${tempDir.path}/nonexistent.tsm", recipesById: {});
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath("${tempDir.path}/nonexistent.tsm", recipes: []);
       expect(menu, isNull);
     });
 
@@ -186,7 +185,7 @@ void main() {
       File tsmFile = File("${tempDir.path}/corrupted.tsm");
       tsmFile.writeAsStringSync("not json at all!!!");
 
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipesById: {});
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: []);
       expect(menu, isNull);
     });
 
@@ -194,7 +193,7 @@ void main() {
       File tsmFile = File("${tempDir.path}/empty.tsm");
       tsmFile.writeAsStringSync("");
 
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipesById: {});
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: []);
       expect(menu, isNull);
     });
 
@@ -217,7 +216,7 @@ void main() {
       File tsmFile = File("${tempDir.path}/missing.tsm");
       tsmFile.writeAsStringSync(tsmWithMissingRecipe);
 
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipesById: {});
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: []);
 
       expect(menu, isNotNull);
       expect(menu!.weeks.first.meals.first.cooking, isNull);
@@ -225,7 +224,7 @@ void main() {
 
     test("keeps cooking for meals with valid recipeId", () async {
       Recipe r1 = _recipe(id: "valid-id", name: "Valid Recipe");
-      Map<String, Recipe> recipesById = _recipesMap([r1]);
+      List<Recipe> recipes = [r1];
 
       String tsmContent = jsonEncode({
         "weeks": [
@@ -244,7 +243,7 @@ void main() {
       File tsmFile = File("${tempDir.path}/valid.tsm");
       tsmFile.writeAsStringSync(tsmContent);
 
-      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipesById: recipesById);
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: recipes);
 
       expect(menu, isNotNull);
       expect(menu!.weeks.first.meals.first.cooking, isNotNull);

@@ -39,11 +39,11 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return copyWith(weeks: newWeeks);
   }
 
-  Map<String, List<Quantity>> allIngredients({required Map<String, Recipe> recipesById}) {
+  Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
     Map<String, List<Quantity>> combined = {};
 
     for (Menu week in weeks) {
-      Map<String, List<Quantity>> weekIngredients = week.allIngredients(recipesById: recipesById);
+      Map<String, List<Quantity>> weekIngredients = week.allIngredients(recipes: recipes);
       for (MapEntry<String, List<Quantity>> entry in weekIngredients.entries) {
         if (combined[entry.key] == null) {
           combined[entry.key] = [];
@@ -63,11 +63,11 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return combined;
   }
 
-  String toStringBeautified({required Map<String, Recipe> recipesById}) {
+  String toStringBeautified({required List<Recipe> recipes}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
       result += "Week ${i + 1}\n";
-      result += "${weeks[i].toStringBeautified(recipesById: recipesById)}\n\n";
+      result += "${weeks[i].toStringBeautified(recipes: recipes)}\n\n";
     }
     return result.trim();
   }

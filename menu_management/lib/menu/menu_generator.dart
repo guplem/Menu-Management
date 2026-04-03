@@ -28,8 +28,6 @@ class MenuGenerator {
 
     menu = null;
 
-    Map<String, Recipe> recipesById = {for (Recipe r in recipes) r.id: r};
-
     List<Recipe> breakfastRecipesList = recipes.where((r) => r.includeInMenuGeneration && r.type == RecipeType.breakfast).toList();
     List<Recipe> mealRecipesList = recipes.where((r) => r.includeInMenuGeneration && r.type == RecipeType.meal).toList();
 
@@ -61,7 +59,7 @@ class MenuGenerator {
       );
     }).toList();
 
-    menu = Menu(meals: meals).copyWithUpdatedYields(recipesById: recipesById);
+    menu = Menu(meals: meals).copyWithUpdatedYields(recipes: recipes);
   }
 
   Recipe? getValidRecipeForConfiguration({

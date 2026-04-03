@@ -32,7 +32,6 @@ Menu _singleMealMenu({required Recipe recipe, WeekDay weekDay = WeekDay.saturday
   return Menu(meals: [_testMeal(weekDay: weekDay, mealType: mealType, recipe: recipe)]);
 }
 
-Map<String, Recipe> _recipesMap(List<Recipe> recipes) => {for (Recipe r in recipes) r.id: r};
 
 void main() {
   group("MultiWeekMenu construction", () {
@@ -129,7 +128,7 @@ void main() {
           ),
         ],
       );
-      Map<String, Recipe> recipesById = _recipesMap([pastaRecipe]);
+      List<Recipe> recipes = [pastaRecipe];
 
       final Menu week1 = Menu(
         meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pastaRecipe)],
@@ -139,7 +138,7 @@ void main() {
       );
 
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
-      final Map<String, List<Quantity>> allIngredients = multiWeek.allIngredients(recipesById: recipesById);
+      final Map<String, List<Quantity>> allIngredients = multiWeek.allIngredients(recipes: recipes);
 
       // flour: 200g * 2 people * week1 + 200g * 2 people * week2 = 800g
       expect(allIngredients.containsKey("flour"), true);
@@ -149,19 +148,19 @@ void main() {
 
     test("returns empty map when no weeks have ingredients", () {
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [const Menu(), const Menu()]);
-      expect(multiWeek.allIngredients(recipesById: {}), isEmpty);
+      expect(multiWeek.allIngredients(recipes: []), isEmpty);
     });
   });
 
   group("MultiWeekMenu toStringBeautified", () {
     test("labels each week in the output", () {
       final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
-      Map<String, Recipe> recipesById = _recipesMap([recipe]);
+      List<Recipe> recipes = [recipe];
       final Menu week1 = _singleMealMenu(recipe: recipe);
       final Menu week2 = _singleMealMenu(recipe: recipe);
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
 
-      final String output = multiWeek.toStringBeautified(recipesById: recipesById);
+      final String output = multiWeek.toStringBeautified(recipes: recipes);
 
       expect(output.contains("Week 1"), true);
       expect(output.contains("Week 2"), true);

@@ -51,7 +51,6 @@ class _HubState extends State<Hub> {
                       onPressed: () => Persistency.saveData(
                         ingredients: IngredientsProvider.instance.ingredients,
                         recipes: RecipesProvider.instance.recipes,
-                        ingredientsById: IngredientsProvider.instance.ingredientsById,
                       ),
                       tooltip: "Save data to file",
                     ),
