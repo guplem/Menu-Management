@@ -110,61 +110,80 @@ void main() {
     });
   });
 
-  // ── Ingredient with Product ──
+  // ── Ingredient with Products ──
 
   group("Ingredient", () {
-    group("product field", () {
-      test("defaults to null when not provided", () {
+    group("products field", () {
+      test("defaults to empty list when not provided", () {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Rice");
-        expect(ingredient.product, isNull);
+        expect(ingredient.products, isEmpty);
       });
 
-      test("stores product when provided", () {
+      test("stores products when provided", () {
         Product product = _product();
-        Ingredient ingredient = Ingredient(id: "i1", name: "Rice", product: product);
-        expect(ingredient.product, product);
+        Ingredient ingredient = Ingredient(id: "i1", name: "Rice", products: [product]);
+        expect(ingredient.products, [product]);
       });
 
-      test("copyWith can add product", () {
+      test("stores multiple products", () {
+        Product small = _product(quantityPerItem: 100);
+        Product large = _product(quantityPerItem: 500);
+        Ingredient ingredient = Ingredient(id: "i1", name: "Rice", products: [small, large]);
+        expect(ingredient.products.length, 2);
+        expect(ingredient.products.first.quantityPerItem, 100);
+        expect(ingredient.products.last.quantityPerItem, 500);
+      });
+
+      test("copyWith can add products", () {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Rice");
         Product product = _product();
-        Ingredient updated = ingredient.copyWith(product: product);
-        expect(updated.product, product);
+        Ingredient updated = ingredient.copyWith(products: [product]);
+        expect(updated.products, [product]);
         expect(updated.name, "Rice");
       });
 
-      test("copyWith can remove product", () {
-        Ingredient ingredient = Ingredient(id: "i1", name: "Rice", product: _product());
-        Ingredient updated = ingredient.copyWith(product: null);
-        expect(updated.product, isNull);
+      test("copyWith can clear products", () {
+        Ingredient ingredient = Ingredient(id: "i1", name: "Rice", products: [_product()]);
+        Ingredient updated = ingredient.copyWith(products: []);
+        expect(updated.products, isEmpty);
       });
     });
 
     group("JSON serialization", () {
-      test("round-trips without product (backward compatibility)", () {
+      test("round-trips without products (backward compatibility)", () {
         Ingredient original = const Ingredient(id: "i1", name: "Rice");
         String encoded = jsonEncode(original.toJson());
         Ingredient restored = Ingredient.fromJson(jsonDecode(encoded));
         expect(restored, original);
-        expect(restored.product, isNull);
+        expect(restored.products, isEmpty);
       });
 
-      test("round-trips with product", () {
+      test("round-trips with single product", () {
         Product product = _product(itemsPerPack: 2, quantityPerItem: 500, unit: Unit.grams);
-        Ingredient original = Ingredient(id: "i1", name: "Rice", product: product);
+        Ingredient original = Ingredient(id: "i1", name: "Rice", products: [product]);
         String encoded = jsonEncode(original.toJson());
         Ingredient restored = Ingredient.fromJson(jsonDecode(encoded));
         expect(restored, original);
-        expect(restored.product!.itemsPerPack, 2);
-        expect(restored.product!.quantityPerItem, 500);
+        expect(restored.products.first.itemsPerPack, 2);
+        expect(restored.products.first.quantityPerItem, 500);
       });
 
-      test("deserializes old JSON without product field", () {
+      test("round-trips with multiple products", () {
+        Product small = _product(quantityPerItem: 100);
+        Product large = _product(quantityPerItem: 500);
+        Ingredient original = Ingredient(id: "i1", name: "Rice", products: [small, large]);
+        String encoded = jsonEncode(original.toJson());
+        Ingredient restored = Ingredient.fromJson(jsonDecode(encoded));
+        expect(restored, original);
+        expect(restored.products.length, 2);
+      });
+
+      test("deserializes old JSON without products field", () {
         Map<String, dynamic> oldJson = {"id": "i1", "name": "Rice"};
         Ingredient restored = Ingredient.fromJson(oldJson);
         expect(restored.id, "i1");
         expect(restored.name, "Rice");
-        expect(restored.product, isNull);
+        expect(restored.products, isEmpty);
       });
     });
   });

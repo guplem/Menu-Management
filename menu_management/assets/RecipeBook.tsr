@@ -2,83 +2,285 @@
   "Ingredients": [
     {
       "id": "63172560-5784-1e99-9cbf-85317f03e969",
-      "name": "Pan"
+      "name": "Pan",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/9369/media-hogaza-integral-avena-semillas-girasol-sesamo-rebanado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 350,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "0e622f00-5915-1e99-9cbf-85317f03e969",
-      "name": "Tomate de colgar"
+      "name": "Tomate de ramillete",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69967/tomate-ramillete-mallorca-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 720,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
-      "name": "Sal"
+      "name": "Sal",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/19732/sal-yodada-fina-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
-      "name": "Aceite de Oliva"
+      "name": "Aceite de Oliva",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/4717/aceite-oliva-virgen-extra-hacendado-garrafa",
+          "itemsPerPack": 1,
+          "quantityPerItem": 300,
+          "unit": "centiliters"
+        }
+      ]
     },
     {
       "id": "2939e4b0-6b1e-1e99-9cbf-85317f03e969",
-      "name": "Embutidos"
+      "name": "Pechuga de pavo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/67972/pechuga-pavo-hacendado-finas-lonchas-pack-2",
+          "itemsPerPack": 2,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        }
+      ]
+    },
+    {
+      "id": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
+      "name": "Queso curado",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/50966/queso-curado-mezcla-hacendado-cortado-cunitas-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 330,
+          "unit": "grams"
+        }
+      ]
+    },
+    {
+      "id": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
+      "name": "Jamón serrano",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/59151/jamon-serrano-incarlopsa-lonchas-extrafinas-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 120,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "1410a8a0-6e0f-1e99-9cbf-85317f03e969",
-      "name": "Pasta Espirales de Verduras"
+      "name": "Pasta Espirales de Verduras",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/6344/helices-con-vegetales-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
-      "name": "Huevo"
+      "name": "Huevo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/31540/huevos-grandes-l-paquete",
+          "itemsPerPack": 6,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "15b72e30-7419-1e99-9cbf-85317f03e969",
-      "name": "Atún en lata"
+      "name": "Atún en lata",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/18002/atun-claro-aceite-oliva-hacendado-pack-6",
+          "itemsPerPack": 6,
+          "quantityPerItem": 60,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "f187e8e0-7479-1e99-9cbf-85317f03e969",
-      "name": "Maíz en lata"
+      "name": "Maíz en lata",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/16714/maiz-dulce-hacendado-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 70.0,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/16712/maiz-dulce-hacendado-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 140.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "a4d36d70-7542-1e99-9cbf-85317f03e969",
-      "name": "Queso fresco de Burgos"
+      "name": "Queso fresco de Burgos",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52408/queso-fresco-burgos-natural-hacendado-pack-4",
+          "itemsPerPack": 4,
+          "quantityPerItem": 62.5,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/52406/queso-fresco-burgos-natural-hacendado-pack-2",
+          "itemsPerPack": 2,
+          "quantityPerItem": 250.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
-      "name": "Aceitunas con Anchoas"
+      "name": "Aceitunas con Anchoas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/23217/aceitunas-manzanilla-rellenas-anchoa-hacendado-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 50.0,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/22910/aceitunas-manzanilla-rellenas-anchoa-hacendado-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 150.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "06b12da0-776b-1e99-9cbf-85317f03e969",
-      "name": "Cebolla Crujiente"
+      "name": "Cebolla Crujiente",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/34208/cebolla-frita-crujiente-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 150.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "43705180-786a-1e99-9cbf-85317f03e969",
-      "name": "Yogur Griego"
+      "name": "Yogur Griego",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/21358/yogur-griego-ligero-natural-hacendado-2-mg-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000.0,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/52421/yogur-griego-ligero-natural-hacendado-pack-6",
+          "itemsPerPack": 6,
+          "quantityPerItem": 125.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "2eb01ba0-7896-1e99-9cbf-85317f03e969",
-      "name": "Cereales"
+      "name": "Cereales",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52772/cereales-copos-tostados-trigo-integral-arroz-hacendado-con-chocolate-caja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 425.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "cdf54e80-7ac9-1e99-9cbf-85317f03e969",
-      "name": "Fruta"
+      "name": "Banana",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/3824/banana-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 170.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "342cd030-8045-1e99-9cbf-85317f03e969",
-      "name": "Salmón"
-    },
-    {
-      "id": "3ac232a0-809f-1e99-9cbf-85317f03e969",
-      "name": "Ensalada tamaño familiar (pre-hecha)"
+      "name": "Salmón",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/87203/escalopin-salmon-bandeja",
+          "itemsPerPack": 4,
+          "quantityPerItem": 87.5,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
-      "name": "Leche"
+      "name": "Leche desnatada sin lactosa",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/10730/leche-desnatada-sin-lactosa-hacendado-pack-6",
+          "itemsPerPack": 6,
+          "quantityPerItem": 100.0,
+          "unit": "centiliters"
+        }
+      ]
     },
     {
       "id": "671f3ca0-8746-1e99-9cbf-85317f03e969",
-      "name": "Zanahoria"
+      "name": "Zanahoria",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69669/zanahorias-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 500.0,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/69586/zanahorias-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "c4de41c0-8aab-1e99-9cbf-85317f03e969",
-      "name": "Humus"
+      "name": "Humus",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/80858/hummus-garbanzos-hacendado-receta-clasica-tarrina",
+          "itemsPerPack": 1,
+          "quantityPerItem": 240.0,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "5f300b30-90df-1e99-9cbf-85317f03e969",
@@ -505,10 +707,26 @@
             {
               "ingredient": "2939e4b0-6b1e-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Embutidos"
+              "ref_name": "Pechuga de pavo"
+            },
+            {
+              "ingredient": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
+              "quantity": {
+                "amount": 1,
+                "unit": "pieces"
+              },
+              "ref_name": "Queso curado"
+            },
+            {
+              "ingredient": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
+              "quantity": {
+                "amount": 1,
+                "unit": "pieces"
+              },
+              "ref_name": "Jamón serrano"
             }
           ],
           "workingTimeMinutes": 1,

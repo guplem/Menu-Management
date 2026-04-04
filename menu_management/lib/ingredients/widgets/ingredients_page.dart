@@ -53,7 +53,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                     IconButton(
                       icon: Icon(
                         Icons.shopping_bag,
-                        color: filtered[index].product != null ? Theme.of(context).colorScheme.primary : null,
+                        color: filtered[index].products.isNotEmpty ? Theme.of(context).colorScheme.primary : null,
                       ),
                       onPressed: () {
                         ProductEditor.show(

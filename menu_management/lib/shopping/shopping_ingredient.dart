@@ -80,8 +80,8 @@ class ShoppingIngredient extends StatelessWidget {
   }
 
   String _formatDesiredAmount(Quantity quantity) {
-    if (ingredient.product != null) {
-      return ingredient.product!.formatQuantityForDisplay(quantity.amount, quantity.unit);
+    if (ingredient.products.isNotEmpty) {
+      return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
     }
     String amountRounded = quantity.amount.toStringAsFixed(0);
     String unitName = quantity.unit.toString().split(".").last;

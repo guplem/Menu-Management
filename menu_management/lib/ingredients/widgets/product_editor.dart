@@ -24,6 +24,9 @@ class ProductEditor extends StatefulWidget {
 }
 
 class _ProductEditorState extends State<ProductEditor> {
+  late List<Product> _products;
+  int? _editingIndex;
+
   late final TextEditingController _linkController;
   late final TextEditingController _itemsPerPackController;
   late final TextEditingController _quantityPerItemController;
@@ -32,11 +35,11 @@ class _ProductEditorState extends State<ProductEditor> {
   @override
   void initState() {
     super.initState();
-    Product? existing = widget.ingredient.product;
-    _linkController = TextEditingController(text: existing?.link ?? "");
-    _itemsPerPackController = TextEditingController(text: existing?.itemsPerPack.toString() ?? "1");
-    _quantityPerItemController = TextEditingController(text: existing?.quantityPerItem.toString() ?? "");
-    _selectedUnit = existing?.unit ?? Unit.grams;
+    _products = List.of(widget.ingredient.products);
+    _linkController = TextEditingController();
+    _itemsPerPackController = TextEditingController(text: "1");
+    _quantityPerItemController = TextEditingController();
+    _selectedUnit = Unit.grams;
   }
 
   @override
@@ -47,7 +50,24 @@ class _ProductEditorState extends State<ProductEditor> {
     super.dispose();
   }
 
-  bool get _isValid {
+  void _loadProductIntoForm(int index) {
+    Product product = _products[index];
+    _linkController.text = product.link;
+    _itemsPerPackController.text = product.itemsPerPack.toString();
+    _quantityPerItemController.text = product.quantityPerItem.toString();
+    _selectedUnit = product.unit;
+    setState(() => _editingIndex = index);
+  }
+
+  void _clearForm() {
+    _linkController.clear();
+    _itemsPerPackController.text = "1";
+    _quantityPerItemController.clear();
+    _selectedUnit = Unit.grams;
+    setState(() => _editingIndex = null);
+  }
+
+  bool get _isFormValid {
     if (_linkController.text.trim().isEmpty) return false;
     if (int.tryParse(_itemsPerPackController.text) == null) return false;
     if (double.tryParse(_quantityPerItemController.text) == null) return false;
@@ -56,15 +76,66 @@ class _ProductEditorState extends State<ProductEditor> {
     return items > 0 && qty > 0;
   }
 
+  Product _buildProductFromForm() {
+    return Product(
+      link: _linkController.text.trim(),
+      itemsPerPack: int.parse(_itemsPerPackController.text),
+      quantityPerItem: double.parse(_quantityPerItemController.text),
+      unit: _selectedUnit,
+    );
+  }
+
+  void _saveAndClose() {
+    Ingredient updated = widget.ingredient.copyWith(products: _products);
+    widget.onUpdate(updated);
+    IngredientsProvider.addOrUpdate(newIngredient: updated);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Product for ${widget.ingredient.name}"),
+      title: Text("Products for ${widget.ingredient.name}"),
       content: SizedBox(
-        width: 400,
+        width: 450,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_products.isNotEmpty) ...[
+              Text("Linked products:", style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              ..._products.asMap().entries.map((entry) {
+                int index = entry.key;
+                Product product = entry.value;
+                bool isEditing = _editingIndex == index;
+                return ListTile(
+                  dense: true,
+                  selected: isEditing,
+                  title: Text("${product.itemsPerPack} x ${product.quantityPerItem.toStringAsFixed(0)} ${product.unit.name}"),
+                  subtitle: Text(product.link, overflow: TextOverflow.ellipsis, maxLines: 1),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(icon: const Icon(Icons.edit, size: 20), onPressed: () => _loadProductIntoForm(index)),
+                      IconButton(
+                        icon: const Icon(Icons.delete, size: 20),
+                        onPressed: () {
+                          setState(() {
+                            _products.removeAt(index);
+                            if (_editingIndex == index) _clearForm();
+                            if (_editingIndex != null && _editingIndex! > index) _editingIndex = _editingIndex! - 1;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const Divider(),
+            ],
+            Text(_editingIndex != null ? "Edit product:" : "Add product:", style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
             TextField(
               controller: _linkController,
               decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Product URL"),
@@ -93,39 +164,41 @@ class _ProductEditorState extends State<ProductEditor> {
                 if (value != null) setState(() => _selectedUnit = value);
               },
             ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                FilledButton.tonalIcon(
+                  icon: Icon(_editingIndex != null ? Icons.check : Icons.add),
+                  label: Text(_editingIndex != null ? "Update" : "Add"),
+                  onPressed: _isFormValid
+                      ? () {
+                          setState(() {
+                            if (_editingIndex != null) {
+                              _products[_editingIndex!] = _buildProductFromForm();
+                            } else {
+                              _products.add(_buildProductFromForm());
+                            }
+                          });
+                          _clearForm();
+                        }
+                      : null,
+                ),
+                if (_editingIndex != null) ...[
+                  const SizedBox(width: 8),
+                  TextButton(onPressed: _clearForm, child: const Text("Cancel edit")),
+                ],
+              ],
+            ),
           ],
         ),
       ),
       actions: [
-        if (widget.ingredient.product != null)
-          TextButton(
-            onPressed: () {
-              Ingredient updated = widget.ingredient.copyWith(product: null);
-              widget.onUpdate(updated);
-              IngredientsProvider.addOrUpdate(newIngredient: updated);
-              Navigator.of(context).pop();
-            },
-            child: const Text("Remove product"),
-          ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
         FilledButton(
-          onPressed: _isValid
-              ? () {
-                  Product product = Product(
-                    link: _linkController.text.trim(),
-                    itemsPerPack: int.parse(_itemsPerPackController.text),
-                    quantityPerItem: double.parse(_quantityPerItemController.text),
-                    unit: _selectedUnit,
-                  );
-                  Ingredient updated = widget.ingredient.copyWith(product: product);
-                  widget.onUpdate(updated);
-                  IngredientsProvider.addOrUpdate(newIngredient: updated);
-                  Navigator.of(context).pop();
-                }
-              : null,
+          onPressed: _saveAndClose,
           child: const Text("Save"),
         ),
       ],

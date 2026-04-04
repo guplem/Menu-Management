@@ -46,8 +46,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 if (!remaining.any((quantity) => quantity.amount > 0)) return null;
                 Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
                 String amounts = remaining.where((quantity) => quantity.amount > 0).map((Quantity quantity) {
-                  if (ingredient.product != null) {
-                    return ingredient.product!.formatQuantityForDisplay(quantity.amount, quantity.unit);
+                  if (ingredient.products.isNotEmpty) {
+                    return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
                   }
                   String unitName = quantity.unit.toString().split(".").last;
                   return "${quantity.amount.toStringAsFixed(0)} $unitName";
