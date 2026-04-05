@@ -538,47 +538,147 @@
     },
     {
       "id": "38bf4b50-21de-1eeb-9b52-298d2e408b19",
-      "name": "Crema de coco"
+      "name": "Crema de coco",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/17174/leche-coco-dee-thai-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 40,
+          "unit": "centiliters"
+        }
+      ]
     },
     {
       "id": "dc570870-21ed-1eeb-9b52-298d2e408b19",
-      "name": "Cilantro"
+      "name": "Cilantro",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69690/cilantro-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 20,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "26942580-276b-1eeb-9b52-298d2e408b19",
-      "name": "Jengibre"
+      "name": "Jengibre",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69289/jengibre-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "84493510-2c7c-1eeb-9b52-298d2e408b19",
-      "name": "Tomate Triturado"
+      "name": "Tomate Triturado",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/16044/tomate-triturado-hacendado-freir-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/16043/tomate-triturado-hacendado-freir-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 800,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
-      "name": "Arroz Instantáneo"
+      "name": "Arroz Instantáneo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/61302/arroz-precocido-hacendado-ultracongelado-paquete",
+          "itemsPerPack": 6,
+          "quantityPerItem": 166.7,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "ba1843d0-5949-1eeb-9877-9f2416bff04c",
-      "name": "Pepino"
+      "name": "Pepino",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69584/pepino-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "a1aed440-59f2-1eeb-9877-9f2416bff04c",
-      "name": "Tomate cherry"
+      "name": "Tomate cherry",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69990/tomates-cherry-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 500,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/69930/tomates-cherry-pera-kumato-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 300,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "33b65330-5a85-1eeb-9877-9f2416bff04c",
-      "name": "Lentejas en Bote"
+      "name": "Lentejas en Bote",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/26030/lenteja-cocida-hacendado-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "7ded5b80-5b7d-1eeb-9877-9f2416bff04c",
-      "name": "Espinacas Frescas"
+      "name": "Espinacas Frescas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69730/espinacas-cortadas-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 300,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "cded1550-5cac-1eeb-9877-9f2416bff04c",
-      "name": "Semillas (mix)"
+      "name": "Combinado Semillas Ensalada",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/16833/combinado-frutos-secos-frutas-desecadas-semillas-calabaza-hacendado-ideal-ensaladas-pastas-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "4167ed50-5e44-1eeb-9877-9f2416bff04c",
-      "name": "Cebolla Roja"
+      "name": "Cebolla Roja",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69153/cebollas-morada-malla",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "d48c4d30-cc57-1098-91d0-51096b672064",
