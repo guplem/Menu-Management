@@ -439,10 +439,6 @@
       ]
     },
     {
-      "id": "98203cc0-c469-1eaa-b835-cfe533d41a10",
-      "name": "Ramita de menta"
-    },
-    {
       "id": "2cc45c00-c4ae-1eaa-b835-cfe533d41a10",
       "name": "Calabacín",
       "products": [
@@ -545,18 +541,6 @@
           "itemsPerPack": 1,
           "quantityPerItem": 40,
           "unit": "centiliters"
-        }
-      ]
-    },
-    {
-      "id": "dc570870-21ed-1eeb-9b52-298d2e408b19",
-      "name": "Cilantro",
-      "products": [
-        {
-          "link": "https://tienda.mercadona.es/product/69690/cilantro-bandeja",
-          "itemsPerPack": 1,
-          "quantityPerItem": 20,
-          "unit": "grams"
         }
       ]
     },
@@ -999,24 +983,6 @@
       ]
     },
     {
-      "id": "012a5560-8279-11ef-91e8-3ff59147e22a",
-      "name": "Guacamole",
-      "products": [
-        {
-          "link": "https://tienda.mercadona.es/product/3852/guacamole-hacendado-95-aguacate-fresco-tarrina",
-          "itemsPerPack": 1,
-          "quantityPerItem": 200,
-          "unit": "grams"
-        },
-        {
-          "link": "https://tienda.mercadona.es/product/3840/guacamole-hacendado-95-aguacate-fresco-tarrina",
-          "itemsPerPack": 1,
-          "quantityPerItem": 500,
-          "unit": "grams"
-        }
-      ]
-    },
-    {
       "id": "5acfd350-b862-11ef-b59c-79b6dddc8e34",
       "name": "Nueces",
       "products": [
@@ -1318,7 +1284,7 @@
                 "amount": 0.5,
                 "unit": "pieces"
               },
-              "ref_name": "Tomate de colgar"
+              "ref_name": "Tomate de ramillete"
             }
           ],
           "workingTimeMinutes": 1,
@@ -1632,7 +1598,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Fruta"
+              "ref_name": "Banana"
             }
           ],
           "workingTimeMinutes": 2,
@@ -1708,7 +1674,7 @@
                 "amount": 10,
                 "unit": "grams"
               },
-              "ref_name": "Semillas (mix)"
+              "ref_name": "Combinado Semillas Ensalada"
             },
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
@@ -1764,7 +1730,7 @@
                 "amount": 25,
                 "unit": "centiliters"
               },
-              "ref_name": "Leche"
+              "ref_name": "Leche desnatada sin lactosa"
             },
             {
               "ingredient": "2eb01ba0-7896-1e99-9cbf-85317f03e969",
@@ -1790,7 +1756,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Fruta"
+              "ref_name": "Banana"
             }
           ],
           "workingTimeMinutes": 1,
@@ -2043,7 +2009,7 @@
                 "amount": 10,
                 "unit": "grams"
               },
-              "ref_name": "Semillas (mix)"
+              "ref_name": "Combinado Semillas Ensalada"
             },
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
@@ -2197,7 +2163,7 @@
                 "amount": 1,
                 "unit": "tablespoons"
               },
-              "ref_name": "Azúcar"
+              "ref_name": "Azúcar blanco"
             },
             {
               "ingredient": "92057590-8a48-1eaa-b835-cfe533d41a10",
@@ -2213,7 +2179,7 @@
                 "amount": 1,
                 "unit": "tablespoons"
               },
-              "ref_name": "Vinagre Blanco"
+              "ref_name": "Vinagre de vino blanco"
             }
           ],
           "workingTimeMinutes": 2,
@@ -2238,7 +2204,7 @@
                 "amount": 4,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             }
           ],
           "workingTimeMinutes": 2,
@@ -2308,7 +2274,7 @@
                 "amount": 4,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             },
             {
               "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
@@ -2316,7 +2282,7 @@
                 "amount": 0.5,
                 "unit": "tablespoons"
               },
-              "ref_name": "Azúcar"
+              "ref_name": "Azúcar blanco"
             },
             {
               "ingredient": "92057590-8a48-1eaa-b835-cfe533d41a10",
@@ -2332,7 +2298,7 @@
                 "amount": 1,
                 "unit": "teaspoons"
               },
-              "ref_name": "Vinagre Blanco"
+              "ref_name": "Vinagre de vino blanco"
             },
             {
               "ingredient": "fbbadd60-bb47-1eaa-b835-cfe533d41a10",
@@ -2380,7 +2346,7 @@
                 "amount": 100,
                 "unit": "grams"
               },
-              "ref_name": "Noodles"
+              "ref_name": "Noodles de arroz"
             }
           ],
           "workingTimeMinutes": 1,
@@ -2429,7 +2395,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Pechuga de pollo"
+              "ref_name": "Pechuga de pollo (entera)"
             },
             {
               "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
@@ -2445,7 +2411,7 @@
                 "amount": 0.5,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             },
             {
               "ingredient": "26942580-276b-1eeb-9b52-298d2e408b19",
@@ -2651,127 +2617,6 @@
       "includeInMenuGeneration": true
     },
     {
-      "id": "40b77f60-586d-1eeb-9877-9f2416bff04c",
-      "name": "Ensalada de Lentejas",
-      "instructions": [
-        {
-          "id": "9fe5a750-58d1-1eeb-9877-9f2416bff04c",
-          "ingredientsUsed": [
-            {
-              "ingredient": "ba1843d0-5949-1eeb-9877-9f2416bff04c",
-              "quantity": {
-                "amount": 0.25,
-                "unit": "pieces"
-              },
-              "ref_name": "Pepino"
-            },
-            {
-              "ingredient": "a1aed440-59f2-1eeb-9877-9f2416bff04c",
-              "quantity": {
-                "amount": 80,
-                "unit": "grams"
-              },
-              "ref_name": "Tomate cherry"
-            },
-            {
-              "ingredient": "4167ed50-5e44-1eeb-9877-9f2416bff04c",
-              "quantity": {
-                "amount": 0.3,
-                "unit": "pieces"
-              },
-              "ref_name": "Cebolla Roja"
-            }
-          ],
-          "workingTimeMinutes": 3,
-          "cookingTimeMinutes": 0,
-          "description": "Pela y corta en dados",
-          "outputs": [
-            {
-              "id": "4612d080-5a4e-1eeb-9877-9f2416bff04c",
-              "description": "Verduda cortada en dados"
-            }
-          ],
-          "inputs": []
-        },
-        {
-          "id": "32a0a5a0-5a52-1eeb-9877-9f2416bff04c",
-          "ingredientsUsed": [
-            {
-              "ingredient": "33b65330-5a85-1eeb-9877-9f2416bff04c",
-              "quantity": {
-                "amount": 150,
-                "unit": "grams"
-              },
-              "ref_name": "Lentejas en Bote"
-            },
-            {
-              "ingredient": "7ded5b80-5b7d-1eeb-9877-9f2416bff04c",
-              "quantity": {
-                "amount": 75,
-                "unit": "grams"
-              },
-              "ref_name": "Espinacas Frescas"
-            },
-            {
-              "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
-              "quantity": {
-                "amount": 15,
-                "unit": "grams"
-              },
-              "ref_name": "Aceitunas con Anchoas"
-            },
-            {
-              "ingredient": "cded1550-5cac-1eeb-9877-9f2416bff04c",
-              "quantity": {
-                "amount": 0.5,
-                "unit": "tablespoons"
-              },
-              "ref_name": "Semillas (mix)"
-            },
-            {
-              "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
-              "quantity": {
-                "amount": 33,
-                "unit": "grams"
-              },
-              "ref_name": "Queso fresco de Burgos"
-            },
-            {
-              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
-              "quantity": {
-                "amount": 1,
-                "unit": "tablespoons"
-              },
-              "ref_name": "Aceite de Oliva"
-            },
-            {
-              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
-              "quantity": {
-                "amount": 2,
-                "unit": "teaspoons"
-              },
-              "ref_name": "Sal"
-            }
-          ],
-          "workingTimeMinutes": 4,
-          "cookingTimeMinutes": 0,
-          "description": "Mezcla todo",
-          "outputs": [],
-          "inputs": [
-            "4612d080-5a4e-1eeb-9877-9f2416bff04c"
-          ]
-        }
-      ],
-      "carbs": false,
-      "proteins": true,
-      "vegetables": true,
-      "type": "meal",
-      "lunch": true,
-      "dinner": true,
-      "canBeStored": true,
-      "includeInMenuGeneration": true
-    },
-    {
       "id": "ab7a9660-caa3-1fed-9074-7d6da6697862",
       "name": "Ous a la cassoleta",
       "instructions": [
@@ -2912,7 +2757,7 @@
                 "amount": 0.1,
                 "unit": "teaspoons"
               },
-              "ref_name": "Ajo en polvo"
+              "ref_name": "Ajo y Perejil"
             }
           ],
           "workingTimeMinutes": 1,
@@ -2989,7 +2834,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             }
           ],
           "workingTimeMinutes": 2,
@@ -3089,7 +2934,7 @@
                 "amount": 0.75,
                 "unit": "tablespoons"
               },
-              "ref_name": "Azúcar"
+              "ref_name": "Azúcar blanco"
             },
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
@@ -3120,7 +2965,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             },
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
@@ -3383,7 +3228,7 @@
                 "amount": 1,
                 "unit": "tablespoons"
               },
-              "ref_name": "Vinagre Blanco"
+              "ref_name": "Vinagre de vino blanco"
             },
             {
               "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
@@ -3472,7 +3317,7 @@
                 "amount": 70,
                 "unit": "grams"
               },
-              "ref_name": "Bacon (o Panceta)"
+              "ref_name": "Panceta"
             }
           ],
           "workingTimeMinutes": 0,
@@ -3495,7 +3340,7 @@
                 "amount": 125,
                 "unit": "grams"
               },
-              "ref_name": "Pasta (a elegir)"
+              "ref_name": "Pasta tortiglioni"
             }
           ],
           "workingTimeMinutes": 0,
@@ -3738,7 +3583,7 @@
                 "amount": 0.4,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             },
             {
               "ingredient": "2cc45c00-c4ae-1eaa-b835-cfe533d41a10",
@@ -4026,7 +3871,7 @@
                 "amount": 100,
                 "unit": "grams"
               },
-              "ref_name": "Pechuga de pollo"
+              "ref_name": "Pechuga de pollo (entera)"
             }
           ],
           "workingTimeMinutes": 3,
@@ -4136,7 +3981,7 @@
                 "amount": 0.2,
                 "unit": "teaspoons"
               },
-              "ref_name": "Ajo en polvo"
+              "ref_name": "Ajo y Perejil"
             },
             {
               "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
@@ -4419,7 +4264,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             },
             {
               "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
@@ -4884,7 +4729,7 @@
                 "amount": 5,
                 "unit": "grams"
               },
-              "ref_name": "Mezcla de especias"
+              "ref_name": "Especias para el horno"
             }
           ],
           "workingTimeMinutes": 5,
@@ -4999,7 +4844,7 @@
                 "amount": 2,
                 "unit": "pieces"
               },
-              "ref_name": "Dientes de ajo"
+              "ref_name": "Ajo troceado"
             }
           ],
           "workingTimeMinutes": 3,
@@ -5022,7 +4867,7 @@
                 "amount": 150,
                 "unit": "grams"
               },
-              "ref_name": "Bacon (o Panceta)"
+              "ref_name": "Panceta"
             }
           ],
           "workingTimeMinutes": 2,
@@ -5204,7 +5049,7 @@
                 "amount": 5,
                 "unit": "grams"
               },
-              "ref_name": "Mezcla de especias"
+              "ref_name": "Especias para el horno"
             }
           ],
           "workingTimeMinutes": 10,
@@ -5335,7 +5180,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Caldo (pollo o verduras)"
+              "ref_name": "Caldo de Pollo"
             }
           ],
           "workingTimeMinutes": 0,
@@ -5427,7 +5272,7 @@
                 "amount": 10,
                 "unit": "grams"
               },
-              "ref_name": "Semillas (mix)"
+              "ref_name": "Combinado Semillas Ensalada"
             },
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
@@ -5499,7 +5344,7 @@
                 "amount": 10,
                 "unit": "centiliters"
               },
-              "ref_name": "Leche"
+              "ref_name": "Leche desnatada sin lactosa"
             }
           ],
           "workingTimeMinutes": 2,
@@ -5615,7 +5460,7 @@
                 "amount": 10,
                 "unit": "grams"
               },
-              "ref_name": "Semillas (mix)"
+              "ref_name": "Combinado Semillas Ensalada"
             },
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
