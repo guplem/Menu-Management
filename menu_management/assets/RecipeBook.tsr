@@ -682,59 +682,177 @@
     },
     {
       "id": "d48c4d30-cc57-1098-91d0-51096b672064",
-      "name": "Patata"
+      "name": "Patata",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69066/patata-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "5ce86780-cd8a-1098-91d0-51096b672064",
-      "name": "Judías Verdes"
+      "name": "Judías Verdes",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/61283/judia-verde-plana-hacendado-ultracongelada-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "8f5167b0-c155-10a4-855b-21d41fd3dece",
-      "name": "Vino blanco seco"
+      "name": "Vino blanco seco",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/66127/vino-blanco-cason-historico-brick",
+          "itemsPerPack": 1,
+          "quantityPerItem": 100,
+          "unit": "centiliters"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/66124/vino-blanco-don-simon-chardonnay-airen-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 25,
+          "unit": "centiliters"
+        }
+      ]
     },
     {
       "id": "f4c3d230-c43f-10a4-855b-21d41fd3dece",
-      "name": "Pimiento Rojo"
+      "name": "Pimiento Rojo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69310/pimiento-rojo-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "4c5aa3e0-c501-10a4-855b-21d41fd3dece",
-      "name": "Champiñones en Lata"
+      "name": "Champiñones en Lata",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/16618/champinones-laminados-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 180,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "8c5caec0-c6a5-10a4-855b-21d41fd3dece",
-      "name": "Fideos Udon"
+      "name": "Fideos Udon",
+      "products": [
+        {
+          "link": "https://www.carrefour.es/supermercado/fideos-udon-itsu-150-g/R-VC4AECOMM-359387/p",
+          "itemsPerPack": 1,
+          "quantityPerItem": 150,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "040799a0-c9fd-10a7-a87d-2fef2dcd1072",
-      "name": "Garbanzos cocidos"
+      "name": "Garbanzos cocidos",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/26029/garbanzo-cocido-hacendado-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "ff90fa70-cf32-10a7-a87d-2fef2dcd1072",
-      "name": "Aceitunas Negras"
+      "name": "Aceitunas Negras",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52734/aceitunas-negras-hacendado-sin-hueso-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 150,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/8309/aceitunas-negras-hacendado-rodajas",
+          "itemsPerPack": 4,
+          "quantityPerItem": 37,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "ad070e70-d194-10a7-a87d-2fef2dcd1072",
-      "name": "Queso Feta"
+      "name": "Queso Feta",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/51197/queso-feta-mezcla-hacendado-dados-tarrina",
+          "itemsPerPack": 1,
+          "quantityPerItem": 150,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
-      "name": "Zumo de limón"
+      "name": "Zumo de limón",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/4903/limon-exprimido-hacendado-botella",
+          "itemsPerPack": 1,
+          "quantityPerItem": 28,
+          "unit": "centiliters"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/3210/limon-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
-      "name": "Perejil (especia)"
-    },
-    {
-      "id": "33ca2770-d3b2-10a7-a87d-2fef2dcd1072",
-      "name": "Pimienta Roja (especia)"
+      "name": "Perejil (especia)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/5599/perejil-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 18,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "e6500b40-41b8-10ba-b0dd-9d041637ca66",
-      "name": "Bacon (o Panceta)"
+      "name": "Panceta",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/58220/panceta-salada-iberica-hacienda-iberico-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 360,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "b3be0b30-43b3-10ba-b0dd-9d041637ca66",
-      "name": "Parmesano (o Grana Padano) rallado"
+      "name": "Parmesano (o Grana Padano) rallado",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/51146/queso-polvo-grana-padano-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 100,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "e4bbbb00-6606-11ef-a13c-df814629faab",
@@ -3018,12 +3136,12 @@
               "ref_name": "Pimienta (especia)"
             },
             {
-              "ingredient": "33ca2770-d3b2-10a7-a87d-2fef2dcd1072",
+              "ingredient": "fc2a1cb0-6df8-11ef-bbaf-9d5832b648f8",
               "quantity": {
                 "amount": 0.06,
                 "unit": "teaspoons"
               },
-              "ref_name": "Pimienta Roja (especia)"
+              "ref_name": "Pimentón/Paprika"
             }
           ],
           "workingTimeMinutes": 3,
