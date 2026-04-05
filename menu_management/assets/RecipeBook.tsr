@@ -856,19 +856,57 @@
     },
     {
       "id": "e4bbbb00-6606-11ef-a13c-df814629faab",
-      "name": "Soja texturizada"
+      "name": "Soja texturizada",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/13926/soja-texturizada-luengo-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "2b038570-6607-11ef-a13c-df814629faab",
-      "name": "Champiñones"
+      "name": "Champiñones",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/26951/champinon-blanco-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 300,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "c8c654e0-6607-11ef-a13c-df814629faab",
-      "name": "Guisantes"
+      "name": "Guisantes",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/16416/guisantes-extra-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 250,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/16415/guisantes-extra-hacendado-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 120,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "674fba50-6df8-11ef-bbaf-9d5832b648f8",
-      "name": "Pimiento Verde"
+      "name": "Pimiento Verde",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69320/pimiento-verde-freir-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "fc2a1cb0-6df8-11ef-bbaf-9d5832b648f8",
@@ -884,15 +922,39 @@
     },
     {
       "id": "399009c0-6df9-11ef-bbaf-9d5832b648f8",
-      "name": "Caldo de Verduras"
+      "name": "Caldo de Verduras",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/7032/caldo-verduras-hacendado-brick",
+          "itemsPerPack": 1,
+          "quantityPerItem": 100,
+          "unit": "centiliters"
+        }
+      ]
     },
     {
       "id": "f768cea0-6df9-11ef-bbaf-9d5832b648f8",
-      "name": "Arroz Bomba"
+      "name": "Arroz Bomba",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/5044/arroz-redondo-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "5d213070-8277-11ef-91e8-3ff59147e22a",
-      "name": "Arroz"
+      "name": "Arroz",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/5020/arroz-vaporizado-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "a3fcfd80-8277-11ef-91e8-3ff59147e22a",
@@ -900,35 +962,105 @@
     },
     {
       "id": "809e0220-8278-11ef-91e8-3ff59147e22a",
-      "name": "comino"
+      "name": "comino",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/34120/comino-molido-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 58,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "e2a2ef30-8278-11ef-91e8-3ff59147e22a",
-      "name": "Tortilla de trigo (aprox. 20 cm de diámetro)"
+      "name": "Tortilla de trigo (aprox. 20 cm de diámetro)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/80870/maxi-tortillas-trigo-hacendado-paquete",
+          "itemsPerPack": 6,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "012a5560-8279-11ef-91e8-3ff59147e22a",
-      "name": "Guacamole"
+      "name": "Guacamole",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/3852/guacamole-hacendado-95-aguacate-fresco-tarrina",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/3840/guacamole-hacendado-95-aguacate-fresco-tarrina",
+          "itemsPerPack": 1,
+          "quantityPerItem": 500,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "5acfd350-b862-11ef-b59c-79b6dddc8e34",
-      "name": "Nueces"
+      "name": "Nueces",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/34024/nuez-natural-hacendado-pelada-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "7bca73e0-d5e4-11ef-8220-67ff092dbc1a",
-      "name": "Curry"
+      "name": "Curry",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/34125/curry-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 57,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "700c6740-dda8-11ef-99c9-5b6b5cdbe207",
-      "name": "Alubias de tarro"
+      "name": "Alubias de tarro",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/26019/alubia-cocida-blanca-hacendado-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "bcae79d0-dda8-11ef-99c9-5b6b5cdbe207",
-      "name": "Butifarra"
+      "name": "Butifarra",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/6044/butifarra-fresca-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 640,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "5bbddb40-e17f-11ef-9727-9f4d05a6cf88",
-      "name": "Ajo en polvo"
+      "name": "Ajo y Perejil",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/60873/ajo-perejil-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 74,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "d51a1d00-2d74-11f0-a171-09ddf9626d6d",
