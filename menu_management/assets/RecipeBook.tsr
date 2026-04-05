@@ -958,7 +958,21 @@
     },
     {
       "id": "a3fcfd80-8277-11ef-91e8-3ff59147e22a",
-      "name": "Pechuga de pollo"
+      "name": "Pechuga de pollo (entera)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/3682/pechugas-enteras-pollo-bandeja",
+          "itemsPerPack": 4,
+          "quantityPerItem": 300,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
+          "itemsPerPack": 2,
+          "quantityPerItem": 305,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "809e0220-8278-11ef-91e8-3ff59147e22a",
@@ -1061,10 +1075,6 @@
           "unit": "grams"
         }
       ]
-    },
-    {
-      "id": "d51a1d00-2d74-11f0-a171-09ddf9626d6d",
-      "name": "Verdura troceada y congelada"
     },
     {
       "id": "9b25caa4-825d-49a7-a3d0-ffa8b82962e3",
@@ -1254,6 +1264,18 @@
           "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
           "itemsPerPack": 1,
           "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
+      "name": "Pimiento rojo y verde congelado",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/35221/pimiento-rojo-verde-hacendado-ultracongelado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 450,
           "unit": "grams"
         }
       ]
@@ -4535,103 +4557,6 @@
       "includeInMenuGeneration": true
     },
     {
-      "id": "f169b110-2d73-11f0-a171-09ddf9626d6d",
-      "name": "Pollo, azzoz y verdura (express)",
-      "instructions": [
-        {
-          "id": "93137eb0-2d74-11f0-a171-09ddf9626d6d",
-          "ingredientsUsed": [
-            {
-              "ingredient": "d51a1d00-2d74-11f0-a171-09ddf9626d6d",
-              "quantity": {
-                "amount": 300,
-                "unit": "grams"
-              },
-              "ref_name": "Verdura troceada y congelada"
-            }
-          ],
-          "workingTimeMinutes": 2,
-          "cookingTimeMinutes": 5,
-          "description": "Hervir Verdura",
-          "outputs": [
-            {
-              "id": "45252090-2d75-11f0-a171-09ddf9626d6d",
-              "description": "Verdura hervida"
-            }
-          ],
-          "inputs": []
-        },
-        {
-          "id": "215caa70-2d75-11f0-a171-09ddf9626d6d",
-          "ingredientsUsed": [
-            {
-              "ingredient": "a3fcfd80-8277-11ef-91e8-3ff59147e22a",
-              "quantity": {
-                "amount": 2,
-                "unit": "pieces"
-              },
-              "ref_name": "Pechuga de pollo"
-            }
-          ],
-          "workingTimeMinutes": 1,
-          "cookingTimeMinutes": 7,
-          "description": "Hacer Pollo a la plancha",
-          "outputs": [
-            {
-              "id": "418f0180-2d75-11f0-a171-09ddf9626d6d",
-              "description": "Pechuga de pollo a la plancha"
-            }
-          ],
-          "inputs": []
-        },
-        {
-          "id": "4640c9c0-2d75-11f0-a171-09ddf9626d6d",
-          "ingredientsUsed": [],
-          "workingTimeMinutes": 2,
-          "cookingTimeMinutes": 0,
-          "description": "Cortar el pollo a tiras y mezclar con verdura",
-          "outputs": [
-            {
-              "id": "6ec71610-2d75-11f0-a171-09ddf9626d6d",
-              "description": "Verduras y con pollo a tiras"
-            }
-          ],
-          "inputs": [
-            "45252090-2d75-11f0-a171-09ddf9626d6d",
-            "418f0180-2d75-11f0-a171-09ddf9626d6d"
-          ]
-        },
-        {
-          "id": "769623e0-2d75-11f0-a171-09ddf9626d6d",
-          "ingredientsUsed": [
-            {
-              "ingredient": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
-              "quantity": {
-                "amount": 1,
-                "unit": "pieces"
-              },
-              "ref_name": "Arroz Instantáneo"
-            }
-          ],
-          "workingTimeMinutes": 1,
-          "cookingTimeMinutes": 3,
-          "description": "Cocinar el arroz y mezclar",
-          "outputs": [],
-          "inputs": [
-            "6ec71610-2d75-11f0-a171-09ddf9626d6d"
-          ]
-        }
-      ],
-      "carbs": true,
-      "proteins": true,
-      "vegetables": true,
-      "type": "meal",
-      "lunch": true,
-      "dinner": true,
-      "canBeStored": true,
-      "includeInMenuGeneration": true
-    },
-    {
       "id": "d657d03d-ce18-4878-a58d-507f57023ece",
       "name": "Arroz con tomate, atún, verdura y salchichas",
       "instructions": [
@@ -4675,7 +4600,7 @@
           "inputs": []
         },
         {
-          "id": "029ea245-5db7-4594-831f-49be8da9d657",
+          "id": "a1b2c3d4-e5f6-7890-abcd-222222222222",
           "ingredientsUsed": [
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
@@ -4686,36 +4611,52 @@
               "ref_name": "Aceite de Oliva"
             },
             {
-              "ingredient": "d51a1d00-2d74-11f0-a171-09ddf9626d6d",
+              "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 50,
+                "unit": "grams"
+              },
+              "ref_name": "Cebolla"
+            },
+            {
+              "ingredient": "d4e5f6a7-b8c9-0123-def0-123456789abc",
               "quantity": {
                 "amount": 150,
                 "unit": "grams"
               },
-              "ref_name": "Verdura troceada y congelada"
+              "ref_name": "Pimiento rojo y verde congelado"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1,
+                "unit": "grams"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "0cf54be0-21c1-1eeb-9b52-298d2e408b19",
+              "quantity": {
+                "amount": 2,
+                "unit": "grams"
+              },
+              "ref_name": "Especias para el horno"
             }
           ],
-          "workingTimeMinutes": 1,
+          "workingTimeMinutes": 3,
           "cookingTimeMinutes": 5,
-          "description": "Sofreír la verdura en una sartén con aceite",
+          "description": "Sofreir la cebolla y los pimientos congelados en aceite de oliva con sal y especias",
           "outputs": [
             {
-              "id": "7a598b97-f400-4ae5-8780-844efc446b6a",
-              "description": "Verdura sofrita"
+              "id": "out-step2-sofrito",
+              "description": "Sofrito de verduras"
             }
           ],
           "inputs": []
         },
         {
-          "id": "13c53047-c861-442a-95c8-2400039c000d",
+          "id": "a1b2c3d4-e5f6-7890-abcd-333333333333",
           "ingredientsUsed": [
-            {
-              "ingredient": "84493510-2c7c-1eeb-9b52-298d2e408b19",
-              "quantity": {
-                "amount": 150,
-                "unit": "grams"
-              },
-              "ref_name": "Tomate Triturado"
-            },
             {
               "ingredient": "3bc3b7f4-5b8f-44af-844c-e16a0e2a086d",
               "quantity": {
@@ -4726,18 +4667,45 @@
             }
           ],
           "workingTimeMinutes": 2,
-          "cookingTimeMinutes": 10,
-          "description": "Trocear las salchichas, añadir el tomate y dejar cocinar a fuego medio",
+          "cookingTimeMinutes": 3,
+          "description": "Trocear las salchichas y añadir al sofrito, cocinar hasta que se doren",
           "outputs": [
             {
-              "id": "16a1189d-bc2b-44ad-96d4-312d24040406",
-              "description": "Salsa con salchichas"
+              "id": "out-step3-sausage",
+              "description": "Sofrito con salchichas"
             }
           ],
-          "inputs": []
+          "inputs": [
+            "out-step2-sofrito"
+          ]
         },
         {
-          "id": "47eb494a-d109-49ac-987b-ab72ab4ce143",
+          "id": "a1b2c3d4-e5f6-7890-abcd-444444444444",
+          "ingredientsUsed": [
+            {
+              "ingredient": "84493510-2c7c-1eeb-9b52-298d2e408b19",
+              "quantity": {
+                "amount": 150,
+                "unit": "grams"
+              },
+              "ref_name": "Tomate Triturado"
+            }
+          ],
+          "workingTimeMinutes": 0,
+          "cookingTimeMinutes": 8,
+          "description": "Añadir el tomate triturado y cocinar a fuego medio hasta conseguir una salsa consistente",
+          "outputs": [
+            {
+              "id": "out-step4-sauce",
+              "description": "Salsa de tomate con salchichas y verduras"
+            }
+          ],
+          "inputs": [
+            "out-step3-sausage"
+          ]
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-555555555555",
           "ingredientsUsed": [
             {
               "ingredient": "15b72e30-7419-1e99-9cbf-85317f03e969",
@@ -4749,24 +4717,34 @@
             }
           ],
           "workingTimeMinutes": 1,
-          "cookingTimeMinutes": 3,
-          "description": "Añadir el atún escurrido y mezclar bien la salsa",
+          "cookingTimeMinutes": 1,
+          "description": "Añadir el atún escurrido y mezclar suavemente",
           "outputs": [
             {
-              "id": "9c352ab1-a8a6-47b4-a893-a05d78d56560",
+              "id": "out-step5-final",
               "description": "Salsa completa"
             }
           ],
-          "inputs": []
+          "inputs": [
+            "out-step4-sauce"
+          ]
         },
         {
-          "id": "134b0169-484c-4efc-a7da-b64760e66cb2",
+          "id": "a1b2c3d4-e5f6-7890-abcd-666666666666",
           "ingredientsUsed": [],
           "workingTimeMinutes": 1,
           "cookingTimeMinutes": 0,
           "description": "Servir el arroz con la salsa por encima",
-          "outputs": [],
-          "inputs": []
+          "outputs": [
+            {
+              "id": "out-step6-done",
+              "description": "Arroz con tomate, atún, verdura y salchichas"
+            }
+          ],
+          "inputs": [
+            "e1976bae-5795-4662-9dd6-945a69dca818",
+            "out-step5-final"
+          ]
         }
       ],
       "carbs": true,
