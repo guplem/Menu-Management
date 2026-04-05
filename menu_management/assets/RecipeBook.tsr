@@ -1067,68 +1067,196 @@
       "name": "Verdura troceada y congelada"
     },
     {
-      "id": "95f54c70-2d75-11f0-a171-09ddf9626d6d",
-      "name": "Arroz precocido congelado"
-    },
-    {
       "id": "9b25caa4-825d-49a7-a3d0-ffa8b82962e3",
-      "name": "Filetes de pechuga de pollo"
+      "name": "Filetes de pechuga de pollo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/2787/filetes-pechuga-pollo-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 530,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "3bc3b7f4-5b8f-44af-844c-e16a0e2a086d",
-      "name": "Salchichas de pollo y pavo"
+      "name": "Salchichas de pollo y pavo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/53056/salchichas-cocidas-hacendado-pollo-pavo-sabor-ahumado-pack-2",
+          "itemsPerPack": 2,
+          "quantityPerItem": 200,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
-      "name": "Salsa de tomate (bote)"
+      "name": "Salsa de tomate (bote)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/17131/tomate-frito-receta-artesana-hacendado-con-aceite-oliva-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 300,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/17163/tomate-frito-receta-artesana-hacendado-con-aceite-oliva-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 560,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "354e837e-4698-4bb9-b434-7edb7b685fc0",
-      "name": "Tortellinis (pre-hechos)"
+      "name": "Tortellinis (pre-hechos)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/6566/tortellini-tres-quesos-pagani-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 250,
+          "unit": "grams"
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/6565/tortellini-carne-pagani-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 250,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "2cd926e5-7a02-49b5-a16e-8ef176b009e7",
-      "name": "Muslos de pollo deshuesados"
+      "name": "Muslos de pollo deshuesados",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/2788/muslos-pollo-deshuesados-con-piel-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 550,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "8688350e-e38f-4a47-ad15-528ec384069f",
-      "name": "Boniato"
+      "name": "Boniato",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69239/batata-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "3867ff41-f940-4c79-bf00-18bb2e0801f7",
-      "name": "Alubias a la jardinera (lata)"
+      "name": "Garbanzos a la jardinera (lata)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/26110/garbanzos-jardinera-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 420,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "0d635fd3-fd45-4d49-9d3c-11776be1ea6f",
-      "name": "Lentejas a la riojana (lata)"
+      "name": "Lentejas a la riojana (lata)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/26101/lentejas-riojana-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 420,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "40ea28e4-3537-4f7c-9623-01214c168ef3",
-      "name": "Caldo (pollo o verduras)"
+      "name": "Caldo de Pollo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/7313/caldo-pollo-hacendado-brick",
+          "itemsPerPack": 1,
+          "quantityPerItem": 100,
+          "unit": "centiliters"
+        }
+      ]
     },
     {
       "id": "9652a688-015f-4771-a630-2439ebb9e168",
-      "name": "Pasta maravilla"
+      "name": "Pasta maravilla",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/6258/pasta-maravilla-hacendado-sopa-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 500,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "3daf3c1a-a192-4a72-aeaa-10171578f426",
-      "name": "Croquetas congeladas"
+      "name": "Croquetas congeladas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/63400/croquetas-jamon-hacendado-ultracongeladas-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 500,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "fe71deee-e360-45ef-af6c-d6b64de852f2",
-      "name": "Lechuga Iceberg"
+      "name": "Lechuga Iceberg",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/68130/lechuga-iceberg-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1,
+          "unit": "pieces"
+        }
+      ]
     },
     {
       "id": "07c401da-1af6-4a30-8f83-0f22fde011e4",
-      "name": "Puré de patatas (instantáneo)"
+      "name": "Puré de patatas (instantáneo)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/23264/pure-patatas-hacendado-copos-caja",
+          "itemsPerPack": 4,
+          "quantityPerItem": 125,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "435b3e6a-6a14-4312-b02e-c905e806f234",
-      "name": "Hamburguesa de pollo"
+      "name": "Hamburguesa de pollo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/2622/burger-pollo-bandeja",
+          "itemsPerPack": 6,
+          "quantityPerItem": 90,
+          "unit": "grams"
+        }
+      ]
     },
     {
       "id": "f013976c-649d-469e-a7e7-d04b5cb97a3b",
-      "name": "Arroz 3 delicias congelado"
+      "name": "Arroz 3 delicias congelado",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000,
+          "unit": "grams"
+        }
+      ]
     }
   ],
   "Recipes": [
@@ -4477,12 +4605,12 @@
           "id": "769623e0-2d75-11f0-a171-09ddf9626d6d",
           "ingredientsUsed": [
             {
-              "ingredient": "95f54c70-2d75-11f0-a171-09ddf9626d6d",
+              "ingredient": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
               "quantity": {
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Arroz precocido congelado"
+              "ref_name": "Arroz Instantáneo"
             }
           ],
           "workingTimeMinutes": 1,
@@ -4999,7 +5127,7 @@
     },
     {
       "id": "7b7e2fd1-9788-47ae-ad8f-159a2ca41097",
-      "name": "Alubias a la jardinera (en lata)",
+      "name": "Garbanzos a la jardinera (en lata)",
       "instructions": [
         {
           "id": "3df47599-f3f5-4298-8a77-3e170a5595fc",
@@ -5010,7 +5138,7 @@
                 "amount": 1,
                 "unit": "pieces"
               },
-              "ref_name": "Alubias a la jardinera (lata)"
+              "ref_name": "Garbanzos a la jardinera (lata)"
             }
           ],
           "workingTimeMinutes": 1,
