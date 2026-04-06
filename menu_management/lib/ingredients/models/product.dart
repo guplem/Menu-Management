@@ -28,7 +28,7 @@ abstract class Product with _$Product {
 
   String formatQuantityForDisplay(double requiredAmount, Unit requiredUnit) {
     String amountRounded = requiredAmount.toStringAsFixed(0);
-    String unitName = requiredUnit.toString().split(".").last;
+    String unitName = requiredUnit.name;
     if (unit == requiredUnit) {
       int packs = packsNeeded(requiredAmount);
       String totalInPack = (packs * totalQuantityPerPack).toStringAsFixed(0);

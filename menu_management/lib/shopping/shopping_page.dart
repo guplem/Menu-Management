@@ -39,7 +39,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
       floatingActionButton: FloatingActionButton(
         tooltip: "Copy to clipboard",
         onPressed: () {
-          // Create string (ignoring those with required <= 0). Format: "Ingredient: amount unit + amount unit + ..."
+          // Create string (ignoring those with required <= 0). Format: "Ingredient: N packs (X unit) + amount unit + ..."
           String shoppingList = ingredientsRequired.entries
               .map((entry) {
                 List<Quantity> remaining = remainingAmounts(ingredient: entry.key);
@@ -49,7 +49,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                   if (ingredient.products.isNotEmpty) {
                     return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
                   }
-                  String unitName = quantity.unit.toString().split(".").last;
+                  String unitName = quantity.unit.name;
                   return "${quantity.amount.toStringAsFixed(0)} $unitName";
                 }).join(" + ");
                 return "${ingredient.name}: $amounts";

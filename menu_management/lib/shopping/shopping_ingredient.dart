@@ -36,7 +36,7 @@ class ShoppingIngredient extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: quantitiesDesired.map((Quantity quantity) {
-                    String unit = quantity.unit.toString().split(".").last;
+                    String unit = quantity.unit.name;
                     String displayText = _formatDesiredAmount(quantity);
                     return Padding(
                       padding: const EdgeInsets.all(4.0),
@@ -84,7 +84,7 @@ class ShoppingIngredient extends StatelessWidget {
       return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
     }
     String amountRounded = quantity.amount.toStringAsFixed(0);
-    String unitName = quantity.unit.toString().split(".").last;
+    String unitName = quantity.unit.name;
     return "$amountRounded $unitName";
   }
 
