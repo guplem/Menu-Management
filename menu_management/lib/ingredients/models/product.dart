@@ -6,7 +6,7 @@ part "product.g.dart";
 
 @freezed
 abstract class Product with _$Product {
-  const factory Product({required String link, @Default(1) int itemsPerPack, required double quantityPerItem, required Unit unit}) = _Product;
+  const factory Product({required String link, @Default(1) int itemsPerPack, required double quantityPerItem, required Unit unit, @JsonKey(includeIfNull: false) int? shelfLifeDays}) = _Product;
 
   factory Product.fromJson(Map<String, Object?> json) => _$ProductFromJson(json);
 

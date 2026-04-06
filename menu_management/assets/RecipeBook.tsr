@@ -34,7 +34,8 @@
           "quantityPerItem": 1000,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 1.2
     },
     {
       "id": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
@@ -46,7 +47,8 @@
           "quantityPerItem": 300,
           "unit": "centiliters"
         }
-      ]
+      ],
+      "density": 0.91
     },
     {
       "id": "2939e4b0-6b1e-1e99-9cbf-85317f03e969",
@@ -116,7 +118,8 @@
           "link": "https://tienda.mercadona.es/product/18002/atun-claro-aceite-oliva-hacendado-pack-6",
           "itemsPerPack": 6,
           "quantityPerItem": 60,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 1
         }
       ]
     },
@@ -128,13 +131,15 @@
           "link": "https://tienda.mercadona.es/product/16714/maiz-dulce-hacendado-pack-3",
           "itemsPerPack": 3,
           "quantityPerItem": 70,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         },
         {
           "link": "https://tienda.mercadona.es/product/16712/maiz-dulce-hacendado-pack-3",
           "itemsPerPack": 3,
           "quantityPerItem": 140,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -152,7 +157,8 @@
           "link": "https://tienda.mercadona.es/product/52406/queso-fresco-burgos-natural-hacendado-pack-2",
           "itemsPerPack": 2,
           "quantityPerItem": 250,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 3
         }
       ]
     },
@@ -164,13 +170,15 @@
           "link": "https://tienda.mercadona.es/product/23217/aceitunas-manzanilla-rellenas-anchoa-hacendado-pack-3",
           "itemsPerPack": 3,
           "quantityPerItem": 50,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 14
         },
         {
           "link": "https://tienda.mercadona.es/product/22910/aceitunas-manzanilla-rellenas-anchoa-hacendado-pack-3",
           "itemsPerPack": 3,
           "quantityPerItem": 150,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 14
         }
       ]
     },
@@ -184,7 +192,8 @@
           "quantityPerItem": 150,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.33
     },
     {
       "id": "43705180-786a-1e99-9cbf-85317f03e969",
@@ -202,7 +211,8 @@
           "quantityPerItem": 125,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 1.05
     },
     {
       "id": "2eb01ba0-7896-1e99-9cbf-85317f03e969",
@@ -236,7 +246,8 @@
           "link": "https://tienda.mercadona.es/product/87203/escalopin-salmon-bandeja",
           "itemsPerPack": 4,
           "quantityPerItem": 87.5,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 1
         }
       ]
     },
@@ -248,9 +259,11 @@
           "link": "https://tienda.mercadona.es/product/10730/leche-desnatada-sin-lactosa-hacendado-pack-6",
           "itemsPerPack": 6,
           "quantityPerItem": 100,
-          "unit": "centiliters"
+          "unit": "centiliters",
+          "shelfLifeDays": 3
         }
-      ]
+      ],
+      "density": 1.03
     },
     {
       "id": "671f3ca0-8746-1e99-9cbf-85317f03e969",
@@ -340,7 +353,8 @@
           "quantityPerItem": 100,
           "unit": "centiliters"
         }
-      ]
+      ],
+      "density": 0.91
     },
     {
       "id": "9a648f10-86be-1eaa-b835-cfe533d41a10",
@@ -362,7 +376,8 @@
           "link": "https://tienda.mercadona.es/product/33189/jalapenos-picantes-hacendado-vinagre-tarro",
           "itemsPerPack": 1,
           "quantityPerItem": 60,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 15
         }
       ]
     },
@@ -376,7 +391,8 @@
           "quantityPerItem": 1000,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.83
     },
     {
       "id": "92057590-8a48-1eaa-b835-cfe533d41a10",
@@ -388,7 +404,8 @@
           "quantityPerItem": 25,
           "unit": "centiliters"
         }
-      ]
+      ],
+      "density": 1.2
     },
     {
       "id": "ba455b80-8a73-1eaa-b835-cfe533d41a10",
@@ -400,7 +417,8 @@
           "quantityPerItem": 100,
           "unit": "centiliters"
         }
-      ]
+      ],
+      "density": 1.01
     },
     {
       "id": "5018a870-8e88-1eaa-b835-cfe533d41a10",
@@ -424,7 +442,8 @@
           "quantityPerItem": 150,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.6
     },
     {
       "id": "10c0f940-bdb6-1eaa-b835-cfe533d41a10",
@@ -452,7 +471,8 @@
     },
     {
       "id": "20cddb70-c539-1eaa-b835-cfe533d41a10",
-      "name": "Agua"
+      "name": "Agua",
+      "density": 1.0
     },
     {
       "id": "b4523e20-c612-1eaa-b835-cfe533d41a10",
@@ -464,7 +484,8 @@
           "quantityPerItem": 50,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.46
     },
     {
       "id": "31870940-c6d4-1eaa-b835-cfe533d41a10",
@@ -530,7 +551,8 @@
           "quantityPerItem": 76,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.45
     },
     {
       "id": "38bf4b50-21de-1eeb-9b52-298d2e408b19",
@@ -540,9 +562,11 @@
           "link": "https://tienda.mercadona.es/product/17174/leche-coco-dee-thai-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 40,
-          "unit": "centiliters"
+          "unit": "centiliters",
+          "shelfLifeDays": 2
         }
-      ]
+      ],
+      "density": 0.97
     },
     {
       "id": "26942580-276b-1eeb-9b52-298d2e408b19",
@@ -554,7 +578,8 @@
           "quantityPerItem": 49,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.36
     },
     {
       "id": "84493510-2c7c-1eeb-9b52-298d2e408b19",
@@ -564,15 +589,18 @@
           "link": "https://tienda.mercadona.es/product/16044/tomate-triturado-hacendado-freir-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 400,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         },
         {
           "link": "https://tienda.mercadona.es/product/16043/tomate-triturado-hacendado-freir-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 800,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
-      ]
+      ],
+      "density": 1.07
     },
     {
       "id": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
@@ -624,7 +652,8 @@
           "link": "https://tienda.mercadona.es/product/26030/lenteja-cocida-hacendado-tarro",
           "itemsPerPack": 1,
           "quantityPerItem": 400,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -726,7 +755,8 @@
           "link": "https://tienda.mercadona.es/product/16618/champinones-laminados-hacendado-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 180,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -750,7 +780,8 @@
           "link": "https://tienda.mercadona.es/product/26029/garbanzo-cocido-hacendado-tarro",
           "itemsPerPack": 1,
           "quantityPerItem": 400,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -768,7 +799,8 @@
           "link": "https://tienda.mercadona.es/product/8309/aceitunas-negras-hacendado-rodajas",
           "itemsPerPack": 4,
           "quantityPerItem": 37,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 7
         }
       ]
     },
@@ -780,7 +812,8 @@
           "link": "https://tienda.mercadona.es/product/51197/queso-feta-mezcla-hacendado-dados-tarrina",
           "itemsPerPack": 1,
           "quantityPerItem": 150,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -792,7 +825,8 @@
           "link": "https://tienda.mercadona.es/product/4903/limon-exprimido-hacendado-botella",
           "itemsPerPack": 1,
           "quantityPerItem": 28,
-          "unit": "centiliters"
+          "unit": "centiliters",
+          "shelfLifeDays": 40
         },
         {
           "link": "https://tienda.mercadona.es/product/3210/limon-pieza",
@@ -812,7 +846,8 @@
           "quantityPerItem": 18,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.1
     },
     {
       "id": "e6500b40-41b8-10ba-b0dd-9d041637ca66",
@@ -822,7 +857,8 @@
           "link": "https://tienda.mercadona.es/product/58220/panceta-salada-iberica-hacienda-iberico-paquete",
           "itemsPerPack": 1,
           "quantityPerItem": 360,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 7
         }
       ]
     },
@@ -870,13 +906,15 @@
           "link": "https://tienda.mercadona.es/product/16416/guisantes-extra-hacendado-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 250,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 3
         },
         {
           "link": "https://tienda.mercadona.es/product/16415/guisantes-extra-hacendado-pack-3",
           "itemsPerPack": 3,
           "quantityPerItem": 120,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -902,7 +940,8 @@
           "quantityPerItem": 60,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.46
     },
     {
       "id": "399009c0-6df9-11ef-bbaf-9d5832b648f8",
@@ -912,9 +951,11 @@
           "link": "https://tienda.mercadona.es/product/7032/caldo-verduras-hacendado-brick",
           "itemsPerPack": 1,
           "quantityPerItem": 100,
-          "unit": "centiliters"
+          "unit": "centiliters",
+          "shelfLifeDays": 3
         }
-      ]
+      ],
+      "density": 1.01
     },
     {
       "id": "f768cea0-6df9-11ef-bbaf-9d5832b648f8",
@@ -948,13 +989,15 @@
           "link": "https://tienda.mercadona.es/product/3682/pechugas-enteras-pollo-bandeja",
           "itemsPerPack": 4,
           "quantityPerItem": 300,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 1
         },
         {
           "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
           "itemsPerPack": 2,
           "quantityPerItem": 305,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 1
         }
       ]
     },
@@ -968,7 +1011,8 @@
           "quantityPerItem": 58,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.42
     },
     {
       "id": "e2a2ef30-8278-11ef-91e8-3ff59147e22a",
@@ -1004,7 +1048,8 @@
           "quantityPerItem": 57,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.4
     },
     {
       "id": "700c6740-dda8-11ef-99c9-5b6b5cdbe207",
@@ -1014,7 +1059,8 @@
           "link": "https://tienda.mercadona.es/product/26019/alubia-cocida-blanca-hacendado-tarro",
           "itemsPerPack": 1,
           "quantityPerItem": 400,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -1026,7 +1072,8 @@
           "link": "https://tienda.mercadona.es/product/6044/butifarra-fresca-bandeja",
           "itemsPerPack": 1,
           "quantityPerItem": 640,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 2
         }
       ]
     },
@@ -1040,7 +1087,8 @@
           "quantityPerItem": 74,
           "unit": "grams"
         }
-      ]
+      ],
+      "density": 0.33
     },
     {
       "id": "9b25caa4-825d-49a7-a3d0-ffa8b82962e3",
@@ -1074,13 +1122,15 @@
           "link": "https://tienda.mercadona.es/product/17131/tomate-frito-receta-artesana-hacendado-con-aceite-oliva-tarro",
           "itemsPerPack": 1,
           "quantityPerItem": 300,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         },
         {
           "link": "https://tienda.mercadona.es/product/17163/tomate-frito-receta-artesana-hacendado-con-aceite-oliva-tarro",
           "itemsPerPack": 1,
           "quantityPerItem": 560,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -1110,7 +1160,8 @@
           "link": "https://tienda.mercadona.es/product/2788/muslos-pollo-deshuesados-con-piel-bandeja",
           "itemsPerPack": 1,
           "quantityPerItem": 550,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 1
         }
       ]
     },
@@ -1134,7 +1185,8 @@
           "link": "https://tienda.mercadona.es/product/26110/garbanzos-jardinera-hacendado-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 420,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 5
         }
       ]
     },
@@ -1146,7 +1198,8 @@
           "link": "https://tienda.mercadona.es/product/26101/lentejas-riojana-hacendado-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 420,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 3
         }
       ]
     },
@@ -1158,9 +1211,11 @@
           "link": "https://tienda.mercadona.es/product/7313/caldo-pollo-hacendado-brick",
           "itemsPerPack": 1,
           "quantityPerItem": 100,
-          "unit": "centiliters"
+          "unit": "centiliters",
+          "shelfLifeDays": 3
         }
-      ]
+      ],
+      "density": 1.01
     },
     {
       "id": "9652a688-015f-4771-a630-2439ebb9e168",
@@ -1218,7 +1273,8 @@
           "link": "https://tienda.mercadona.es/product/2622/burger-pollo-bandeja",
           "itemsPerPack": 6,
           "quantityPerItem": 90,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDays": 2
         }
       ]
     },
