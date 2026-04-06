@@ -8,6 +8,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
 
 class ShoppingPage extends StatefulWidget {
@@ -26,7 +27,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
   @override
   void initState() {
     super.initState();
-    ingredientsRequired = widget.multiWeekMenu.allIngredients(recipes: RecipesProvider.instance.recipes);
+    Map<String, List<Quantity>> rawIngredients = widget.multiWeekMenu.allIngredients(recipes: RecipesProvider.instance.recipes);
+    ingredientsRequired = normalizeAllIngredients(
+      rawQuantities: rawIngredients,
+      ingredients: IngredientsProvider.instance.ingredients,
+    );
     ingredientsOwned = ingredientsRequired.map(
       (key, value) => MapEntry(key, value.map((quantity) => Quantity(amount: 0, unit: quantity.unit)).toList()),
     );
