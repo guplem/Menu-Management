@@ -155,9 +155,9 @@ class _AppHomeState extends State<_AppHome> {
           title: Text(title),
           actions: [
             TextButton(onPressed: () => Navigator.of(dialogContext).pop("no"), child: const Text("No")),
-            ElevatedButton(onPressed: () => Navigator.of(dialogContext).pop("default"), child: Text(defaultLabel)),
+            FilledButton(onPressed: () => Navigator.of(dialogContext).pop("default"), child: Text(defaultLabel)),
             if (lastSessionLabel != null)
-              ElevatedButton(onPressed: () => Navigator.of(dialogContext).pop("last_session"), child: Text(lastSessionLabel)),
+              FilledButton(onPressed: () => Navigator.of(dialogContext).pop("last_session"), child: Text(lastSessionLabel)),
           ],
         );
       },
