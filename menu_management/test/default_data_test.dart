@@ -146,4 +146,94 @@ void main() {
       }
     });
   });
+
+  group("referential integrity", () {
+    test("every ingredient referenced by a recipe exists", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Set<String> ingredientIds = IngredientsProvider.instance.ingredients.map((i) => i.id).toSet();
+      List<Recipe> recipes = RecipesProvider.instance.recipes;
+
+      for (Recipe recipe in recipes) {
+        for (var instruction in recipe.instructions) {
+          for (var usage in instruction.ingredientsUsed) {
+            expect(
+              ingredientIds.contains(usage.ingredient),
+              true,
+              reason: "Recipe '${recipe.name}' instruction '${instruction.description}' references missing ingredient ID '${usage.ingredient}'",
+            );
+          }
+        }
+      }
+    });
+
+    test("every instruction input references an output within the same recipe", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      for (Recipe recipe in RecipesProvider.instance.recipes) {
+        Set<String> outputIds = recipe.instructions.expand((i) => i.outputs).map((o) => o.id).toSet();
+
+        for (var instruction in recipe.instructions) {
+          for (String inputId in instruction.inputs) {
+            expect(
+              outputIds.contains(inputId),
+              true,
+              reason: "Recipe '${recipe.name}' instruction '${instruction.description}' references missing output ID '$inputId'",
+            );
+          }
+        }
+      }
+    });
+
+    test("every recipe in the default menu exists in the recipe book", () async {
+      List<Recipe> recipes = await loadRecipesAndGetList();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
+
+      Set<String> recipeIds = recipes.map((r) => r.id).toSet();
+
+      for (int w = 0; w < menu.weekCount; w++) {
+        for (var meal in menu.weeks[w].meals) {
+          if (meal.cooking != null) {
+            expect(
+              recipeIds.contains(meal.cooking!.recipeId),
+              true,
+              reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} references missing recipe ID '${meal.cooking!.recipeId}'",
+            );
+          }
+        }
+      }
+    });
+
+    test("no duplicate ingredient IDs", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      List<String> ids = IngredientsProvider.instance.ingredients.map((i) => i.id).toList();
+      expect(ids.toSet().length, ids.length, reason: "Duplicate ingredient IDs found");
+    });
+
+    test("no duplicate recipe IDs", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      List<String> ids = RecipesProvider.instance.recipes.map((r) => r.id).toList();
+      expect(ids.toSet().length, ids.length, reason: "Duplicate recipe IDs found");
+    });
+
+    test("no duplicate instruction IDs within a recipe", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      for (Recipe recipe in RecipesProvider.instance.recipes) {
+        List<String> ids = recipe.instructions.map((i) => i.id).toList();
+        expect(ids.toSet().length, ids.length, reason: "Recipe '${recipe.name}' has duplicate instruction IDs");
+      }
+    });
+
+    test("no duplicate output IDs within a recipe", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      for (Recipe recipe in RecipesProvider.instance.recipes) {
+        List<String> outputIds = recipe.instructions.expand((i) => i.outputs).map((o) => o.id).toList();
+        expect(outputIds.toSet().length, outputIds.length, reason: "Recipe '${recipe.name}' has duplicate output IDs");
+      }
+    });
+  });
 }
