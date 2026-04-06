@@ -72,6 +72,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Ingredient "${toRemove.name}" removed'),
+                            persist: false,
                             action: SnackBarAction(
                               label: "Undo",
                               onPressed: () {

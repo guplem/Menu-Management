@@ -143,6 +143,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
           "Timer finished for Step ${stepIndex + 1}: ${_instructions[stepIndex].description.first(50) ?? ""}${_instructions[stepIndex].description.length > 50 ? "..." : ""}",
         ),
         duration: const Duration(seconds: 5),
+        persist: false,
         action: SnackBarAction(label: "Go to step", onPressed: () => setState(() => _currentStep = stepIndex)),
       ),
     );
