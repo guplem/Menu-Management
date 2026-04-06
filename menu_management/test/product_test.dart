@@ -81,7 +81,7 @@ void main() {
 
       test("returns 1 pack when amount is less than one pack and unit matches", () {
         Product product = _product(itemsPerPack: 1, quantityPerItem: 500, unit: Unit.grams);
-        expect(product.formatQuantityForDisplay(200, Unit.grams), "1 packs (500 grams)");
+        expect(product.formatQuantityForDisplay(200, Unit.grams), "1 pack (500 grams)");
       });
     });
 

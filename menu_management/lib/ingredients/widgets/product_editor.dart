@@ -157,7 +157,7 @@ class _ProductEditorState extends State<ProductEditor> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<Unit>(
-              initialValue: _selectedUnit,
+              value: _selectedUnit,
               decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Unit"),
               items: Unit.values.map((Unit u) => DropdownMenuItem(value: u, child: Text(u.name))).toList(),
               onChanged: (Unit? value) {

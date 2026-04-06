@@ -21,7 +21,9 @@ abstract class Product with _$Product {
 
   int packsNeeded(double requiredAmount) {
     if (requiredAmount <= 0) return 0;
-    return (requiredAmount / totalQuantityPerPack).ceil();
+    final double totalQuantity = totalQuantityPerPack;
+    if (totalQuantity <= 0) return 0;
+    return (requiredAmount / totalQuantity).ceil();
   }
 
   String formatQuantityForDisplay(double requiredAmount, Unit requiredUnit) {
@@ -30,7 +32,8 @@ abstract class Product with _$Product {
     if (unit == requiredUnit) {
       int packs = packsNeeded(requiredAmount);
       String totalInPack = (packs * totalQuantityPerPack).toStringAsFixed(0);
-      return "$packs packs ($totalInPack $unitName)";
+      String packLabel = packs == 1 ? "pack" : "packs";
+      return "$packs $packLabel ($totalInPack $unitName)";
     }
     return "$amountRounded $unitName";
   }
