@@ -48,10 +48,8 @@ class _HubState extends State<Hub> {
                   if (Theme.of(context).platform != TargetPlatform.iOS && Theme.of(context).platform != TargetPlatform.android)
                     IconButton(
                       icon: const Icon(Icons.save_rounded),
-                      onPressed: () => Persistency.saveData(
-                        ingredients: IngredientsProvider.instance.ingredients,
-                        recipes: RecipesProvider.instance.recipes,
-                      ),
+                      onPressed: () =>
+                          Persistency.saveData(ingredients: IngredientsProvider.instance.ingredients, recipes: RecipesProvider.instance.recipes),
                       tooltip: "Save data to file",
                     ),
                   const SizedBox(height: 10),

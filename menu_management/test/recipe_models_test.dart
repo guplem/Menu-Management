@@ -40,7 +40,12 @@ void main() {
         description: "Boil water",
         workingTimeMinutes: 5,
         cookingTimeMinutes: 10,
-        ingredientsUsed: [const IngredientUsage(ingredient: "water", quantity: Quantity(amount: 500, unit: Unit.centiliters))],
+        ingredientsUsed: [
+          const IngredientUsage(
+            ingredient: "water",
+            quantity: Quantity(amount: 500, unit: Unit.centiliters),
+          ),
+        ],
         outputs: [const Result(id: "o1", description: "boiled water")],
         inputs: ["input1"],
       );
@@ -58,15 +63,24 @@ void main() {
 
   group("IngredientUsage", () {
     test("holds ingredient id and quantity", () {
-      const IngredientUsage usage = IngredientUsage(ingredient: "flour", quantity: Quantity(amount: 200, unit: Unit.grams));
+      const IngredientUsage usage = IngredientUsage(
+        ingredient: "flour",
+        quantity: Quantity(amount: 200, unit: Unit.grams),
+      );
       expect(usage.ingredient, "flour");
       expect(usage.quantity.amount, 200);
       expect(usage.quantity.unit, Unit.grams);
     });
 
     test("equality by value", () {
-      const IngredientUsage a = IngredientUsage(ingredient: "flour", quantity: Quantity(amount: 200, unit: Unit.grams));
-      const IngredientUsage b = IngredientUsage(ingredient: "flour", quantity: Quantity(amount: 200, unit: Unit.grams));
+      const IngredientUsage a = IngredientUsage(
+        ingredient: "flour",
+        quantity: Quantity(amount: 200, unit: Unit.grams),
+      );
+      const IngredientUsage b = IngredientUsage(
+        ingredient: "flour",
+        quantity: Quantity(amount: 200, unit: Unit.grams),
+      );
       expect(a, b);
     });
   });

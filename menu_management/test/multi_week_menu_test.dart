@@ -29,9 +29,10 @@ Meal _testMeal({required WeekDay weekDay, required MealType mealType, Recipe? re
 
 /// Helper to create a simple one-meal Menu for testing
 Menu _singleMealMenu({required Recipe recipe, WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch}) {
-  return Menu(meals: [_testMeal(weekDay: weekDay, mealType: mealType, recipe: recipe)]);
+  return Menu(
+    meals: [_testMeal(weekDay: weekDay, mealType: mealType, recipe: recipe)],
+  );
 }
-
 
 void main() {
   group("MultiWeekMenu construction", () {
@@ -123,7 +124,10 @@ void main() {
             id: "i1",
             description: "Cook pasta",
             ingredientsUsed: [
-              IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 200, unit: Unit.grams)),
+              IngredientUsage(
+                ingredient: "flour",
+                quantity: const Quantity(amount: 200, unit: Unit.grams),
+              ),
             ],
           ),
         ],

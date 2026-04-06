@@ -45,13 +45,16 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 List<Quantity> remaining = remainingAmounts(ingredient: entry.key);
                 if (!remaining.any((quantity) => quantity.amount > 0)) return null;
                 Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
-                String amounts = remaining.where((quantity) => quantity.amount > 0).map((Quantity quantity) {
-                  if (ingredient.products.isNotEmpty) {
-                    return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
-                  }
-                  String unitName = quantity.unit.name;
-                  return "${quantity.amount.toStringAsFixed(0)} $unitName";
-                }).join(" + ");
+                String amounts = remaining
+                    .where((quantity) => quantity.amount > 0)
+                    .map((Quantity quantity) {
+                      if (ingredient.products.isNotEmpty) {
+                        return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
+                      }
+                      String unitName = quantity.unit.name;
+                      return "${quantity.amount.toStringAsFixed(0)} $unitName";
+                    })
+                    .join(" + ");
                 return "${ingredient.name}: $amounts";
               })
               .whereNotNull()

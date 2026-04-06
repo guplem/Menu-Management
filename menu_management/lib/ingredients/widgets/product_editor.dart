@@ -199,24 +199,15 @@ class _ProductEditorState extends State<ProductEditor> {
                         }
                       : null,
                 ),
-                if (_editingIndex != null) ...[
-                  const SizedBox(width: 8),
-                  TextButton(onPressed: _clearForm, child: const Text("Cancel edit")),
-                ],
+                if (_editingIndex != null) ...[const SizedBox(width: 8), TextButton(onPressed: _clearForm, child: const Text("Cancel edit"))],
               ],
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text("Cancel"),
-        ),
-        FilledButton(
-          onPressed: _hasChanges ? _saveAndClose : null,
-          child: const Text("Save"),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("Cancel")),
+        FilledButton(onPressed: _hasChanges ? _saveAndClose : null, child: const Text("Save")),
       ],
     );
   }

@@ -64,7 +64,10 @@ class _MenuPageState extends State<MenuPage> {
               icon: const Icon(Icons.refresh_rounded),
               onPressed: () {
                 setState(() {
-                  MultiWeekMenu regenerated = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
+                  MultiWeekMenu regenerated = MenuProvider.generateMenu(
+                    initialSeed: DateTime.now().millisecondsSinceEpoch,
+                    recipes: RecipesProvider.instance.recipes,
+                  );
                   multiWeekMenu = regenerated;
                   currentWeekIndex = 0;
                 });
@@ -158,7 +161,11 @@ class _MenuPageState extends State<MenuPage> {
                                                 title: Text(recipe.name),
                                                 onTap: () {
                                                   setState(() {
-                                                    Menu updatedWeek = currentWeek.copyWithUpdatedRecipe(mealTime: meal.mealTime, recipe: recipe, recipes: _recipes);
+                                                    Menu updatedWeek = currentWeek.copyWithUpdatedRecipe(
+                                                      mealTime: meal.mealTime,
+                                                      recipe: recipe,
+                                                      recipes: _recipes,
+                                                    );
                                                     multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
                                                   });
                                                   Navigator.of(context).pop();
@@ -204,7 +211,10 @@ class _MenuPageState extends State<MenuPage> {
                                           onPressed: meal.people <= 0
                                               ? null
                                               : () => setState(() {
-                                                  Menu updatedWeek = currentWeek.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people - 1);
+                                                  Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
+                                                    mealTime: meal.mealTime,
+                                                    people: meal.people - 1,
+                                                  );
                                                   multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
                                                 }),
                                         ),
@@ -252,24 +262,14 @@ class _MenuPageState extends State<MenuPage> {
           onPressed: multiWeekMenu.weekCount <= 1 ? null : _removeLastWeek,
         ),
         if (multiWeekMenu.weekCount > 1) ...[
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: currentWeekIndex > 0 ? () => setState(() => currentWeekIndex--) : null,
-          ),
-          Text(
-            "Week ${currentWeekIndex + 1} / ${multiWeekMenu.weekCount}",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          IconButton(icon: const Icon(Icons.chevron_left), onPressed: currentWeekIndex > 0 ? () => setState(() => currentWeekIndex--) : null),
+          Text("Week ${currentWeekIndex + 1} / ${multiWeekMenu.weekCount}", style: Theme.of(context).textTheme.titleMedium),
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: currentWeekIndex < multiWeekMenu.weekCount - 1 ? () => setState(() => currentWeekIndex++) : null,
           ),
         ],
-        IconButton(
-          tooltip: "Add another week",
-          icon: const Icon(Icons.add_circle_outline),
-          onPressed: _addWeek,
-        ),
+        IconButton(tooltip: "Add another week", icon: const Icon(Icons.add_circle_outline), onPressed: _addWeek),
       ],
     );
   }

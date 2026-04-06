@@ -42,7 +42,10 @@ class MenuConfigurationPage extends StatelessWidget {
         tooltip: "Generate Menu",
         child: const Icon(Icons.auto_awesome_sharp),
         onPressed: () {
-          MultiWeekMenu multiWeekMenu = MenuProvider.generateMenu(initialSeed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
+          MultiWeekMenu multiWeekMenu = MenuProvider.generateMenu(
+            initialSeed: DateTime.now().millisecondsSinceEpoch,
+            recipes: RecipesProvider.instance.recipes,
+          );
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: multiWeekMenu)));
         },
       ),

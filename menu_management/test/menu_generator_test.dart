@@ -61,11 +61,13 @@ List<MenuConfiguration> _fullWeekConfigurations({int cookingTimeMinutes = 60}) {
   List<MenuConfiguration> configs = [];
   for (WeekDay day in WeekDay.values) {
     for (MealType meal in MealType.values) {
-      configs.add(MenuConfiguration(
-        mealTime: MealTime(weekDay: day, mealType: meal),
-        requiresMeal: true,
-        availableCookingTimeMinutes: cookingTimeMinutes,
-      ));
+      configs.add(
+        MenuConfiguration(
+          mealTime: MealTime(weekDay: day, mealType: meal),
+          requiresMeal: true,
+          availableCookingTimeMinutes: cookingTimeMinutes,
+        ),
+      );
     }
   }
   return configs;
@@ -75,17 +77,21 @@ List<MenuConfiguration> _lunchDinnerOnlyConfigurations({int cookingTimeMinutes =
   List<MenuConfiguration> configs = [];
   for (WeekDay day in WeekDay.values) {
     for (MealType meal in [MealType.lunch, MealType.dinner]) {
-      configs.add(MenuConfiguration(
-        mealTime: MealTime(weekDay: day, mealType: meal),
-        requiresMeal: true,
-        availableCookingTimeMinutes: cookingTimeMinutes,
-      ));
+      configs.add(
+        MenuConfiguration(
+          mealTime: MealTime(weekDay: day, mealType: meal),
+          requiresMeal: true,
+          availableCookingTimeMinutes: cookingTimeMinutes,
+        ),
+      );
     }
     // Breakfast not required
-    configs.add(MenuConfiguration(
-      mealTime: MealTime(weekDay: day, mealType: MealType.breakfast),
-      requiresMeal: false,
-    ));
+    configs.add(
+      MenuConfiguration(
+        mealTime: MealTime(weekDay: day, mealType: MealType.breakfast),
+        requiresMeal: false,
+      ),
+    );
   }
   return configs;
 }
@@ -95,17 +101,23 @@ void main() {
     IngredientsProvider.instance.setData([]);
     RecipesProvider.instance.setData([], ingredients: []);
     // Always provide at least one breakfast recipe to avoid Debug.logWarning assertion
-    RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b_default", name: "Default Breakfast"));
+    RecipesProvider.addOrUpdate(
+      newRecipe: _breakfast(id: "b_default", name: "Default Breakfast"),
+    );
   });
 
   group("MenuGenerator structural properties", () {
     test("generates a meal for every required configuration slot", () {
       // Provide enough recipes to fill all slots
       for (int i = 0; i < 10; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"),
+        );
       }
       for (int i = 0; i < 20; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "m$i", name: "Meal $i"),
+        );
       }
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
@@ -119,7 +131,9 @@ void main() {
     });
 
     test("skips slots where requiresMeal is false", () {
-      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m1", name: "Pasta"));
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "m1", name: "Pasta"),
+      );
 
       List<MenuConfiguration> configs = _lunchDinnerOnlyConfigurations();
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
@@ -134,10 +148,14 @@ void main() {
 
     test("only assigns breakfast recipes to breakfast slots", () {
       for (int i = 0; i < 10; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"),
+        );
       }
       for (int i = 0; i < 15; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "m$i", name: "Meal $i"),
+        );
       }
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
@@ -147,20 +165,30 @@ void main() {
 
       for (Meal meal in menu.meals) {
         if (meal.mealTime.mealType == MealType.breakfast && meal.cooking != null) {
-          expect(RecipesProvider.instance.get(meal.cooking!.recipeId).type, RecipeType.breakfast,
-              reason: "Breakfast slot at ${meal.mealTime.weekDay} should have a breakfast recipe");
+          expect(
+            RecipesProvider.instance.get(meal.cooking!.recipeId).type,
+            RecipeType.breakfast,
+            reason: "Breakfast slot at ${meal.mealTime.weekDay} should have a breakfast recipe",
+          );
         }
         if ((meal.mealTime.mealType == MealType.lunch || meal.mealTime.mealType == MealType.dinner) && meal.cooking != null) {
-          expect(RecipesProvider.instance.get(meal.cooking!.recipeId).type, RecipeType.meal,
-              reason: "Lunch/dinner slot at ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a meal recipe");
+          expect(
+            RecipesProvider.instance.get(meal.cooking!.recipeId).type,
+            RecipeType.meal,
+            reason: "Lunch/dinner slot at ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a meal recipe",
+          );
         }
       }
     });
 
     test("same seed produces same menu", () {
       for (int i = 0; i < 10; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"));
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "m$i", name: "Meal $i"),
+        );
       }
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
@@ -182,8 +210,12 @@ void main() {
 
     test("different seeds produce different menus (with enough recipe variety)", () {
       for (int i = 0; i < 15; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"));
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _breakfast(id: "b$i", name: "Breakfast $i"),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "m$i", name: "Meal $i"),
+        );
       }
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
@@ -276,9 +308,15 @@ void main() {
     test("returns configurations that come before the target", () {
       MenuGenerator generator = MenuGenerator(baseSeed: 1);
 
-      MenuConfiguration satLunch = const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch));
-      MenuConfiguration satDinner = const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner));
-      MenuConfiguration sunLunch = const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch));
+      MenuConfiguration satLunch = const MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+      );
+      MenuConfiguration satDinner = const MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner),
+      );
+      MenuConfiguration sunLunch = const MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch),
+      );
 
       List<MenuConfiguration> previous = generator.getPreviousMomentConfigurations(
         previousThan: sunLunch,
@@ -293,13 +331,14 @@ void main() {
     test("returns empty when target is the earliest", () {
       MenuGenerator generator = MenuGenerator(baseSeed: 1);
 
-      MenuConfiguration satBreakfast = const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.breakfast));
-      MenuConfiguration sunLunch = const MenuConfiguration(mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch));
-
-      List<MenuConfiguration> previous = generator.getPreviousMomentConfigurations(
-        previousThan: satBreakfast,
-        possibleConfigurations: [sunLunch],
+      MenuConfiguration satBreakfast = const MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.breakfast),
       );
+      MenuConfiguration sunLunch = const MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch),
+      );
+
+      List<MenuConfiguration> previous = generator.getPreviousMomentConfigurations(previousThan: satBreakfast, possibleConfigurations: [sunLunch]);
 
       expect(previous, isEmpty);
     });
@@ -308,7 +347,9 @@ void main() {
   group("MenuGenerator empty recipe pool", () {
     test("generates menu with null cooking when no meal recipe fits the configuration", () {
       // Add a meal recipe that requires more time than the config allows
-      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m_slow", name: "Slow Braise", totalMinutes: 120, canBeStored: false));
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "m_slow", name: "Slow Braise", totalMinutes: 120, canBeStored: false),
+      );
 
       List<MenuConfiguration> configs = [
         const MenuConfiguration(
@@ -327,7 +368,9 @@ void main() {
     });
 
     test("generates empty menu when no configurations require meals", () {
-      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m1", name: "Pasta"));
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "m1", name: "Pasta"),
+      );
 
       List<MenuConfiguration> configs = [
         const MenuConfiguration(

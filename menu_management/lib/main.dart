@@ -123,10 +123,7 @@ class _AppHomeState extends State<_AppHome> {
 
   Future<bool> _tryLoadDefaultRecipes(IngredientsProvider ingredientsProvider, RecipesProvider recipesProvider) async {
     try {
-      await Persistency.loadDefaultRecipes(
-        ingredientsProvider: ingredientsProvider,
-        recipesProvider: recipesProvider,
-      );
+      await Persistency.loadDefaultRecipes(ingredientsProvider: ingredientsProvider, recipesProvider: recipesProvider);
       return true;
     } catch (e) {
       if (mounted) {
@@ -149,11 +146,7 @@ class _AppHomeState extends State<_AppHome> {
 
   /// Shows a dialog with up to 3 options: last session, default, no.
   /// Returns "last_session", "default", or "no".
-  Future<String?> _showLoadDialog({
-    required String title,
-    required String? lastSessionLabel,
-    required String defaultLabel,
-  }) {
+  Future<String?> _showLoadDialog({required String title, required String? lastSessionLabel, required String defaultLabel}) {
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -161,19 +154,9 @@ class _AppHomeState extends State<_AppHome> {
         return AlertDialog(
           title: Text(title),
           actions: [
-            if (lastSessionLabel != null)
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop("last_session"),
-                child: Text(lastSessionLabel),
-              ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop("default"),
-              child: Text(defaultLabel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop("no"),
-              child: const Text("No"),
-            ),
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop("no"), child: const Text("No")),
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop("default"), child: Text(defaultLabel)),
+            if (lastSessionLabel != null) TextButton(onPressed: () => Navigator.of(dialogContext).pop("last_session"), child: Text(lastSessionLabel)),
           ],
         );
       },
@@ -187,12 +170,7 @@ class _AppHomeState extends State<_AppHome> {
         return AlertDialog(
           title: const Text("Error"),
           content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text("OK"),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text("OK"))],
         );
       },
     );

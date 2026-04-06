@@ -22,9 +22,7 @@ String _validTsrContent() {
     const Ingredient(id: "ing1", name: "Salt").toJson(),
     const Ingredient(id: "ing2", name: "Pepper").toJson(),
   ];
-  List<Map<String, dynamic>> recipes = [
-    const Recipe(id: "r1", name: "Test Recipe").toJson(),
-  ];
+  List<Map<String, dynamic>> recipes = [const Recipe(id: "r1", name: "Test Recipe").toJson()];
   return jsonEncode({"Ingredients": ingredients, "Recipes": recipes});
 }
 
@@ -39,20 +37,25 @@ Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lun
   );
 }
 
-
 String _validTsmContent() {
-  Menu week = Menu(meals: [
-    _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe()),
-    _meal(weekDay: WeekDay.saturday, mealType: MealType.dinner, recipe: _recipe(id: "r2", name: "Dinner Recipe")),
-  ]);
+  Menu week = Menu(
+    meals: [
+      _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe()),
+      _meal(
+        weekDay: WeekDay.saturday,
+        mealType: MealType.dinner,
+        recipe: _recipe(id: "r2", name: "Dinner Recipe"),
+      ),
+    ],
+  );
   MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week]);
   return jsonEncode(multiWeek.toJson());
 }
 
 String _validSingleWeekTsmContent() {
-  Menu week = Menu(meals: [
-    _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe()),
-  ]);
+  Menu week = Menu(
+    meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe())],
+  );
   return jsonEncode(week.toJson());
 }
 
@@ -207,10 +210,10 @@ void main() {
                 "cooking": {"recipeId": "nonexistent-id", "yield": 1},
                 "mealTime": {"weekDay": "saturday", "mealType": "lunch"},
                 "people": 2,
-              }
-            ]
-          }
-        ]
+              },
+            ],
+          },
+        ],
       });
 
       File tsmFile = File("${tempDir.path}/missing.tsm");
@@ -234,10 +237,10 @@ void main() {
                 "cooking": {"recipeId": "valid-id", "yield": 2},
                 "mealTime": {"weekDay": "saturday", "mealType": "lunch"},
                 "people": 2,
-              }
-            ]
-          }
-        ]
+              },
+            ],
+          },
+        ],
       });
 
       File tsmFile = File("${tempDir.path}/valid.tsm");

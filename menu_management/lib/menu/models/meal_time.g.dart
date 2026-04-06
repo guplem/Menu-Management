@@ -6,10 +6,8 @@ part of 'meal_time.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_MealTime _$MealTimeFromJson(Map<String, dynamic> json) => _MealTime(
-  weekDay: $enumDecode(_$WeekDayEnumMap, json['weekDay']),
-  mealType: $enumDecode(_$MealTypeEnumMap, json['mealType']),
-);
+_MealTime _$MealTimeFromJson(Map<String, dynamic> json) =>
+    _MealTime(weekDay: $enumDecode(_$WeekDayEnumMap, json['weekDay']), mealType: $enumDecode(_$MealTypeEnumMap, json['mealType']));
 
 Map<String, dynamic> _$MealTimeToJson(_MealTime instance) => <String, dynamic>{
   'weekDay': _$WeekDayEnumMap[instance.weekDay]!,
@@ -26,8 +24,4 @@ const _$WeekDayEnumMap = {
   WeekDay.friday: 'friday',
 };
 
-const _$MealTypeEnumMap = {
-  MealType.breakfast: 'breakfast',
-  MealType.lunch: 'lunch',
-  MealType.dinner: 'dinner',
-};
+const _$MealTypeEnumMap = {MealType.breakfast: 'breakfast', MealType.lunch: 'lunch', MealType.dinner: 'dinner'};

@@ -51,10 +51,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(
-                        Icons.shopping_bag,
-                        color: filtered[index].products.isNotEmpty ? Theme.of(context).colorScheme.primary : null,
-                      ),
+                      icon: Icon(Icons.shopping_bag, color: filtered[index].products.isNotEmpty ? Theme.of(context).colorScheme.primary : null),
                       onPressed: () {
                         ProductEditor.show(
                           context: context,

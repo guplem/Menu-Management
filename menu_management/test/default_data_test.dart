@@ -35,10 +35,7 @@ void main() {
 
   /// Loads recipes into providers so they are available for menu loading.
   Future<List<Recipe>> loadRecipesAndGetList() async {
-    await Persistency.loadDefaultRecipes(
-      ingredientsProvider: IngredientsProvider.instance,
-      recipesProvider: RecipesProvider.instance,
-    );
+    await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
     return RecipesProvider.instance.recipes;
   }
 
@@ -47,10 +44,7 @@ void main() {
       Map<String, dynamic> rawTsr = await loadRawTsr();
       List<dynamic> expectedIngredients = rawTsr["Ingredients"];
 
-      await Persistency.loadDefaultRecipes(
-        ingredientsProvider: IngredientsProvider.instance,
-        recipesProvider: RecipesProvider.instance,
-      );
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
 
       List<Ingredient> loaded = IngredientsProvider.instance.ingredients;
       expect(loaded.length, expectedIngredients.length);
@@ -68,10 +62,7 @@ void main() {
       Map<String, dynamic> rawTsr = await loadRawTsr();
       List<dynamic> expectedRecipes = rawTsr["Recipes"];
 
-      await Persistency.loadDefaultRecipes(
-        ingredientsProvider: IngredientsProvider.instance,
-        recipesProvider: RecipesProvider.instance,
-      );
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
 
       List<Recipe> loaded = RecipesProvider.instance.recipes;
       expect(loaded.length, expectedRecipes.length);
@@ -87,10 +78,7 @@ void main() {
       Map<String, dynamic> rawTsr = await loadRawTsr();
       List<dynamic> expectedRecipes = rawTsr["Recipes"];
 
-      await Persistency.loadDefaultRecipes(
-        ingredientsProvider: IngredientsProvider.instance,
-        recipesProvider: RecipesProvider.instance,
-      );
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
 
       for (Map<String, dynamic> expected in expectedRecipes) {
         Recipe loaded = RecipesProvider.instance.recipes.firstWhere((r) => r.id == expected["id"]);

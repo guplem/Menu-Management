@@ -103,10 +103,7 @@ class Persistency {
   // ============================================================
 
   /// Loads the bundled RecipeBook.tsr asset into the providers.
-  static Future<void> loadDefaultRecipes({
-    required IngredientsProvider ingredientsProvider,
-    required RecipesProvider recipesProvider,
-  }) async {
+  static Future<void> loadDefaultRecipes({required IngredientsProvider ingredientsProvider, required RecipesProvider recipesProvider}) async {
     String data = await rootBundle.loadString("assets/RecipeBook.tsr");
     _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
   }
@@ -223,10 +220,7 @@ class Persistency {
   // Save / Load with file picker
   // ============================================================
 
-  static Future<void> saveData({
-    required List<Ingredient> ingredients,
-    required List<Recipe> recipes,
-  }) async {
+  static Future<void> saveData({required List<Ingredient> ingredients, required List<Recipe> recipes}) async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: "Select where to save the data",
@@ -239,10 +233,7 @@ class Persistency {
       // User canceled the picker
     } else {
       // Build JSON map, inject ref_names, then encode
-      Map<String, dynamic> tsrJson = {
-        "Ingredients": ingredients.map((i) => i.toJson()).toList(),
-        "Recipes": recipes.map((r) => r.toJson()).toList(),
-      };
+      Map<String, dynamic> tsrJson = {"Ingredients": ingredients.map((i) => i.toJson()).toList(), "Recipes": recipes.map((r) => r.toJson()).toList()};
       _injectRecipeRefNames(tsrJson, ingredients: ingredients);
 
       // Prepare the file

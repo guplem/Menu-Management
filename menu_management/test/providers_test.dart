@@ -37,15 +37,21 @@ void main() {
 
     group("remove", () {
       test("removes ingredient by id", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing1", name: "Flour"));
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing2", name: "Sugar"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing1", name: "Flour"),
+        );
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing2", name: "Sugar"),
+        );
         IngredientsProvider.remove(ingredientId: "ing1");
         expect(IngredientsProvider.instance.ingredients.length, 1);
         expect(IngredientsProvider.instance.ingredients.first.id, "ing2");
       });
 
       test("does nothing for non-existent id", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing1", name: "Flour"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing1", name: "Flour"),
+        );
         IngredientsProvider.remove(ingredientId: "nonexistent");
         expect(IngredientsProvider.instance.ingredients.length, 1);
       });
@@ -53,7 +59,9 @@ void main() {
 
     group("get", () {
       test("returns ingredient by id", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing1", name: "Flour"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing1", name: "Flour"),
+        );
         Ingredient result = IngredientsProvider.instance.get("ing1");
         expect(result.name, "Flour");
       });
@@ -61,7 +69,9 @@ void main() {
 
     group("setData", () {
       test("replaces all ingredients", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "old", name: "Old"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "old", name: "Old"),
+        );
         IngredientsProvider.instance.setData([const Ingredient(id: "new1", name: "New1"), const Ingredient(id: "new2", name: "New2")]);
         expect(IngredientsProvider.instance.ingredients.length, 2);
         expect(IngredientsProvider.instance.ingredients.first.id, "new1");
@@ -70,18 +80,24 @@ void main() {
 
     group("isValidNewIngredient", () {
       test("returns true for unique name", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing1", name: "Flour"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing1", name: "Flour"),
+        );
         expect(IngredientsProvider.instance.isValidNewIngredient("Sugar"), true);
       });
 
       test("returns false for duplicate name (case insensitive)", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing1", name: "Flour"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing1", name: "Flour"),
+        );
         expect(IngredientsProvider.instance.isValidNewIngredient("flour"), false);
         expect(IngredientsProvider.instance.isValidNewIngredient("FLOUR"), false);
       });
 
       test("trims whitespace before comparing", () {
-        IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "ing1", name: "Flour"));
+        IngredientsProvider.addOrUpdate(
+          newIngredient: const Ingredient(id: "ing1", name: "Flour"),
+        );
         expect(IngredientsProvider.instance.isValidNewIngredient("  Flour  "), false);
       });
     });
@@ -126,14 +142,20 @@ void main() {
 
     group("addOrUpdate", () {
       test("adds new recipe", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta"),
+        );
         expect(RecipesProvider.instance.recipes.length, 1);
         expect(RecipesProvider.instance.recipes.first.name, "Pasta");
       });
 
       test("updates existing recipe by id", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta"));
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Spaghetti"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta"),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Spaghetti"),
+        );
         expect(RecipesProvider.instance.recipes.length, 1);
         expect(RecipesProvider.instance.recipes.first.name, "Spaghetti");
       });
@@ -141,8 +163,12 @@ void main() {
 
     group("remove", () {
       test("removes recipe by id", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta"));
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r2", name: "Salad"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta"),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r2", name: "Salad"),
+        );
         RecipesProvider.remove(recipeId: "r1");
         expect(RecipesProvider.instance.recipes.length, 1);
         expect(RecipesProvider.instance.recipes.first.id, "r2");
@@ -151,7 +177,9 @@ void main() {
 
     group("get", () {
       test("returns recipe by id", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta"),
+        );
         expect(RecipesProvider.instance.get("r1").name, "Pasta");
       });
 
@@ -162,9 +190,15 @@ void main() {
 
     group("getOfType", () {
       test("filters by type", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pancakes", type: RecipeType.breakfast));
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r2", name: "Pasta", type: RecipeType.meal));
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r3", name: "Cake", type: RecipeType.dessert));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pancakes", type: RecipeType.breakfast),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r2", name: "Pasta", type: RecipeType.meal),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r3", name: "Cake", type: RecipeType.dessert),
+        );
 
         List<Recipe> meals = RecipesProvider.instance.getOfType(type: RecipeType.meal);
         expect(meals.length, 1);
@@ -172,14 +206,20 @@ void main() {
       });
 
       test("excludes recipes not included in menu generation", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta", type: RecipeType.meal, includeInMenuGeneration: false));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta", type: RecipeType.meal, includeInMenuGeneration: false),
+        );
         List<Recipe> meals = RecipesProvider.instance.getOfType(type: RecipeType.meal);
         expect(meals, isEmpty);
       });
 
       test("filters by nutritional flags", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta", carbs: true, proteins: false, vegetables: false));
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r2", name: "Steak", carbs: false, proteins: true, vegetables: false));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta", carbs: true, proteins: false, vegetables: false),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r2", name: "Steak", carbs: false, proteins: true, vegetables: false),
+        );
 
         List<Recipe> carbsOnly = RecipesProvider.instance.getOfType(type: RecipeType.meal, carbs: true, proteins: false);
         expect(carbsOnly.length, 1);
@@ -189,7 +229,9 @@ void main() {
 
     group("instruction management", () {
       test("addOrUpdateInstruction adds new instruction", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta"),
+        );
         RecipesProvider.addOrUpdateInstruction(
           recipeId: "r1",
           newInstruction: const Instruction(id: "i1", description: "Boil water"),
@@ -201,7 +243,11 @@ void main() {
 
       test("addOrUpdateInstruction updates existing instruction", () {
         RecipesProvider.addOrUpdate(
-          newRecipe: const Recipe(id: "r1", name: "Pasta", instructions: [Instruction(id: "i1", description: "Boil water")]),
+          newRecipe: const Recipe(
+            id: "r1",
+            name: "Pasta",
+            instructions: [Instruction(id: "i1", description: "Boil water")],
+          ),
         );
         RecipesProvider.addOrUpdateInstruction(
           recipeId: "r1",
@@ -217,7 +263,10 @@ void main() {
           newRecipe: const Recipe(
             id: "r1",
             name: "Pasta",
-            instructions: [Instruction(id: "i1", description: "Step 1"), Instruction(id: "i2", description: "Step 2")],
+            instructions: [
+              Instruction(id: "i1", description: "Step 1"),
+              Instruction(id: "i2", description: "Step 2"),
+            ],
           ),
         );
         RecipesProvider.removeInstruction(recipeId: "r1", instructionId: "i1");
@@ -254,8 +303,16 @@ void main() {
             id: "r1",
             name: "Pasta",
             instructions: [
-              Instruction(id: "i1", description: "Step", outputs: [Result(id: "o1", description: "cooked pasta")]),
-              Instruction(id: "i2", description: "Step", outputs: [Result(id: "o2", description: "sauce")]),
+              Instruction(
+                id: "i1",
+                description: "Step",
+                outputs: [Result(id: "o1", description: "cooked pasta")],
+              ),
+              Instruction(
+                id: "i2",
+                description: "Step",
+                outputs: [Result(id: "o2", description: "sauce")],
+              ),
             ],
           ),
         );
@@ -266,7 +323,9 @@ void main() {
       });
 
       test("getResults returns empty for no matches", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "r1", name: "Pasta"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "r1", name: "Pasta"),
+        );
         expect(RecipesProvider.instance.getResults(["nonexistent"]), isEmpty);
       });
 
@@ -276,8 +335,17 @@ void main() {
             id: "r1",
             name: "Multi-step",
             instructions: [
-              Instruction(id: "i1", description: "First", outputs: [Result(id: "o1", description: "intermediate")]),
-              Instruction(id: "i2", description: "Second", inputs: ["o1"], outputs: [Result(id: "o2", description: "final")]),
+              Instruction(
+                id: "i1",
+                description: "First",
+                outputs: [Result(id: "o1", description: "intermediate")],
+              ),
+              Instruction(
+                id: "i2",
+                description: "Second",
+                inputs: ["o1"],
+                outputs: [Result(id: "o2", description: "final")],
+              ),
               Instruction(id: "i3", description: "Third", inputs: []),
             ],
           ),
@@ -298,9 +366,21 @@ void main() {
             id: "r1",
             name: "Multi-step",
             instructions: [
-              Instruction(id: "i1", description: "First", outputs: [Result(id: "o1", description: "first output")]),
-              Instruction(id: "i2", description: "Second", outputs: [Result(id: "o2", description: "second output")]),
-              Instruction(id: "i3", description: "Third", outputs: [Result(id: "o3", description: "third output")]),
+              Instruction(
+                id: "i1",
+                description: "First",
+                outputs: [Result(id: "o1", description: "first output")],
+              ),
+              Instruction(
+                id: "i2",
+                description: "Second",
+                outputs: [Result(id: "o2", description: "second output")],
+              ),
+              Instruction(
+                id: "i3",
+                description: "Third",
+                outputs: [Result(id: "o3", description: "third output")],
+              ),
             ],
           ),
         );
@@ -322,8 +402,16 @@ void main() {
             id: "r1",
             name: "Multi-step",
             instructions: [
-              Instruction(id: "i1", description: "First", outputs: [Result(id: "i2", description: "result with same id as instruction i2")]),
-              Instruction(id: "i2", description: "Second", outputs: [Result(id: "o2", description: "second output")]),
+              Instruction(
+                id: "i1",
+                description: "First",
+                outputs: [Result(id: "i2", description: "result with same id as instruction i2")],
+              ),
+              Instruction(
+                id: "i2",
+                description: "Second",
+                outputs: [Result(id: "o2", description: "second output")],
+              ),
             ],
           ),
         );
@@ -338,7 +426,9 @@ void main() {
 
     group("setData", () {
       test("replaces all recipes", () {
-        RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "old", name: "Old"));
+        RecipesProvider.addOrUpdate(
+          newRecipe: const Recipe(id: "old", name: "Old"),
+        );
         RecipesProvider.instance.setData([const Recipe(id: "new1", name: "New1"), const Recipe(id: "new2", name: "New2")], ingredients: []);
         expect(RecipesProvider.instance.recipes.length, 2);
         expect(RecipesProvider.instance.recipes.first.id, "new1");
