@@ -3,6 +3,7 @@ import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
+import "dart:io";
 
 class ProductEditor extends StatefulWidget {
   const ProductEditor({super.key, required this.ingredient, required this.onUpdate});
@@ -129,7 +130,18 @@ class _ProductEditorState extends State<ProductEditor> {
                   dense: true,
                   selected: isEditing,
                   title: Text("${product.itemsPerPack} x ${product.quantityPerItem.toStringAsFixed(0)} ${product.unit.name}"),
-                  subtitle: Text(product.link, overflow: TextOverflow.ellipsis, maxLines: 1),
+                  subtitle: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => Process.run("start", [product.link], runInShell: true),
+                      child: Text(
+                        product.link,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(color: Theme.of(context).colorScheme.primary, decoration: TextDecoration.underline),
+                      ),
+                    ),
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
