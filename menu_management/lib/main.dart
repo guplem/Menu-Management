@@ -34,10 +34,6 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: color,
-          snackBarTheme: SnackBarThemeData(
-            backgroundColor: color.surfaceContainer,
-            contentTextStyle: TextStyle(color: color.onSurface),
-          ),
           textButtonTheme: const TextButtonThemeData(style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable)),
           filledButtonTheme: const FilledButtonThemeData(style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable)),
           elevatedButtonTheme: const ElevatedButtonThemeData(style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable)),
