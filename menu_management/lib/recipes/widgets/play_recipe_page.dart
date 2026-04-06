@@ -311,6 +311,7 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
             padding: const EdgeInsets.only(bottom: 4),
             child: InkWell(
               borderRadius: ThemeCustom.borderRadiusStandard,
+              mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: () => _showInputDetailDialog(context, input),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -645,6 +646,7 @@ class _TimerCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: ThemeCustom.borderRadiusStandard),
       child: InkWell(
         onTap: onTap,
+        mouseCursor: WidgetStateMouseCursor.clickable,
         borderRadius: ThemeCustom.borderRadiusStandard,
         child: Padding(
           padding: EdgeInsets.all(compact ? 10 : 14),
@@ -726,6 +728,7 @@ class _StepPreviewCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: ThemeCustom.borderRadiusStandard),
       child: InkWell(
         onTap: onTap,
+        mouseCursor: WidgetStateMouseCursor.clickable,
         borderRadius: ThemeCustom.borderRadiusStandard,
         child: Padding(
           padding: const EdgeInsets.all(14),

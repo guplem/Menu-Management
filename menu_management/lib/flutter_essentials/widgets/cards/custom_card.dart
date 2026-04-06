@@ -37,6 +37,7 @@ class CustomCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,
+          mouseCursor: onTap != null || onLongPress != null ? WidgetStateMouseCursor.clickable : null,
           borderRadius: ThemeCustom.borderRadiusStandard,
           child: DefaultTextStyle.merge(
             style: TextStyle(color: textColor),
