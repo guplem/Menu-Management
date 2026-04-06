@@ -108,24 +108,28 @@ class _MenuPageState extends State<MenuPage> {
           ),
         ],
       ),
-      body: ListView.builder(
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        itemCount: 7,
-        itemBuilder: (context, weekDayValue) {
-          return Card(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: DefaultTextStyle(
-                    style: Theme.of(context).textTheme.titleLarge!,
-                    child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
-                  ),
-                ),
-                ...currentWeek.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((Meal? meal) {
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final double columnWidth = constraints.maxWidth / 7;
+          return SingleChildScrollView(
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: List.generate(7, (int weekDayValue) {
+                  return SizedBox(
+                    width: columnWidth,
+                    child: Card(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: DefaultTextStyle(
+                          style: Theme.of(context).textTheme.titleLarge!,
+                          child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
+                        ),
+                      ),
+                      ...currentWeek.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((Meal? meal) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MouseRegion(
@@ -244,7 +248,12 @@ class _MenuPageState extends State<MenuPage> {
                     ),
                   );
                 }),
-              ],
+                    ],
+                  ),
+                ),
+                  );
+                }),
+              ),
             ),
           );
         },
