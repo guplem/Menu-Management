@@ -24,9 +24,11 @@ class _IngredientsPageState extends State<IngredientsPage> {
         builder: (context) {
           IngredientsProvider ingredientsProvider = getProvider<IngredientsProvider>(context, listen: true);
           final normalizedSearch = _search.normalizeForSearch(removeSpaces: true);
-          final filtered = normalizedSearch.isEmpty
-              ? ingredientsProvider.ingredients
-              : ingredientsProvider.ingredients.where((i) => i.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)).toList();
+          final filtered = (normalizedSearch.isEmpty
+                  ? ingredientsProvider.ingredients
+                  : ingredientsProvider.ingredients.where((i) => i.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)))
+              .sorted((Ingredient a, Ingredient b) => a.name.normalizeForSearch().compareTo(b.name.normalizeForSearch()))
+              .toList();
           return ListView.builder(
             itemCount: filtered.length + 1,
             itemBuilder: (context, index) {

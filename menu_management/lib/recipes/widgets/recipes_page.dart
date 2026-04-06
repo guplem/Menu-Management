@@ -104,9 +104,11 @@ class _RecipesPageState extends State<RecipesPage> {
           }
 
           final normalizedSearch = _search.normalizeForSearch(removeSpaces: true);
-          final filtered = normalizedSearch.isEmpty
-              ? recipesProvider.recipes
-              : recipesProvider.recipes.where((r) => r.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)).toList();
+          final filtered = (normalizedSearch.isEmpty
+                  ? recipesProvider.recipes
+                  : recipesProvider.recipes.where((r) => r.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)))
+              .sorted((Recipe a, Recipe b) => a.name.normalizeForSearch().compareTo(b.name.normalizeForSearch()))
+              .toList();
 
           return ListView.builder(
             itemCount: filtered.length + 1,
