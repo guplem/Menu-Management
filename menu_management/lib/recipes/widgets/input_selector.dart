@@ -7,7 +7,7 @@ import "package:uuid/uuid.dart";
 class InputSelector extends StatefulWidget {
   const InputSelector({super.key, required this.onUpdate, required this.instruction, required this.recipeId});
 
-  final Function(Instruction newInstruction) onUpdate;
+  final void Function(Instruction newInstruction) onUpdate;
   final Instruction? instruction;
   final String recipeId;
 
@@ -18,7 +18,7 @@ class InputSelector extends StatefulWidget {
     required BuildContext context,
     required Instruction originalInstruction,
     required String recipeId,
-    required Function(Instruction instruction) onUpdate,
+    required void Function(Instruction instruction) onUpdate,
   }) {
     Instruction newInstruction = originalInstruction;
 

@@ -6,10 +6,10 @@ import "package:uuid/uuid.dart";
 
 class OutputCreator extends StatefulWidget {
   const OutputCreator({super.key, required this.onUpdate, required this.instruction});
-  final Function(Instruction newInstruction) onUpdate;
+  final void Function(Instruction newInstruction) onUpdate;
   final Instruction instruction;
 
-  static void show({required BuildContext context, required Instruction instruction, required Function(Instruction instruction) onUpdate}) {
+  static void show({required BuildContext context, required Instruction instruction, required void Function(Instruction instruction) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {

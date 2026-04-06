@@ -14,7 +14,7 @@ import "package:uuid/uuid.dart";
 class InstructionEditor extends StatefulWidget {
   const InstructionEditor({super.key, required this.onUpdate, required this.instruction, required this.recipeId});
 
-  final Function(Instruction newInstruction) onUpdate;
+  final void Function(Instruction newInstruction) onUpdate;
   final Instruction? instruction;
   final String recipeId;
 

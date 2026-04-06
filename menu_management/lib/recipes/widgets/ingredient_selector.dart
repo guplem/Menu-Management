@@ -11,7 +11,7 @@ import "package:uuid/uuid.dart";
 class IngredientSelector extends StatefulWidget {
   const IngredientSelector({super.key, required this.onUpdate, required this.instruction});
 
-  final Function(Instruction newInstruction) onUpdate;
+  final void Function(Instruction newInstruction) onUpdate;
   final Instruction instruction;
 
   @override
@@ -21,7 +21,7 @@ class IngredientSelector extends StatefulWidget {
     required BuildContext context,
     required Instruction originalInstruction,
     required String recipeId,
-    required Function(Instruction instruction) onUpdate,
+    required void Function(Instruction instruction) onUpdate,
   }) {
     Instruction newInstruction = originalInstruction;
 

@@ -9,7 +9,7 @@ class IngredientQuantity extends StatefulWidget {
   const IngredientQuantity({super.key, required this.onUpdate, required this.ingredientUsage});
 
   final IngredientUsage ingredientUsage;
-  final Function(IngredientUsage? ingredientUsage) onUpdate;
+  final void Function(IngredientUsage? ingredientUsage) onUpdate;
 
   @override
   State<IngredientQuantity> createState() => _IngredientQuantityState();

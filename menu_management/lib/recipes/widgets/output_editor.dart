@@ -5,7 +5,7 @@ import "package:uuid/uuid.dart";
 class OutputEditor extends StatefulWidget {
   const OutputEditor({super.key, required this.onUpdate, required this.output, required this.recipeId, required this.instructionId});
 
-  final Function(Result newOutput) onUpdate;
+  final void Function(Result newOutput) onUpdate;
   final Result? output;
   final String recipeId, instructionId;
 
