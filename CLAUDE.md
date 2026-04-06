@@ -70,7 +70,7 @@ UI (Widgets)  -->  State (Providers)  -->  Data (Freezed Models)
 
 | Domain | Provider | Key Models | Purpose |
 |--------|----------|------------|---------|
-| `ingredients/` | `IngredientsProvider` | `Ingredient` | CRUD for food items |
+| `ingredients/` | `IngredientsProvider` | `Ingredient`, `Product` | CRUD for food items; optional store product link per ingredient |
 | `recipes/` | `RecipesProvider` | `Recipe`, `Instruction`, `IngredientUsage`, `Quantity`, `Result` | Recipe management with multi-step instructions, inputs/outputs |
 | `menu/` | `MenuProvider` | `MultiWeekMenu`, `Menu`, `Meal`, `MealTime`, `Cooking`, `MenuConfiguration` | Multi-week menus (each week = 21 meal slots), generation algorithm |
 | `shopping/` | (derived) | `ShoppingIngredient` | Aggregated shopping list from generated menu |
@@ -169,6 +169,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0007](adr/0007-flutter-essentials-as-local-library.md) | flutter_essentials as a local library directory, not a separate package |
 | [0008](adr/0008-multi-week-menus.md) | Multi-week menus: MultiWeekMenu wraps List\<Menu\>, independent generation per week |
 | [0009](adr/0009-cooking-recipe-id-reference.md) | Cooking stores recipe ID (not full Recipe), parameterized model methods, ref_name for readability |
+| [0010](adr/0010-product-entity-store-products.md) | Product entity on Ingredient: optional store product data enabling pack-based shopping list display |
 
 **Create a new ADR** when making an architectural decision with trade-offs worth preserving. Use the next sequential number.
 

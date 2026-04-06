@@ -4,10 +4,10 @@ import "package:menu_management/recipes/models/recipe.dart";
 
 class RecipeTitleEditor extends StatefulWidget {
   const RecipeTitleEditor({super.key, required this.onUpdate, required this.recipe});
-  final Function(Recipe newRecipe) onUpdate;
+  final void Function(Recipe newRecipe) onUpdate;
   final Recipe recipe;
 
-  static void show({required BuildContext context, required Recipe recipe, required Function(Recipe recipe) onUpdate}) {
+  static void show({required BuildContext context, required Recipe recipe, required void Function(Recipe recipe) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {

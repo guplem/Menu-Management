@@ -36,13 +36,13 @@ class ShoppingIngredient extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: quantitiesDesired.map((Quantity quantity) {
-                    String amountRounded = quantity.amount.toStringAsFixed(0);
-                    String unit = quantity.unit.toString().split(".").last;
+                    String unit = quantity.unit.name;
+                    String displayText = _formatDesiredAmount(quantity);
                     return Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Row(
                         children: [
-                          SizedBox(width: 150, child: Text("$amountRounded $unit", style: Theme.of(context).textTheme.bodyLarge)),
+                          SizedBox(width: 200, child: Text(displayText, style: Theme.of(context).textTheme.bodyLarge)),
                           const SizedBox(width: 10),
                           SizedBox(
                             width: 220,
@@ -77,6 +77,15 @@ class ShoppingIngredient extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDesiredAmount(Quantity quantity) {
+    if (ingredient.products.isNotEmpty) {
+      return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
+    }
+    String amountRounded = quantity.amount.toStringAsFixed(0);
+    String unitName = quantity.unit.name;
+    return "$amountRounded $unitName";
   }
 
   void informOfOwnedQuantitiesWith(double newOwnedValue, Unit quantityUnit) {

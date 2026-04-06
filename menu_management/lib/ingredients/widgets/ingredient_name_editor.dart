@@ -7,9 +7,9 @@ class IngredientNameEditor extends StatefulWidget {
   const IngredientNameEditor({super.key, required this.ingredient, required this.onUpdate});
 
   final Ingredient ingredient;
-  final Function(Ingredient updatedIngredient) onUpdate;
+  final void Function(Ingredient updatedIngredient) onUpdate;
 
-  static void show({required BuildContext context, required Ingredient ingredient, required Function(Ingredient updatedIngredient) onUpdate}) {
+  static void show({required BuildContext context, required Ingredient ingredient, required void Function(Ingredient updatedIngredient) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {

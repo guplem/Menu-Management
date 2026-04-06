@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -38,13 +39,20 @@ class _ShoppingPageState extends State<ShoppingPage> {
       floatingActionButton: FloatingActionButton(
         tooltip: "Copy to clipboard",
         onPressed: () {
-          // Create string (ignoring those with required <= 0). Format: "Ingredient: amount unit + amount unit + ..."
+          // Create string (ignoring those with required <= 0). Format: "Ingredient: N packs (X unit) + amount unit + ..."
           String shoppingList = ingredientsRequired.entries
               .map((entry) {
                 List<Quantity> remaining = remainingAmounts(ingredient: entry.key);
-                return remaining.any((quantity) => quantity.amount > 0)
-                    ? "${IngredientsProvider.instance.get(entry.key).name}: ${remaining.where((quantity) => quantity.amount > 0).map((quantity) => "${quantity.amount} ${quantity.unit.toString().split(".").last}").join(' + ')}"
-                    : null;
+                if (!remaining.any((quantity) => quantity.amount > 0)) return null;
+                Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
+                String amounts = remaining.where((quantity) => quantity.amount > 0).map((Quantity quantity) {
+                  if (ingredient.products.isNotEmpty) {
+                    return ingredient.products.first.formatQuantityForDisplay(quantity.amount, quantity.unit);
+                  }
+                  String unitName = quantity.unit.name;
+                  return "${quantity.amount.toStringAsFixed(0)} $unitName";
+                }).join(" + ");
+                return "${ingredient.name}: $amounts";
               })
               .whereNotNull()
               .join("\n");
