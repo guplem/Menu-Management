@@ -24,27 +24,42 @@ class IngredientNameEditor extends StatefulWidget {
 
 class _IngredientNameEditorState extends State<IngredientNameEditor> {
   late final TextEditingController _controller;
+  late final TextEditingController _densityController;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.ingredient.name);
+    _densityController = TextEditingController(text: widget.ingredient.density?.toString() ?? "");
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _densityController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Edit Ingredient Name"),
-      content: TextField(
-        controller: _controller,
-        decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Ingredient Name"),
-        onChanged: (String value) => setState(() {}), // Trigger rebuild to update Save button state
+      title: const Text("Edit Ingredient"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _controller,
+            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Ingredient Name"),
+            onChanged: (String value) => setState(() {}),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _densityController,
+            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Density (g/ml)", hintText: "e.g. 1.05 for yogurt, 0.91 for oil"),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (String value) => setState(() {}),
+          ),
+        ],
       ),
       actions: <Widget>[
         TextButton(
@@ -57,7 +72,8 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
           onPressed: _controller.text.trimAndSetNullIfEmpty == null
               ? null
               : () {
-                  final Ingredient updatedIngredient = widget.ingredient.copyWith(name: _controller.text);
+                  double? density = double.tryParse(_densityController.text);
+                  final Ingredient updatedIngredient = widget.ingredient.copyWith(name: _controller.text, density: density);
                   widget.onUpdate(updatedIngredient);
                   IngredientsProvider.addOrUpdate(newIngredient: updatedIngredient);
                   Navigator.of(context).pop();
