@@ -8,9 +8,9 @@ class ProductEditor extends StatefulWidget {
   const ProductEditor({super.key, required this.ingredient, required this.onUpdate});
 
   final Ingredient ingredient;
-  final Function(Ingredient updatedIngredient) onUpdate;
+  final void Function(Ingredient updatedIngredient) onUpdate;
 
-  static void show({required BuildContext context, required Ingredient ingredient, required Function(Ingredient updatedIngredient) onUpdate}) {
+  static void show({required BuildContext context, required Ingredient ingredient, required void Function(Ingredient updatedIngredient) onUpdate}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -67,6 +67,15 @@ class _ProductEditorState extends State<ProductEditor> {
     setState(() => _editingIndex = null);
   }
 
+  bool get _hasChanges {
+    if (_isFormValid) return true;
+    if (_products.length != widget.ingredient.products.length) return true;
+    for (int i = 0; i < _products.length; i++) {
+      if (_products[i] != widget.ingredient.products[i]) return true;
+    }
+    return false;
+  }
+
   bool get _isFormValid {
     if (_linkController.text.trim().isEmpty) return false;
     if (int.tryParse(_itemsPerPackController.text) == null) return false;
@@ -86,6 +95,13 @@ class _ProductEditorState extends State<ProductEditor> {
   }
 
   void _saveAndClose() {
+    if (_isFormValid) {
+      if (_editingIndex != null) {
+        _products[_editingIndex!] = _buildProductFromForm();
+      } else {
+        _products.add(_buildProductFromForm());
+      }
+    }
     Ingredient updated = widget.ingredient.copyWith(products: _products);
     widget.onUpdate(updated);
     IngredientsProvider.addOrUpdate(newIngredient: updated);
@@ -198,7 +214,7 @@ class _ProductEditorState extends State<ProductEditor> {
           child: const Text("Cancel"),
         ),
         FilledButton(
-          onPressed: _saveAndClose,
+          onPressed: _hasChanges ? _saveAndClose : null,
           child: const Text("Save"),
         ),
       ],
