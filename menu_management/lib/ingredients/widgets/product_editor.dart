@@ -31,6 +31,7 @@ class _ProductEditorState extends State<ProductEditor> {
   late final TextEditingController _linkController;
   late final TextEditingController _itemsPerPackController;
   late final TextEditingController _quantityPerItemController;
+  late final TextEditingController _shelfLifeDaysController;
   late Unit _selectedUnit;
 
   @override
@@ -40,6 +41,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController = TextEditingController();
     _itemsPerPackController = TextEditingController(text: "1");
     _quantityPerItemController = TextEditingController();
+    _shelfLifeDaysController = TextEditingController();
     _selectedUnit = Unit.grams;
   }
 
@@ -48,6 +50,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController.dispose();
     _itemsPerPackController.dispose();
     _quantityPerItemController.dispose();
+    _shelfLifeDaysController.dispose();
     super.dispose();
   }
 
@@ -56,6 +59,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController.text = product.link;
     _itemsPerPackController.text = product.itemsPerPack.toString();
     _quantityPerItemController.text = product.quantityPerItem.toString();
+    _shelfLifeDaysController.text = product.shelfLifeDays?.toString() ?? "";
     _selectedUnit = product.unit;
     setState(() => _editingIndex = index);
   }
@@ -64,6 +68,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController.clear();
     _itemsPerPackController.text = "1";
     _quantityPerItemController.clear();
+    _shelfLifeDaysController.clear();
     _selectedUnit = Unit.grams;
     setState(() => _editingIndex = null);
   }
@@ -87,11 +92,13 @@ class _ProductEditorState extends State<ProductEditor> {
   }
 
   Product _buildProductFromForm() {
+    int? shelfLifeDays = int.tryParse(_shelfLifeDaysController.text);
     return Product(
       link: _linkController.text.trim(),
       itemsPerPack: int.parse(_itemsPerPackController.text),
       quantityPerItem: double.parse(_quantityPerItemController.text),
       unit: _selectedUnit,
+      shelfLifeDays: shelfLifeDays,
     );
   }
 
@@ -191,6 +198,13 @@ class _ProductEditorState extends State<ProductEditor> {
               onChanged: (Unit? value) {
                 if (value != null) setState(() => _selectedUnit = value);
               },
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _shelfLifeDaysController,
+              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Shelf life (days after opening)", hintText: "Leave empty for non-perishable"),
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
             Row(
