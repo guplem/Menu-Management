@@ -12,6 +12,8 @@ import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 
+const JsonEncoder _prettyEncoder = JsonEncoder.withIndent("  ");
+
 class Persistency {
   static final Persistency _singleton = Persistency._internal();
 
@@ -226,7 +228,7 @@ class Persistency {
     _injectRecipeRefNames(tsrJson, ingredients: ingredients);
 
     File file = File(path);
-    String data = jsonEncode(tsrJson);
+    String data = _prettyEncoder.convert(tsrJson);
     await file.writeAsString(data);
     _saveLastSession(tsrPath: path);
   }
@@ -235,7 +237,7 @@ class Persistency {
   static Future<void> saveMenuToPath({required String path, required MultiWeekMenu multiWeekMenu, required List<Recipe> recipes}) async {
     Map<String, dynamic> json = multiWeekMenu.toJson();
     _injectMenuRefNames(json, recipes: recipes);
-    String data = jsonEncode(json);
+    String data = _prettyEncoder.convert(json);
 
     File file = File(path);
     await file.writeAsString(data);

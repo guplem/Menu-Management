@@ -7,12 +7,12 @@
         {
           "link": "https://tienda.mercadona.es/product/9369/media-hogaza-integral-avena-semillas-girasol-sesamo-rebanado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 350,
+          "quantityPerItem": 350.0,
           "unit": "grams"
         }
       ],
       "density": 0.4,
-      "gramsPerPiece": 30
+      "gramsPerPiece": 35.0
     },
     {
       "id": "0e622f00-5915-1e99-9cbf-85317f03e969",
@@ -21,12 +21,12 @@
         {
           "link": "https://tienda.mercadona.es/product/69967/tomate-ramillete-mallorca-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 720,
+          "quantityPerItem": 720.0,
           "unit": "grams"
         }
       ],
       "density": 0.95,
-      "gramsPerPiece": 200
+      "gramsPerPiece": 200.0
     },
     {
       "id": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
@@ -35,7 +35,7 @@
         {
           "link": "https://tienda.mercadona.es/product/19732/sal-yodada-fina-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -48,7 +48,7 @@
         {
           "link": "https://tienda.mercadona.es/product/4717/aceite-oliva-virgen-extra-hacendado-garrafa",
           "itemsPerPack": 1,
-          "quantityPerItem": 300,
+          "quantityPerItem": 300.0,
           "unit": "centiliters"
         }
       ],
@@ -61,12 +61,12 @@
         {
           "link": "https://tienda.mercadona.es/product/67972/pechuga-pavo-hacendado-finas-lonchas-pack-2",
           "itemsPerPack": 2,
-          "quantityPerItem": 200,
+          "quantityPerItem": 200.0,
           "unit": "grams"
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 20
+      "gramsPerPiece": 20.0
     },
     {
       "id": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
@@ -75,12 +75,12 @@
         {
           "link": "https://tienda.mercadona.es/product/50966/queso-curado-mezcla-hacendado-cortado-cunitas-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 330,
+          "quantityPerItem": 330.0,
           "unit": "grams"
         }
       ],
       "density": 1.1,
-      "gramsPerPiece": 30
+      "gramsPerPiece": 30.0
     },
     {
       "id": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
@@ -89,12 +89,12 @@
         {
           "link": "https://tienda.mercadona.es/product/59151/jamon-serrano-incarlopsa-lonchas-extrafinas-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 120,
+          "quantityPerItem": 120.0,
           "unit": "grams"
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 20
+      "gramsPerPiece": 20.0
     },
     {
       "id": "1410a8a0-6e0f-1e99-9cbf-85317f03e969",
@@ -103,7 +103,7 @@
         {
           "link": "https://tienda.mercadona.es/product/6344/helices-con-vegetales-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -116,7 +116,7 @@
         {
           "link": "https://tienda.mercadona.es/product/31540/huevos-grandes-l-paquete",
           "itemsPerPack": 6,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -129,13 +129,13 @@
         {
           "link": "https://tienda.mercadona.es/product/18002/atun-claro-aceite-oliva-hacendado-pack-6",
           "itemsPerPack": 6,
-          "quantityPerItem": 60,
+          "quantityPerItem": 60.0,
           "unit": "grams",
           "shelfLifeDays": 1
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 52
+      "gramsPerPiece": 52.0
     },
     {
       "id": "f187e8e0-7479-1e99-9cbf-85317f03e969",
@@ -144,20 +144,20 @@
         {
           "link": "https://tienda.mercadona.es/product/16714/maiz-dulce-hacendado-pack-3",
           "itemsPerPack": 3,
-          "quantityPerItem": 70,
+          "quantityPerItem": 70.0,
           "unit": "grams",
           "shelfLifeDays": 5
         },
         {
           "link": "https://tienda.mercadona.es/product/16712/maiz-dulce-hacendado-pack-3",
           "itemsPerPack": 3,
-          "quantityPerItem": 140,
+          "quantityPerItem": 140.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
       ],
       "density": 1.0,
-      "gramsPerPiece": 140
+      "gramsPerPiece": 140.0
     },
     {
       "id": "a4d36d70-7542-1e99-9cbf-85317f03e969",
@@ -172,7 +172,7 @@
         {
           "link": "https://tienda.mercadona.es/product/52406/queso-fresco-burgos-natural-hacendado-pack-2",
           "itemsPerPack": 2,
-          "quantityPerItem": 250,
+          "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDays": 3
         }
@@ -186,14 +186,14 @@
         {
           "link": "https://tienda.mercadona.es/product/23217/aceitunas-manzanilla-rellenas-anchoa-hacendado-pack-3",
           "itemsPerPack": 3,
-          "quantityPerItem": 50,
+          "quantityPerItem": 50.0,
           "unit": "grams",
           "shelfLifeDays": 14
         },
         {
           "link": "https://tienda.mercadona.es/product/22910/aceitunas-manzanilla-rellenas-anchoa-hacendado-pack-3",
           "itemsPerPack": 3,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams",
           "shelfLifeDays": 14
         }
@@ -207,7 +207,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34208/cebolla-frita-crujiente-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams"
         }
       ],
@@ -220,13 +220,13 @@
         {
           "link": "https://tienda.mercadona.es/product/21358/yogur-griego-ligero-natural-hacendado-2-mg-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/52421/yogur-griego-ligero-natural-hacendado-pack-6",
           "itemsPerPack": 6,
-          "quantityPerItem": 125,
+          "quantityPerItem": 125.0,
           "unit": "grams"
         }
       ],
@@ -239,7 +239,7 @@
         {
           "link": "https://tienda.mercadona.es/product/52772/cereales-copos-tostados-trigo-integral-arroz-hacendado-con-chocolate-caja",
           "itemsPerPack": 1,
-          "quantityPerItem": 425,
+          "quantityPerItem": 425.0,
           "unit": "grams"
         }
       ],
@@ -252,12 +252,12 @@
         {
           "link": "https://tienda.mercadona.es/product/3824/banana-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 170,
+          "quantityPerItem": 170.0,
           "unit": "grams"
         }
       ],
       "density": 0.95,
-      "gramsPerPiece": 120
+      "gramsPerPiece": 120.0
     },
     {
       "id": "342cd030-8045-1e99-9cbf-85317f03e969",
@@ -272,7 +272,7 @@
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 125
+      "gramsPerPiece": 125.0
     },
     {
       "id": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
@@ -281,7 +281,7 @@
         {
           "link": "https://tienda.mercadona.es/product/10730/leche-desnatada-sin-lactosa-hacendado-pack-6",
           "itemsPerPack": 6,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "centiliters",
           "shelfLifeDays": 3
         }
@@ -295,18 +295,18 @@
         {
           "link": "https://tienda.mercadona.es/product/69669/zanahorias-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 500,
+          "quantityPerItem": 500.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/69586/zanahorias-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
       "density": 0.9,
-      "gramsPerPiece": 80
+      "gramsPerPiece": 80.0
     },
     {
       "id": "c4de41c0-8aab-1e99-9cbf-85317f03e969",
@@ -315,7 +315,7 @@
         {
           "link": "https://tienda.mercadona.es/product/80858/hummus-garbanzos-hacendado-receta-clasica-tarrina",
           "itemsPerPack": 1,
-          "quantityPerItem": 240,
+          "quantityPerItem": 240.0,
           "unit": "grams"
         }
       ],
@@ -328,12 +328,12 @@
         {
           "link": "https://tienda.mercadona.es/product/80773/tortilla-patata-con-chorizo-hacendado-con-aceite-oliva-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 600,
+          "quantityPerItem": 600.0,
           "unit": "grams"
         }
       ],
       "density": 1.0,
-      "gramsPerPiece": 300
+      "gramsPerPiece": 300.0
     },
     {
       "id": "869dc0e0-9deb-1e99-9cbf-85317f03e969",
@@ -342,12 +342,12 @@
         {
           "link": "https://tienda.mercadona.es/product/63007/nuggets-pavo-hacendado-ultracongelados-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams"
         }
       ],
       "density": 0.7,
-      "gramsPerPiece": 250
+      "gramsPerPiece": 250.0
     },
     {
       "id": "fe0d71c0-8395-1eaa-b835-cfe533d41a10",
@@ -356,7 +356,7 @@
         {
           "link": "https://tienda.mercadona.es/product/86395/lomo-cerdo-fino-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 550,
+          "quantityPerItem": 550.0,
           "unit": "grams"
         }
       ],
@@ -369,7 +369,7 @@
         {
           "link": "https://tienda.mercadona.es/product/29165/harina-maiz-blanco-precocida-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -382,7 +382,7 @@
         {
           "link": "https://tienda.mercadona.es/product/4040/aceite-girasol-refinado-02o-hacendado-botella",
           "itemsPerPack": 1,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "centiliters"
         }
       ],
@@ -395,12 +395,12 @@
         {
           "link": "https://tienda.mercadona.es/product/13568/cebolla-troceada-hacendado-ultracongelada-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 450,
+          "quantityPerItem": 450.0,
           "unit": "grams"
         }
       ],
       "density": 0.92,
-      "gramsPerPiece": 150
+      "gramsPerPiece": 150.0
     },
     {
       "id": "be016180-86e3-1eaa-b835-cfe533d41a10",
@@ -409,7 +409,7 @@
         {
           "link": "https://tienda.mercadona.es/product/33189/jalapenos-picantes-hacendado-vinagre-tarro",
           "itemsPerPack": 1,
-          "quantityPerItem": 60,
+          "quantityPerItem": 60.0,
           "unit": "grams",
           "shelfLifeDays": 15
         }
@@ -423,7 +423,7 @@
         {
           "link": "https://tienda.mercadona.es/product/19897/azucar-blanco-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -436,7 +436,7 @@
         {
           "link": "https://tienda.mercadona.es/product/17360/salsa-soja-hacendado-botella",
           "itemsPerPack": 1,
-          "quantityPerItem": 25,
+          "quantityPerItem": 25.0,
           "unit": "centiliters"
         }
       ],
@@ -449,7 +449,7 @@
         {
           "link": "https://tienda.mercadona.es/product/4940/vinagre-vino-blanco-hacendado-botella",
           "itemsPerPack": 1,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "centiliters"
         }
       ],
@@ -462,12 +462,12 @@
         {
           "link": "https://tienda.mercadona.es/product/61251/ajo-troceado-hacendado-ultracongelado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams"
         }
       ],
       "density": 1.1,
-      "gramsPerPiece": 5
+      "gramsPerPiece": 5.0
     },
     {
       "id": "fbbadd60-bb47-1eaa-b835-cfe533d41a10",
@@ -476,7 +476,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34964/semillas-sesamo-tostado-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams"
         }
       ],
@@ -489,7 +489,7 @@
         {
           "link": "https://tienda.mercadona.es/product/35981/noodles-arroz-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 200,
+          "quantityPerItem": 200.0,
           "unit": "grams"
         }
       ],
@@ -502,16 +502,17 @@
         {
           "link": "https://tienda.mercadona.es/product/69338/calabacin-verde-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 410,
+          "quantityPerItem": 410.0,
           "unit": "grams"
         }
       ],
       "density": 0.9,
-      "gramsPerPiece": 200
+      "gramsPerPiece": 200.0
     },
     {
       "id": "20cddb70-c539-1eaa-b835-cfe533d41a10",
       "name": "Agua",
+      "products": [],
       "density": 1.0
     },
     {
@@ -521,7 +522,7 @@
         {
           "link": "https://tienda.mercadona.es/product/67694/molinillo-mix-pimientas-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 50,
+          "quantityPerItem": 50.0,
           "unit": "grams"
         }
       ],
@@ -534,7 +535,7 @@
         {
           "link": "https://tienda.mercadona.es/product/6358/pasta-tortiglioni-armando-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 500,
+          "quantityPerItem": 500.0,
           "unit": "grams"
         }
       ],
@@ -547,30 +548,30 @@
         {
           "link": "https://tienda.mercadona.es/product/13943/pizza-truffata-con-queso-champinones-trufa-hacendado-ultracongelada",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/22649/pizza-masa-fina-barbacoa-hacendado-ultracongelada",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/63501/pizza-atun-hacendado-ultracongelada",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/63339/pizza-masa-fina-jamon-hacendado-ultracongelada",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams"
         }
       ],
       "density": 0.85,
-      "gramsPerPiece": 350
+      "gramsPerPiece": 350.0
     },
     {
       "id": "44da8460-2173-1eeb-9b52-298d2e408b19",
@@ -579,7 +580,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69912/tomate-pera-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -592,7 +593,7 @@
         {
           "link": "https://tienda.mercadona.es/product/86808/sazonador-pollo-carne-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 76,
+          "quantityPerItem": 76.0,
           "unit": "grams"
         }
       ],
@@ -605,7 +606,7 @@
         {
           "link": "https://tienda.mercadona.es/product/17174/leche-coco-dee-thai-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 40,
+          "quantityPerItem": 40.0,
           "unit": "centiliters",
           "shelfLifeDays": 2
         }
@@ -619,7 +620,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34149/jengibre-molido-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 49,
+          "quantityPerItem": 49.0,
           "unit": "grams"
         }
       ],
@@ -632,14 +633,14 @@
         {
           "link": "https://tienda.mercadona.es/product/16044/tomate-triturado-hacendado-freir-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDays": 5
         },
         {
           "link": "https://tienda.mercadona.es/product/16043/tomate-triturado-hacendado-freir-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 800,
+          "quantityPerItem": 800.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -658,7 +659,7 @@
         }
       ],
       "density": 0.7,
-      "gramsPerPiece": 125
+      "gramsPerPiece": 125.0
     },
     {
       "id": "ba1843d0-5949-1eeb-9877-9f2416bff04c",
@@ -667,7 +668,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69584/pepino-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -680,18 +681,18 @@
         {
           "link": "https://tienda.mercadona.es/product/69990/tomates-cherry-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 500,
+          "quantityPerItem": 500.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/69930/tomates-cherry-pera-kumato-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 300,
+          "quantityPerItem": 300.0,
           "unit": "grams"
         }
       ],
       "density": 0.95,
-      "gramsPerPiece": 15
+      "gramsPerPiece": 15.0
     },
     {
       "id": "33b65330-5a85-1eeb-9877-9f2416bff04c",
@@ -700,7 +701,7 @@
         {
           "link": "https://tienda.mercadona.es/product/26030/lenteja-cocida-hacendado-tarro",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -714,7 +715,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69730/espinacas-cortadas-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 300,
+          "quantityPerItem": 300.0,
           "unit": "grams"
         }
       ],
@@ -727,7 +728,7 @@
         {
           "link": "https://tienda.mercadona.es/product/16833/combinado-frutos-secos-frutas-desecadas-semillas-calabaza-hacendado-ideal-ensaladas-pastas-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 200,
+          "quantityPerItem": 200.0,
           "unit": "grams"
         }
       ],
@@ -740,12 +741,12 @@
         {
           "link": "https://tienda.mercadona.es/product/69153/cebollas-morada-malla",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
       "density": 0.92,
-      "gramsPerPiece": 150
+      "gramsPerPiece": 150.0
     },
     {
       "id": "d48c4d30-cc57-1098-91d0-51096b672064",
@@ -754,7 +755,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69066/patata-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -767,7 +768,7 @@
         {
           "link": "https://tienda.mercadona.es/product/61283/judia-verde-plana-hacendado-ultracongelada-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -780,13 +781,13 @@
         {
           "link": "https://tienda.mercadona.es/product/66127/vino-blanco-cason-historico-brick",
           "itemsPerPack": 1,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "centiliters"
         },
         {
           "link": "https://tienda.mercadona.es/product/66124/vino-blanco-don-simon-chardonnay-airen-pack-3",
           "itemsPerPack": 3,
-          "quantityPerItem": 25,
+          "quantityPerItem": 25.0,
           "unit": "centiliters"
         }
       ],
@@ -799,7 +800,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69310/pimiento-rojo-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -812,7 +813,7 @@
         {
           "link": "https://tienda.mercadona.es/product/16618/champinones-laminados-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 180,
+          "quantityPerItem": 180.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -826,7 +827,7 @@
         {
           "link": "https://www.carrefour.es/supermercado/fideos-udon-itsu-150-g/R-VC4AECOMM-359387/p",
           "itemsPerPack": 1,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams"
         }
       ],
@@ -839,7 +840,7 @@
         {
           "link": "https://tienda.mercadona.es/product/26029/garbanzo-cocido-hacendado-tarro",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -853,19 +854,19 @@
         {
           "link": "https://tienda.mercadona.es/product/52734/aceitunas-negras-hacendado-sin-hueso-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/8309/aceitunas-negras-hacendado-rodajas",
           "itemsPerPack": 4,
-          "quantityPerItem": 37,
+          "quantityPerItem": 37.0,
           "unit": "grams",
           "shelfLifeDays": 7
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 30
+      "gramsPerPiece": 30.0
     },
     {
       "id": "ad070e70-d194-10a7-a87d-2fef2dcd1072",
@@ -874,7 +875,7 @@
         {
           "link": "https://tienda.mercadona.es/product/51197/queso-feta-mezcla-hacendado-dados-tarrina",
           "itemsPerPack": 1,
-          "quantityPerItem": 150,
+          "quantityPerItem": 150.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -888,14 +889,14 @@
         {
           "link": "https://tienda.mercadona.es/product/4903/limon-exprimido-hacendado-botella",
           "itemsPerPack": 1,
-          "quantityPerItem": 28,
+          "quantityPerItem": 28.0,
           "unit": "centiliters",
           "shelfLifeDays": 40
         },
         {
           "link": "https://tienda.mercadona.es/product/3210/limon-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -908,7 +909,7 @@
         {
           "link": "https://tienda.mercadona.es/product/5599/perejil-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 18,
+          "quantityPerItem": 18.0,
           "unit": "grams"
         }
       ],
@@ -921,7 +922,7 @@
         {
           "link": "https://tienda.mercadona.es/product/58220/panceta-salada-iberica-hacienda-iberico-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 360,
+          "quantityPerItem": 360.0,
           "unit": "grams",
           "shelfLifeDays": 7
         }
@@ -935,7 +936,7 @@
         {
           "link": "https://tienda.mercadona.es/product/51146/queso-polvo-grana-padano-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "grams"
         }
       ],
@@ -948,7 +949,7 @@
         {
           "link": "https://tienda.mercadona.es/product/13926/soja-texturizada-luengo-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 200,
+          "quantityPerItem": 200.0,
           "unit": "grams"
         }
       ],
@@ -961,7 +962,7 @@
         {
           "link": "https://tienda.mercadona.es/product/26951/champinon-blanco-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 300,
+          "quantityPerItem": 300.0,
           "unit": "grams"
         }
       ],
@@ -974,14 +975,14 @@
         {
           "link": "https://tienda.mercadona.es/product/16416/guisantes-extra-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 250,
+          "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDays": 3
         },
         {
           "link": "https://tienda.mercadona.es/product/16415/guisantes-extra-hacendado-pack-3",
           "itemsPerPack": 3,
-          "quantityPerItem": 120,
+          "quantityPerItem": 120.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -995,7 +996,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69320/pimiento-verde-freir-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -1008,7 +1009,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34183/pimenton-picante-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 60,
+          "quantityPerItem": 60.0,
           "unit": "grams"
         }
       ],
@@ -1021,7 +1022,7 @@
         {
           "link": "https://tienda.mercadona.es/product/7032/caldo-verduras-hacendado-brick",
           "itemsPerPack": 1,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "centiliters",
           "shelfLifeDays": 3
         }
@@ -1035,7 +1036,7 @@
         {
           "link": "https://tienda.mercadona.es/product/5044/arroz-redondo-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -1048,7 +1049,7 @@
         {
           "link": "https://tienda.mercadona.es/product/5020/arroz-vaporizado-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
@@ -1061,20 +1062,20 @@
         {
           "link": "https://tienda.mercadona.es/product/3682/pechugas-enteras-pollo-bandeja",
           "itemsPerPack": 4,
-          "quantityPerItem": 300,
+          "quantityPerItem": 300.0,
           "unit": "grams",
           "shelfLifeDays": 1
         },
         {
           "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
           "itemsPerPack": 2,
-          "quantityPerItem": 305,
+          "quantityPerItem": 305.0,
           "unit": "grams",
           "shelfLifeDays": 1
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 200
+      "gramsPerPiece": 200.0
     },
     {
       "id": "809e0220-8278-11ef-91e8-3ff59147e22a",
@@ -1083,7 +1084,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34120/comino-molido-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 58,
+          "quantityPerItem": 58.0,
           "unit": "grams"
         }
       ],
@@ -1096,7 +1097,7 @@
         {
           "link": "https://tienda.mercadona.es/product/80870/maxi-tortillas-trigo-hacendado-paquete",
           "itemsPerPack": 6,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -1109,7 +1110,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34024/nuez-natural-hacendado-pelada-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 200,
+          "quantityPerItem": 200.0,
           "unit": "grams"
         }
       ],
@@ -1122,7 +1123,7 @@
         {
           "link": "https://tienda.mercadona.es/product/34125/curry-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 57,
+          "quantityPerItem": 57.0,
           "unit": "grams"
         }
       ],
@@ -1135,7 +1136,7 @@
         {
           "link": "https://tienda.mercadona.es/product/26019/alubia-cocida-blanca-hacendado-tarro",
           "itemsPerPack": 1,
-          "quantityPerItem": 400,
+          "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -1149,7 +1150,7 @@
         {
           "link": "https://tienda.mercadona.es/product/6044/butifarra-fresca-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 640,
+          "quantityPerItem": 640.0,
           "unit": "grams",
           "shelfLifeDays": 2
         }
@@ -1163,7 +1164,7 @@
         {
           "link": "https://tienda.mercadona.es/product/60873/ajo-perejil-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 74,
+          "quantityPerItem": 74.0,
           "unit": "grams"
         }
       ],
@@ -1176,12 +1177,12 @@
         {
           "link": "https://tienda.mercadona.es/product/2787/filetes-pechuga-pollo-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 530,
+          "quantityPerItem": 530.0,
           "unit": "grams"
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 150
+      "gramsPerPiece": 150.0
     },
     {
       "id": "3bc3b7f4-5b8f-44af-844c-e16a0e2a086d",
@@ -1190,12 +1191,12 @@
         {
           "link": "https://tienda.mercadona.es/product/53056/salchichas-cocidas-hacendado-pollo-pavo-sabor-ahumado-pack-2",
           "itemsPerPack": 2,
-          "quantityPerItem": 200,
+          "quantityPerItem": 200.0,
           "unit": "grams"
         }
       ],
       "density": 1.0,
-      "gramsPerPiece": 45
+      "gramsPerPiece": 45.0
     },
     {
       "id": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
@@ -1204,14 +1205,14 @@
         {
           "link": "https://tienda.mercadona.es/product/17131/tomate-frito-receta-artesana-hacendado-con-aceite-oliva-tarro",
           "itemsPerPack": 1,
-          "quantityPerItem": 300,
+          "quantityPerItem": 300.0,
           "unit": "grams",
           "shelfLifeDays": 5
         },
         {
           "link": "https://tienda.mercadona.es/product/17163/tomate-frito-receta-artesana-hacendado-con-aceite-oliva-tarro",
           "itemsPerPack": 1,
-          "quantityPerItem": 560,
+          "quantityPerItem": 560.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
@@ -1225,13 +1226,13 @@
         {
           "link": "https://tienda.mercadona.es/product/6566/tortellini-tres-quesos-pagani-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 250,
+          "quantityPerItem": 250.0,
           "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/6565/tortellini-carne-pagani-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 250,
+          "quantityPerItem": 250.0,
           "unit": "grams"
         }
       ],
@@ -1244,13 +1245,13 @@
         {
           "link": "https://tienda.mercadona.es/product/2788/muslos-pollo-deshuesados-con-piel-bandeja",
           "itemsPerPack": 1,
-          "quantityPerItem": 550,
+          "quantityPerItem": 550.0,
           "unit": "grams",
           "shelfLifeDays": 1
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 150
+      "gramsPerPiece": 150.0
     },
     {
       "id": "8688350e-e38f-4a47-ad15-528ec384069f",
@@ -1259,7 +1260,7 @@
         {
           "link": "https://tienda.mercadona.es/product/69239/batata-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -1272,13 +1273,13 @@
         {
           "link": "https://tienda.mercadona.es/product/26110/garbanzos-jardinera-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 420,
+          "quantityPerItem": 420.0,
           "unit": "grams",
           "shelfLifeDays": 5
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 250
+      "gramsPerPiece": 250.0
     },
     {
       "id": "0d635fd3-fd45-4d49-9d3c-11776be1ea6f",
@@ -1287,13 +1288,13 @@
         {
           "link": "https://tienda.mercadona.es/product/26101/lentejas-riojana-hacendado-bote",
           "itemsPerPack": 1,
-          "quantityPerItem": 420,
+          "quantityPerItem": 420.0,
           "unit": "grams",
           "shelfLifeDays": 3
         }
       ],
       "density": 1.05,
-      "gramsPerPiece": 250
+      "gramsPerPiece": 250.0
     },
     {
       "id": "40ea28e4-3537-4f7c-9623-01214c168ef3",
@@ -1302,7 +1303,7 @@
         {
           "link": "https://tienda.mercadona.es/product/7313/caldo-pollo-hacendado-brick",
           "itemsPerPack": 1,
-          "quantityPerItem": 100,
+          "quantityPerItem": 100.0,
           "unit": "centiliters",
           "shelfLifeDays": 3
         }
@@ -1316,7 +1317,7 @@
         {
           "link": "https://tienda.mercadona.es/product/6258/pasta-maravilla-hacendado-sopa-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 500,
+          "quantityPerItem": 500.0,
           "unit": "grams"
         }
       ],
@@ -1329,12 +1330,12 @@
         {
           "link": "https://tienda.mercadona.es/product/63400/croquetas-jamon-hacendado-ultracongeladas-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 500,
+          "quantityPerItem": 500.0,
           "unit": "grams"
         }
       ],
       "density": 0.75,
-      "gramsPerPiece": 250
+      "gramsPerPiece": 250.0
     },
     {
       "id": "fe71deee-e360-45ef-af6c-d6b64de852f2",
@@ -1343,7 +1344,7 @@
         {
           "link": "https://tienda.mercadona.es/product/68130/lechuga-iceberg-pieza",
           "itemsPerPack": 1,
-          "quantityPerItem": 1,
+          "quantityPerItem": 1.0,
           "unit": "pieces"
         }
       ],
@@ -1356,12 +1357,12 @@
         {
           "link": "https://tienda.mercadona.es/product/23264/pure-patatas-hacendado-copos-caja",
           "itemsPerPack": 4,
-          "quantityPerItem": 125,
+          "quantityPerItem": 125.0,
           "unit": "grams"
         }
       ],
       "density": 0.5,
-      "gramsPerPiece": 115
+      "gramsPerPiece": 115.0
     },
     {
       "id": "435b3e6a-6a14-4312-b02e-c905e806f234",
@@ -1370,13 +1371,13 @@
         {
           "link": "https://tienda.mercadona.es/product/2622/burger-pollo-bandeja",
           "itemsPerPack": 6,
-          "quantityPerItem": 90,
+          "quantityPerItem": 90.0,
           "unit": "grams",
           "shelfLifeDays": 2
         }
       ],
       "density": 1.0,
-      "gramsPerPiece": 100
+      "gramsPerPiece": 100.0
     },
     {
       "id": "f013976c-649d-469e-a7e7-d04b5cb97a3b",
@@ -1385,12 +1386,12 @@
         {
           "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1000,
+          "quantityPerItem": 1000.0,
           "unit": "grams"
         }
       ],
       "density": 0.7,
-      "gramsPerPiece": 400
+      "gramsPerPiece": 400.0
     },
     {
       "id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
@@ -1399,7 +1400,7 @@
         {
           "link": "https://tienda.mercadona.es/product/35221/pimiento-rojo-verde-hacendado-ultracongelado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 450,
+          "quantityPerItem": 450.0,
           "unit": "grams"
         }
       ],
@@ -1417,7 +1418,7 @@
             {
               "ingredient": "63172560-5784-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "pieces"
               },
               "ref_name": "Pan"
@@ -1465,7 +1466,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -1498,7 +1499,7 @@
             {
               "ingredient": "2939e4b0-6b1e-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Pechuga de pavo"
@@ -1506,7 +1507,7 @@
             {
               "ingredient": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Queso curado"
@@ -1514,7 +1515,7 @@
             {
               "ingredient": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Jamón serrano"
@@ -1567,7 +1568,7 @@
             {
               "ingredient": "1410a8a0-6e0f-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Pasta Espirales de Verduras"
@@ -1647,7 +1648,7 @@
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 33,
+                "amount": 33.0,
                 "unit": "grams"
               },
               "ref_name": "Queso fresco de Burgos"
@@ -1655,7 +1656,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 75,
+                "amount": 75.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -1681,7 +1682,7 @@
             {
               "ingredient": "06b12da0-776b-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Cebolla Crujiente"
@@ -1723,7 +1724,7 @@
             {
               "ingredient": "43705180-786a-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 4,
+                "amount": 4.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Yogur Griego"
@@ -1731,7 +1732,7 @@
             {
               "ingredient": "2eb01ba0-7896-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Cereales"
@@ -1754,7 +1755,7 @@
             {
               "ingredient": "cdf54e80-7ac9-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Banana"
@@ -1788,7 +1789,7 @@
             {
               "ingredient": "342cd030-8045-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Salmón"
@@ -1814,7 +1815,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -1822,7 +1823,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -1830,7 +1831,7 @@
             {
               "ingredient": "cded1550-5cac-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 10,
+                "amount": 10.0,
                 "unit": "grams"
               },
               "ref_name": "Combinado Semillas Ensalada"
@@ -1838,7 +1839,7 @@
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Queso fresco de Burgos"
@@ -1846,7 +1847,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -1886,7 +1887,7 @@
             {
               "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 25,
+                "amount": 25.0,
                 "unit": "centiliters"
               },
               "ref_name": "Leche desnatada sin lactosa"
@@ -1894,7 +1895,7 @@
             {
               "ingredient": "2eb01ba0-7896-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Cereales"
@@ -1912,7 +1913,7 @@
             {
               "ingredient": "cdf54e80-7ac9-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Banana"
@@ -1944,7 +1945,7 @@
             {
               "ingredient": "671f3ca0-8746-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "pieces"
               },
               "ref_name": "Zanahoria"
@@ -1967,7 +1968,7 @@
             {
               "ingredient": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Queso curado"
@@ -1990,7 +1991,7 @@
             {
               "ingredient": "c4de41c0-8aab-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Humus"
@@ -2039,7 +2040,7 @@
             {
               "ingredient": "b82ac5f0-7faf-1ec0-9c83-05811f7c00d6",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Pizza (Pre-Made)"
@@ -2091,7 +2092,7 @@
             {
               "ingredient": "63172560-5784-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Pan"
@@ -2123,7 +2124,7 @@
             {
               "ingredient": "869dc0e0-9deb-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 8,
+                "amount": 8.0,
                 "unit": "pieces"
               },
               "ref_name": "Nuggets"
@@ -2149,7 +2150,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -2157,7 +2158,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -2165,7 +2166,7 @@
             {
               "ingredient": "cded1550-5cac-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 10,
+                "amount": 10.0,
                 "unit": "grams"
               },
               "ref_name": "Combinado Semillas Ensalada"
@@ -2173,7 +2174,7 @@
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Queso fresco de Burgos"
@@ -2181,7 +2182,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -2221,7 +2222,7 @@
             {
               "ingredient": "fe0d71c0-8395-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 350,
+                "amount": 350.0,
                 "unit": "grams"
               },
               "ref_name": "Lomo de Cerdo"
@@ -2229,7 +2230,7 @@
             {
               "ingredient": "efab4ec0-8428-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Harina de maíz"
@@ -2252,7 +2253,7 @@
             {
               "ingredient": "a3f7ce50-854e-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Aceite de Girasol"
@@ -2294,7 +2295,7 @@
             {
               "ingredient": "fc2a1cb0-6df8-11ef-bbaf-9d5832b648f8",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Pimentón/Paprika"
@@ -2319,7 +2320,7 @@
             {
               "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Azúcar blanco"
@@ -2327,7 +2328,7 @@
             {
               "ingredient": "92057590-8a48-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Salsa de Soja"
@@ -2335,7 +2336,7 @@
             {
               "ingredient": "ba455b80-8a73-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Vinagre de vino blanco"
@@ -2360,7 +2361,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 4,
+                "amount": 4.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -2399,7 +2400,7 @@
             {
               "ingredient": "a3f7ce50-854e-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 80,
+                "amount": 80.0,
                 "unit": "centiliters"
               },
               "ref_name": "Aceite de Girasol"
@@ -2422,7 +2423,7 @@
             {
               "ingredient": "fc2a1cb0-6df8-11ef-bbaf-9d5832b648f8",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Pimentón/Paprika"
@@ -2430,7 +2431,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 4,
+                "amount": 4.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -2454,7 +2455,7 @@
             {
               "ingredient": "ba455b80-8a73-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Vinagre de vino blanco"
@@ -2462,7 +2463,7 @@
             {
               "ingredient": "fbbadd60-bb47-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Semillas de Sésamo"
@@ -2502,7 +2503,7 @@
             {
               "ingredient": "10c0f940-bdb6-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Noodles de arroz"
@@ -2551,7 +2552,7 @@
             {
               "ingredient": "a3fcfd80-8277-11ef-91e8-3ff59147e22a",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Pechuga de pollo (entera)"
@@ -2669,7 +2670,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Sal"
@@ -2711,7 +2712,7 @@
             {
               "ingredient": "38bf4b50-21de-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 10,
+                "amount": 10.0,
                 "unit": "centiliters"
               },
               "ref_name": "Crema de coco"
@@ -2736,7 +2737,7 @@
             {
               "ingredient": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Arroz Instantáneo"
@@ -2785,7 +2786,7 @@
             {
               "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 4,
+                "amount": 4.0,
                 "unit": "pieces"
               },
               "ref_name": "Huevo"
@@ -2808,7 +2809,7 @@
             {
               "ingredient": "63172560-5784-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Pan"
@@ -2863,7 +2864,7 @@
             {
               "ingredient": "15b72e30-7419-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Atún en lata"
@@ -2889,7 +2890,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Sal"
@@ -2947,7 +2948,7 @@
             {
               "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Patata"
@@ -2970,7 +2971,7 @@
             {
               "ingredient": "5ce86780-cd8a-1098-91d0-51096b672064",
               "quantity": {
-                "amount": 200,
+                "amount": 200.0,
                 "unit": "grams"
               },
               "ref_name": "Judías Verdes"
@@ -2990,7 +2991,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -3008,7 +3009,7 @@
             {
               "ingredient": "9b25caa4-825d-49a7-a3d0-ffa8b82962e3",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Filetes de pechuga de pollo"
@@ -3024,7 +3025,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -3090,7 +3091,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Aceite de Oliva"
@@ -3113,7 +3114,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -3152,7 +3153,7 @@
             {
               "ingredient": "d4e5f6a7-b8c9-0123-def0-123456789abc",
               "quantity": {
-                "amount": 85,
+                "amount": 85.0,
                 "unit": "grams"
               },
               "ref_name": "Pimiento rojo y verde congelado"
@@ -3168,7 +3169,7 @@
             {
               "ingredient": "5ce86780-cd8a-1098-91d0-51096b672064",
               "quantity": {
-                "amount": 80,
+                "amount": 80.0,
                 "unit": "grams"
               },
               "ref_name": "Judías Verdes"
@@ -3176,7 +3177,7 @@
             {
               "ingredient": "4c5aa3e0-c501-10a4-855b-21d41fd3dece",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Champiñones en Lata"
@@ -3216,7 +3217,7 @@
             {
               "ingredient": "8c5caec0-c6a5-10a4-855b-21d41fd3dece",
               "quantity": {
-                "amount": 175,
+                "amount": 175.0,
                 "unit": "grams"
               },
               "ref_name": "Fideos Udon"
@@ -3224,7 +3225,7 @@
             {
               "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Agua"
@@ -3319,7 +3320,7 @@
             {
               "ingredient": "ad070e70-d194-10a7-a87d-2fef2dcd1072",
               "quantity": {
-                "amount": 20,
+                "amount": 20.0,
                 "unit": "grams"
               },
               "ref_name": "Queso Feta"
@@ -3327,7 +3328,7 @@
             {
               "ingredient": "ff90fa70-cf32-10a7-a87d-2fef2dcd1072",
               "quantity": {
-                "amount": 20,
+                "amount": 20.0,
                 "unit": "pieces"
               },
               "ref_name": "Aceitunas Negras"
@@ -3335,7 +3336,7 @@
             {
               "ingredient": "a1aed440-59f2-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 30,
+                "amount": 30.0,
                 "unit": "pieces"
               },
               "ref_name": "Tomate cherry"
@@ -3343,7 +3344,7 @@
             {
               "ingredient": "040799a0-c9fd-10a7-a87d-2fef2dcd1072",
               "quantity": {
-                "amount": 200,
+                "amount": 200.0,
                 "unit": "grams"
               },
               "ref_name": "Garbanzos cocidos"
@@ -3368,7 +3369,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Aceite de Oliva"
@@ -3392,7 +3393,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Sal"
@@ -3400,7 +3401,7 @@
             {
               "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Pimienta (especia)"
@@ -3457,7 +3458,7 @@
             {
               "ingredient": "e6500b40-41b8-10ba-b0dd-9d041637ca66",
               "quantity": {
-                "amount": 70,
+                "amount": 70.0,
                 "unit": "grams"
               },
               "ref_name": "Panceta"
@@ -3480,7 +3481,7 @@
             {
               "ingredient": "31870940-c6d4-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 125,
+                "amount": 125.0,
                 "unit": "grams"
               },
               "ref_name": "Pasta tortiglioni"
@@ -3526,7 +3527,7 @@
             {
               "ingredient": "b3be0b30-43b3-10ba-b0dd-9d041637ca66",
               "quantity": {
-                "amount": 20,
+                "amount": 20.0,
                 "unit": "grams"
               },
               "ref_name": "Parmesano (o Grana Padano) rallado"
@@ -3591,7 +3592,7 @@
             {
               "ingredient": "2b038570-6607-11ef-a13c-df814629faab",
               "quantity": {
-                "amount": 80,
+                "amount": 80.0,
                 "unit": "grams"
               },
               "ref_name": "Champiñones"
@@ -3618,7 +3619,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Aceite de Oliva"
@@ -3644,7 +3645,7 @@
             {
               "ingredient": "c8c654e0-6607-11ef-a13c-df814629faab",
               "quantity": {
-                "amount": 125,
+                "amount": 125.0,
                 "unit": "grams"
               },
               "ref_name": "Guisantes"
@@ -3652,7 +3653,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Sal"
@@ -3660,7 +3661,7 @@
             {
               "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Pimienta (especia)"
@@ -3715,7 +3716,7 @@
             {
               "ingredient": "d4e5f6a7-b8c9-0123-def0-123456789abc",
               "quantity": {
-                "amount": 70,
+                "amount": 70.0,
                 "unit": "grams"
               },
               "ref_name": "Pimiento rojo y verde congelado"
@@ -3723,7 +3724,7 @@
             {
               "ingredient": "5ce86780-cd8a-1098-91d0-51096b672064",
               "quantity": {
-                "amount": 40,
+                "amount": 40.0,
                 "unit": "grams"
               },
               "ref_name": "Judías Verdes"
@@ -3779,7 +3780,7 @@
             {
               "ingredient": "84493510-2c7c-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 80,
+                "amount": 80.0,
                 "unit": "grams"
               },
               "ref_name": "Tomate Triturado"
@@ -3829,7 +3830,7 @@
             {
               "ingredient": "399009c0-6df9-11ef-bbaf-9d5832b648f8",
               "quantity": {
-                "amount": 20,
+                "amount": 20.0,
                 "unit": "centiliters"
               },
               "ref_name": "Caldo de Verduras"
@@ -3837,7 +3838,7 @@
             {
               "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 30,
+                "amount": 30.0,
                 "unit": "centiliters"
               },
               "ref_name": "Agua"
@@ -3878,7 +3879,7 @@
             {
               "ingredient": "f768cea0-6df9-11ef-bbaf-9d5832b648f8",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Arroz Bomba"
@@ -3933,7 +3934,7 @@
             {
               "ingredient": "5d213070-8277-11ef-91e8-3ff59147e22a",
               "quantity": {
-                "amount": 40,
+                "amount": 40.0,
                 "unit": "grams"
               },
               "ref_name": "Arroz"
@@ -3964,7 +3965,7 @@
             {
               "ingredient": "a3fcfd80-8277-11ef-91e8-3ff59147e22a",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Pechuga de pollo (entera)"
@@ -3987,7 +3988,7 @@
             {
               "ingredient": "d4e5f6a7-b8c9-0123-def0-123456789abc",
               "quantity": {
-                "amount": 85,
+                "amount": 85.0,
                 "unit": "grams"
               },
               "ref_name": "Pimiento rojo y verde congelado"
@@ -4026,7 +4027,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Aceite de Oliva"
@@ -4117,7 +4118,7 @@
             {
               "ingredient": "e2a2ef30-8278-11ef-91e8-3ff59147e22a",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Tortilla de trigo (aprox. 20 cm de diámetro)"
@@ -4166,7 +4167,7 @@
             {
               "ingredient": "5acfd350-b862-11ef-b59c-79b6dddc8e34",
               "quantity": {
-                "amount": 15,
+                "amount": 15.0,
                 "unit": "grams"
               },
               "ref_name": "Nueces"
@@ -4189,7 +4190,7 @@
             {
               "ingredient": "7ded5b80-5b7d-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 75,
+                "amount": 75.0,
                 "unit": "grams"
               },
               "ref_name": "Espinacas Frescas"
@@ -4212,7 +4213,7 @@
             {
               "ingredient": "a1aed440-59f2-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 100,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Tomate cherry"
@@ -4235,7 +4236,7 @@
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Queso fresco de Burgos"
@@ -4258,7 +4259,7 @@
             {
               "ingredient": "33b65330-5a85-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 120,
+                "amount": 120.0,
                 "unit": "grams"
               },
               "ref_name": "Lentejas en Bote"
@@ -4281,7 +4282,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "tablespoons"
               },
               "ref_name": "Aceite de Oliva"
@@ -4349,7 +4350,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -4357,7 +4358,7 @@
             {
               "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Perejil (especia)"
@@ -4365,7 +4366,7 @@
             {
               "ingredient": "700c6740-dda8-11ef-99c9-5b6b5cdbe207",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Alubias de tarro"
@@ -4392,7 +4393,7 @@
             {
               "ingredient": "bcae79d0-dda8-11ef-99c9-5b6b5cdbe207",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Butifarra"
@@ -4423,7 +4424,7 @@
             {
               "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "teaspoons"
               },
               "ref_name": "Perejil (especia)"
@@ -4499,7 +4500,7 @@
             {
               "ingredient": "5d213070-8277-11ef-91e8-3ff59147e22a",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Arroz"
@@ -4507,7 +4508,7 @@
             {
               "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 400,
+                "amount": 400.0,
                 "unit": "centiliters"
               },
               "ref_name": "Agua"
@@ -4515,7 +4516,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -4546,7 +4547,7 @@
             {
               "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Cebolla"
@@ -4554,7 +4555,7 @@
             {
               "ingredient": "d4e5f6a7-b8c9-0123-def0-123456789abc",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Pimiento rojo y verde congelado"
@@ -4562,7 +4563,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -4570,7 +4571,7 @@
             {
               "ingredient": "0cf54be0-21c1-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Especias para el horno"
@@ -4593,7 +4594,7 @@
             {
               "ingredient": "3bc3b7f4-5b8f-44af-844c-e16a0e2a086d",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Salchichas de pollo y pavo"
@@ -4618,7 +4619,7 @@
             {
               "ingredient": "84493510-2c7c-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Tomate Triturado"
@@ -4643,7 +4644,7 @@
             {
               "ingredient": "15b72e30-7419-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Atún en lata"
@@ -4699,7 +4700,7 @@
             {
               "ingredient": "354e837e-4698-4bb9-b434-7edb7b685fc0",
               "quantity": {
-                "amount": 250,
+                "amount": 250.0,
                 "unit": "grams"
               },
               "ref_name": "Tortellinis (pre-hechos)"
@@ -4707,7 +4708,7 @@
             {
               "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 500,
+                "amount": 500.0,
                 "unit": "centiliters"
               },
               "ref_name": "Agua"
@@ -4715,7 +4716,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -4733,7 +4734,7 @@
             {
               "ingredient": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Salsa de tomate (bote)"
@@ -4774,7 +4775,7 @@
             {
               "ingredient": "2cd926e5-7a02-49b5-a16e-8ef176b009e7",
               "quantity": {
-                "amount": 4,
+                "amount": 4.0,
                 "unit": "pieces"
               },
               "ref_name": "Muslos de pollo deshuesados"
@@ -4782,7 +4783,7 @@
             {
               "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Cebolla"
@@ -4790,7 +4791,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "centiliters"
               },
               "ref_name": "Aceite de Oliva"
@@ -4798,7 +4799,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -4806,7 +4807,7 @@
             {
               "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Pimienta (especia)"
@@ -4814,7 +4815,7 @@
             {
               "ingredient": "0cf54be0-21c1-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 5,
+                "amount": 5.0,
                 "unit": "grams"
               },
               "ref_name": "Especias para el horno"
@@ -4851,7 +4852,7 @@
             {
               "ingredient": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Arroz Instantáneo"
@@ -4905,7 +4906,7 @@
             {
               "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Cebolla"
@@ -4913,7 +4914,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -4936,7 +4937,7 @@
             {
               "ingredient": "e6500b40-41b8-10ba-b0dd-9d041637ca66",
               "quantity": {
-                "amount": 150,
+                "amount": 150.0,
                 "unit": "grams"
               },
               "ref_name": "Panceta"
@@ -4959,7 +4960,7 @@
             {
               "ingredient": "2b038570-6607-11ef-a13c-df814629faab",
               "quantity": {
-                "amount": 250,
+                "amount": 250.0,
                 "unit": "grams"
               },
               "ref_name": "Champiñones"
@@ -4982,7 +4983,7 @@
             {
               "ingredient": "c8c654e0-6607-11ef-a13c-df814629faab",
               "quantity": {
-                "amount": 300,
+                "amount": 300.0,
                 "unit": "grams"
               },
               "ref_name": "Guisantes"
@@ -4990,7 +4991,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -4998,7 +4999,7 @@
             {
               "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "grams"
               },
               "ref_name": "Pimienta (especia)"
@@ -5030,7 +5031,7 @@
             {
               "ingredient": "3867ff41-f940-4c79-bf00-18bb2e0801f7",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Garbanzos a la jardinera (lata)"
@@ -5062,7 +5063,7 @@
             {
               "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Patata"
@@ -5070,7 +5071,7 @@
             {
               "ingredient": "f4c3d230-c43f-10a4-855b-21d41fd3dece",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Pimiento Rojo"
@@ -5078,7 +5079,7 @@
             {
               "ingredient": "2cc45c00-c4ae-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Calabacín"
@@ -5086,7 +5087,7 @@
             {
               "ingredient": "8688350e-e38f-4a47-ad15-528ec384069f",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Boniato"
@@ -5094,7 +5095,7 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "centiliters"
               },
               "ref_name": "Aceite de Oliva"
@@ -5102,7 +5103,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -5110,7 +5111,7 @@
             {
               "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Pimienta (especia)"
@@ -5118,7 +5119,7 @@
             {
               "ingredient": "0cf54be0-21c1-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 5,
+                "amount": 5.0,
                 "unit": "grams"
               },
               "ref_name": "Especias para el horno"
@@ -5155,7 +5156,7 @@
             {
               "ingredient": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Arroz Instantáneo"
@@ -5201,7 +5202,7 @@
             {
               "ingredient": "0d635fd3-fd45-4d49-9d3c-11776be1ea6f",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Lentejas a la riojana (lata)"
@@ -5233,7 +5234,7 @@
             {
               "ingredient": "40ea28e4-3537-4f7c-9623-01214c168ef3",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Caldo de Pollo"
@@ -5251,7 +5252,7 @@
             {
               "ingredient": "9652a688-015f-4771-a630-2439ebb9e168",
               "quantity": {
-                "amount": 80,
+                "amount": 80.0,
                 "unit": "grams"
               },
               "ref_name": "Pasta maravilla"
@@ -5283,7 +5284,7 @@
             {
               "ingredient": "3daf3c1a-a192-4a72-aeaa-10171578f426",
               "quantity": {
-                "amount": 8,
+                "amount": 8.0,
                 "unit": "pieces"
               },
               "ref_name": "Croquetas congeladas"
@@ -5309,7 +5310,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -5317,7 +5318,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -5325,7 +5326,7 @@
             {
               "ingredient": "cded1550-5cac-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 10,
+                "amount": 10.0,
                 "unit": "grams"
               },
               "ref_name": "Combinado Semillas Ensalada"
@@ -5333,7 +5334,7 @@
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Queso fresco de Burgos"
@@ -5341,7 +5342,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -5381,7 +5382,7 @@
             {
               "ingredient": "07c401da-1af6-4a30-8f83-0f22fde011e4",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Puré de patatas (instantáneo)"
@@ -5389,7 +5390,7 @@
             {
               "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 200,
+                "amount": 200.0,
                 "unit": "centiliters"
               },
               "ref_name": "Agua"
@@ -5397,7 +5398,7 @@
             {
               "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 10,
+                "amount": 10.0,
                 "unit": "centiliters"
               },
               "ref_name": "Leche desnatada sin lactosa"
@@ -5415,7 +5416,7 @@
             {
               "ingredient": "435b3e6a-6a14-4312-b02e-c905e806f234",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Hamburguesa de pollo"
@@ -5455,7 +5456,7 @@
             {
               "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "pieces"
               },
               "ref_name": "Huevo"
@@ -5463,7 +5464,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 2,
+                "amount": 2.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -5497,7 +5498,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -5505,7 +5506,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -5513,7 +5514,7 @@
             {
               "ingredient": "cded1550-5cac-1eeb-9877-9f2416bff04c",
               "quantity": {
-                "amount": 10,
+                "amount": 10.0,
                 "unit": "grams"
               },
               "ref_name": "Combinado Semillas Ensalada"
@@ -5521,7 +5522,7 @@
             {
               "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Queso fresco de Burgos"
@@ -5529,7 +5530,7 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 3,
+                "amount": 3.0,
                 "unit": "grams"
               },
               "ref_name": "Sal"
@@ -5569,7 +5570,7 @@
             {
               "ingredient": "f013976c-649d-469e-a7e7-d04b5cb97a3b",
               "quantity": {
-                "amount": 1,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Arroz 3 delicias congelado"

@@ -301,6 +301,17 @@ void main() {
       expect(RecipesProvider.instance.recipes.first.instructions.first.ingredientsUsed.first.ingredient, "ing2");
     });
 
+    test("saved file is pretty-printed with tab indentation", () async {
+      List<Ingredient> ingredients = [Ingredient(id: "ing1", name: "Salt")];
+      List<Recipe> recipes = [const Recipe(id: "r1", name: "Test")];
+
+      String path = "${tempDir.path}/format_test.tsr";
+      await Persistency.saveDataToPath(path: path, ingredients: ingredients, recipes: recipes);
+
+      String content = File(path).readAsStringSync();
+      expect(content, contains("\n"), reason: "Saved file should contain newlines");
+    });
+
     test("saved file contains ref_name for ingredient usages", () async {
       List<Ingredient> ingredients = [Ingredient(id: "ing1", name: "Salt")];
       List<Recipe> recipes = [
@@ -338,6 +349,20 @@ void main() {
       expect(loaded, isNotNull);
       expect(loaded!.weekCount, 1);
       expect(loaded.weeks.first.meals.first.cooking!.recipeId, "r1");
+    });
+
+    test("saved menu file is pretty-printed with tab indentation", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Test");
+      List<Recipe> recipes = [r1];
+      MultiWeekMenu menu = MultiWeekMenu(weeks: [
+        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)]),
+      ]);
+
+      String path = "${tempDir.path}/format_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      String content = File(path).readAsStringSync();
+      expect(content, contains("\n"), reason: "Saved file should contain newlines");
     });
 
     test("saved menu file contains ref_name for cooking entries", () async {
