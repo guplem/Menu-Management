@@ -9,6 +9,12 @@
 					"itemsPerPack": 1,
 					"quantityPerItem": 350.0,
 					"unit": "grams"
+				},
+				{
+					"link": "https://tienda.mercadona.es/product/9369/media-hogaza-integral-avena-semillas-girasol-sesamo-rebanado-paquete",
+					"itemsPerPack": 11,
+					"quantityPerItem": 1.0,
+					"unit": "pieces"
 				}
 			],
 			"density": 0.4
@@ -60,7 +66,7 @@
 		},
 		{
 			"id": "2939e4b0-6b1e-1e99-9cbf-85317f03e969",
-			"name": "Pechuga de pavo",
+			"name": "Lonchas de pechuga de pavo",
 			"products": [
 				{
 					"link": "https://tienda.mercadona.es/product/67972/pechuga-pavo-hacendado-finas-lonchas-pack-2",
@@ -80,6 +86,12 @@
 					"itemsPerPack": 1,
 					"quantityPerItem": 330.0,
 					"unit": "grams"
+				},
+				{
+					"link": "https://tienda.mercadona.es/product/50966/queso-curado-mezcla-hacendado-cortado-cunitas-pieza",
+					"itemsPerPack": 20,
+					"quantityPerItem": 1.0,
+					"unit": "pieces"
 				}
 			],
 			"density": 1.1
@@ -375,6 +387,12 @@
 					"itemsPerPack": 1,
 					"quantityPerItem": 400.0,
 					"unit": "grams"
+				},
+				{
+					"link": "https://tienda.mercadona.es/product/63007/nuggets-pavo-hacendado-ultracongelados-paquete",
+					"itemsPerPack": 19,
+					"quantityPerItem": 1.0,
+					"unit": "pieces"
 				}
 			],
 			"density": 0.7
