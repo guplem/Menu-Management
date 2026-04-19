@@ -134,20 +134,9 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 
 ### Adding or Editing Products (mandatory)
 
-When adding a new Product to an Ingredient or editing an existing one, **always look up the product on the Mercadona API** to fill all fields accurately. Do not guess weights, pack sizes, or shelf life.
+When adding a new Product to an Ingredient or editing an existing one, **always look up the product on the Mercadona API** to fill all fields accurately. Do not guess weights, pack sizes, or shelf life. For countable ingredients (used with `unit: pieces` in recipes), add a separate Product entry with `unit: pieces` alongside the weight-based product.
 
-1. Extract the product ID from the Mercadona URL (e.g., `https://tienda.mercadona.es/product/20559/...` -> ID `20559`)
-2. Fetch `https://tienda.mercadona.es/api/products/{id}/`
-3. Map the API response to Product fields:
-   - `link` = `share_url`
-   - `itemsPerPack` = `price_instructions.total_units` (or 1 if null/not a pack)
-   - `quantityPerItem`: if `is_pack`, use `pack_size * 1000` (kg->g) or `pack_size * 100` (l->cl). If not a pack, use `unit_size * 1000` (kg->g) or `unit_size * 100` (l->cl)
-   - `unit` = `grams` if `size_format == "kg"`, `centiliters` if `size_format == "l"`, `pieces` if sold by unit
-   - `shelfLifeDays` = parse from `details.storage_instructions` (look for "consumir en N dias"). Null if not found or non-perishable
-4. For non-Mercadona products (e.g., Carrefour), manually research the product page for equivalent data
-5. Verify the computed `totalQuantityPerPack` (itemsPerPack * quantityPerItem) matches `unit_size * 1000` from the API
-
-See the [Mercadona API reference](https://github.com/datania/mercadona-catalog/blob/main/api.md) for full endpoint documentation. User's postal code: 08901.
+See [`mercadona-api.md`](mercadona-api.md) for full API documentation, field mapping, and examples of how to determine items per pack for both weight-based and pieces-based products.
 
 ### Search
 - `normalizeForSearch()` extension (in `flutter_essentials/`) with optional space removal

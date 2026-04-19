@@ -14,11 +14,9 @@ class ShoppingProductRow extends StatefulWidget {
     required this.isRecommended,
     required this.ownedPacks,
     required this.onOwnedPacksChanged,
-    this.gramsPerPiece,
   });
 
   final Product product;
-  final double? gramsPerPiece;
   final ProductRecommendation recommendation;
   final bool isRecommended;
   final double ownedPacks;
@@ -52,7 +50,7 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
 
   @override
   Widget build(BuildContext context) {
-    String? packLabel = widget.product.packLabel(gramsPerPiece: widget.gramsPerPiece);
+    String? packLabel = widget.product.packLabel();
     String totalLabel = "${widget.product.totalQuantityPerPack.toStringAsFixed(0)} ${widget.product.unit.name}/pack";
     int packsToBuy = _packsToBuy;
     bool covered = packsToBuy <= 0;

@@ -98,7 +98,7 @@ void main() {
     });
 
     group("pieces", () {
-      test("pieces stay separate without gramsPerPiece", () {
+      test("pieces stay separate from grams", () {
         Ingredient egg = const Ingredient(id: "e", name: "Egg", density: 1.0);
         List<Quantity> raw = const [Quantity(amount: 6, unit: Unit.pieces), Quantity(amount: 100, unit: Unit.grams)];
 
@@ -109,7 +109,7 @@ void main() {
         expect(result.any((q) => q.unit == Unit.grams && q.amount == 100), isTrue);
       });
 
-      test("pieces alone pass through unchanged without gramsPerPiece", () {
+      test("pieces alone pass through unchanged", () {
         Ingredient egg = const Ingredient(id: "e", name: "Egg");
         List<Quantity> raw = const [Quantity(amount: 12, unit: Unit.pieces)];
 
@@ -119,55 +119,15 @@ void main() {
         expect(result.first, const Quantity(amount: 12, unit: Unit.pieces));
       });
 
-      test("converts pieces to grams when gramsPerPiece is known and product is in grams", () {
-        Ingredient onion = Ingredient(
-          id: "o",
-          name: "Cebolla",
-          gramsPerPiece: 150,
-          products: [const Product(link: "https://example.com", quantityPerItem: 1000, unit: Unit.grams)],
-        );
-        List<Quantity> raw = const [Quantity(amount: 3, unit: Unit.pieces)];
-
-        List<Quantity> result = normalizeQuantities(ingredient: onion, rawQuantities: raw);
-
-        expect(result.length, 1);
-        expect(result.first.unit, Unit.grams);
-        expect(result.first.amount, closeTo(450, 0.1)); // 3 * 150g
-      });
-
-      test("merges pieces and grams when gramsPerPiece is known", () {
-        // Some recipes use pieces, others use grams for the same ingredient
-        Ingredient onion = Ingredient(
-          id: "o",
-          name: "Cebolla",
-          gramsPerPiece: 150,
-          products: [const Product(link: "https://example.com", quantityPerItem: 1000, unit: Unit.grams)],
-        );
-        List<Quantity> raw = const [
-          Quantity(amount: 2, unit: Unit.pieces), // 2 * 150 = 300g
-          Quantity(amount: 200, unit: Unit.grams), // 200g
-        ];
-
-        List<Quantity> result = normalizeQuantities(ingredient: onion, rawQuantities: raw);
-
-        expect(result.length, 1);
-        expect(result.first.unit, Unit.grams);
-        expect(result.first.amount, closeTo(500, 0.1)); // 300 + 200
-      });
-
-      test("does not convert pieces when gramsPerPiece is null even with gram product", () {
-        Ingredient egg = Ingredient(
-          id: "e",
-          name: "Egg",
-          products: [const Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams)],
-        );
-        List<Quantity> raw = const [Quantity(amount: 6, unit: Unit.pieces)];
+      test("multiple pieces entries are summed", () {
+        Ingredient egg = const Ingredient(id: "e", name: "Egg");
+        List<Quantity> raw = const [Quantity(amount: 3, unit: Unit.pieces), Quantity(amount: 5, unit: Unit.pieces)];
 
         List<Quantity> result = normalizeQuantities(ingredient: egg, rawQuantities: raw);
 
         expect(result.length, 1);
         expect(result.first.unit, Unit.pieces);
-        expect(result.first.amount, 6);
+        expect(result.first.amount, 8);
       });
     });
 

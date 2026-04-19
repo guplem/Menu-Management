@@ -112,24 +112,14 @@ void main() {
     });
 
     group("packLabel", () {
-      test("returns null when itemsPerPack is 1 and no gramsPerPiece", () {
+      test("returns null when itemsPerPack is 1 and unit is weight", () {
         Product product = _product(itemsPerPack: 1, quantityPerItem: 350, unit: Unit.grams);
         expect(product.packLabel(), isNull);
-      });
-
-      test("returns derived pieces when itemsPerPack is 1 and gramsPerPiece provided", () {
-        Product product = _product(itemsPerPack: 1, quantityPerItem: 350, unit: Unit.grams);
-        expect(product.packLabel(gramsPerPiece: 50), "~7 pieces/pack");
       });
 
       test("returns NxM format for multi-item weight packs", () {
         Product product = _product(itemsPerPack: 6, quantityPerItem: 125, unit: Unit.grams);
         expect(product.packLabel(), "6x125grams");
-      });
-
-      test("returns NxM format for multi-item weight packs ignoring gramsPerPiece", () {
-        Product product = _product(itemsPerPack: 6, quantityPerItem: 125, unit: Unit.grams);
-        expect(product.packLabel(gramsPerPiece: 125), "6x125grams");
       });
 
       test("returns pieces/pack format for pieces unit with itemsPerPack 1", () {
@@ -142,18 +132,12 @@ void main() {
         expect(product.packLabel(), "12 pieces/pack");
       });
 
-      test("rounds derived pieces down for non-integer result", () {
-        Product product = _product(itemsPerPack: 1, quantityPerItem: 350, unit: Unit.grams);
-        // 350 / 60 = 5.83 -> ~5
-        expect(product.packLabel(gramsPerPiece: 60), "~5 pieces/pack");
-      });
-
       test("returns NxM format for multi-item centiliter packs", () {
         Product product = _product(itemsPerPack: 3, quantityPerItem: 33, unit: Unit.centiliters);
         expect(product.packLabel(), "3x33centiliters");
       });
 
-      test("returns null for single centiliter pack without gramsPerPiece", () {
+      test("returns null for single centiliter pack", () {
         Product product = _product(itemsPerPack: 1, quantityPerItem: 100, unit: Unit.centiliters);
         expect(product.packLabel(), isNull);
       });
@@ -302,17 +286,10 @@ void main() {
         expect(result, closeTo(10.8, 0.001));
       });
 
-      test("returns null for pieces without gramsPerPiece", () {
+      test("returns null for pieces", () {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Egg", density: 1.0);
         double? result = ingredient.toGrams(const Quantity(amount: 6, unit: Unit.pieces));
         expect(result, isNull);
-      });
-
-      test("converts pieces to grams using gramsPerPiece", () {
-        Ingredient ingredient = const Ingredient(id: "i1", name: "Onion", gramsPerPiece: 150);
-        // 3 pieces * 150 g/piece = 450g
-        double? result = ingredient.toGrams(const Quantity(amount: 3, unit: Unit.pieces));
-        expect(result, 450);
       });
 
       test("returns grams unchanged even without density", () {
@@ -356,17 +333,10 @@ void main() {
         expect(result, closeTo(1, 0.001));
       });
 
-      test("returns null for pieces without gramsPerPiece", () {
+      test("returns null for pieces", () {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Egg", density: 1.0);
         double? result = ingredient.fromGrams(500, Unit.pieces);
         expect(result, isNull);
-      });
-
-      test("converts grams to pieces using gramsPerPiece", () {
-        Ingredient ingredient = const Ingredient(id: "i1", name: "Onion", gramsPerPiece: 150);
-        // 450g / 150 g/piece = 3 pieces
-        double? result = ingredient.fromGrams(450, Unit.pieces);
-        expect(result, closeTo(3, 0.001));
       });
 
       test("returns null when density is null", () {
@@ -414,42 +384,4 @@ void main() {
     });
   });
 
-  // ── Ingredient gramsPerPiece ──
-
-  group("Ingredient gramsPerPiece", () {
-    test("defaults to null when not provided", () {
-      Ingredient ingredient = const Ingredient(id: "i1", name: "Rice");
-      expect(ingredient.gramsPerPiece, isNull);
-    });
-
-    test("stores gramsPerPiece when provided", () {
-      Ingredient ingredient = const Ingredient(id: "i1", name: "Onion", gramsPerPiece: 150);
-      expect(ingredient.gramsPerPiece, 150);
-    });
-
-    test("copyWith can set gramsPerPiece", () {
-      Ingredient ingredient = const Ingredient(id: "i1", name: "Onion");
-      Ingredient updated = ingredient.copyWith(gramsPerPiece: 150);
-      expect(updated.gramsPerPiece, 150);
-    });
-
-    test("round-trips through JSON with gramsPerPiece", () {
-      Ingredient original = const Ingredient(id: "i1", name: "Onion", gramsPerPiece: 150);
-      String encoded = jsonEncode(original.toJson());
-      Ingredient restored = Ingredient.fromJson(jsonDecode(encoded));
-      expect(restored.gramsPerPiece, 150);
-    });
-
-    test("deserializes old JSON without gramsPerPiece field", () {
-      Map<String, dynamic> oldJson = {"id": "i1", "name": "Rice"};
-      Ingredient restored = Ingredient.fromJson(oldJson);
-      expect(restored.gramsPerPiece, isNull);
-    });
-
-    test("omits gramsPerPiece from JSON when null", () {
-      Ingredient ingredient = const Ingredient(id: "i1", name: "Rice");
-      Map<String, dynamic> json = ingredient.toJson();
-      expect(json.containsKey("gramsPerPiece"), isFalse);
-    });
-  });
 }

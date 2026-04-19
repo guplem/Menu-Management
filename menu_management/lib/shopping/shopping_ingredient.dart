@@ -158,7 +158,6 @@ class ShoppingIngredient extends StatelessWidget {
                     isRecommended: bestProductIndex == productIndex,
                     ownedPacks: ownedPacksPerProduct[productIndex] ?? 0,
                     onOwnedPacksChanged: (double packs) => onPacksChanged(productIndex, packs),
-                    gramsPerPiece: ingredient.gramsPerPiece,
                   ),
                 );
               }),

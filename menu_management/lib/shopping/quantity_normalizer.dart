@@ -22,7 +22,7 @@ List<Quantity> normalizeQuantities({required Ingredient ingredient, required Lis
   if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.grams) {
     return rawQuantities;
   }
-  if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.pieces && ingredient.gramsPerPiece == null) {
+  if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.pieces) {
     return rawQuantities;
   }
 
@@ -40,11 +40,7 @@ List<Quantity> normalizeQuantities({required Ingredient ingredient, required Lis
       case Unit.teaspoons:
         totalMl += q.amount * _mlPerUnit[q.unit]!;
       case Unit.pieces:
-        if (ingredient.gramsPerPiece != null) {
-          totalGrams += q.amount * ingredient.gramsPerPiece!;
-        } else {
-          totalPieces += q.amount;
-        }
+        totalPieces += q.amount;
     }
   }
 

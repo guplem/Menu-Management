@@ -18,19 +18,14 @@ abstract class Product with _$Product {
   ///
   /// - Pieces unit: "N pieces/pack" or "N piece/pack"
   /// - Multi-item weight/volume: "NxMunit" (e.g. "6x125grams")
-  /// - Single-item with gramsPerPiece: "~N pieces/pack" (derived)
-  /// - Single-item without gramsPerPiece: null (redundant with total line)
-  String? packLabel({double? gramsPerPiece}) {
+  /// - Single-item weight/volume: null (redundant with total line)
+  String? packLabel() {
     if (unit == Unit.pieces) {
       int total = (itemsPerPack * quantityPerItem).round();
       return "$total ${total == 1 ? "piece" : "pieces"}/pack";
     }
     if (itemsPerPack > 1) {
       return "${itemsPerPack}x${quantityPerItem.toStringAsFixed(0)}${unit.name}";
-    }
-    if (gramsPerPiece != null && gramsPerPiece > 0) {
-      int derivedPieces = (totalQuantityPerPack / gramsPerPiece).floor();
-      return "~$derivedPieces pieces/pack";
     }
     return null;
   }

@@ -15,7 +15,6 @@ _Ingredient _$IngredientFromJson(Map<String, dynamic> json) => _Ingredient(
           .toList() ??
       const [],
   density: (json['density'] as num?)?.toDouble(),
-  gramsPerPiece: (json['gramsPerPiece'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$IngredientToJson(_Ingredient instance) =>
@@ -24,5 +23,4 @@ Map<String, dynamic> _$IngredientToJson(_Ingredient instance) =>
       'name': instance.name,
       'products': instance.products.map((e) => e.toJson()).toList(),
       'density': ?instance.density,
-      'gramsPerPiece': ?instance.gramsPerPiece,
     };

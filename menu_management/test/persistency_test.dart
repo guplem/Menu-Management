@@ -275,7 +275,6 @@ void main() {
           name: "Tomato",
           products: [Product(link: "https://example.com/tomato", quantityPerItem: 720, unit: Unit.grams, itemsPerPack: 1)],
           density: 0.95,
-          gramsPerPiece: 200,
         ),
       ];
       List<Recipe> recipes = [
@@ -296,7 +295,6 @@ void main() {
       expect(IngredientsProvider.instance.ingredients.first.products.length, 1);
       expect(IngredientsProvider.instance.ingredients.first.products.first.shelfLifeDays, 365);
       expect(IngredientsProvider.instance.ingredients.first.density, 1.2);
-      expect(IngredientsProvider.instance.ingredients[1].gramsPerPiece, 200);
       expect(RecipesProvider.instance.recipes.length, 1);
       expect(RecipesProvider.instance.recipes.first.instructions.first.ingredientsUsed.first.ingredient, "ing2");
     });
@@ -421,7 +419,6 @@ void main() {
         name: "Test",
         products: [Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams, shelfLifeDays: 7, itemsPerPack: 2)],
         density: 1.05,
-        gramsPerPiece: 50,
       );
       String encoded = jsonEncode(original.toJson());
       Ingredient decoded = Ingredient.fromJson(jsonDecode(encoded));
