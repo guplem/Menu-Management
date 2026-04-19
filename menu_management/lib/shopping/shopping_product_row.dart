@@ -14,9 +14,11 @@ class ShoppingProductRow extends StatefulWidget {
     required this.isRecommended,
     required this.ownedPacks,
     required this.onOwnedPacksChanged,
+    this.gramsPerPiece,
   });
 
   final Product product;
+  final double? gramsPerPiece;
   final ProductRecommendation recommendation;
   final bool isRecommended;
   final double ownedPacks;
@@ -50,7 +52,7 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
 
   @override
   Widget build(BuildContext context) {
-    String packLabel = "${widget.product.itemsPerPack}x${widget.product.quantityPerItem.toStringAsFixed(0)}${widget.product.unit.name}";
+    String? packLabel = widget.product.packLabel(gramsPerPiece: widget.gramsPerPiece);
     String totalLabel = "${widget.product.totalQuantityPerPack.toStringAsFixed(0)} ${widget.product.unit.name}/pack";
     int packsToBuy = _packsToBuy;
     bool covered = packsToBuy <= 0;
@@ -69,8 +71,8 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(packLabel, style: Theme.of(context).textTheme.bodyLarge),
-                  Text(totalLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
+                  if (packLabel != null) Text(packLabel, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(totalLabel, style: packLabel != null ? Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor) : Theme.of(context).textTheme.bodyLarge),
                 ],
               ),
             ),

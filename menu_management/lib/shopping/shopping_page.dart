@@ -171,9 +171,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
           if (product.unit != primaryRemaining.unit) continue;
           int packs = product.packsNeeded(primaryRemaining.amount);
           if (packs <= 0) continue;
-          String packLabel = "${product.itemsPerPack}x${product.quantityPerItem.toStringAsFixed(0)}${product.unit.name}";
+          String label = product.packLabel(gramsPerPiece: ingredient.gramsPerPiece) ?? "${product.totalQuantityPerPack.toStringAsFixed(0)} ${product.unit.name}/pack";
           String packWord = packs == 1 ? "pack" : "packs";
-          buffer.writeln("  $packLabel: $packs $packWord");
+          buffer.writeln("  $label: $packs $packWord");
         }
       } else {
         String amounts = remaining.where((q) => q.amount > 0).map((q) => "${q.amount.toStringAsFixed(0)} ${q.unit.name}").join(" + ");

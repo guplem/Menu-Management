@@ -110,6 +110,54 @@ void main() {
         expect(restored.quantityPerItem, 33);
       });
     });
+
+    group("packLabel", () {
+      test("returns null when itemsPerPack is 1 and no gramsPerPiece", () {
+        Product product = _product(itemsPerPack: 1, quantityPerItem: 350, unit: Unit.grams);
+        expect(product.packLabel(), isNull);
+      });
+
+      test("returns derived pieces when itemsPerPack is 1 and gramsPerPiece provided", () {
+        Product product = _product(itemsPerPack: 1, quantityPerItem: 350, unit: Unit.grams);
+        expect(product.packLabel(gramsPerPiece: 50), "~7 pieces/pack");
+      });
+
+      test("returns NxM format for multi-item weight packs", () {
+        Product product = _product(itemsPerPack: 6, quantityPerItem: 125, unit: Unit.grams);
+        expect(product.packLabel(), "6x125grams");
+      });
+
+      test("returns NxM format for multi-item weight packs ignoring gramsPerPiece", () {
+        Product product = _product(itemsPerPack: 6, quantityPerItem: 125, unit: Unit.grams);
+        expect(product.packLabel(gramsPerPiece: 125), "6x125grams");
+      });
+
+      test("returns pieces/pack format for pieces unit with itemsPerPack 1", () {
+        Product product = _product(itemsPerPack: 1, quantityPerItem: 1, unit: Unit.pieces);
+        expect(product.packLabel(), "1 piece/pack");
+      });
+
+      test("returns pieces/pack format for pieces unit with multiple items", () {
+        Product product = _product(itemsPerPack: 12, quantityPerItem: 1, unit: Unit.pieces);
+        expect(product.packLabel(), "12 pieces/pack");
+      });
+
+      test("rounds derived pieces down for non-integer result", () {
+        Product product = _product(itemsPerPack: 1, quantityPerItem: 350, unit: Unit.grams);
+        // 350 / 60 = 5.83 -> ~5
+        expect(product.packLabel(gramsPerPiece: 60), "~5 pieces/pack");
+      });
+
+      test("returns NxM format for multi-item centiliter packs", () {
+        Product product = _product(itemsPerPack: 3, quantityPerItem: 33, unit: Unit.centiliters);
+        expect(product.packLabel(), "3x33centiliters");
+      });
+
+      test("returns null for single centiliter pack without gramsPerPiece", () {
+        Product product = _product(itemsPerPack: 1, quantityPerItem: 100, unit: Unit.centiliters);
+        expect(product.packLabel(), isNull);
+      });
+    });
   });
 
   // ── Ingredient with Products ──
