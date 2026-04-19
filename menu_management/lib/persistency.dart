@@ -217,6 +217,32 @@ class Persistency {
   }
 
   // ============================================================
+  // Save to a specific file path (no picker)
+  // ============================================================
+
+  /// Saves ingredients and recipes to a specific .tsr file path.
+  static Future<void> saveDataToPath({required String path, required List<Ingredient> ingredients, required List<Recipe> recipes}) async {
+    Map<String, dynamic> tsrJson = {"Ingredients": ingredients.map((i) => i.toJson()).toList(), "Recipes": recipes.map((r) => r.toJson()).toList()};
+    _injectRecipeRefNames(tsrJson, ingredients: ingredients);
+
+    File file = File(path);
+    String data = jsonEncode(tsrJson);
+    await file.writeAsString(data);
+    _saveLastSession(tsrPath: path);
+  }
+
+  /// Saves a MultiWeekMenu to a specific .tsm file path.
+  static Future<void> saveMenuToPath({required String path, required MultiWeekMenu multiWeekMenu, required List<Recipe> recipes}) async {
+    Map<String, dynamic> json = multiWeekMenu.toJson();
+    _injectMenuRefNames(json, recipes: recipes);
+    String data = jsonEncode(json);
+
+    File file = File(path);
+    await file.writeAsString(data);
+    _saveLastSession(tsmPath: path);
+  }
+
+  // ============================================================
   // Save / Load with file picker
   // ============================================================
 
@@ -232,16 +258,7 @@ class Persistency {
     if (outputFile == null) {
       // User canceled the picker
     } else {
-      // Build JSON map, inject ref_names, then encode
-      Map<String, dynamic> tsrJson = {"Ingredients": ingredients.map((i) => i.toJson()).toList(), "Recipes": recipes.map((r) => r.toJson()).toList()};
-      _injectRecipeRefNames(tsrJson, ingredients: ingredients);
-
-      // Prepare the file
-      File file = File(outputFile);
-      String data = jsonEncode(tsrJson);
-
-      await file.writeAsString(data);
-      _saveLastSession(tsrPath: outputFile);
+      await saveDataToPath(path: outputFile, ingredients: ingredients, recipes: recipes);
     }
   }
 
@@ -283,15 +300,7 @@ class Persistency {
     if (outputFile == null) {
       // User canceled the picker
     } else {
-      // Prepare the file with ref_name injection for human readability
-      File file = File(outputFile);
-      Map<String, dynamic> json = multiWeekMenu.toJson();
-      _injectMenuRefNames(json, recipes: recipes);
-      String data = jsonEncode(json);
-
-      // Save to file
-      await file.writeAsString(data);
-      _saveLastSession(tsmPath: outputFile);
+      await saveMenuToPath(path: outputFile, multiWeekMenu: multiWeekMenu, recipes: recipes);
     }
   }
 

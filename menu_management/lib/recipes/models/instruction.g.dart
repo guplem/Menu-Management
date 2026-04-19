@@ -26,13 +26,14 @@ _Instruction _$InstructionFromJson(Map<String, dynamic> json) => _Instruction(
       const [],
 );
 
-Map<String, dynamic> _$InstructionToJson(_Instruction instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'ingredientsUsed': instance.ingredientsUsed,
-      'workingTimeMinutes': instance.workingTimeMinutes,
-      'cookingTimeMinutes': instance.cookingTimeMinutes,
-      'description': instance.description,
-      'outputs': instance.outputs,
-      'inputs': instance.inputs,
-    };
+Map<String, dynamic> _$InstructionToJson(
+  _Instruction instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'ingredientsUsed': instance.ingredientsUsed.map((e) => e.toJson()).toList(),
+  'workingTimeMinutes': instance.workingTimeMinutes,
+  'cookingTimeMinutes': instance.cookingTimeMinutes,
+  'description': instance.description,
+  'outputs': instance.outputs.map((e) => e.toJson()).toList(),
+  'inputs': instance.inputs,
+};

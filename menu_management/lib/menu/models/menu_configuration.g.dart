@@ -16,7 +16,7 @@ _MenuConfiguration _$MenuConfigurationFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$MenuConfigurationToJson(_MenuConfiguration instance) =>
     <String, dynamic>{
-      'mealTime': instance.mealTime,
+      'mealTime': instance.mealTime.toJson(),
       'requiresMeal': instance.requiresMeal,
       'availableCookingTimeMinutes': instance.availableCookingTimeMinutes,
     };

@@ -16,4 +16,4 @@ _MultiWeekMenu _$MultiWeekMenuFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$MultiWeekMenuToJson(_MultiWeekMenu instance) =>
-    <String, dynamic>{'weeks': instance.weeks};
+    <String, dynamic>{'weeks': instance.weeks.map((e) => e.toJson()).toList()};

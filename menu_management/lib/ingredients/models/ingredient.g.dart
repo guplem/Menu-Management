@@ -22,7 +22,7 @@ Map<String, dynamic> _$IngredientToJson(_Ingredient instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'products': instance.products,
+      'products': instance.products.map((e) => e.toJson()).toList(),
       'density': ?instance.density,
       'gramsPerPiece': ?instance.gramsPerPiece,
     };

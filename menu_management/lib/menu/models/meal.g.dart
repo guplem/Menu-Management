@@ -15,7 +15,7 @@ _Meal _$MealFromJson(Map<String, dynamic> json) => _Meal(
 );
 
 Map<String, dynamic> _$MealToJson(_Meal instance) => <String, dynamic>{
-  'cooking': instance.cooking,
-  'mealTime': instance.mealTime,
+  'cooking': instance.cooking?.toJson(),
+  'mealTime': instance.mealTime.toJson(),
   'people': instance.people,
 };

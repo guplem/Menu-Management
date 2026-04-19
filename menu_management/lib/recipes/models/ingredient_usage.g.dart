@@ -15,5 +15,5 @@ _IngredientUsage _$IngredientUsageFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$IngredientUsageToJson(_IngredientUsage instance) =>
     <String, dynamic>{
       'ingredient': instance.ingredient,
-      'quantity': instance.quantity,
+      'quantity': instance.quantity.toJson(),
     };

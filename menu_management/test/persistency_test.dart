@@ -4,6 +4,7 @@ import "dart:io";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/models/cooking.dart";
@@ -12,6 +13,10 @@ import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/persistency.dart";
+import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 
@@ -251,6 +256,162 @@ void main() {
       expect(menu, isNotNull);
       expect(menu!.weeks.first.meals.first.cooking, isNotNull);
       expect(menu.weeks.first.meals.first.cooking!.recipeId, "valid-id");
+    });
+  });
+
+  // ── saveDataToPath ──
+
+  group("saveDataToPath", () {
+    test("saves and reloads ingredients with nested products", () async {
+      List<Ingredient> ingredients = [
+        Ingredient(
+          id: "ing1",
+          name: "Salt",
+          products: [Product(link: "https://example.com/salt", quantityPerItem: 1000, unit: Unit.grams, shelfLifeDays: 365, itemsPerPack: 1)],
+          density: 1.2,
+        ),
+        Ingredient(
+          id: "ing2",
+          name: "Tomato",
+          products: [Product(link: "https://example.com/tomato", quantityPerItem: 720, unit: Unit.grams, itemsPerPack: 1)],
+          density: 0.95,
+          gramsPerPiece: 200,
+        ),
+      ];
+      List<Recipe> recipes = [
+        Recipe(
+          id: "r1",
+          name: "Salad",
+          instructions: [Instruction(id: "i1", description: "Chop", ingredientsUsed: [IngredientUsage(ingredient: "ing2", quantity: Quantity(amount: 200, unit: Unit.grams))])],
+        ),
+      ];
+
+      String path = "${tempDir.path}/save_test.tsr";
+      await Persistency.saveDataToPath(path: path, ingredients: ingredients, recipes: recipes);
+
+      bool loaded = await Persistency.loadDataFromPath(path: path, ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      expect(loaded, true);
+      expect(IngredientsProvider.instance.ingredients.length, 2);
+      expect(IngredientsProvider.instance.ingredients.first.products.length, 1);
+      expect(IngredientsProvider.instance.ingredients.first.products.first.shelfLifeDays, 365);
+      expect(IngredientsProvider.instance.ingredients.first.density, 1.2);
+      expect(IngredientsProvider.instance.ingredients[1].gramsPerPiece, 200);
+      expect(RecipesProvider.instance.recipes.length, 1);
+      expect(RecipesProvider.instance.recipes.first.instructions.first.ingredientsUsed.first.ingredient, "ing2");
+    });
+
+    test("saved file contains ref_name for ingredient usages", () async {
+      List<Ingredient> ingredients = [Ingredient(id: "ing1", name: "Salt")];
+      List<Recipe> recipes = [
+        Recipe(
+          id: "r1",
+          name: "Test",
+          instructions: [Instruction(id: "i1", description: "Step", ingredientsUsed: [IngredientUsage(ingredient: "ing1", quantity: Quantity(amount: 10, unit: Unit.grams))])],
+        ),
+      ];
+
+      String path = "${tempDir.path}/ref_name_test.tsr";
+      await Persistency.saveDataToPath(path: path, ingredients: ingredients, recipes: recipes);
+
+      Map<String, dynamic> savedJson = jsonDecode(File(path).readAsStringSync());
+      Map<String, dynamic> usage = savedJson["Recipes"][0]["instructions"][0]["ingredientsUsed"][0];
+      expect(usage["ref_name"], "Salt");
+    });
+  });
+
+  // ── saveMenuToPath ──
+
+  group("saveMenuToPath", () {
+    test("saves and reloads a multi-week menu", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Lunch Recipe");
+      List<Recipe> recipes = [r1];
+      MultiWeekMenu menu = MultiWeekMenu(weeks: [
+        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)]),
+      ]);
+
+      String path = "${tempDir.path}/save_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      MultiWeekMenu? loaded = await Persistency.loadMenuFromPath(path, recipes: recipes);
+
+      expect(loaded, isNotNull);
+      expect(loaded!.weekCount, 1);
+      expect(loaded.weeks.first.meals.first.cooking!.recipeId, "r1");
+    });
+
+    test("saved menu file contains ref_name for cooking entries", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Pizza");
+      List<Recipe> recipes = [r1];
+      MultiWeekMenu menu = MultiWeekMenu(weeks: [
+        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.dinner, recipe: r1)]),
+      ]);
+
+      String path = "${tempDir.path}/ref_name_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      Map<String, dynamic> savedJson = jsonDecode(File(path).readAsStringSync());
+      Map<String, dynamic> cooking = savedJson["weeks"][0]["meals"][0]["cooking"];
+      expect(cooking["ref_name"], "Pizza");
+    });
+  });
+
+  // ── toJson produces fully expanded maps (explicitToJson) ──
+
+  group("toJson produces fully expanded maps", () {
+    test("Recipe.toJson() converts nested Instructions to maps", () {
+      Recipe recipe = Recipe(
+        id: "r1",
+        name: "Test",
+        instructions: [Instruction(id: "i1", description: "Step 1", ingredientsUsed: [IngredientUsage(ingredient: "ing1", quantity: Quantity(amount: 100, unit: Unit.grams))])],
+      );
+      Map<String, dynamic> json = recipe.toJson();
+      expect(json["instructions"], isA<List>());
+      expect(json["instructions"][0], isA<Map<String, dynamic>>(), reason: "Nested Instruction should be a Map, not a Dart object");
+    });
+
+    test("Ingredient.toJson() converts nested Products to maps", () {
+      Ingredient ingredient = Ingredient(
+        id: "ing1",
+        name: "Salt",
+        products: [Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams)],
+      );
+      Map<String, dynamic> json = ingredient.toJson();
+      expect(json["products"], isA<List>());
+      expect(json["products"][0], isA<Map<String, dynamic>>(), reason: "Nested Product should be a Map, not a Dart object");
+    });
+
+    test("MultiWeekMenu.toJson() converts nested Meals to maps", () {
+      MultiWeekMenu menu = MultiWeekMenu(weeks: [
+        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe())]),
+      ]);
+      Map<String, dynamic> json = menu.toJson();
+      expect(json["weeks"][0], isA<Map<String, dynamic>>(), reason: "Nested Menu should be a Map");
+      expect(json["weeks"][0]["meals"][0], isA<Map<String, dynamic>>(), reason: "Nested Meal should be a Map");
+    });
+
+    test("TSR round-trip preserves all ingredient fields including products", () {
+      Ingredient original = Ingredient(
+        id: "ing1",
+        name: "Test",
+        products: [Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams, shelfLifeDays: 7, itemsPerPack: 2)],
+        density: 1.05,
+        gramsPerPiece: 50,
+      );
+      String encoded = jsonEncode(original.toJson());
+      Ingredient decoded = Ingredient.fromJson(jsonDecode(encoded));
+      expect(decoded, original);
+    });
+
+    test("TSR round-trip preserves all recipe fields including instructions", () {
+      Recipe original = Recipe(
+        id: "r1",
+        name: "Test",
+        instructions: [Instruction(id: "i1", description: "Step", ingredientsUsed: [IngredientUsage(ingredient: "ing1", quantity: Quantity(amount: 100, unit: Unit.grams))])],
+      );
+      String encoded = jsonEncode(original.toJson());
+      Recipe decoded = Recipe.fromJson(jsonDecode(encoded));
+      expect(decoded, original);
     });
   });
 

@@ -15,5 +15,5 @@ _Menu _$MenuFromJson(Map<String, dynamic> json) => _Menu(
 );
 
 Map<String, dynamic> _$MenuToJson(_Menu instance) => <String, dynamic>{
-  'meals': instance.meals,
+  'meals': instance.meals.map((e) => e.toJson()).toList(),
 };
