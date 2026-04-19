@@ -41,7 +41,8 @@ class ShoppingProductRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (packLabel != null) Text(packLabel, style: Theme.of(context).textTheme.bodyLarge),
-                  Text(totalLabel, style: packLabel != null ? Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor) : Theme.of(context).textTheme.bodyLarge),
+                  // Only show totalLabel as subtitle when it adds info (e.g. "6x125grams" + "750 grams/pack")
+                  if (packLabel == null || packLabel != totalLabel) Text(totalLabel, style: packLabel != null ? Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor) : Theme.of(context).textTheme.bodyLarge),
                 ],
               ),
             ),
