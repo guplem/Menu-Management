@@ -9,6 +9,7 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/ingredient_source.dart";
 
 part "menu.freezed.dart";
 part "menu.g.dart";
@@ -127,6 +128,54 @@ abstract class Menu with _$Menu {
     }
 
     return ingredients;
+  }
+
+  /// Returns per-recipe breakdown of ingredient usage: which recipes use each ingredient,
+  /// with per-serving quantities and total servings (peopleFactor).
+  Map<String, List<IngredientSource>> ingredientSources({required List<Recipe> recipes}) {
+    Map<String, List<IngredientSource>> sources = {};
+    Set<String> processedRecipeIds = {};
+
+    for (Meal meal in meals) {
+      if (meal.cooking == null) continue;
+      if (meal.cooking!.yield <= 0) continue;
+      if (processedRecipeIds.contains(meal.cooking!.recipeId)) continue;
+      processedRecipeIds.add(meal.cooking!.recipeId);
+
+      int peopleFactor = meals.where((Meal m) => m.cooking?.recipeId == meal.cooking?.recipeId).fold(0, (int sum, Meal m) => sum + m.people);
+
+      Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == meal.cooking!.recipeId);
+      if (recipe == null) continue;
+
+      for (Instruction instruction in recipe.instructions) {
+        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+          sources[ingredientUsage.ingredient] ??= [];
+
+          // Find or create the source entry for this recipe
+          int existingIndex = sources[ingredientUsage.ingredient]!.indexWhere((s) => s.recipeName == recipe.name);
+          if (existingIndex >= 0) {
+            IngredientSource existing = sources[ingredientUsage.ingredient]![existingIndex];
+            List<Quantity> updatedQuantities = [...existing.perServingQuantities];
+            Quantity? existingQty = updatedQuantities.firstWhereOrNull((q) => q.unit == ingredientUsage.quantity.unit);
+            if (existingQty != null) {
+              updatedQuantities.remove(existingQty);
+              updatedQuantities.add(existingQty.copyWith(amount: existingQty.amount + ingredientUsage.quantity.amount));
+            } else {
+              updatedQuantities.add(ingredientUsage.quantity);
+            }
+            sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
+          } else {
+            sources[ingredientUsage.ingredient]!.add(IngredientSource(
+              recipeName: recipe.name,
+              perServingQuantities: [ingredientUsage.quantity],
+              servings: peopleFactor,
+            ));
+          }
+        }
+      }
+    }
+
+    return sources;
   }
 
   Menu copyWithUpdatedPeople({required MealTime mealTime, required int people}) {

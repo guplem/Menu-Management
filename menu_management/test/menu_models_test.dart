@@ -13,6 +13,7 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/ingredient_source.dart";
 
 // ── Test helpers ──
 
@@ -442,6 +443,171 @@ void main() {
       test("returns empty map for no meals", () {
         const Menu menu = Menu(meals: []);
         expect(menu.allIngredients(recipes: []), isEmpty);
+      });
+    });
+
+    group("ingredientSources", () {
+      test("returns per-recipe breakdown for a single recipe", () {
+        Recipe recipe = _recipe(
+          id: "r1",
+          name: "Pasta",
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+              ],
+            ),
+          ],
+        );
+        List<Recipe> recipes = [recipe];
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 1, people: 2)],
+        );
+
+        Map<String, List<IngredientSource>> sources = menu.ingredientSources(recipes: recipes);
+        expect(sources["flour"], hasLength(1));
+        expect(sources["flour"]!.first.recipeName, "Pasta");
+        expect(sources["flour"]!.first.perServingQuantities.first.amount, 100.0);
+        expect(sources["flour"]!.first.perServingQuantities.first.unit, Unit.grams);
+        expect(sources["flour"]!.first.servings, 2);
+      });
+
+      test("returns multiple sources when two recipes share an ingredient", () {
+        Recipe pasta = _recipe(
+          id: "r1",
+          name: "Pasta",
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+              ],
+            ),
+          ],
+        );
+        Recipe bread = _recipe(
+          id: "r2",
+          name: "Bread",
+          instructions: [
+            Instruction(
+              id: "i2",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 200, unit: Unit.grams)),
+              ],
+            ),
+          ],
+        );
+        List<Recipe> recipes = [pasta, bread];
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pasta, yield: 1, people: 2),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: bread, yield: 1, people: 3),
+          ],
+        );
+
+        Map<String, List<IngredientSource>> sources = menu.ingredientSources(recipes: recipes);
+        expect(sources["flour"], hasLength(2));
+
+        IngredientSource pastaSource = sources["flour"]!.firstWhere((s) => s.recipeName == "Pasta");
+        expect(pastaSource.perServingQuantities.first.amount, 100.0);
+        expect(pastaSource.servings, 2);
+
+        IngredientSource breadSource = sources["flour"]!.firstWhere((s) => s.recipeName == "Bread");
+        expect(breadSource.perServingQuantities.first.amount, 200.0);
+        expect(breadSource.servings, 3);
+      });
+
+      test("yield 0 meals do not produce a source entry", () {
+        Recipe recipe = _recipe(
+          id: "r1",
+          name: "Pasta",
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+              ],
+            ),
+          ],
+        );
+        List<Recipe> recipes = [recipe];
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2)],
+        );
+
+        Map<String, List<IngredientSource>> sources = menu.ingredientSources(recipes: recipes);
+        expect(sources["flour"], isNull);
+      });
+
+      test("aggregates people across shared recipe meals", () {
+        Recipe recipe = _recipe(
+          id: "r1",
+          name: "Pasta",
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+              ],
+            ),
+          ],
+        );
+        List<Recipe> recipes = [recipe];
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2, people: 2),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 3),
+          ],
+        );
+
+        Map<String, List<IngredientSource>> sources = menu.ingredientSources(recipes: recipes);
+        expect(sources["flour"], hasLength(1));
+        expect(sources["flour"]!.first.recipeName, "Pasta");
+        // peopleFactor = 2 + 3 = 5
+        expect(sources["flour"]!.first.servings, 5);
+        expect(sources["flour"]!.first.perServingQuantities.first.amount, 100.0);
+      });
+
+      test("does not double-count per-serving when same recipe has yield > 0 in multiple meals", () {
+        Recipe recipe = _recipe(
+          id: "r1",
+          name: "Toast",
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(ingredient: "bread", quantity: const Quantity(amount: 3, unit: Unit.pieces)),
+              ],
+            ),
+          ],
+        );
+        List<Recipe> recipes = [recipe];
+        // Same recipe assigned to two breakfast slots, both with yield > 0
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.breakfast, recipe: recipe, yield: 1, people: 2),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.breakfast, recipe: recipe, yield: 1, people: 2),
+          ],
+        );
+
+        Map<String, List<IngredientSource>> sources = menu.ingredientSources(recipes: recipes);
+        expect(sources["bread"], hasLength(1));
+        // Per-serving should stay 3 (not 6)
+        expect(sources["bread"]!.first.perServingQuantities.first.amount, 3.0);
+        // peopleFactor = 2 + 2 = 4
+        expect(sources["bread"]!.first.servings, 4);
+      });
+
+      test("returns empty map for no meals", () {
+        const Menu menu = Menu(meals: []);
+        expect(menu.ingredientSources(recipes: []), isEmpty);
       });
     });
 

@@ -10,6 +10,7 @@ import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
+import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
@@ -34,6 +35,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
   /// Daily usage per ingredient (total / consumption days, simplified to total / 7 for now).
   late final Map<String, double> dailyUsagePerIngredient;
 
+  /// Per-recipe breakdown of ingredient usage (which recipes need each ingredient).
+  late final Map<String, List<IngredientSource>> ingredientSources;
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +45,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     Map<String, List<Quantity>> rawIngredients = widget.multiWeekMenu.allIngredients(recipes: RecipesProvider.instance.recipes);
 
     ingredientsRequired = normalizeAllIngredients(rawQuantities: rawIngredients, ingredients: allIngredients);
+    ingredientSources = widget.multiWeekMenu.ingredientSources(recipes: RecipesProvider.instance.recipes);
 
     ownedPacksPerProduct = {};
     ownedRawForNoProducts = {};
@@ -101,6 +106,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             ownedPacksPerProduct: ownedPacksPerProduct[ingredientId] ?? {},
             ownedRaw: ownedRawForNoProducts[ingredientId] ?? desired.map((q) => Quantity(amount: 0, unit: q.unit)).toList(),
             dailyUsage: dailyUsage,
+            sources: ingredientSources[ingredientId] ?? [],
             onPacksChanged: (int productIndex, double packs) {
               setState(() {
                 ownedPacksPerProduct[ingredientId] ??= {};

@@ -5,6 +5,7 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
+import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
 class ShoppingIngredient extends StatelessWidget {
@@ -19,6 +20,7 @@ class ShoppingIngredient extends StatelessWidget {
     required this.onPacksChanged,
     required this.onRawOwnedChanged,
     required this.dailyUsage,
+    required this.sources,
   });
 
   final Ingredient ingredient;
@@ -30,8 +32,61 @@ class ShoppingIngredient extends StatelessWidget {
   final void Function(int productIndex, double packs) onPacksChanged;
   final void Function(List<Quantity> rawOwned) onRawOwnedChanged;
   final double dailyUsage;
+  final List<IngredientSource> sources;
 
   bool get _isFullyCovered => calculatedRemainingQuantities.every((q) => q.amount <= 0);
+
+  void _showSourcesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("${ingredient.name} - Recipe Breakdown"),
+          content: SizedBox(
+            width: 500,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(3),
+                    1: FlexColumnWidth(2),
+                    2: FlexColumnWidth(1.5),
+                    3: FlexColumnWidth(2),
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: [
+                    TableRow(
+                      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor))),
+                      children: [
+                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Recipe", style: Theme.of(context).textTheme.titleSmall)),
+                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Per serving", style: Theme.of(context).textTheme.titleSmall)),
+                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Servings", style: Theme.of(context).textTheme.titleSmall)),
+                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Total", style: Theme.of(context).textTheme.titleSmall)),
+                      ],
+                    ),
+                    ...sources.map((IngredientSource source) {
+                      String perServing = source.perServingQuantities.map((q) => "${q.amount.toStringAsFixed(0)} ${q.unit.name}").join(" + ");
+                      String total = source.perServingQuantities.map((q) => "${(q.amount * source.servings).toStringAsFixed(0)} ${q.unit.name}").join(" + ");
+                      return TableRow(
+                        children: [
+                          Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(source.recipeName)),
+                          Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(perServing)),
+                          Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text("${source.servings}")),
+                          Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(total)),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("Close"))],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +113,12 @@ class ShoppingIngredient extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _isFullyCovered ? Theme.of(context).hintColor : null),
                   ),
                 ),
+                if (sources.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.help_outline_rounded, size: 20),
+                    tooltip: "Show recipe breakdown",
+                    onPressed: () => _showSourcesDialog(context),
+                  ),
                 ...calculatedRemainingQuantities.map((Quantity q) {
                   if (q.amount <= 0) {
                     return Padding(

@@ -13,6 +13,7 @@ import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/shopping/ingredient_source.dart";
 
 /// Helper to create a minimal recipe for testing
 Recipe _testRecipe({required String id, required String name, List<Instruction> instructions = const []}) {
@@ -153,6 +154,57 @@ void main() {
     test("returns empty map when no weeks have ingredients", () {
       final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [const Menu(), const Menu()]);
       expect(multiWeek.allIngredients(recipes: []), isEmpty);
+    });
+  });
+
+  group("MultiWeekMenu ingredientSources", () {
+    test("combines sources from multiple weeks", () {
+      Instruction flourInstruction = Instruction(
+        id: "i1",
+        description: "step",
+        ingredientsUsed: [IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 200, unit: Unit.grams))],
+      );
+      Recipe pastaRecipe = _testRecipe(id: "r1", name: "Pasta", instructions: [flourInstruction]);
+      Recipe breadRecipe = _testRecipe(id: "r2", name: "Bread", instructions: [flourInstruction]);
+      List<Recipe> recipes = [pastaRecipe, breadRecipe];
+
+      Menu week1 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pastaRecipe)]);
+      Menu week2 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: breadRecipe)]);
+
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
+      Map<String, List<IngredientSource>> sources = multiWeek.ingredientSources(recipes: recipes);
+
+      expect(sources["flour"], hasLength(2));
+      expect(sources["flour"]!.any((s) => s.recipeName == "Pasta"), true);
+      expect(sources["flour"]!.any((s) => s.recipeName == "Bread"), true);
+    });
+
+    test("same recipe across weeks is merged into one entry with summed servings", () {
+      Instruction flourInstruction = Instruction(
+        id: "i1",
+        description: "step",
+        ingredientsUsed: [IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams))],
+      );
+      Recipe recipe = _testRecipe(id: "r1", name: "Pasta", instructions: [flourInstruction]);
+      List<Recipe> recipes = [recipe];
+
+      // Default people = 2 per meal
+      Menu week1 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)]);
+      Menu week2 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)]);
+
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
+      Map<String, List<IngredientSource>> sources = multiWeek.ingredientSources(recipes: recipes);
+
+      // Same recipe in two weeks = one merged entry with combined servings
+      expect(sources["flour"], hasLength(1));
+      expect(sources["flour"]!.first.recipeName, "Pasta");
+      expect(sources["flour"]!.first.servings, 4); // 2 per week * 2 weeks
+      expect(sources["flour"]!.first.perServingQuantities.first.amount, 100.0);
+    });
+
+    test("returns empty map when no weeks have ingredients", () {
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [const Menu(), const Menu()]);
+      expect(multiWeek.ingredientSources(recipes: []), isEmpty);
     });
   });
 
