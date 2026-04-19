@@ -8,17 +8,33 @@ import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
-class ShoppingIngredient extends StatelessWidget {
+/// Represents the unit the user picks in the "owned" dropdown.
+/// [unit] is null when the user picks "packs" (product-relative).
+class OwnedUnit {
+  const OwnedUnit({this.unit});
+
+  /// null means "packs"
+  final Unit? unit;
+
+  String get label => unit?.name ?? "packs";
+
+  @override
+  bool operator ==(Object other) => other is OwnedUnit && other.unit == unit;
+
+  @override
+  int get hashCode => unit.hashCode;
+}
+
+class ShoppingIngredient extends StatefulWidget {
   const ShoppingIngredient({
     super.key,
     required this.ingredient,
     required this.quantitiesDesired,
     required this.calculatedRemainingQuantities,
     required this.productRecommendations,
-    required this.ownedPacksPerProduct,
-    required this.ownedRaw,
-    required this.onPacksChanged,
-    required this.onRawOwnedChanged,
+    required this.ownedAmount,
+    required this.ownedUnit,
+    required this.onOwnedChanged,
     required this.dailyUsage,
     required this.sources,
   });
@@ -27,21 +43,71 @@ class ShoppingIngredient extends StatelessWidget {
   final List<Quantity> quantitiesDesired;
   final List<Quantity> calculatedRemainingQuantities;
   final List<ProductRecommendation> productRecommendations;
-  final Map<int, double> ownedPacksPerProduct;
-  final List<Quantity> ownedRaw;
-  final void Function(int productIndex, double packs) onPacksChanged;
-  final void Function(List<Quantity> rawOwned) onRawOwnedChanged;
+  final double ownedAmount;
+  final OwnedUnit ownedUnit;
+  final void Function(double amount, OwnedUnit unit) onOwnedChanged;
   final double dailyUsage;
   final List<IngredientSource> sources;
 
-  bool get _isFullyCovered => calculatedRemainingQuantities.every((q) => q.amount <= 0);
+  @override
+  State<ShoppingIngredient> createState() => _ShoppingIngredientState();
+}
+
+class _ShoppingIngredientState extends State<ShoppingIngredient> {
+  late TextEditingController _controller;
+
+  bool get _isFullyCovered => widget.calculatedRemainingQuantities.every((q) => q.amount <= 0);
+
+  List<OwnedUnit> get _availableUnits {
+    Set<Unit> seen = {};
+    List<OwnedUnit> unitEntries = [];
+
+    // Collect unique units from products
+    for (Product product in widget.ingredient.products) {
+      if (seen.add(product.unit)) {
+        unitEntries.add(OwnedUnit(unit: product.unit));
+      }
+    }
+    // Add unique units from desired quantities not already covered by products
+    for (Quantity q in widget.quantitiesDesired) {
+      if (seen.add(q.unit)) {
+        unitEntries.add(OwnedUnit(unit: q.unit));
+      }
+    }
+
+    // Sort: pieces first, then other base units, then packs last
+    unitEntries.sort((OwnedUnit a, OwnedUnit b) {
+      if (a.unit == Unit.pieces && b.unit != Unit.pieces) return -1;
+      if (b.unit == Unit.pieces && a.unit != Unit.pieces) return 1;
+      return 0;
+    });
+
+    // Add "packs" at the end if there are products
+    if (widget.ingredient.products.isNotEmpty) {
+      unitEntries.add(const OwnedUnit());
+    }
+
+    return unitEntries;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   void _showSourcesDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("${ingredient.name} - Recipe Breakdown"),
+          title: Text("${widget.ingredient.name} - Recipe Breakdown"),
           content: SizedBox(
             width: 500,
             child: Column(
@@ -65,7 +131,7 @@ class ShoppingIngredient extends StatelessWidget {
                         Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Total", style: Theme.of(context).textTheme.titleSmall)),
                       ],
                     ),
-                    ...sources.map((IngredientSource source) {
+                    ...widget.sources.map((IngredientSource source) {
                       String perServing = source.perServingQuantities.map((q) => "${q.amount.toStringAsFixed(0)} ${q.unit.name}").join(" + ");
                       String total = source.perServingQuantities.map((q) => "${(q.amount * source.servings).toStringAsFixed(0)} ${q.unit.name}").join(" + ");
                       return TableRow(
@@ -88,15 +154,42 @@ class ShoppingIngredient extends StatelessWidget {
     );
   }
 
+  int _packsToBuyForProduct(Product product) {
+    Quantity? remaining = widget.calculatedRemainingQuantities.firstWhereOrNull((q) => q.unit == product.unit);
+    if (remaining == null || remaining.amount <= 0) return 0;
+    return product.packsNeeded(remaining.amount);
+  }
+
+  void _autoFillOwned() {
+    // Auto-fill with the total desired amount in the currently selected unit
+    OwnedUnit selectedUnit = widget.ownedUnit;
+    double autoValue;
+
+    if (selectedUnit.unit == null) {
+      // Packs: use the recommended product's packs needed
+      ProductRecommendation? bestRec = widget.productRecommendations.firstWhereOrNull((r) => r.isViable) ?? widget.productRecommendations.firstOrNull;
+      autoValue = bestRec?.packsNeeded.toDouble() ?? 0;
+    } else {
+      // Raw unit: use the desired quantity for that unit
+      Quantity? desired = widget.quantitiesDesired.firstWhereOrNull((q) => q.unit == selectedUnit.unit);
+      autoValue = desired?.amount ?? 0;
+    }
+
+    setState(() => _controller.text = autoValue.toStringAsFixed(autoValue == autoValue.roundToDouble() ? 0 : 1));
+    widget.onOwnedChanged(autoValue, selectedUnit);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Find the best (first viable, or first overall) recommendation
     int? bestProductIndex;
-    if (productRecommendations.length > 1) {
-      ProductRecommendation? bestViable = productRecommendations.firstWhereOrNull((r) => r.isViable);
-      ProductRecommendation best = bestViable ?? productRecommendations.first;
-      bestProductIndex = ingredient.products.indexOf(best.product);
+    if (widget.productRecommendations.length > 1) {
+      ProductRecommendation? bestViable = widget.productRecommendations.firstWhereOrNull((r) => r.isViable);
+      ProductRecommendation best = bestViable ?? widget.productRecommendations.first;
+      bestProductIndex = widget.ingredient.products.indexOf(best.product);
     }
+
+    List<OwnedUnit> availableUnits = _availableUnits;
 
     return OutlinedCard(
       child: Padding(
@@ -104,22 +197,63 @@ class ShoppingIngredient extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: ingredient name + total remaining
+            // Header: ingredient name + owned input + remaining + help icon (far right)
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    ingredient.name,
+                    widget.ingredient.name,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(color: _isFullyCovered ? Theme.of(context).hintColor : null),
                   ),
                 ),
-                if (sources.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.help_outline_rounded, size: 20),
-                    tooltip: "Show recipe breakdown",
-                    onPressed: () => _showSourcesDialog(context),
+
+                // Owned quantity input with unit dropdown
+                if (availableUnits.isNotEmpty) ...[
+                  SizedBox(
+                    width: 120,
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        labelText: "Owned",
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.check_circle_rounded, size: 20),
+                          tooltip: "Auto-fill with needed amount",
+                          onPressed: _autoFillOwned,
+                        ),
+                      ),
+                      onChanged: (String value) {
+                        double? val = double.tryParse(value);
+                        if (value.isNullOrEmpty) val = 0;
+                        if (val == null) return;
+                        widget.onOwnedChanged(val, widget.ownedUnit);
+                      },
+                    ),
                   ),
-                ...calculatedRemainingQuantities.map((Quantity q) {
+                  const SizedBox(width: 4),
+                  if (availableUnits.length == 1)
+                    SizedBox(
+                      width: 80,
+                      child: Text(availableUnits.first.label, style: Theme.of(context).textTheme.bodyLarge),
+                    )
+                  else
+                    DropdownMenu<OwnedUnit>(
+                      initialSelection: widget.ownedUnit,
+                      width: 120,
+                      inputDecorationTheme: const InputDecorationTheme(isDense: true, constraints: BoxConstraints(maxHeight: 40)),
+                      dropdownMenuEntries: availableUnits.map((OwnedUnit u) => DropdownMenuEntry<OwnedUnit>(value: u, label: u.label)).toList(),
+                      onSelected: (OwnedUnit? newUnit) {
+                        if (newUnit == null) return;
+                        double currentAmount = double.tryParse(_controller.text) ?? 0;
+                        widget.onOwnedChanged(currentAmount, newUnit);
+                      },
+                    ),
+                  const SizedBox(width: 16),
+                ],
+
+                // Remaining quantities
+                ...widget.calculatedRemainingQuantities.map((Quantity q) {
                   if (q.amount <= 0) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 8),
@@ -134,18 +268,29 @@ class ShoppingIngredient extends StatelessWidget {
                     child: Text("Need: ${q.amount.toStringAsFixed(0)} ${q.unit.name}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
                   );
                 }),
+
+                // Help icon (far right)
+                if (widget.sources.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: IconButton(
+                      icon: const Icon(Icons.help_outline_rounded, size: 20),
+                      tooltip: "Show recipe breakdown",
+                      onPressed: () => _showSourcesDialog(context),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 8),
 
             // Product rows (only for products whose unit matches a required quantity)
-            if (ingredient.products.isNotEmpty)
-              ...ingredient.products.asMap().entries.where((entry) => quantitiesDesired.any((q) => q.unit == entry.value.unit)).map((MapEntry<int, Product> entry) {
+            if (widget.ingredient.products.isNotEmpty)
+              ...widget.ingredient.products.asMap().entries.where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit)).map((MapEntry<int, Product> entry) {
                 int productIndex = entry.key;
                 Product product = entry.value;
 
                 // Find recommendation for this product
-                ProductRecommendation recommendation = productRecommendations.firstWhere(
+                ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
                   (r) => r.product == product,
                   orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
                 );
@@ -156,106 +301,10 @@ class ShoppingIngredient extends StatelessWidget {
                     product: product,
                     recommendation: recommendation,
                     isRecommended: bestProductIndex == productIndex,
-                    ownedPacks: ownedPacksPerProduct[productIndex] ?? 0,
-                    onOwnedPacksChanged: (double packs) => onPacksChanged(productIndex, packs),
+                    packsToBuy: _packsToBuyForProduct(product),
                   ),
                 );
               }),
-
-            // Raw unit fallback (no products)
-            if (ingredient.products.isEmpty)
-              ...quantitiesDesired.map((Quantity quantity) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: _NoProductRow(
-                    quantity: quantity,
-                    remainingAmount: calculatedRemainingQuantities.firstWhere((q) => q.unit == quantity.unit, orElse: () => Quantity(amount: 0, unit: quantity.unit)),
-                    ownedQuantity: ownedRaw.firstWhere((q) => q.unit == quantity.unit, orElse: () => Quantity(amount: 0, unit: quantity.unit)),
-                    onOwnedAmountChanged: (double value, Unit unit) {
-                      List<Quantity> newOwned = ownedRaw.map((q) => q.unit == unit ? Quantity(amount: value, unit: unit) : q).toList();
-                      onRawOwnedChanged(newOwned);
-                    },
-                  ),
-                );
-              }),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NoProductRow extends StatefulWidget {
-  const _NoProductRow({required this.quantity, required this.remainingAmount, required this.ownedQuantity, required this.onOwnedAmountChanged});
-
-  final Quantity quantity;
-  final Quantity remainingAmount;
-  final Quantity ownedQuantity;
-  final void Function(double value, Unit unit) onOwnedAmountChanged;
-
-  @override
-  State<_NoProductRow> createState() => _NoProductRowState();
-}
-
-class _NoProductRowState extends State<_NoProductRow> {
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String unit = widget.quantity.unit.name;
-    bool covered = widget.remainingAmount.amount <= 0;
-
-    return FilledCard(
-      color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: covered ? 0.3 : 1),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        child: Row(
-          children: [
-            SizedBox(width: 200, child: Text("${widget.quantity.amount.toStringAsFixed(0)} $unit", style: Theme.of(context).textTheme.bodyLarge)),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 200,
-              child: TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  labelText: "Owned $unit",
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.check_circle_rounded, size: 20),
-                    onPressed: () {
-                      setState(() => _controller.text = widget.quantity.amount.toString());
-                      widget.onOwnedAmountChanged(widget.quantity.amount, widget.quantity.unit);
-                    },
-                  ),
-                ),
-                onChanged: (String value) {
-                  double? val = double.tryParse(value);
-                  if (value.isNullOrEmpty) val = 0;
-                  if (val == null) return;
-                  widget.onOwnedAmountChanged(val, widget.quantity.unit);
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 150,
-              child: covered
-                  ? Row(children: [Icon(Icons.check_rounded, color: Theme.of(context).hintColor, size: 18), const SizedBox(width: 4), Text("Covered", style: TextStyle(color: Theme.of(context).hintColor))])
-                  : Text("${widget.remainingAmount.amount.toStringAsFixed(0)} $unit remaining", style: Theme.of(context).textTheme.bodyLarge),
-            ),
           ],
         ),
       ),

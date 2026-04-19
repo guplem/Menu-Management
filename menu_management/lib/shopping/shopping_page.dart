@@ -7,6 +7,7 @@ import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
@@ -26,11 +27,11 @@ class ShoppingPage extends StatefulWidget {
 class _ShoppingPageState extends State<ShoppingPage> {
   late final Map<String, List<Quantity>> ingredientsRequired;
 
-  /// Per-product owned packs: ingredient ID -> product index -> owned packs (double).
-  late final Map<String, Map<int, double>> ownedPacksPerProduct;
+  /// Owned amount per ingredient (raw number entered by user).
+  late final Map<String, double> ownedAmounts;
 
-  /// Raw owned amounts for ingredients without products: ingredient ID to List of Quantity.
-  late final Map<String, List<Quantity>> ownedRawForNoProducts;
+  /// Selected unit for owned input per ingredient.
+  late final Map<String, OwnedUnit> ownedUnits;
 
   /// Daily usage per ingredient (total / consumption days, simplified to total / 7 for now).
   late final Map<String, double> dailyUsagePerIngredient;
@@ -47,8 +48,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
     ingredientsRequired = normalizeAllIngredients(rawQuantities: rawIngredients, ingredients: allIngredients);
     ingredientSources = widget.multiWeekMenu.ingredientSources(recipes: RecipesProvider.instance.recipes);
 
-    ownedPacksPerProduct = {};
-    ownedRawForNoProducts = {};
+    ownedAmounts = {};
+    ownedUnits = {};
     dailyUsagePerIngredient = {};
 
     int totalDays = widget.multiWeekMenu.weeks.length * 7;
@@ -57,10 +58,17 @@ class _ShoppingPageState extends State<ShoppingPage> {
       String ingredientId = entry.key;
       Ingredient? ingredient = allIngredients.firstWhereOrNull((i) => i.id == ingredientId);
 
+      ownedAmounts[ingredientId] = 0;
+
+      // Default unit: pieces if any product has it, otherwise first product's unit, or first desired unit
       if (ingredient != null && ingredient.products.isNotEmpty) {
-        ownedPacksPerProduct[ingredientId] = {};
+        bool hasPieces = ingredient.products.any((p) => p.unit == Unit.pieces) || entry.value.any((q) => q.unit == Unit.pieces);
+        ownedUnits[ingredientId] = OwnedUnit(unit: hasPieces ? Unit.pieces : ingredient.products.first.unit);
+      } else if (entry.value.isNotEmpty) {
+        bool hasPieces = entry.value.any((q) => q.unit == Unit.pieces);
+        ownedUnits[ingredientId] = OwnedUnit(unit: hasPieces ? Unit.pieces : entry.value.first.unit);
       } else {
-        ownedRawForNoProducts[ingredientId] = entry.value.map((q) => Quantity(amount: 0, unit: q.unit)).toList();
+        ownedUnits[ingredientId] = const OwnedUnit(unit: Unit.grams);
       }
 
       // Compute daily usage: sum of all quantities in the first matching unit
@@ -103,18 +111,15 @@ class _ShoppingPageState extends State<ShoppingPage> {
             quantitiesDesired: desired,
             calculatedRemainingQuantities: remaining,
             productRecommendations: recommendations,
-            ownedPacksPerProduct: ownedPacksPerProduct[ingredientId] ?? {},
-            ownedRaw: ownedRawForNoProducts[ingredientId] ?? desired.map((q) => Quantity(amount: 0, unit: q.unit)).toList(),
+            ownedAmount: ownedAmounts[ingredientId] ?? 0,
+            ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
             dailyUsage: dailyUsage,
             sources: ingredientSources[ingredientId] ?? [],
-            onPacksChanged: (int productIndex, double packs) {
+            onOwnedChanged: (double amount, OwnedUnit unit) {
               setState(() {
-                ownedPacksPerProduct[ingredientId] ??= {};
-                ownedPacksPerProduct[ingredientId]![productIndex] = packs;
+                ownedAmounts[ingredientId] = amount;
+                ownedUnits[ingredientId] = unit;
               });
-            },
-            onRawOwnedChanged: (List<Quantity> rawOwned) {
-              setState(() => ownedRawForNoProducts[ingredientId] = rawOwned);
             },
           );
         },
@@ -122,34 +127,41 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
+  /// Converts owned amount to the actual quantity in [targetUnit] based on the selected owned unit.
+  double _ownedInUnit({required String ingredientId, required Ingredient ingredient, required Unit targetUnit}) {
+    double amount = ownedAmounts[ingredientId] ?? 0;
+    if (amount <= 0) return 0;
+
+    OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? OwnedUnit(unit: targetUnit);
+
+    if (selectedUnit.unit == null) {
+      // "packs" mode: find the first product with matching target unit and convert
+      Product? product = ingredient.products.firstWhereOrNull((p) => p.unit == targetUnit);
+      if (product == null) return 0;
+      return amount * product.totalQuantityPerPack;
+    }
+
+    if (selectedUnit.unit == targetUnit) {
+      return amount;
+    }
+
+    // Different units: try conversion via ingredient density
+    double? ownedGrams = ingredient.toGrams(Quantity(amount: amount, unit: selectedUnit.unit!));
+    if (ownedGrams != null) {
+      if (targetUnit == Unit.grams) return ownedGrams;
+      double? converted = ingredient.fromGrams(ownedGrams, targetUnit);
+      if (converted != null) return converted;
+    }
+
+    return 0;
+  }
+
   List<Quantity> _remainingAmounts({required String ingredientId, required Ingredient ingredient}) {
     List<Quantity> required = ingredientsRequired[ingredientId]!;
 
-    if (ingredient.products.isNotEmpty) {
-      // Compute total owned amount from pack data
-      Map<int, double> ownedPacks = ownedPacksPerProduct[ingredientId] ?? {};
-
-      return required.map((Quantity quantityRequired) {
-        // Sum owned across all products with matching unit
-        double totalOwned = 0;
-        for (MapEntry<int, double> entry in ownedPacks.entries) {
-          if (entry.key < ingredient.products.length) {
-            Product product = ingredient.products[entry.key];
-            if (product.unit == quantityRequired.unit) {
-              totalOwned += entry.value * product.totalQuantityPerPack;
-            }
-          }
-        }
-        double amount = quantityRequired.amount - totalOwned;
-        return Quantity(amount: max(0, amount).roundToDouble(), unit: quantityRequired.unit);
-      }).toList();
-    }
-
-    // No products: use raw owned amounts
-    List<Quantity> owned = ownedRawForNoProducts[ingredientId] ?? [];
     return required.map((Quantity quantityRequired) {
-      Quantity ownedQuantity = owned.firstWhere((o) => o.unit == quantityRequired.unit, orElse: () => Quantity(amount: 0, unit: quantityRequired.unit));
-      double amount = quantityRequired.amount - ownedQuantity.amount;
+      double owned = _ownedInUnit(ingredientId: ingredientId, ingredient: ingredient, targetUnit: quantityRequired.unit);
+      double amount = quantityRequired.amount - owned;
       return Quantity(amount: max(0, amount).roundToDouble(), unit: quantityRequired.unit);
     }).toList();
   }
