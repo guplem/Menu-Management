@@ -19,55 +19,69 @@ bool _isVolumeUnit(Unit unit) => _mlPerUnit.containsKey(unit);
 /// Pieces are never merged with other units.
 List<Quantity> normalizeQuantities({required Ingredient ingredient, required List<Quantity> rawQuantities}) {
   if (rawQuantities.isEmpty) return const [];
-  if (rawQuantities.length == 1 && (rawQuantities.first.unit == Unit.grams || rawQuantities.first.unit == Unit.pieces)) {
+  if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.grams) {
+    return rawQuantities;
+  }
+  if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.pieces && ingredient.gramsPerPiece == null) {
     return rawQuantities;
   }
 
-  // Separate pieces from weight/volume
-  final List<Quantity> pieces = rawQuantities.where((q) => q.unit == Unit.pieces).toList();
-  final List<Quantity> weightVolume = rawQuantities.where((q) => q.unit != Unit.pieces).toList();
+  // Accumulate totals across all units
+  double totalGrams = 0;
+  double totalMl = 0;
+  double totalPieces = 0;
 
-  if (weightVolume.isEmpty) return pieces;
+  for (Quantity q in rawQuantities) {
+    switch (q.unit) {
+      case Unit.grams:
+        totalGrams += q.amount;
+      case Unit.centiliters:
+      case Unit.tablespoons:
+      case Unit.teaspoons:
+        totalMl += q.amount * _mlPerUnit[q.unit]!;
+      case Unit.pieces:
+        if (ingredient.gramsPerPiece != null) {
+          totalGrams += q.amount * ingredient.gramsPerPiece!;
+        } else {
+          totalPieces += q.amount;
+        }
+    }
+  }
 
-  // Sum all grams
-  double totalGrams = weightVolume.where((q) => q.unit == Unit.grams).fold(0.0, (sum, q) => sum + q.amount);
+  bool hasGrams = totalGrams > 0;
+  bool hasVolume = totalMl > 0;
 
-  // Sum all volume as milliliters
-  double totalMl = weightVolume.where((q) => _isVolumeUnit(q.unit)).fold(0.0, (sum, q) => sum + q.amount * _mlPerUnit[q.unit]!);
-
-  bool hasGrams = weightVolume.any((q) => q.unit == Unit.grams);
-  bool hasVolume = weightVolume.any((q) => _isVolumeUnit(q.unit));
+  // If only unconverted pieces remain, return them
+  if (!hasGrams && !hasVolume && totalPieces > 0) {
+    return [Quantity(amount: totalPieces, unit: Unit.pieces)];
+  }
 
   // Determine the target unit
   Unit targetUnit = _determineTargetUnit(ingredient: ingredient, hasGrams: hasGrams, hasVolume: hasVolume);
 
+  List<Quantity> result = [];
+  if (totalPieces > 0) result.add(Quantity(amount: totalPieces, unit: Unit.pieces));
+
   if (targetUnit == Unit.grams) {
-    // Merge everything into grams
     if (hasVolume && ingredient.density != null) {
       totalGrams += totalMl * ingredient.density!;
       totalMl = 0;
     }
-
-    List<Quantity> result = [...pieces];
     if (totalGrams > 0) result.add(Quantity(amount: totalGrams, unit: Unit.grams));
     if (totalMl > 0) result.add(Quantity(amount: totalMl / 10, unit: Unit.centiliters)); // fallback: couldn't convert
     return result;
   }
 
   if (targetUnit == Unit.centiliters) {
-    // Merge everything into centiliters
     if (hasGrams && ingredient.density != null && ingredient.density! > 0) {
       totalMl += totalGrams / ingredient.density!;
       totalGrams = 0;
     }
-
-    List<Quantity> result = [...pieces];
     if (totalMl > 0) result.add(Quantity(amount: totalMl / 10, unit: Unit.centiliters));
     if (totalGrams > 0) result.add(Quantity(amount: totalGrams, unit: Unit.grams)); // fallback: couldn't convert
     return result;
   }
 
-  // Should not reach here, but return original as safety net
   return rawQuantities;
 }
 
@@ -76,7 +90,10 @@ Unit _determineTargetUnit({required Ingredient ingredient, required bool hasGram
   // If a product exists, prefer matching the product's unit
   if (ingredient.products.isNotEmpty) {
     Unit productUnit = ingredient.products.first.unit;
-    if (productUnit == Unit.grams && ingredient.density != null) return Unit.grams;
+    if (productUnit == Unit.grams) {
+      bool canConvertVolume = !hasVolume || ingredient.density != null;
+      if (canConvertVolume) return Unit.grams;
+    }
     if (_isVolumeUnit(productUnit)) return Unit.centiliters;
     // Product is in pieces or unknown; fall through to default logic
   }

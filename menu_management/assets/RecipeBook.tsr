@@ -11,7 +11,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.4
+      "density": 0.4,
+      "gramsPerPiece": 30
     },
     {
       "id": "0e622f00-5915-1e99-9cbf-85317f03e969",
@@ -24,7 +25,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.95
+      "density": 0.95,
+      "gramsPerPiece": 200
     },
     {
       "id": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
@@ -63,7 +65,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 20
     },
     {
       "id": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
@@ -76,7 +79,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.1
+      "density": 1.1,
+      "gramsPerPiece": 30
     },
     {
       "id": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
@@ -89,7 +93,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 20
     },
     {
       "id": "1410a8a0-6e0f-1e99-9cbf-85317f03e969",
@@ -129,7 +134,8 @@
           "shelfLifeDays": 1
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 52
     },
     {
       "id": "f187e8e0-7479-1e99-9cbf-85317f03e969",
@@ -150,7 +156,8 @@
           "shelfLifeDays": 5
         }
       ],
-      "density": 1.0
+      "density": 1.0,
+      "gramsPerPiece": 140
     },
     {
       "id": "a4d36d70-7542-1e99-9cbf-85317f03e969",
@@ -249,7 +256,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.95
+      "density": 0.95,
+      "gramsPerPiece": 120
     },
     {
       "id": "342cd030-8045-1e99-9cbf-85317f03e969",
@@ -263,7 +271,8 @@
           "shelfLifeDays": 1
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 125
     },
     {
       "id": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
@@ -296,7 +305,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.9
+      "density": 0.9,
+      "gramsPerPiece": 80
     },
     {
       "id": "c4de41c0-8aab-1e99-9cbf-85317f03e969",
@@ -322,7 +332,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.0
+      "density": 1.0,
+      "gramsPerPiece": 300
     },
     {
       "id": "869dc0e0-9deb-1e99-9cbf-85317f03e969",
@@ -335,7 +346,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.7
+      "density": 0.7,
+      "gramsPerPiece": 250
     },
     {
       "id": "fe0d71c0-8395-1eaa-b835-cfe533d41a10",
@@ -387,7 +399,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.92
+      "density": 0.92,
+      "gramsPerPiece": 150
     },
     {
       "id": "be016180-86e3-1eaa-b835-cfe533d41a10",
@@ -453,7 +466,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.1
+      "density": 1.1,
+      "gramsPerPiece": 5
     },
     {
       "id": "fbbadd60-bb47-1eaa-b835-cfe533d41a10",
@@ -492,7 +506,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.9
+      "density": 0.9,
+      "gramsPerPiece": 200
     },
     {
       "id": "20cddb70-c539-1eaa-b835-cfe533d41a10",
@@ -554,7 +569,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.85
+      "density": 0.85,
+      "gramsPerPiece": 350
     },
     {
       "id": "44da8460-2173-1eeb-9b52-298d2e408b19",
@@ -641,7 +657,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.7
+      "density": 0.7,
+      "gramsPerPiece": 125
     },
     {
       "id": "ba1843d0-5949-1eeb-9877-9f2416bff04c",
@@ -673,7 +690,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.95
+      "density": 0.95,
+      "gramsPerPiece": 15
     },
     {
       "id": "33b65330-5a85-1eeb-9877-9f2416bff04c",
@@ -726,7 +744,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.92
+      "density": 0.92,
+      "gramsPerPiece": 150
     },
     {
       "id": "d48c4d30-cc57-1098-91d0-51096b672064",
@@ -845,7 +864,8 @@
           "shelfLifeDays": 7
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 30
     },
     {
       "id": "ad070e70-d194-10a7-a87d-2fef2dcd1072",
@@ -1053,7 +1073,8 @@
           "shelfLifeDays": 1
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 200
     },
     {
       "id": "809e0220-8278-11ef-91e8-3ff59147e22a",
@@ -1159,7 +1180,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 150
     },
     {
       "id": "3bc3b7f4-5b8f-44af-844c-e16a0e2a086d",
@@ -1172,7 +1194,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.0
+      "density": 1.0,
+      "gramsPerPiece": 45
     },
     {
       "id": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
@@ -1226,7 +1249,8 @@
           "shelfLifeDays": 1
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 150
     },
     {
       "id": "8688350e-e38f-4a47-ad15-528ec384069f",
@@ -1253,7 +1277,8 @@
           "shelfLifeDays": 5
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 250
     },
     {
       "id": "0d635fd3-fd45-4d49-9d3c-11776be1ea6f",
@@ -1267,7 +1292,8 @@
           "shelfLifeDays": 3
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 250
     },
     {
       "id": "40ea28e4-3537-4f7c-9623-01214c168ef3",
@@ -1307,7 +1333,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.75
+      "density": 0.75,
+      "gramsPerPiece": 250
     },
     {
       "id": "fe71deee-e360-45ef-af6c-d6b64de852f2",
@@ -1333,7 +1360,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.5
+      "density": 0.5,
+      "gramsPerPiece": 115
     },
     {
       "id": "435b3e6a-6a14-4312-b02e-c905e806f234",
@@ -1347,7 +1375,8 @@
           "shelfLifeDays": 2
         }
       ],
-      "density": 1.0
+      "density": 1.0,
+      "gramsPerPiece": 100
     },
     {
       "id": "f013976c-649d-469e-a7e7-d04b5cb97a3b",
@@ -1360,7 +1389,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.7
+      "density": 0.7,
+      "gramsPerPiece": 400
     },
     {
       "id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
@@ -2859,8 +2889,8 @@
             {
               "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 0.1,
-                "unit": "pieces"
+                "amount": 1,
+                "unit": "teaspoons"
               },
               "ref_name": "Sal"
             },
@@ -3060,8 +3090,8 @@
             {
               "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 0.5,
-                "unit": "pieces"
+                "amount": 1,
+                "unit": "tablespoons"
               },
               "ref_name": "Aceite de Oliva"
             }

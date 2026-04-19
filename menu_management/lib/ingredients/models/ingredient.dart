@@ -8,35 +8,33 @@ part "ingredient.g.dart";
 
 @freezed
 abstract class Ingredient with _$Ingredient {
-  const factory Ingredient({required String id, required String name, @Default([]) List<Product> products, @JsonKey(includeIfNull: false) double? density}) = _Ingredient;
+  const factory Ingredient({required String id, required String name, @Default([]) List<Product> products, @JsonKey(includeIfNull: false) double? density, @JsonKey(includeIfNull: false) double? gramsPerPiece}) = _Ingredient;
 
   factory Ingredient.fromJson(Map<String, Object?> json) => _$IngredientFromJson(json);
 
   const Ingredient._();
 
-  /// Converts a quantity to grams using this ingredient's density.
-  /// Returns null when conversion is not possible (no density, or unit is pieces).
+  /// Converts a quantity to grams using density (for volume) or gramsPerPiece (for pieces).
+  /// Returns null when conversion is not possible.
   double? toGrams(Quantity quantity) {
-    if (density == null) return null;
     return switch (quantity.unit) {
       Unit.grams => quantity.amount,
-      Unit.centiliters => quantity.amount * 10 * density!,
-      Unit.tablespoons => quantity.amount * 15 * density!,
-      Unit.teaspoons => quantity.amount * 5 * density!,
-      Unit.pieces => null,
+      Unit.centiliters => density != null ? quantity.amount * 10 * density! : null,
+      Unit.tablespoons => density != null ? quantity.amount * 15 * density! : null,
+      Unit.teaspoons => density != null ? quantity.amount * 5 * density! : null,
+      Unit.pieces => gramsPerPiece != null ? quantity.amount * gramsPerPiece! : null,
     };
   }
 
-  /// Converts a gram amount back to the given unit using this ingredient's density.
-  /// Returns null when conversion is not possible (no density, or target is pieces).
+  /// Converts a gram amount back to the given unit using density or gramsPerPiece.
+  /// Returns null when conversion is not possible.
   double? fromGrams(double grams, Unit targetUnit) {
-    if (density == null) return null;
     return switch (targetUnit) {
       Unit.grams => grams,
-      Unit.centiliters => grams / (10 * density!),
-      Unit.tablespoons => grams / (15 * density!),
-      Unit.teaspoons => grams / (5 * density!),
-      Unit.pieces => null,
+      Unit.centiliters => density != null ? grams / (10 * density!) : null,
+      Unit.tablespoons => density != null ? grams / (15 * density!) : null,
+      Unit.teaspoons => density != null ? grams / (5 * density!) : null,
+      Unit.pieces => gramsPerPiece != null && gramsPerPiece! > 0 ? grams / gramsPerPiece! : null,
     };
   }
 }

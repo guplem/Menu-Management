@@ -77,9 +77,9 @@ class ShoppingIngredient extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // Product rows (if products exist)
+            // Product rows (only for products whose unit matches a required quantity)
             if (ingredient.products.isNotEmpty)
-              ...ingredient.products.asMap().entries.map((MapEntry<int, Product> entry) {
+              ...ingredient.products.asMap().entries.where((entry) => quantitiesDesired.any((q) => q.unit == entry.value.unit)).map((MapEntry<int, Product> entry) {
                 int productIndex = entry.key;
                 Product product = entry.value;
 

@@ -82,13 +82,15 @@ class _ShoppingPageState extends State<ShoppingPage> {
           List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
           double dailyUsage = dailyUsagePerIngredient[ingredientId] ?? 0;
 
-          // Compute product recommendations
+          // Compute product recommendations per required unit
           List<ProductRecommendation> recommendations = [];
           if (ingredient.products.isNotEmpty && desired.isNotEmpty) {
-            // Use the first quantity's amount and unit for recommendations (after normalization, usually just 1)
-            Quantity primaryQuantity = desired.first;
-            List<Product> matchingProducts = ingredient.products.where((p) => p.unit == primaryQuantity.unit).toList();
-            recommendations = rankProducts(totalNeeded: primaryQuantity.amount, dailyUsage: dailyUsage, products: matchingProducts);
+            for (Quantity quantity in desired) {
+              List<Product> matchingProducts = ingredient.products.where((p) => p.unit == quantity.unit).toList();
+              if (matchingProducts.isNotEmpty) {
+                recommendations.addAll(rankProducts(totalNeeded: quantity.amount, dailyUsage: dailyUsage, products: matchingProducts));
+              }
+            }
           }
 
           return ShoppingIngredient(
