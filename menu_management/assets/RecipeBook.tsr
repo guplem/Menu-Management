@@ -1745,16 +1745,16 @@
             {
               "ingredient": "15b72e30-7419-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 0.5,
-                "unit": "pieces"
+                "amount": 30.0,
+                "unit": "grams"
               },
               "ref_name": "Atún en lata"
             },
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 0.33,
-                "unit": "pieces"
+                "amount": 35.0,
+                "unit": "grams"
               },
               "ref_name": "Maíz en lata"
             },
