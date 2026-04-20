@@ -1506,12 +1506,6 @@
         {
           "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 1.0,
-          "unit": "pieces"
-        },
-        {
-          "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
-          "itemsPerPack": 1,
           "quantityPerItem": 1000.0,
           "unit": "grams"
         }
@@ -5695,14 +5689,14 @@
             {
               "ingredient": "f013976c-649d-469e-a7e7-d04b5cb97a3b",
               "quantity": {
-                "amount": 1.0,
-                "unit": "pieces"
+                "amount": 250.0,
+                "unit": "grams"
               },
               "ref_name": "Arroz 3 delicias congelado"
             }
           ],
           "workingTimeMinutes": 1,
-          "cookingTimeMinutes": 5,
+          "cookingTimeMinutes": 7,
           "description": "Calentar en sartén o microondas según instrucciones",
           "outputs": [],
           "inputs": []
