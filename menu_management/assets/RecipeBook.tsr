@@ -75,7 +75,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 15.0
     },
     {
       "id": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
@@ -88,7 +89,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.1
+      "density": 1.1,
+      "gramsPerPiece": 20.0
     },
     {
       "id": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
@@ -101,7 +103,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 8.0
     },
     {
       "id": "1410a8a0-6e0f-1e99-9cbf-85317f03e969",
@@ -338,7 +341,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.9
+      "density": 0.9,
+      "gramsPerPiece": 80.0
     },
     {
       "id": "c4de41c0-8aab-1e99-9cbf-85317f03e969",
@@ -441,7 +445,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.92
+      "density": 0.92,
+      "gramsPerPiece": 150.0
     },
     {
       "id": "be016180-86e3-1eaa-b835-cfe533d41a10",
@@ -507,7 +512,8 @@
           "unit": "grams"
         }
       ],
-      "density": 1.1
+      "density": 1.1,
+      "gramsPerPiece": 5.0
     },
     {
       "id": "fbbadd60-bb47-1eaa-b835-cfe533d41a10",
@@ -552,7 +558,8 @@
           "unit": "pieces"
         }
       ],
-      "density": 0.9
+      "density": 0.9,
+      "gramsPerPiece": 410.0
     },
     {
       "id": "20cddb70-c539-1eaa-b835-cfe533d41a10",
@@ -764,7 +771,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.95
+      "density": 0.95,
+      "gramsPerPiece": 10.0
     },
     {
       "id": "33b65330-5a85-1eeb-9877-9f2416bff04c",
@@ -810,7 +818,8 @@
       "id": "4167ed50-5e44-1eeb-9877-9f2416bff04c",
       "name": "Cebolla Roja",
       "products": [],
-      "density": 0.92
+      "density": 0.92,
+      "gramsPerPiece": 130.0
     },
     {
       "id": "d48c4d30-cc57-1098-91d0-51096b672064",
@@ -823,7 +832,8 @@
           "unit": "pieces"
         }
       ],
-      "density": 1.09
+      "density": 1.09,
+      "gramsPerPiece": 170.0
     },
     {
       "id": "5ce86780-cd8a-1098-91d0-51096b672064",
@@ -929,7 +939,8 @@
           "shelfLifeDays": 7
         }
       ],
-      "density": 1.05
+      "density": 1.05,
+      "gramsPerPiece": 3.0
     },
     {
       "id": "ad070e70-d194-10a7-a87d-2fef2dcd1072",
@@ -1250,15 +1261,9 @@
       "products": [
         {
           "link": "https://tienda.mercadona.es/product/2787/filetes-pechuga-pollo-bandeja",
-          "itemsPerPack": 1,
+          "itemsPerPack": 5,
           "quantityPerItem": 530.0,
           "unit": "grams"
-        },
-        {
-          "link": "https://tienda.mercadona.es/product/2787/filetes-pechuga-pollo-bandeja",
-          "itemsPerPack": 4,
-          "quantityPerItem": 1.0,
-          "unit": "pieces"
         }
       ],
       "density": 1.05
@@ -1439,7 +1444,8 @@
           "unit": "grams"
         }
       ],
-      "density": 0.75
+      "density": 0.75,
+      "gramsPerPiece": 30.0
     },
     {
       "id": "fe71deee-e360-45ef-af6c-d6b64de852f2",
@@ -1497,6 +1503,12 @@
       "id": "f013976c-649d-469e-a7e7-d04b5cb97a3b",
       "name": "Arroz 3 delicias congelado",
       "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces"
+        },
         {
           "link": "https://tienda.mercadona.es/product/86905/arroz-tres-delicias-hacendado-ultracongelado-con-2-sazonadores-paquete",
           "itemsPerPack": 1,

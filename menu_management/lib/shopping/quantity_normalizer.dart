@@ -1,5 +1,6 @@
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 
@@ -16,13 +17,16 @@ bool _isVolumeUnit(Unit unit) => _mlPerUnit.containsKey(unit);
 /// compatible units. Volume units (tbsp, tsp, cl) are merged universally.
 /// If density is known, volume and weight are merged into grams.
 ///
-/// Pieces are never merged with other units.
+/// Pieces are merged with grams when gramsPerPiece is known and no pieces-based product exists.
 List<Quantity> normalizeQuantities({required Ingredient ingredient, required List<Quantity> rawQuantities}) {
   if (rawQuantities.isEmpty) return const [];
   if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.grams) {
     return rawQuantities;
   }
-  if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.pieces) {
+  bool canConvertPieces = ingredient.gramsPerPiece != null && ingredient.gramsPerPiece! > 0;
+  bool hasProductInPieces = ingredient.products.any((Product p) => p.unit == Unit.pieces);
+  bool shouldConvertPieces = canConvertPieces && !hasProductInPieces;
+  if (rawQuantities.length == 1 && rawQuantities.first.unit == Unit.pieces && !shouldConvertPieces) {
     return rawQuantities;
   }
 
@@ -42,6 +46,12 @@ List<Quantity> normalizeQuantities({required Ingredient ingredient, required Lis
       case Unit.pieces:
         totalPieces += q.amount;
     }
+  }
+
+  // Convert pieces to grams when gramsPerPiece is known and no pieces-based product exists
+  if (shouldConvertPieces && totalPieces > 0) {
+    totalGrams += totalPieces * ingredient.gramsPerPiece!;
+    totalPieces = 0;
   }
 
   bool hasGrams = totalGrams > 0;

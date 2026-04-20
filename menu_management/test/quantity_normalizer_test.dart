@@ -161,6 +161,90 @@ void main() {
       });
     });
 
+    group("pieces-to-grams conversion with gramsPerPiece", () {
+      test("converts pieces to grams when gramsPerPiece is set and no pieces product exists", () {
+        Ingredient garlic = Ingredient(
+          id: "g",
+          name: "Ajo troceado",
+          gramsPerPiece: 5,
+          products: [const Product(link: "https://example.com", quantityPerItem: 150, unit: Unit.grams)],
+        );
+        List<Quantity> raw = const [Quantity(amount: 3, unit: Unit.pieces)];
+
+        List<Quantity> result = normalizeQuantities(ingredient: garlic, rawQuantities: raw);
+
+        expect(result.length, 1);
+        expect(result.first.unit, Unit.grams);
+        expect(result.first.amount, closeTo(15, 0.1));
+      });
+
+      test("merges converted pieces with existing grams", () {
+        Ingredient carrot = Ingredient(
+          id: "c",
+          name: "Zanahoria",
+          gramsPerPiece: 80,
+          products: [const Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams)],
+        );
+        List<Quantity> raw = const [Quantity(amount: 2, unit: Unit.pieces), Quantity(amount: 100, unit: Unit.grams)];
+
+        List<Quantity> result = normalizeQuantities(ingredient: carrot, rawQuantities: raw);
+
+        expect(result.length, 1);
+        expect(result.first.unit, Unit.grams);
+        expect(result.first.amount, closeTo(260, 0.1)); // 2*80 + 100
+      });
+
+      test("keeps pieces when ingredient has a pieces product", () {
+        Ingredient calabacin = Ingredient(
+          id: "c",
+          name: "Calabacin",
+          gramsPerPiece: 410,
+          products: [
+            const Product(link: "https://example.com", quantityPerItem: 410, unit: Unit.grams),
+            const Product(link: "https://example.com", quantityPerItem: 1, unit: Unit.pieces),
+          ],
+        );
+        List<Quantity> raw = const [Quantity(amount: 2, unit: Unit.pieces)];
+
+        List<Quantity> result = normalizeQuantities(ingredient: calabacin, rawQuantities: raw);
+
+        expect(result.length, 1);
+        expect(result.first.unit, Unit.pieces);
+        expect(result.first.amount, 2);
+      });
+
+      test("keeps pieces when gramsPerPiece is null even with grams product", () {
+        Ingredient garlic = Ingredient(
+          id: "g",
+          name: "Ajo troceado",
+          products: [const Product(link: "https://example.com", quantityPerItem: 150, unit: Unit.grams)],
+        );
+        List<Quantity> raw = const [Quantity(amount: 3, unit: Unit.pieces)];
+
+        List<Quantity> result = normalizeQuantities(ingredient: garlic, rawQuantities: raw);
+
+        expect(result.length, 1);
+        expect(result.first.unit, Unit.pieces);
+        expect(result.first.amount, 3);
+      });
+
+      test("single pieces entry converts when gramsPerPiece is set and no pieces product", () {
+        Ingredient garlic = Ingredient(
+          id: "g",
+          name: "Ajo troceado",
+          gramsPerPiece: 5,
+          products: [const Product(link: "https://example.com", quantityPerItem: 150, unit: Unit.grams)],
+        );
+        List<Quantity> raw = const [Quantity(amount: 4, unit: Unit.pieces)];
+
+        List<Quantity> result = normalizeQuantities(ingredient: garlic, rawQuantities: raw);
+
+        expect(result.length, 1);
+        expect(result.first.unit, Unit.grams);
+        expect(result.first.amount, closeTo(20, 0.1));
+      });
+    });
+
     group("target unit selection based on products", () {
       test("converts volume to grams when product is in grams and density is known", () {
         // Yogurt product is in grams, recipe uses tablespoons

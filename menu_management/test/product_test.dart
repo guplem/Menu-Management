@@ -238,6 +238,25 @@ void main() {
         Map<String, dynamic> json = ingredient.toJson();
         expect(json.containsKey("density"), isFalse);
       });
+
+      test("round-trips with gramsPerPiece", () {
+        Ingredient original = const Ingredient(id: "i1", name: "Garlic", gramsPerPiece: 5);
+        String encoded = jsonEncode(original.toJson());
+        Ingredient restored = Ingredient.fromJson(jsonDecode(encoded));
+        expect(restored.gramsPerPiece, 5);
+      });
+
+      test("omits gramsPerPiece from JSON when null", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Rice");
+        Map<String, dynamic> json = ingredient.toJson();
+        expect(json.containsKey("gramsPerPiece"), isFalse);
+      });
+
+      test("deserializes old JSON without gramsPerPiece field", () {
+        Map<String, dynamic> oldJson = {"id": "i1", "name": "Rice"};
+        Ingredient restored = Ingredient.fromJson(oldJson);
+        expect(restored.gramsPerPiece, isNull);
+      });
     });
 
     group("density field", () {
@@ -255,6 +274,24 @@ void main() {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Oil");
         Ingredient updated = ingredient.copyWith(density: 0.92);
         expect(updated.density, 0.92);
+      });
+    });
+
+    group("gramsPerPiece field", () {
+      test("defaults to null when not provided", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic");
+        expect(ingredient.gramsPerPiece, isNull);
+      });
+
+      test("stores gramsPerPiece when provided", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic", gramsPerPiece: 5);
+        expect(ingredient.gramsPerPiece, 5);
+      });
+
+      test("copyWith can set gramsPerPiece", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic");
+        Ingredient updated = ingredient.copyWith(gramsPerPiece: 5);
+        expect(updated.gramsPerPiece, 5);
       });
     });
 
@@ -286,9 +323,21 @@ void main() {
         expect(result, closeTo(10.8, 0.001));
       });
 
-      test("returns null for pieces", () {
+      test("returns null for pieces when gramsPerPiece is null", () {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Egg", density: 1.0);
         double? result = ingredient.toGrams(const Quantity(amount: 6, unit: Unit.pieces));
+        expect(result, isNull);
+      });
+
+      test("converts pieces to grams when gramsPerPiece is set", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic", gramsPerPiece: 5);
+        double? result = ingredient.toGrams(const Quantity(amount: 4, unit: Unit.pieces));
+        expect(result, 20);
+      });
+
+      test("returns null for pieces when gramsPerPiece is zero", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic", gramsPerPiece: 0);
+        double? result = ingredient.toGrams(const Quantity(amount: 4, unit: Unit.pieces));
         expect(result, isNull);
       });
 
@@ -333,9 +382,21 @@ void main() {
         expect(result, closeTo(1, 0.001));
       });
 
-      test("returns null for pieces", () {
+      test("returns null for pieces when gramsPerPiece is null", () {
         Ingredient ingredient = const Ingredient(id: "i1", name: "Egg", density: 1.0);
         double? result = ingredient.fromGrams(500, Unit.pieces);
+        expect(result, isNull);
+      });
+
+      test("converts grams to pieces when gramsPerPiece is set", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic", gramsPerPiece: 5);
+        double? result = ingredient.fromGrams(20, Unit.pieces);
+        expect(result, 4);
+      });
+
+      test("returns null for pieces when gramsPerPiece is zero", () {
+        Ingredient ingredient = const Ingredient(id: "i1", name: "Garlic", gramsPerPiece: 0);
+        double? result = ingredient.fromGrams(20, Unit.pieces);
         expect(result, isNull);
       });
 
