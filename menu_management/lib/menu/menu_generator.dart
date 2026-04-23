@@ -50,9 +50,11 @@ class MenuGenerator {
 
     Map<MealTime, Recipe?> allSelected = {...breakfastRecipes, ...mealsRecipesMap};
 
-    List<Meal> meals = configurations.where((element) => element.requiresMeal).map((config) {
+    List<Meal> meals = configurations.map((config) {
+      if (!config.requiresMeal) {
+        return Meal(mealTime: config.mealTime, cooking: null);
+      }
       Recipe? recipe = allSelected[config.mealTime];
-
       return Meal(
         mealTime: config.mealTime,
         cooking: recipe == null ? null : Cooking(recipeId: recipe.id, yield: -1),

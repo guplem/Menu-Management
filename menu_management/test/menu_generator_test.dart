@@ -107,7 +107,7 @@ void main() {
   });
 
   group("MenuGenerator structural properties", () {
-    test("generates a meal for every required configuration slot", () {
+    test("generates a meal for every configuration slot", () {
       // Provide enough recipes to fill all slots
       for (int i = 0; i < 10; i++) {
         RecipesProvider.addOrUpdate(
@@ -125,12 +125,11 @@ void main() {
       generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
-      // 21 slots required, all should have a meal
-      int requiredCount = configs.where((c) => c.requiresMeal).length;
-      expect(menu.meals.length, requiredCount);
+      // All 21 slots (one per config) should produce a Meal object
+      expect(menu.meals.length, configs.length);
     });
 
-    test("skips slots where requiresMeal is false", () {
+    test("disabled slots produce meals with null cooking", () {
       RecipesProvider.addOrUpdate(
         newRecipe: _meal(id: "m1", name: "Pasta"),
       );
@@ -140,10 +139,13 @@ void main() {
       generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
-      // Only lunch + dinner slots (14) should be in the menu, not breakfasts
-      bool hasBreakfast = menu.meals.any((m) => m.mealTime.mealType == MealType.breakfast);
-      expect(hasBreakfast, false);
-      expect(menu.meals.length, 14);
+      // All 21 slots (7 days x 3 meal types) should be present
+      expect(menu.meals.length, configs.length);
+
+      // Disabled breakfast slots should exist but have null cooking
+      List<Meal> breakfastMeals = menu.meals.where((m) => m.mealTime.mealType == MealType.breakfast).toList();
+      expect(breakfastMeals.length, 7);
+      expect(breakfastMeals.every((m) => m.cooking == null), true);
     });
 
     test("only assigns breakfast recipes to breakfast slots", () {
@@ -367,7 +369,7 @@ void main() {
       expect(menu.meals.first.cooking, null, reason: "No fitting recipe, cooking should be null");
     });
 
-    test("generates empty menu when no configurations require meals", () {
+    test("disabled-only configurations produce meals with null cooking", () {
       RecipesProvider.addOrUpdate(
         newRecipe: _meal(id: "m1", name: "Pasta"),
       );
@@ -383,7 +385,8 @@ void main() {
       generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
-      expect(menu.meals, isEmpty);
+      expect(menu.meals.length, 1);
+      expect(menu.meals.first.cooking, isNull);
     });
   });
 }
