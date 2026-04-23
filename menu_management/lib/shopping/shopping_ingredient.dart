@@ -238,16 +238,19 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       child: Text(availableUnits.first.label, style: Theme.of(context).textTheme.bodyLarge),
                     )
                   else
-                    DropdownMenu<OwnedUnit>(
-                      initialSelection: widget.ownedUnit,
+                    SizedBox(
                       width: 120,
-                      inputDecorationTheme: const InputDecorationTheme(isDense: true, constraints: BoxConstraints(maxHeight: 40)),
-                      dropdownMenuEntries: availableUnits.map((OwnedUnit u) => DropdownMenuEntry<OwnedUnit>(value: u, label: u.label)).toList(),
-                      onSelected: (OwnedUnit? newUnit) {
-                        if (newUnit == null) return;
-                        double currentAmount = double.tryParse(_controller.text) ?? 0;
-                        widget.onOwnedChanged(currentAmount, newUnit);
-                      },
+                      child: DropdownButtonFormField<OwnedUnit>(
+                        initialValue: widget.ownedUnit,
+                        isDense: true,
+                        decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8)),
+                        items: availableUnits.map((OwnedUnit u) => DropdownMenuItem<OwnedUnit>(value: u, child: Text(u.label))).toList(),
+                        onChanged: (OwnedUnit? newUnit) {
+                          if (newUnit == null) return;
+                          double currentAmount = double.tryParse(_controller.text) ?? 0;
+                          widget.onOwnedChanged(currentAmount, newUnit);
+                        },
+                      ),
                     ),
                   const SizedBox(width: 16),
                 ],
