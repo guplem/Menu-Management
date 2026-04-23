@@ -213,7 +213,7 @@ class _MenuPageState extends State<MenuPage> {
                                     SizedBox(
                                       width: 140,
                                       child: meal.cooking == null
-                                          ? const Icon(Icons.warning_rounded)
+                                          ? const SizedBox.shrink()
                                           : Text(
                                               "(${meal.cooking?.yield}) ${_recipes.firstWhereOrNull((r) => r.id == meal.cooking?.recipeId)?.name ?? "?"}",
                                               textAlign: TextAlign.center,
