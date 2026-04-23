@@ -132,8 +132,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       ],
                     ),
                     ...widget.sources.map((IngredientSource source) {
-                      String perServing = source.perServingQuantities.map((q) => "${q.amount.toStringAsFixed(0)} ${q.unit.name}").join(" + ");
-                      String total = source.perServingQuantities.map((q) => "${(q.amount * source.servings).toStringAsFixed(0)} ${q.unit.name}").join(" + ");
+                      String perServing = source.perServingQuantities.map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
+                      String total = source.perServingQuantities.map((q) => "${(q.amount * source.servings).toFormattedAmount()} ${q.unit.name}").join(" + ");
                       return TableRow(
                         children: [
                           Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(source.recipeName)),
@@ -268,7 +268,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   }
                   return Padding(
                     padding: const EdgeInsets.only(left: 8),
-                    child: Text("Need: ${q.amount.toStringAsFixed(0)} ${q.unit.name}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                    child: Text("Need: ${q.amount.toFormattedAmount()} ${q.unit.name}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
                   );
                 }),
 

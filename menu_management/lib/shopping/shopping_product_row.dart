@@ -23,7 +23,7 @@ class ShoppingProductRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String? packLabel = product.packLabel();
-    String totalLabel = "${product.totalQuantityPerPack.toStringAsFixed(0)} ${product.unit.name}/pack";
+    String totalLabel = "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
     bool covered = packsToBuy <= 0;
 
     return FilledCard(
