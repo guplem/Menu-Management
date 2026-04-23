@@ -59,17 +59,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
       Ingredient? ingredient = allIngredients.firstWhereOrNull((i) => i.id == ingredientId);
 
       ownedAmounts[ingredientId] = 0;
-
-      // Default unit: pieces if any product has it, otherwise first product's unit, or first desired unit
-      if (ingredient != null && ingredient.products.isNotEmpty) {
-        bool hasPieces = ingredient.products.any((p) => p.unit == Unit.pieces) || entry.value.any((q) => q.unit == Unit.pieces);
-        ownedUnits[ingredientId] = OwnedUnit(unit: hasPieces ? Unit.pieces : ingredient.products.first.unit);
-      } else if (entry.value.isNotEmpty) {
-        bool hasPieces = entry.value.any((q) => q.unit == Unit.pieces);
-        ownedUnits[ingredientId] = OwnedUnit(unit: hasPieces ? Unit.pieces : entry.value.first.unit);
-      } else {
-        ownedUnits[ingredientId] = const OwnedUnit(unit: Unit.grams);
-      }
+      ownedUnits[ingredientId] = defaultOwnedUnit(ingredient: ingredient, desiredQuantities: entry.value);
 
       // Compute daily usage: sum of all quantities in the first matching unit
       double totalAmount = entry.value.fold(0.0, (sum, q) => sum + q.amount);

@@ -25,6 +25,24 @@ class OwnedUnit {
   int get hashCode => unit.hashCode;
 }
 
+/// Returns the default [OwnedUnit] for an ingredient's "owned" dropdown.
+///
+/// Defaults to packs when the ingredient has products, since that is the most
+/// practical unit for counting items at home. Falls back to pieces or the first
+/// desired unit when no products are configured.
+OwnedUnit defaultOwnedUnit({required Ingredient? ingredient, required List<Quantity> desiredQuantities}) {
+  if (ingredient != null && ingredient.products.isNotEmpty) {
+    return const OwnedUnit(); // packs
+  }
+
+  bool hasPieces = desiredQuantities.any((q) => q.unit == Unit.pieces);
+  if (hasPieces) return const OwnedUnit(unit: Unit.pieces);
+
+  if (desiredQuantities.isNotEmpty) return OwnedUnit(unit: desiredQuantities.first.unit);
+
+  return const OwnedUnit(unit: Unit.grams);
+}
+
 class ShoppingIngredient extends StatefulWidget {
   const ShoppingIngredient({
     super.key,
