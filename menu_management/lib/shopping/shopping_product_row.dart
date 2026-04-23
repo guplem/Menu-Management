@@ -87,7 +87,7 @@ class ShoppingProductRow extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [Icon(Icons.check_rounded, color: Theme.of(context).hintColor, size: 18), const SizedBox(width: 4), Text("Covered", style: TextStyle(color: Theme.of(context).hintColor))],
                     )
-                  : Text("Buy $packsToBuy", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right),
+                  : Text("Buy $packsToBuy ${packsToBuy == 1 ? "pack" : "packs"}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right),
             ),
           ],
         ),
