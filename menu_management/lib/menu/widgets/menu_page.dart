@@ -179,7 +179,22 @@ class _MenuPageState extends State<MenuPage> {
                                           ),
                                         ),
                                       ),
-                                      actions: <Widget>[TextButton(child: const Text("Cancel"), onPressed: () => Navigator.of(context).pop())],
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text("Remove recipe"),
+                                          onPressed: () {
+                                            setState(() {
+                                              Menu updatedWeek = currentWeek.copyWithClearedMeal(
+                                                mealTime: meal.mealTime,
+                                                recipes: _recipes,
+                                              );
+                                              multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
+                                            });
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(child: const Text("Cancel"), onPressed: () => Navigator.of(context).pop()),
+                                      ],
                                     );
                                   },
                                 );

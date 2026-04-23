@@ -284,6 +284,56 @@ void main() {
       });
     });
 
+    group("copyWithClearedMeal", () {
+      test("sets cooking to null for the specified meal time", () {
+        Recipe recipe = _recipe(id: "r1");
+        List<Recipe> recipes = [recipe];
+        MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)],
+        );
+
+        Menu updated = menu.copyWithClearedMeal(mealTime: time, recipes: recipes);
+        expect(updated.meals.first.cooking, isNull);
+      });
+
+      test("does not affect other meals", () {
+        Recipe recipe = _recipe(id: "r1");
+        List<Recipe> recipes = [recipe];
+        MealTime lunchTime = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe),
+            _meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipe: recipe),
+          ],
+        );
+
+        Menu updated = menu.copyWithClearedMeal(mealTime: lunchTime, recipes: recipes);
+        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.lunch).cooking, isNull);
+        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.dinner).cooking, isNotNull);
+      });
+
+      test("recalculates yields after clearing a shared recipe", () {
+        Recipe recipe = _recipe(id: "r1", canBeStored: true);
+        List<Recipe> recipes = [recipe];
+        // Two meals share the same storable recipe
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: 0),
+          ],
+        );
+        MealTime satLunch = const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch);
+
+        Menu updated = menu.copyWithClearedMeal(mealTime: satLunch, recipes: recipes);
+        // Saturday lunch cleared
+        expect(updated.meals.firstWhere((m) => m.mealTime.isSameTime(satLunch)).cooking, isNull);
+        // Sunday lunch is now the sole user of the recipe, yield should be 1
+        MealTime sunLunch = const MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch);
+        expect(updated.meals.firstWhere((m) => m.mealTime.isSameTime(sunLunch)).cooking?.yield, 1);
+      });
+    });
+
     group("copyWithUpdatedRecipe", () {
       test("replaces recipe at the specified meal time", () {
         Recipe original = _recipe(id: "r1", name: "Pasta");

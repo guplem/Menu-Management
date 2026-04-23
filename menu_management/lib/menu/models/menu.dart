@@ -178,6 +178,14 @@ abstract class Menu with _$Menu {
     return sources;
   }
 
+  Menu copyWithClearedMeal({required MealTime mealTime, required List<Recipe> recipes}) {
+    List<Meal> newMeals = [...meals];
+    int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
+    if (index == -1) return this;
+    newMeals[index] = newMeals[index].copyWithUpdatedCooking(null);
+    return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
+  }
+
   Menu copyWithUpdatedPeople({required MealTime mealTime, required int people}) {
     List<Meal> newMeals = [...meals];
     int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
