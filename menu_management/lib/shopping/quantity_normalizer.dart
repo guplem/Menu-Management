@@ -115,9 +115,9 @@ Unit _determineTargetUnit({required Ingredient ingredient, required bool hasGram
   // Only grams
   if (hasGrams) return Unit.grams;
 
-  // Only volume (tbsp, tsp, cl) - if density known and no products, convert to grams
+  // Only volume (tbsp, tsp, cl) - keep in centiliters regardless of density.
+  // Density only drives cross-family conversion when a product's unit requires it.
   if (hasVolume) {
-    if (ingredient.density != null && ingredient.products.isEmpty) return Unit.grams;
     return Unit.centiliters;
   }
 

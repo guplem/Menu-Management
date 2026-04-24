@@ -45,16 +45,17 @@ void main() {
     });
 
     group("cross-family merging with density", () {
-      test("merges tablespoons into grams when density is known", () {
-        // 72 tbsp of yogurt: 72 * 15ml * 1.05 g/ml = 1134g
+      test("volume-only with density but no product stays in centiliters", () {
+        // Density should not force grams when there is no product to match against
         Ingredient yogurt = const Ingredient(id: "y", name: "Yogur Griego", density: 1.05);
         List<Quantity> raw = const [Quantity(amount: 72, unit: Unit.tablespoons)];
 
         List<Quantity> result = normalizeQuantities(ingredient: yogurt, rawQuantities: raw);
 
+        // 72 tbsp * 15ml = 1080ml = 108cl
         expect(result.length, 1);
-        expect(result.first.unit, Unit.grams);
-        expect(result.first.amount, closeTo(1134, 0.1));
+        expect(result.first.unit, Unit.centiliters);
+        expect(result.first.amount, closeTo(108, 0.1));
       });
 
       test("merges grams and tablespoons into grams when density is known", () {
@@ -295,10 +296,11 @@ void main() {
 
       Map<String, List<Quantity>> result = normalizeAllIngredients(rawQuantities: raw, ingredients: ingredients);
 
-      // Yogurt: 72 tbsp -> grams (density known, no product but default to grams)
+      // Yogurt: 72 tbsp -> centiliters (density known, but no product so no cross-family conversion)
+      // 72 tbsp * 15ml = 1080ml = 108cl
       expect(result["y"]!.length, 1);
-      expect(result["y"]!.first.unit, Unit.grams);
-      expect(result["y"]!.first.amount, closeTo(1134, 0.1));
+      expect(result["y"]!.first.unit, Unit.centiliters);
+      expect(result["y"]!.first.amount, closeTo(108, 0.1));
 
       // Oil: 400cl + 12tbsp -> merged centiliters (no density, same family)
       expect(result["o"]!.length, 1);
