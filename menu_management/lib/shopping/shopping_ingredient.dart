@@ -203,12 +203,14 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
   @override
   Widget build(BuildContext context) {
-    // Find the best (first viable, or first overall) recommendation
+    // Find the best (first viable, or first overall) recommendation.
+    // Only highlight as "Best value" if it is strictly better than all alternatives (no tie).
     int? bestProductIndex;
     if (widget.productRecommendations.length > 1) {
       ProductRecommendation? bestViable = widget.productRecommendations.firstWhereOrNull((r) => r.isViable);
       ProductRecommendation best = bestViable ?? widget.productRecommendations.first;
-      bestProductIndex = widget.ingredient.products.indexOf(best.product);
+      bool isTied = widget.productRecommendations.any((r) => r != best && r.totalWaste == best.totalWaste);
+      if (!isTied) bestProductIndex = widget.ingredient.products.indexOf(best.product);
     }
 
     List<OwnedUnit> availableUnits = _availableUnits;
