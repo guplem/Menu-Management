@@ -27,11 +27,15 @@ class OwnedUnit {
 
 /// Returns the default [OwnedUnit] for an ingredient's "owned" dropdown.
 ///
-/// Defaults to packs when the ingredient has products, since that is the most
+/// Defaults to pieces when all products are single-piece packs (1 piece per pack),
+/// since packs and pieces are equivalent in that case and pieces is more intuitive.
+/// Otherwise defaults to packs when the ingredient has products, since that is the most
 /// practical unit for counting items at home. Falls back to pieces or the first
 /// desired unit when no products are configured.
 OwnedUnit defaultOwnedUnit({required Ingredient? ingredient, required List<Quantity> desiredQuantities}) {
   if (ingredient != null && ingredient.products.isNotEmpty) {
+    bool allSinglePiece = ingredient.products.every((Product p) => p.unit == Unit.pieces && p.totalQuantityPerPack == 1.0);
+    if (allSinglePiece) return const OwnedUnit(unit: Unit.pieces);
     return const OwnedUnit(); // packs
   }
 
@@ -306,26 +310,44 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
             // Product rows (only for products whose unit matches a required quantity)
             if (widget.ingredient.products.isNotEmpty)
-              ...widget.ingredient.products.asMap().entries.where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit)).map((MapEntry<int, Product> entry) {
-                int productIndex = entry.key;
-                Product product = entry.value;
-
-                // Find recommendation for this product
-                ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
-                  (r) => r.product == product,
-                  orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
-                );
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: ShoppingProductRow(
-                    product: product,
-                    recommendation: recommendation,
-                    isRecommended: bestProductIndex == productIndex,
-                    packsToBuy: _packsToBuyForProduct(product),
-                  ),
-                );
-              }),
+              ...() {
+                List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products.asMap().entries.where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit)).toList();
+                List<Widget> rows = [];
+                for (int i = 0; i < matchingProducts.length; i++) {
+                  int productIndex = matchingProducts[i].key;
+                  Product product = matchingProducts[i].value;
+                  ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
+                    (r) => r.product == product,
+                    orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
+                  );
+                  if (i > 0) {
+                    rows.add(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            const Expanded(child: Divider()),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text("or", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
+                            ),
+                            const Expanded(child: Divider()),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  rows.add(
+                    ShoppingProductRow(
+                      product: product,
+                      recommendation: recommendation,
+                      isRecommended: bestProductIndex == productIndex,
+                      packsToBuy: _packsToBuyForProduct(product),
+                    ),
+                  );
+                }
+                return rows;
+              }(),
           ],
         ),
       ),
