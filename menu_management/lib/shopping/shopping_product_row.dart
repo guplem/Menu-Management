@@ -20,6 +20,19 @@ class ShoppingProductRow extends StatelessWidget {
   final bool isRecommended;
   final int packsToBuy;
 
+  String _bestValueTooltip() {
+    String unit = product.unit.name;
+    double over = recommendation.overBuyWaste;
+    double expiry = recommendation.expiryWaste;
+
+    if (over == 0 && expiry == 0) return "Exact fit - no waste";
+
+    List<String> parts = [];
+    if (over > 0) parts.add("${over.toFormattedAmount()} $unit over-bought");
+    if (expiry > 0) parts.add("${expiry.toFormattedAmount()} $unit expired before use");
+    return "Least waste: ${parts.join(" + ")}";
+  }
+
   @override
   Widget build(BuildContext context) {
     String? packLabel = product.packLabel();
@@ -52,12 +65,15 @@ class ShoppingProductRow extends StatelessWidget {
             if (isRecommended)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: Chip(
-                  label: const Text("Best value"),
-                  backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
-                  labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer, fontSize: 12),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
+                child: Tooltip(
+                  message: _bestValueTooltip(),
+                  child: Chip(
+                    label: const Text("Best value"),
+                    backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
+                    labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer, fontSize: 12),
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
               ),
 
