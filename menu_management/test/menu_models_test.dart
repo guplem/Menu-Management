@@ -455,7 +455,8 @@ void main() {
         );
 
         Map<String, List<Quantity>> ingredients = menu.allIngredients(recipes: recipes);
-        expect(ingredients["flour"]!.first.amount, 0.0);
+        // yield=0 meals are skipped entirely; the ingredient is absent from the map (no shopping needed).
+        expect(ingredients.containsKey("flour"), false);
       });
 
       test("aggregates people across shared recipe meals for yield > 0", () {
@@ -488,6 +489,39 @@ void main() {
         Map<String, List<Quantity>> ingredients = menu.allIngredients(recipes: recipes);
         // peopleFactor = 2 + 3 = 5, amount = 100 * 5 = 500
         expect(ingredients["flour"]!.first.amount, 500.0);
+      });
+
+      test("non-storable recipe in multiple meal slots is counted once with total peopleFactor", () {
+        Recipe recipe = _recipe(
+          id: "r1",
+          canBeStored: false,
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "step",
+              ingredientsUsed: [
+                IngredientUsage(
+                  ingredient: "bread",
+                  quantity: const Quantity(amount: 3, unit: Unit.pieces),
+                ),
+              ],
+            ),
+          ],
+        );
+        List<Recipe> recipes = [recipe];
+        // Non-storable recipe appears in two separate meal slots, each with yield=1.
+        // allIngredients must count the ingredient once using peopleFactor = 6+6 = 12,
+        // not twice (which would give 3*12 + 3*12 = 72 instead of the correct 3*12 = 36).
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.breakfast, recipe: recipe, yield: 1, people: 6),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.breakfast, recipe: recipe, yield: 1, people: 6),
+          ],
+        );
+
+        Map<String, List<Quantity>> ingredients = menu.allIngredients(recipes: recipes);
+        // peopleFactor = 6 + 6 = 12, amount = 3 * 12 = 36
+        expect(ingredients["bread"]!.first.amount, 36.0);
       });
 
       test("returns empty map for no meals", () {

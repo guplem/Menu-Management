@@ -91,19 +91,24 @@ abstract class Menu with _$Menu {
 
   Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
     Map<String, List<Quantity>> ingredients = {};
+    Set<String> processedRecipeIds = {};
 
     for (Meal meal in meals) {
       if (meal.cooking == null) continue;
       int yields = meal.cooking!.yield;
 
+      // Skip leftover meals (storable recipes reused from a previous cook).
+      if (yields <= 0) continue;
+
+      // Process each unique recipe only once.
+      // Non-storable recipes have yield=1 for every occurrence, so without this guard
+      // each occurrence would be counted separately despite peopleFactor already summing all people.
+      String recipeId = meal.cooking!.recipeId;
+      if (processedRecipeIds.contains(recipeId)) continue;
+      processedRecipeIds.add(recipeId);
+
       // Calculate the total people across all meals sharing this recipe.
-      // Only the first occurrence (yield > 0) aggregates ingredient amounts.
-      int peopleFactor;
-      if (yields > 0) {
-        peopleFactor = meals.where((Meal m) => m.cooking?.recipeId == meal.cooking?.recipeId).fold(0, (int sum, Meal m) => sum + m.people);
-      } else {
-        peopleFactor = 0;
-      }
+      int peopleFactor = meals.where((Meal m) => m.cooking?.recipeId == recipeId).fold(0, (int sum, Meal m) => sum + m.people);
 
       Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == meal.cooking!.recipeId);
       if (recipe == null) continue;
