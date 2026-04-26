@@ -10,6 +10,7 @@ import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
@@ -33,8 +34,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
   /// Selected unit for owned input per ingredient.
   late final Map<String, OwnedUnit> ownedUnits;
 
-  /// Daily usage per ingredient (total / consumption days, simplified to total / 7 for now).
-  late final Map<String, double> dailyUsagePerIngredient;
+  /// Cooking event timeline per ingredient (for event-based waste calculation).
+  late final Map<String, List<CookingEvent>> cookingTimeline;
 
   /// Per-recipe breakdown of ingredient usage (which recipes need each ingredient).
   late final Map<String, List<IngredientSource>> ingredientSources;
@@ -47,12 +48,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
     ingredientsRequired = normalizeAllIngredients(rawQuantities: rawIngredients, ingredients: allIngredients);
     ingredientSources = widget.multiWeekMenu.ingredientSources(recipes: RecipesProvider.instance.recipes);
+    cookingTimeline = buildCookingTimeline(multiWeekMenu: widget.multiWeekMenu, recipes: RecipesProvider.instance.recipes);
 
     ownedAmounts = {};
     ownedUnits = {};
-    dailyUsagePerIngredient = {};
-
-    int totalDays = widget.multiWeekMenu.weeks.length * 7;
 
     for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
       String ingredientId = entry.key;
@@ -60,10 +59,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       ownedAmounts[ingredientId] = 0;
       ownedUnits[ingredientId] = defaultOwnedUnit(ingredient: ingredient, desiredQuantities: entry.value);
-
-      // Compute daily usage: sum of all quantities in the first matching unit
-      double totalAmount = entry.value.fold(0.0, (sum, q) => sum + q.amount);
-      dailyUsagePerIngredient[ingredientId] = totalDays > 0 ? totalAmount / totalDays : totalAmount;
     }
   }
 
@@ -83,7 +78,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
           Ingredient ingredient = getProvider<IngredientsProvider>(context, listen: true).get(ingredientId);
           List<Quantity> desired = ingredientsRequired.valueAt(index);
           List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-          double dailyUsage = dailyUsagePerIngredient[ingredientId] ?? 0;
+          List<CookingEvent> events = cookingTimeline[ingredientId] ?? [];
 
           // Compute product recommendations per required unit
           List<ProductRecommendation> recommendations = [];
@@ -91,7 +86,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             for (Quantity quantity in desired) {
               List<Product> matchingProducts = ingredient.products.where((p) => p.unit == quantity.unit).toList();
               if (matchingProducts.isNotEmpty) {
-                recommendations.addAll(rankProducts(totalNeeded: quantity.amount, dailyUsage: dailyUsage, products: matchingProducts));
+                recommendations.addAll(rankProducts(totalNeeded: quantity.amount, events: events, ingredient: ingredient, products: matchingProducts));
               }
             }
           }
@@ -103,7 +98,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
             productRecommendations: recommendations,
             ownedAmount: ownedAmounts[ingredientId] ?? 0,
             ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
-            dailyUsage: dailyUsage,
             sources: ingredientSources[ingredientId] ?? [],
             onOwnedChanged: (double amount, OwnedUnit unit) {
               setState(() {

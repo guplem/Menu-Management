@@ -57,7 +57,6 @@ class ShoppingIngredient extends StatefulWidget {
     required this.ownedAmount,
     required this.ownedUnit,
     required this.onOwnedChanged,
-    required this.dailyUsage,
     required this.sources,
   });
 
@@ -68,7 +67,6 @@ class ShoppingIngredient extends StatefulWidget {
   final double ownedAmount;
   final OwnedUnit ownedUnit;
   final void Function(double amount, OwnedUnit unit) onOwnedChanged;
-  final double dailyUsage;
   final List<IngredientSource> sources;
 
   @override
@@ -203,14 +201,11 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
   @override
   Widget build(BuildContext context) {
-    // Find the best (first viable, or first overall) recommendation.
-    // Only highlight as "Best value" if it is strictly better than all alternatives (no tie).
-    int? bestProductIndex;
-    if (widget.productRecommendations.length > 1) {
-      ProductRecommendation? bestViable = widget.productRecommendations.firstWhereOrNull((r) => r.isViable);
-      ProductRecommendation best = bestViable ?? widget.productRecommendations.first;
-      bool isTied = widget.productRecommendations.any((r) => r != best && r.totalWaste == best.totalWaste);
-      if (!isTied) bestProductIndex = widget.ingredient.products.indexOf(best.product);
+    // Determine best waste level among all recommendations.
+    // A product is "best" if its totalWaste equals the minimum (includes ties and single products).
+    double? bestWaste;
+    if (widget.productRecommendations.isNotEmpty) {
+      bestWaste = widget.productRecommendations.map((ProductRecommendation r) => r.totalWaste).reduce((double a, double b) => a < b ? a : b);
     }
 
     List<OwnedUnit> availableUnits = _availableUnits;
@@ -316,7 +311,6 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                 List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products.asMap().entries.where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit)).toList();
                 List<Widget> rows = [];
                 for (int i = 0; i < matchingProducts.length; i++) {
-                  int productIndex = matchingProducts[i].key;
                   Product product = matchingProducts[i].value;
                   ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
                     (r) => r.product == product,
@@ -343,7 +337,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                     ShoppingProductRow(
                       product: product,
                       recommendation: recommendation,
-                      isRecommended: bestProductIndex == productIndex,
+                      isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
                       packsToBuy: _packsToBuyForProduct(product),
                     ),
                   );

@@ -11,26 +11,74 @@ class ShoppingProductRow extends StatelessWidget {
     super.key,
     required this.product,
     required this.recommendation,
-    required this.isRecommended,
+    required this.isBestOption,
     required this.packsToBuy,
   });
 
   final Product product;
   final ProductRecommendation recommendation;
-  final bool isRecommended;
+
+  /// True when this product's totalWaste equals the minimum among all alternatives
+  /// (includes ties and single-product ingredients).
+  final bool isBestOption;
   final int packsToBuy;
 
-  String _bestValueTooltip() {
+  String _wasteBreakdown() {
     String unit = product.unit.name;
     double over = recommendation.overBuyWaste;
     double expiry = recommendation.expiryWaste;
 
-    if (over == 0 && expiry == 0) return "Perfect fit - covers exactly what you need, no waste.";
-
     List<String> parts = [];
-    if (over > 0) parts.add("${over.toFormattedAmount()} $unit left over after this week's use");
-    if (expiry > 0) parts.add("${expiry.toFormattedAmount()} $unit will expire before you finish it");
-    return "Recommended pack - least total waste among available options.\nWaste: ${parts.join(" + ")}.";
+    if (over > 0) parts.add("${over.toFormattedAmount()} $unit surplus from buying whole packs");
+    if (expiry > 0) parts.add("${expiry.toFormattedAmount()} $unit will expire between cooking sessions");
+    return parts.join(" + ");
+  }
+
+  Widget _buildChip(BuildContext context) {
+    double totalWaste = recommendation.totalWaste;
+    String unit = product.unit.name;
+
+    // No waste: green chip
+    if (totalWaste == 0) {
+      return Tooltip(
+        message: "Perfect fit - covers exactly what you need, no waste.",
+        child: Chip(
+          label: const Text("No waste"),
+          backgroundColor: ThemeCustom.colorScheme(context).primaryContainer,
+          labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onPrimaryContainer, fontSize: 12),
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+        ),
+      );
+    }
+
+    String wasteLabel = "${totalWaste.toFormattedAmount()} $unit waste";
+
+    // Best option (or tied for best): blue/teal chip with waste amount
+    if (isBestOption) {
+      return Tooltip(
+        message: "Least total waste among available options.\n${_wasteBreakdown()}",
+        child: Chip(
+          label: Text("$wasteLabel (best option)"),
+          backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
+          labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer, fontSize: 12),
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+        ),
+      );
+    }
+
+    // Worse than the best option: yellow/amber chip
+    return Tooltip(
+      message: _wasteBreakdown(),
+      child: Chip(
+        label: Text(wasteLabel),
+        backgroundColor: ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness).primaryContainer,
+        labelStyle: TextStyle(color: ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness).onPrimaryContainer, fontSize: 12),
+        visualDensity: VisualDensity.compact,
+        padding: EdgeInsets.zero,
+      ),
+    );
   }
 
   @override
@@ -41,7 +89,7 @@ class ShoppingProductRow extends StatelessWidget {
 
     return FilledCard(
       outlined: true,
-      borderColor: isRecommended ? ThemeCustom.colorScheme(context).tertiary : null,
+      borderColor: isBestOption && recommendation.totalWaste > 0 ? ThemeCustom.colorScheme(context).tertiary : null,
       color: ThemeCustom.colorScheme(context).secondaryContainer.withValues(alpha: covered ? 0.3 : 1),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -61,30 +109,11 @@ class ShoppingProductRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
 
-            // Recommendation chip
-            if (isRecommended)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Tooltip(
-                  message: _bestValueTooltip(),
-                  child: Chip(
-                    label: const Text("Best value"),
-                    backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
-                    labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer, fontSize: 12),
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-
-            if (!recommendation.isViable && product.shelfLifeDays != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Tooltip(
-                  message: "Expires in ${product.shelfLifeDays} days after opening",
-                  child: Icon(Icons.warning_amber_rounded, color: ThemeCustom.colorScheme(context).error, size: 20),
-                ),
-              ),
+            // Waste status chip (shown for all products)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildChip(context),
+            ),
 
             // Product link button
             IconButton(
