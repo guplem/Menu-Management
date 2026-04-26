@@ -9,6 +9,7 @@ import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/recipes/widgets/play_recipe_page.dart";
 import "package:menu_management/shopping/shopping_page.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
@@ -236,7 +237,7 @@ class _MenuPageState extends State<MenuPage> {
                                                         visualDensity: VisualDensity.compact,
                                                         padding: EdgeInsets.zero,
                                                       )
-                                                    : Chip(
+                                                    : ActionChip(
                                                         label: Text("Cook ${multiWeekMenu.servingsForCookEvent(cookWeekIndex: currentWeekIndex, cookMealTime: meal.mealTime, recipes: _recipes)} servings"),
                                                         backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
                                                         labelStyle: TextStyle(
@@ -245,6 +246,20 @@ class _MenuPageState extends State<MenuPage> {
                                                         ),
                                                         visualDensity: VisualDensity.compact,
                                                         padding: EdgeInsets.zero,
+                                                        onPressed: () {
+                                                          final Recipe? recipe = _recipes.firstWhereOrNull((r) => r.id == meal.cooking?.recipeId);
+                                                          if (recipe != null) {
+                                                            PlayRecipePage.show(
+                                                              context: context,
+                                                              recipe: recipe,
+                                                              initialServings: multiWeekMenu.servingsForCookEvent(
+                                                                cookWeekIndex: currentWeekIndex,
+                                                                cookMealTime: meal.mealTime,
+                                                                recipes: _recipes,
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
                                                       ),
                                               ],
                                             ),

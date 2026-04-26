@@ -15,12 +15,13 @@ import "package:menu_management/theme/theme_custom.dart";
 
 /// A step-by-step cooking guide for a recipe with adjustable servings and timers.
 class PlayRecipePage extends StatefulWidget {
-  const PlayRecipePage({super.key, required this.recipe});
+  const PlayRecipePage({super.key, required this.recipe, this.initialServings = 1});
 
   final Recipe recipe;
+  final int initialServings;
 
-  static void show({required BuildContext context, required Recipe recipe}) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => PlayRecipePage(recipe: recipe)));
+  static void show({required BuildContext context, required Recipe recipe, int initialServings = 1}) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => PlayRecipePage(recipe: recipe, initialServings: initialServings)));
   }
 
   @override
@@ -69,7 +70,7 @@ class _StepTimer {
 
 class _PlayRecipePageState extends State<PlayRecipePage> {
   int _currentStep = 0;
-  int _servings = 1;
+  late int _servings = widget.initialServings;
   final List<_StepTimer> _activeTimers = [];
   final Map<int, AudioPlayer> _audioPlayers = {};
 
