@@ -85,13 +85,18 @@ class RecipePage extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 3),
-              const Text("Can be stored? "),
+              const Text("Max storage days: "),
               const SizedBox(width: 5),
-              Switch(
-                thumbIcon: switchIcon,
-                value: recipe.canBeStored,
-                onChanged: (bool value) {
-                  RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(canBeStored: value));
+              DropdownButton<int>(
+                value: recipe.maxStorageDays,
+                items: List.generate(8, (i) => i).map((int days) {
+                  String label = days == 0 ? "Same day only" : "$days day${days > 1 ? "s" : ""}";
+                  return DropdownMenuItem<int>(value: days, child: Text(label));
+                }).toList(),
+                onChanged: (int? value) {
+                  if (value != null) {
+                    RecipesProvider.addOrUpdate(newRecipe: recipe.copyWith(maxStorageDays: value));
+                  }
                 },
               ),
             ],

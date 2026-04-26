@@ -171,7 +171,7 @@ class _MenuPageState extends State<MenuPage> {
                                                       recipe: recipe,
                                                       recipes: _recipes,
                                                     );
-                                                    multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
+                                                    multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
                                                   });
                                                   Navigator.of(context).pop();
                                                 },
@@ -189,7 +189,7 @@ class _MenuPageState extends State<MenuPage> {
                                                 mealTime: meal.mealTime,
                                                 recipes: _recipes,
                                               );
-                                              multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
+                                              multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
                                             });
                                             Navigator.of(context).pop();
                                           },
@@ -237,7 +237,7 @@ class _MenuPageState extends State<MenuPage> {
                                                         padding: EdgeInsets.zero,
                                                       )
                                                     : Chip(
-                                                        label: Text("Cook ${currentWeek.totalServingsForRecipe(meal.cooking!.recipeId)} servings"),
+                                                        label: Text("Cook ${multiWeekMenu.servingsForCookEvent(cookWeekIndex: currentWeekIndex, cookMealTime: meal.mealTime, recipes: _recipes)} servings"),
                                                         backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
                                                         labelStyle: TextStyle(
                                                           color: ThemeCustom.colorScheme(context).onTertiaryContainer,
@@ -263,7 +263,7 @@ class _MenuPageState extends State<MenuPage> {
                                                     people: meal.people - 1,
                                                     recipes: _recipes,
                                                   );
-                                                  multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
+                                                  multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
                                                 }),
                                         ),
                                         Text("${meal.people}"),
@@ -284,7 +284,7 @@ class _MenuPageState extends State<MenuPage> {
                                               people: meal.people + 1,
                                               recipes: _recipes,
                                             );
-                                            multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
+                                            multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
                                           }),
                                         ),
                                       ],

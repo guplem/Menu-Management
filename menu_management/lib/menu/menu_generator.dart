@@ -108,7 +108,7 @@ class MenuGenerator {
     List<Recipe> shuffledCandidates = candidates.shuffled(Random(seed)).toList();
     List<Recipe> uniqueCandidatesAlreadySelected = alreadySelected.shuffled(Random(seed)).toSet().toList();
     for (Recipe recipe in uniqueCandidatesAlreadySelected) {
-      if (recipe.canBeStored && shuffledCandidates.contains(recipe)) {
+      if (recipe.maxStorageDays > 0 && shuffledCandidates.contains(recipe)) {
         shuffledCandidates.remove(recipe);
         shuffledCandidates.insert(0, recipe);
       }
@@ -329,12 +329,21 @@ class MenuGenerator {
         possibleConfigurations: configurationsThatHaveBeenSet.toList(),
       );
       if (previousMealTimes.isNotEmpty) {
-        // Get the recipes that have already been selected for the previous moments to consider them as candidates for the current configuration (missing a recipe)
+        // Get the recipes that have already been selected for the previous moments to consider them as candidates for the current configuration (missing a recipe).
+        // Only consider recipes whose earliest assigned occurrence is within maxStorageDays of the target slot.
+        int targetDay = configuration.mealTime.weekDay.value;
         Set<Recipe> recipesToConsider = {};
         for (MenuConfiguration previousMealTime in previousMealTimes) {
           Recipe? recipe = result[previousMealTime.mealTime];
-          if (recipe != null && recipe.canBeStored) {
-            recipesToConsider.add(recipe);
+          if (recipe != null && recipe.maxStorageDays > 0) {
+            // Find the earliest occurrence of this recipe to compute cook day
+            int earliestDay = result.entries
+                .where((MapEntry<MealTime, Recipe?> e) => e.value?.id == recipe.id)
+                .map((MapEntry<MealTime, Recipe?> e) => e.key.weekDay.value)
+                .reduce((int a, int b) => a < b ? a : b);
+            if (targetDay - earliestDay <= recipe.maxStorageDays) {
+              recipesToConsider.add(recipe);
+            }
           }
         }
         // Get a valid recipe for the configuration from the previous moments

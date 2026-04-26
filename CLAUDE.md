@@ -177,6 +177,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0009](adr/0009-cooking-recipe-id-reference.md) | Cooking stores recipe ID (not full Recipe), parameterized model methods, ref_name for readability |
 | [0010](adr/0010-product-entity-store-products.md) | Product entity on Ingredient: optional store product data enabling pack-based shopping list display |
 | [0011](adr/0011-grams-per-piece-conversion.md) | Grams-per-piece conversion: optional field bridging pieces and grams for shopping list calculations |
+| [0012](adr/0012-max-storage-days.md) | maxStorageDays replaces canBeStored boolean; cross-week leftover tracking |
 
 **Create a new ADR** when making an architectural decision with trade-offs worth preserving. Use the next sequential number.
 

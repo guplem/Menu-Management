@@ -21,7 +21,7 @@ _Recipe _$RecipeFromJson(Map<String, dynamic> json) => _Recipe(
       $enumDecodeNullable(_$RecipeTypeEnumMap, json['type']) ?? RecipeType.meal,
   lunch: json['lunch'] as bool? ?? true,
   dinner: json['dinner'] as bool? ?? true,
-  canBeStored: json['canBeStored'] as bool? ?? true,
+  maxStorageDays: (json['maxStorageDays'] as num?)?.toInt() ?? 6,
   includeInMenuGeneration: json['includeInMenuGeneration'] as bool? ?? true,
 );
 
@@ -35,7 +35,7 @@ Map<String, dynamic> _$RecipeToJson(_Recipe instance) => <String, dynamic>{
   'type': _$RecipeTypeEnumMap[instance.type]!,
   'lunch': instance.lunch,
   'dinner': instance.dinner,
-  'canBeStored': instance.canBeStored,
+  'maxStorageDays': instance.maxStorageDays,
   'includeInMenuGeneration': instance.includeInMenuGeneration,
 };
 

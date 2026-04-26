@@ -17,8 +17,8 @@ import "package:menu_management/shopping/ingredient_source.dart";
 
 // ── Test helpers ──
 
-Recipe _recipe({String id = "r1", String name = "Test Recipe", List<Instruction> instructions = const [], bool canBeStored = true}) {
-  return Recipe(id: id, name: name, instructions: instructions, canBeStored: canBeStored);
+Recipe _recipe({String id = "r1", String name = "Test Recipe", List<Instruction> instructions = const [], int maxStorageDays = 6}) {
+  return Recipe(id: id, name: name, instructions: instructions, maxStorageDays: maxStorageDays);
 }
 
 Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch, Recipe? recipe, int yield = 1, int people = 2}) {
@@ -287,7 +287,7 @@ void main() {
       });
 
       test("recalculates yields after changing people", () {
-        Recipe storable = _recipe(id: "s1", canBeStored: true);
+        Recipe storable = _recipe(id: "s1", maxStorageDays: 6);
         List<Recipe> recipes = [storable];
         Menu menu = Menu(
           meals: [
@@ -311,7 +311,7 @@ void main() {
 
     group("totalServingsForRecipe", () {
       test("sums people across all meals sharing the same recipe", () {
-        Recipe storable = _recipe(id: "s1", canBeStored: true);
+        Recipe storable = _recipe(id: "s1", maxStorageDays: 6);
         Menu menu = Menu(
           meals: [
             _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: storable, yield: 2, people: 2),
@@ -323,7 +323,7 @@ void main() {
       });
 
       test("returns people for a single-occurrence recipe", () {
-        Recipe recipe = _recipe(id: "r1", canBeStored: false);
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 0);
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: 1, people: 3)],
         );
@@ -367,7 +367,7 @@ void main() {
       });
 
       test("recalculates yields after clearing a shared recipe", () {
-        Recipe recipe = _recipe(id: "r1", canBeStored: true);
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 6);
         List<Recipe> recipes = [recipe];
         // Two meals share the same storable recipe
         Menu menu = Menu(
@@ -416,7 +416,7 @@ void main() {
 
     group("copyWithUpdatedYields", () {
       test("first occurrence of storable recipe gets full yield count", () {
-        Recipe recipe = _recipe(id: "r1", canBeStored: true);
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 6);
         List<Recipe> recipes = [recipe];
         Menu menu = Menu(
           meals: [
@@ -435,7 +435,7 @@ void main() {
       });
 
       test("non-storable recipe always gets yield 1", () {
-        Recipe recipe = _recipe(id: "r1", canBeStored: false);
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 0);
         List<Recipe> recipes = [recipe];
         Menu menu = Menu(
           meals: [
@@ -455,6 +455,63 @@ void main() {
         );
         Menu updated = menu.copyWithUpdatedYields(recipes: []);
         expect(updated.meals.first.cooking, null);
+      });
+
+      test("respects maxStorageDays: leftover beyond storage window becomes a new cook", () {
+        // maxStorageDays: 1 means same day + tomorrow only
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 1);
+        List<Recipe> recipes = [recipe];
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: -1),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: -1), // 1 day later, within window
+            _meal(weekDay: WeekDay.wednesday, mealType: MealType.lunch, recipe: recipe, yield: -1), // 4 days later, outside window
+          ],
+        );
+
+        Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
+        // Saturday: cook for Sat + Sun (2 within window)
+        expect(updated.meals[0].cooking?.yield, 2);
+        // Sunday: leftovers from Saturday
+        expect(updated.meals[1].cooking?.yield, 0);
+        // Wednesday: outside storage window, new cook event (only itself)
+        expect(updated.meals[2].cooking?.yield, 1);
+      });
+
+      test("short maxStorageDays creates multiple cook events in one week", () {
+        // maxStorageDays: 2 means days 0,1,2. Saturday=0, Monday=2 (within), Thursday=5 (outside)
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 2);
+        List<Recipe> recipes = [recipe];
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: -1),
+            _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: -1),
+            _meal(weekDay: WeekDay.thursday, mealType: MealType.lunch, recipe: recipe, yield: -1),
+          ],
+        );
+
+        Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
+        // Saturday: cook for Sat + Mon (2 within 2-day window)
+        expect(updated.meals[0].cooking?.yield, 2);
+        // Monday: leftovers from Saturday (distance = 2 <= 2)
+        expect(updated.meals[1].cooking?.yield, 0);
+        // Thursday: new cook (distance from Saturday = 5 > 2), only itself
+        expect(updated.meals[2].cooking?.yield, 1);
+      });
+
+      test("maxStorageDays: 0 always yields 1 (same as non-storable)", () {
+        Recipe recipe = _recipe(id: "r1", maxStorageDays: 0);
+        List<Recipe> recipes = [recipe];
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: -1),
+            _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: -1),
+          ],
+        );
+
+        Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
+        expect(updated.meals[0].cooking?.yield, 1);
+        expect(updated.meals[1].cooking?.yield, 1);
       });
     });
 
@@ -515,7 +572,7 @@ void main() {
       test("aggregates people across shared recipe meals for yield > 0", () {
         Recipe recipe = _recipe(
           id: "r1",
-          canBeStored: true,
+          maxStorageDays: 6,
           instructions: [
             Instruction(
               id: "i1",
@@ -547,7 +604,7 @@ void main() {
       test("non-storable recipe in multiple meal slots is counted once with total peopleFactor", () {
         Recipe recipe = _recipe(
           id: "r1",
-          canBeStored: false,
+          maxStorageDays: 0,
           instructions: [
             Instruction(
               id: "i1",

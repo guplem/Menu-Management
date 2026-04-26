@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Recipe {
 
- String get id; String get name; List<Instruction> get instructions; bool get carbs; bool get proteins; bool get vegetables; RecipeType get type; bool get lunch; bool get dinner; bool get canBeStored; bool get includeInMenuGeneration;
+ String get id; String get name; List<Instruction> get instructions; bool get carbs; bool get proteins; bool get vegetables; RecipeType get type; bool get lunch; bool get dinner; int get maxStorageDays; bool get includeInMenuGeneration;
 /// Create a copy of Recipe
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RecipeCopyWith<Recipe> get copyWith => _$RecipeCopyWithImpl<Recipe>(this as Rec
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.instructions, instructions)&&(identical(other.carbs, carbs) || other.carbs == carbs)&&(identical(other.proteins, proteins) || other.proteins == proteins)&&(identical(other.vegetables, vegetables) || other.vegetables == vegetables)&&(identical(other.type, type) || other.type == type)&&(identical(other.lunch, lunch) || other.lunch == lunch)&&(identical(other.dinner, dinner) || other.dinner == dinner)&&(identical(other.canBeStored, canBeStored) || other.canBeStored == canBeStored)&&(identical(other.includeInMenuGeneration, includeInMenuGeneration) || other.includeInMenuGeneration == includeInMenuGeneration));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.instructions, instructions)&&(identical(other.carbs, carbs) || other.carbs == carbs)&&(identical(other.proteins, proteins) || other.proteins == proteins)&&(identical(other.vegetables, vegetables) || other.vegetables == vegetables)&&(identical(other.type, type) || other.type == type)&&(identical(other.lunch, lunch) || other.lunch == lunch)&&(identical(other.dinner, dinner) || other.dinner == dinner)&&(identical(other.maxStorageDays, maxStorageDays) || other.maxStorageDays == maxStorageDays)&&(identical(other.includeInMenuGeneration, includeInMenuGeneration) || other.includeInMenuGeneration == includeInMenuGeneration));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,const DeepCollectionEquality().hash(instructions),carbs,proteins,vegetables,type,lunch,dinner,canBeStored,includeInMenuGeneration);
+int get hashCode => Object.hash(runtimeType,id,name,const DeepCollectionEquality().hash(instructions),carbs,proteins,vegetables,type,lunch,dinner,maxStorageDays,includeInMenuGeneration);
 
 @override
 String toString() {
-  return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, canBeStored: $canBeStored, includeInMenuGeneration: $includeInMenuGeneration)';
+  return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, maxStorageDays: $maxStorageDays, includeInMenuGeneration: $includeInMenuGeneration)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RecipeCopyWith<$Res>  {
   factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) _then) = _$RecipeCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, List<Instruction> instructions, bool carbs, bool proteins, bool vegetables, RecipeType type, bool lunch, bool dinner, bool canBeStored, bool includeInMenuGeneration
+ String id, String name, List<Instruction> instructions, bool carbs, bool proteins, bool vegetables, RecipeType type, bool lunch, bool dinner, int maxStorageDays, bool includeInMenuGeneration
 });
 
 
@@ -65,7 +65,7 @@ class _$RecipeCopyWithImpl<$Res>
 
 /// Create a copy of Recipe
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? instructions = null,Object? carbs = null,Object? proteins = null,Object? vegetables = null,Object? type = null,Object? lunch = null,Object? dinner = null,Object? canBeStored = null,Object? includeInMenuGeneration = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? instructions = null,Object? carbs = null,Object? proteins = null,Object? vegetables = null,Object? type = null,Object? lunch = null,Object? dinner = null,Object? maxStorageDays = null,Object? includeInMenuGeneration = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -76,8 +76,8 @@ as bool,vegetables: null == vegetables ? _self.vegetables : vegetables // ignore
 as bool,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as RecipeType,lunch: null == lunch ? _self.lunch : lunch // ignore: cast_nullable_to_non_nullable
 as bool,dinner: null == dinner ? _self.dinner : dinner // ignore: cast_nullable_to_non_nullable
-as bool,canBeStored: null == canBeStored ? _self.canBeStored : canBeStored // ignore: cast_nullable_to_non_nullable
-as bool,includeInMenuGeneration: null == includeInMenuGeneration ? _self.includeInMenuGeneration : includeInMenuGeneration // ignore: cast_nullable_to_non_nullable
+as bool,maxStorageDays: null == maxStorageDays ? _self.maxStorageDays : maxStorageDays // ignore: cast_nullable_to_non_nullable
+as int,includeInMenuGeneration: null == includeInMenuGeneration ? _self.includeInMenuGeneration : includeInMenuGeneration // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -163,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  List<Instruction> instructions,  bool carbs,  bool proteins,  bool vegetables,  RecipeType type,  bool lunch,  bool dinner,  bool canBeStored,  bool includeInMenuGeneration)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  List<Instruction> instructions,  bool carbs,  bool proteins,  bool vegetables,  RecipeType type,  bool lunch,  bool dinner,  int maxStorageDays,  bool includeInMenuGeneration)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Recipe() when $default != null:
-return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.proteins,_that.vegetables,_that.type,_that.lunch,_that.dinner,_that.canBeStored,_that.includeInMenuGeneration);case _:
+return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.proteins,_that.vegetables,_that.type,_that.lunch,_that.dinner,_that.maxStorageDays,_that.includeInMenuGeneration);case _:
   return orElse();
 
 }
@@ -184,10 +184,10 @@ return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.protein
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  List<Instruction> instructions,  bool carbs,  bool proteins,  bool vegetables,  RecipeType type,  bool lunch,  bool dinner,  bool canBeStored,  bool includeInMenuGeneration)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  List<Instruction> instructions,  bool carbs,  bool proteins,  bool vegetables,  RecipeType type,  bool lunch,  bool dinner,  int maxStorageDays,  bool includeInMenuGeneration)  $default,) {final _that = this;
 switch (_that) {
 case _Recipe():
-return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.proteins,_that.vegetables,_that.type,_that.lunch,_that.dinner,_that.canBeStored,_that.includeInMenuGeneration);case _:
+return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.proteins,_that.vegetables,_that.type,_that.lunch,_that.dinner,_that.maxStorageDays,_that.includeInMenuGeneration);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +204,10 @@ return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.protein
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  List<Instruction> instructions,  bool carbs,  bool proteins,  bool vegetables,  RecipeType type,  bool lunch,  bool dinner,  bool canBeStored,  bool includeInMenuGeneration)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  List<Instruction> instructions,  bool carbs,  bool proteins,  bool vegetables,  RecipeType type,  bool lunch,  bool dinner,  int maxStorageDays,  bool includeInMenuGeneration)?  $default,) {final _that = this;
 switch (_that) {
 case _Recipe() when $default != null:
-return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.proteins,_that.vegetables,_that.type,_that.lunch,_that.dinner,_that.canBeStored,_that.includeInMenuGeneration);case _:
+return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.proteins,_that.vegetables,_that.type,_that.lunch,_that.dinner,_that.maxStorageDays,_that.includeInMenuGeneration);case _:
   return null;
 
 }
@@ -219,7 +219,7 @@ return $default(_that.id,_that.name,_that.instructions,_that.carbs,_that.protein
 @JsonSerializable()
 
 class _Recipe extends Recipe {
-  const _Recipe({required this.id, required this.name, final  List<Instruction> instructions = const [], this.carbs = true, this.proteins = true, this.vegetables = true, this.type = RecipeType.meal, this.lunch = true, this.dinner = true, this.canBeStored = true, this.includeInMenuGeneration = true}): _instructions = instructions,super._();
+  const _Recipe({required this.id, required this.name, final  List<Instruction> instructions = const [], this.carbs = true, this.proteins = true, this.vegetables = true, this.type = RecipeType.meal, this.lunch = true, this.dinner = true, this.maxStorageDays = 6, this.includeInMenuGeneration = true}): _instructions = instructions,super._();
   factory _Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
 @override final  String id;
@@ -237,7 +237,7 @@ class _Recipe extends Recipe {
 @override@JsonKey() final  RecipeType type;
 @override@JsonKey() final  bool lunch;
 @override@JsonKey() final  bool dinner;
-@override@JsonKey() final  bool canBeStored;
+@override@JsonKey() final  int maxStorageDays;
 @override@JsonKey() final  bool includeInMenuGeneration;
 
 /// Create a copy of Recipe
@@ -253,16 +253,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other._instructions, _instructions)&&(identical(other.carbs, carbs) || other.carbs == carbs)&&(identical(other.proteins, proteins) || other.proteins == proteins)&&(identical(other.vegetables, vegetables) || other.vegetables == vegetables)&&(identical(other.type, type) || other.type == type)&&(identical(other.lunch, lunch) || other.lunch == lunch)&&(identical(other.dinner, dinner) || other.dinner == dinner)&&(identical(other.canBeStored, canBeStored) || other.canBeStored == canBeStored)&&(identical(other.includeInMenuGeneration, includeInMenuGeneration) || other.includeInMenuGeneration == includeInMenuGeneration));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other._instructions, _instructions)&&(identical(other.carbs, carbs) || other.carbs == carbs)&&(identical(other.proteins, proteins) || other.proteins == proteins)&&(identical(other.vegetables, vegetables) || other.vegetables == vegetables)&&(identical(other.type, type) || other.type == type)&&(identical(other.lunch, lunch) || other.lunch == lunch)&&(identical(other.dinner, dinner) || other.dinner == dinner)&&(identical(other.maxStorageDays, maxStorageDays) || other.maxStorageDays == maxStorageDays)&&(identical(other.includeInMenuGeneration, includeInMenuGeneration) || other.includeInMenuGeneration == includeInMenuGeneration));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,const DeepCollectionEquality().hash(_instructions),carbs,proteins,vegetables,type,lunch,dinner,canBeStored,includeInMenuGeneration);
+int get hashCode => Object.hash(runtimeType,id,name,const DeepCollectionEquality().hash(_instructions),carbs,proteins,vegetables,type,lunch,dinner,maxStorageDays,includeInMenuGeneration);
 
 @override
 String toString() {
-  return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, canBeStored: $canBeStored, includeInMenuGeneration: $includeInMenuGeneration)';
+  return 'Recipe(id: $id, name: $name, instructions: $instructions, carbs: $carbs, proteins: $proteins, vegetables: $vegetables, type: $type, lunch: $lunch, dinner: $dinner, maxStorageDays: $maxStorageDays, includeInMenuGeneration: $includeInMenuGeneration)';
 }
 
 
@@ -273,7 +273,7 @@ abstract mixin class _$RecipeCopyWith<$Res> implements $RecipeCopyWith<$Res> {
   factory _$RecipeCopyWith(_Recipe value, $Res Function(_Recipe) _then) = __$RecipeCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, List<Instruction> instructions, bool carbs, bool proteins, bool vegetables, RecipeType type, bool lunch, bool dinner, bool canBeStored, bool includeInMenuGeneration
+ String id, String name, List<Instruction> instructions, bool carbs, bool proteins, bool vegetables, RecipeType type, bool lunch, bool dinner, int maxStorageDays, bool includeInMenuGeneration
 });
 
 
@@ -290,7 +290,7 @@ class __$RecipeCopyWithImpl<$Res>
 
 /// Create a copy of Recipe
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? instructions = null,Object? carbs = null,Object? proteins = null,Object? vegetables = null,Object? type = null,Object? lunch = null,Object? dinner = null,Object? canBeStored = null,Object? includeInMenuGeneration = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? instructions = null,Object? carbs = null,Object? proteins = null,Object? vegetables = null,Object? type = null,Object? lunch = null,Object? dinner = null,Object? maxStorageDays = null,Object? includeInMenuGeneration = null,}) {
   return _then(_Recipe(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -301,8 +301,8 @@ as bool,vegetables: null == vegetables ? _self.vegetables : vegetables // ignore
 as bool,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as RecipeType,lunch: null == lunch ? _self.lunch : lunch // ignore: cast_nullable_to_non_nullable
 as bool,dinner: null == dinner ? _self.dinner : dinner // ignore: cast_nullable_to_non_nullable
-as bool,canBeStored: null == canBeStored ? _self.canBeStored : canBeStored // ignore: cast_nullable_to_non_nullable
-as bool,includeInMenuGeneration: null == includeInMenuGeneration ? _self.includeInMenuGeneration : includeInMenuGeneration // ignore: cast_nullable_to_non_nullable
+as bool,maxStorageDays: null == maxStorageDays ? _self.maxStorageDays : maxStorageDays // ignore: cast_nullable_to_non_nullable
+as int,includeInMenuGeneration: null == includeInMenuGeneration ? _self.includeInMenuGeneration : includeInMenuGeneration // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

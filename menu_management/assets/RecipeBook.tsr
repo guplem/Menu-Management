@@ -1661,7 +1661,7 @@
       "type": "breakfast",
       "lunch": false,
       "dinner": false,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -1831,7 +1831,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -1896,7 +1896,7 @@
       "type": "breakfast",
       "lunch": false,
       "dinner": false,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -1994,7 +1994,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -2052,7 +2052,7 @@
       "type": "breakfast",
       "lunch": false,
       "dinner": false,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -2133,7 +2133,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -2181,7 +2181,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -2231,7 +2231,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -2329,7 +2329,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -2507,7 +2507,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -2659,7 +2659,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -2893,7 +2893,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -3055,7 +3055,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -3182,7 +3182,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -3388,7 +3388,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -3565,7 +3565,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -3691,7 +3691,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -3807,7 +3807,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -4041,7 +4041,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -4274,7 +4274,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -4448,7 +4448,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -4607,7 +4607,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": true,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -4807,7 +4807,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -4882,7 +4882,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5005,7 +5005,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -5138,7 +5138,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -5170,7 +5170,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5309,7 +5309,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": true,
+      "maxStorageDays": 6,
       "includeInMenuGeneration": true
     },
     {
@@ -5341,7 +5341,7 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5391,7 +5391,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5489,7 +5489,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5563,7 +5563,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5677,7 +5677,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },
     {
@@ -5709,7 +5709,7 @@
       "type": "meal",
       "lunch": false,
       "dinner": true,
-      "canBeStored": false,
+      "maxStorageDays": 0,
       "includeInMenuGeneration": true
     }
   ]

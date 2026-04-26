@@ -50,7 +50,6 @@ Map<String, List<CookingEvent>> buildCookingTimeline({
 
   for (int weekIndex = 0; weekIndex < multiWeekMenu.weeks.length; weekIndex++) {
     Menu week = multiWeekMenu.weeks[weekIndex];
-    Set<String> processedStorableRecipeIds = {};
 
     for (Meal meal in week.meals) {
       if (meal.cooking == null || meal.cooking!.yield <= 0) continue;
@@ -60,10 +59,13 @@ Map<String, List<CookingEvent>> buildCookingTimeline({
       if (recipe == null) continue;
 
       int peopleFactor;
-      if (recipe.canBeStored) {
-        if (processedStorableRecipeIds.contains(recipeId)) continue;
-        processedStorableRecipeIds.add(recipeId);
-        peopleFactor = week.meals.where((Meal m) => m.cooking?.recipeId == recipeId).fold(0, (int sum, Meal m) => sum + m.people);
+      if (recipe.maxStorageDays > 0) {
+        // Sum people only from meals within this cook event's storage window
+        peopleFactor = multiWeekMenu.servingsForCookEvent(
+          cookWeekIndex: weekIndex,
+          cookMealTime: meal.mealTime,
+          recipes: recipes,
+        );
       } else {
         peopleFactor = meal.people;
       }

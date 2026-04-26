@@ -24,5 +24,5 @@ Key design choices:
 - `MenuPage` now receives `MultiWeekMenu` instead of `Menu`. All per-week edits (recipe swap, people count) go through `MultiWeekMenu.updateWeekAt()`.
 - `ShoppingPage` receives `MultiWeekMenu` and uses its aggregated `allIngredients(recipes:)` method.
 - `Persistency.saveMenu` and `loadMultiWeekMenu` handle the new format. Old `.tsm` files remain loadable.
-- Yield calculation is per-week only. A recipe used in week 1 and week 2 will have independent yield counts (no cross-week leftover tracking). This is intentional: weeks are assumed to be cooked independently.
+- Yield calculation spans weeks via `MultiWeekMenu.copyWithUpdatedYields`. A recipe cooked late in week N can serve as leftovers in early week N+1, provided the gap is within the recipe's `maxStorageDays`. Carry-over cook events are tracked as absolute day indices across the full multi-week timeline.
 - `MenuProvider.generateMenu` now returns `MultiWeekMenu` (single week). `MenuProvider.generateAdditionalWeek` generates a standalone `Menu` for appending.

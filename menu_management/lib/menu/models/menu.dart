@@ -48,45 +48,68 @@ abstract class Menu with _$Menu {
     return dayMealsWithNulls;
   }
 
-  Menu copyWithUpdatedYields({required List<Recipe> recipes}) {
-    List<Meal> oldMeals = [...this.meals];
+  /// Recalculates yields for a single week (weekIndex defaults to 0).
+  /// Use [MultiWeekMenu.copyWithUpdatedYields] for cross-week awareness.
+  Menu copyWithUpdatedYields({required List<Recipe> recipes, int weekIndex = 0}) {
+    return recalculateYields(meals: [...meals], recipes: recipes, weekIndex: weekIndex);
+  }
 
-    bool isFirstTimeOfRecipe(MealTime time, String recipeId) {
-      List<Meal> sortedMealTimes = oldMeals.sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
-      for (int i = 0; i < sortedMealTimes.length; i++) {
-        MealTime t = sortedMealTimes[i].mealTime;
-        String? r = sortedMealTimes[i].cooking?.recipeId;
-        if (r == recipeId && t.goesBefore(time)) {
-          return false;
-        } else if (r == recipeId && (t == time || time.goesBefore(t))) {
-          return true;
-        }
+  /// Shared yield recalculation logic. Operates on a flat list of meals belonging
+  /// to this week. [weekIndex] is used to compute absolute day indices.
+  /// [externalCookEvents] maps recipeId to the absolute day it was cooked in a
+  /// previous week (for cross-week leftover awareness).
+  static Menu recalculateYields({
+    required List<Meal> meals,
+    required List<Recipe> recipes,
+    required int weekIndex,
+    Map<String, int> externalCookEvents = const {},
+  }) {
+    List<Meal> sorted = [...meals].sorted((a, b) => a.goesBefore(b) ? -1 : 1).toList();
+
+    // Track the cook day for each recipe (absolute day index).
+    // Start with any carry-over from previous weeks.
+    Map<String, int> cookDay = {...externalCookEvents};
+
+    // First pass: determine which meals are "cook" vs "leftovers"
+    Map<MealTime, int> yieldMap = {};
+    for (Meal meal in sorted) {
+      String? recipeId = meal.cooking?.recipeId;
+      if (recipeId == null) continue;
+      Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
+      if (recipe == null || recipe.maxStorageDays <= 0) {
+        yieldMap[meal.mealTime] = 1;
+        continue;
       }
-      Debug.logError("This should not happen");
-      return false;
+
+      int absoluteDay = weekIndex * 7 + meal.mealTime.weekDay.value;
+      if (cookDay.containsKey(recipeId) && (absoluteDay - cookDay[recipeId]!) <= recipe.maxStorageDays) {
+        // Within storage window of a previous cook
+        yieldMap[meal.mealTime] = 0;
+      } else {
+        // New cook event
+        cookDay[recipeId] = absoluteDay;
+        // Count how many subsequent occurrences are within storage window
+        int count = sorted.where((Meal m) {
+          if (m.cooking?.recipeId != recipeId) return false;
+          int mDay = weekIndex * 7 + m.mealTime.weekDay.value;
+          return mDay >= absoluteDay && (mDay - absoluteDay) <= recipe.maxStorageDays;
+        }).length;
+        yieldMap[meal.mealTime] = count;
+      }
     }
 
-    List<Meal> meals = oldMeals.map((meal) {
+    List<Meal> result = meals.map((Meal meal) {
       String? recipeId = meal.cooking?.recipeId;
-      Recipe? recipe = recipeId != null ? recipes.firstWhereOrNull((r) => r.id == recipeId) : null;
-
-      int yield = 1;
-      if (recipe != null && recipe.canBeStored) {
-        if (isFirstTimeOfRecipe(meal.mealTime, recipeId!)) {
-          yield = oldMeals.count((Meal element) => element.cooking?.recipeId == recipeId);
-        } else {
-          yield = 0;
-        }
-      }
-
+      if (recipeId == null) return meal;
+      int yield = yieldMap[meal.mealTime] ?? 1;
       return Meal(
         mealTime: meal.mealTime,
-        cooking: recipeId == null ? null : Cooking(recipeId: recipeId, yield: yield),
+        cooking: Cooking(recipeId: recipeId, yield: yield),
         people: meal.people,
       );
     }).toList();
 
-    return copyWith(meals: meals);
+    return Menu(meals: result);
   }
 
   Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {

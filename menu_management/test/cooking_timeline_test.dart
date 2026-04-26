@@ -17,9 +17,9 @@ Recipe _recipe({
   required String id,
   required String name,
   required List<Instruction> instructions,
-  bool canBeStored = true,
+  int maxStorageDays = 6,
 }) {
-  return Recipe(id: id, name: name, instructions: instructions, canBeStored: canBeStored);
+  return Recipe(id: id, name: name, instructions: instructions, maxStorageDays: maxStorageDays);
 }
 
 Instruction _instruction({required String ingredientId, double amount = 100, Unit unit = Unit.grams}) {
@@ -76,7 +76,7 @@ void main() {
     });
 
     test("non-storable recipe appearing twice in same week produces two events", () {
-      Recipe recipe = _recipe(id: "r1", name: "Salad", instructions: [_instruction(ingredientId: "lettuce", amount: 50)], canBeStored: false);
+      Recipe recipe = _recipe(id: "r1", name: "Salad", instructions: [_instruction(ingredientId: "lettuce", amount: 50)], maxStorageDays: 0);
       MultiWeekMenu menu = MultiWeekMenu(weeks: [
         Menu(meals: [
           _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipeId: "r1"),
@@ -173,6 +173,35 @@ void main() {
       expect(timeline["flour"]!.length, 1);
       // (100 + 50) * 2 people = 300g
       expect(timeline["flour"]!.first.quantities.first.amount, 300);
+    });
+
+    test("storable recipe with two cook events in one week produces two separate events", () {
+      // maxStorageDays: 1 means Saturday cook covers Sat+Sun only, Thursday is a new cook
+      Recipe recipe = _recipe(
+        id: "r1",
+        name: "Stew",
+        instructions: [_instruction(ingredientId: "potato", amount: 100)],
+        maxStorageDays: 1,
+      );
+      MultiWeekMenu menu = MultiWeekMenu(weeks: [
+        Menu(meals: [
+          // Saturday cook (yield=2: covers Sat + Sun)
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r1", yield_: 2, people: 2),
+          // Sunday leftover (yield=0)
+          _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipeId: "r1", yield_: 0, people: 3),
+          // Thursday cook (yield=1: new cook event, outside Saturday's window)
+          _meal(weekDay: WeekDay.thursday, mealType: MealType.lunch, recipeId: "r1", yield_: 1, people: 4),
+        ]),
+      ]);
+
+      Map<String, List<CookingEvent>> timeline = buildCookingTimeline(multiWeekMenu: menu, recipes: [recipe]);
+
+      // Should produce TWO events: Saturday (2+3 people) and Thursday (4 people)
+      expect(timeline["potato"]!.length, 2);
+      expect(timeline["potato"]![0].dayIndex, 0); // saturday
+      expect(timeline["potato"]![0].quantities.first.amount, 500); // 100 * (2+3)
+      expect(timeline["potato"]![1].dayIndex, 5); // thursday
+      expect(timeline["potato"]![1].quantities.first.amount, 400); // 100 * 4
     });
 
     test("ingredient used in different units preserves both quantities", () {

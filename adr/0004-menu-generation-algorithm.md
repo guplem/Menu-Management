@@ -23,8 +23,9 @@ For each meal time (sorted by available cooking time, least to most):
 3. **Nutritional Balance**: Tracks selection counts per nutritional type (carbs, proteins, vegetables). Prioritizes the least selected types. For already-selected recipes, prioritizes those used fewer times (up to a max repetition threshold).
 
 4. **Yield Optimization**: After assignment, `copyWithUpdatedYields()` calculates correct yields:
-   - Storable recipes: first occurrence gets yield = total appearances, subsequent get yield = 0 (eating leftovers)
-   - Non-storable recipes: always yield = 1
+   - Storable recipes (`maxStorageDays > 0`): the first chronological occurrence is the cook event; subsequent occurrences within `maxStorageDays` of the cook day get yield = 0 (leftovers). If a later occurrence falls outside the storage window, it becomes a new cook event.
+   - Non-storable recipes (`maxStorageDays == 0`): always yield = 1 (must cook fresh each time).
+   - Cross-week: `MultiWeekMenu.copyWithUpdatedYields` carries cook-day state across weeks, so a recipe cooked on Thursday of week 1 can be leftovers on Monday of week 2 if within the storage window.
 
 ### Key Variables
 - `maxNumberOfTimesTheSameRecipeShouldBeUsed`: Based on percentage of meals that can be cooked at the spot (approx `totalMeals * percentageCanCook / 3.1`)

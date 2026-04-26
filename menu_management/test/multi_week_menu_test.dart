@@ -262,4 +262,127 @@ void main() {
       expect(loaded.weeks.first.meals.first.cooking?.recipeId, "r1");
     });
   });
+
+  group("MultiWeekMenu cross-week yield calculation", () {
+    test("recipe cooked Thursday week 1 carries over as leftovers to Monday week 2", () {
+      // maxStorageDays: 6 means it can be stored up to 6 days
+      Recipe storable = _testRecipe(id: "s1", name: "Stew");
+      // Thursday = weekDay.thursday (value 5)
+      Meal thursdayMeal = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch),
+        cooking: Cooking(recipeId: "s1", yield: -1),
+      );
+      // Monday next week = weekDay.monday (value 2)
+      Meal mondayMeal = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+        cooking: Cooking(recipeId: "s1", yield: -1),
+      );
+
+      Menu week1 = Menu(meals: [thursdayMeal]);
+      Menu week2 = Menu(meals: [mondayMeal]);
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [week1, week2]);
+
+      MultiWeekMenu updated = multi.copyWithUpdatedYields(recipes: [storable]);
+
+      // Week 1 Thursday: cook (yield = 1 within this week, but cross-week makes it 2)
+      // Actually: cross-week recalc - week 1 sees only itself (yield=1 for thursday),
+      // week 2 monday: absolute day = 7*1+2 = 9, thursday absolute = 7*0+5 = 5, distance = 4 <= 6
+      // So Monday week 2 is leftovers (yield=0)
+      expect(updated.weeks[0].meals[0].cooking?.yield, 1);
+      expect(updated.weeks[1].meals[0].cooking?.yield, 0);
+    });
+
+    test("recipe exceeding maxStorageDays across weeks gets a new cook event", () {
+      // maxStorageDays: 2
+      Recipe shortLife = Recipe(id: "s1", name: "Salad", maxStorageDays: 2);
+      // Saturday week 1 = absolute day 0
+      Meal satMeal = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        cooking: Cooking(recipeId: "s1", yield: -1),
+      );
+      // Wednesday week 1 = absolute day 4 (distance = 4 > 2, new cook)
+      Meal wedMeal = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
+        cooking: Cooking(recipeId: "s1", yield: -1),
+      );
+
+      Menu week1 = Menu(meals: [satMeal, wedMeal]);
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [week1]);
+
+      MultiWeekMenu updated = multi.copyWithUpdatedYields(recipes: [shortLife]);
+
+      // Saturday: cook (yield=1, only itself within 2-day window)
+      expect(updated.weeks[0].meals[0].cooking?.yield, 1);
+      // Wednesday: new cook (yield=1), too far from Saturday
+      expect(updated.weeks[0].meals[1].cooking?.yield, 1);
+    });
+
+    test("totalServingsForRecipe sums across all weeks", () {
+      Menu week1 = Menu(meals: [
+        Meal(
+          mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+          cooking: Cooking(recipeId: "r1", yield: 1),
+          people: 2,
+        ),
+      ]);
+      Menu week2 = Menu(meals: [
+        Meal(
+          mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+          cooking: Cooking(recipeId: "r1", yield: 0),
+          people: 3,
+        ),
+      ]);
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [week1, week2]);
+
+      expect(multi.totalServingsForRecipe("r1"), 5); // 2 + 3
+    });
+
+    test("servingsForCookEvent only counts meals in its storage window", () {
+      Recipe storable = Recipe(id: "s1", name: "Stew", maxStorageDays: 6);
+      List<Recipe> recipes = [storable];
+
+      // Week 0: Saturday cook (day 0), Wednesday leftovers (day 4)
+      // Week 1: Monday (day 9) - outside storage window, new cook event
+      Menu week0 = Menu(meals: [
+        Meal(
+          mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          cooking: Cooking(recipeId: "s1", yield: 2),
+          people: 2,
+        ),
+        Meal(
+          mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
+          cooking: Cooking(recipeId: "s1", yield: 0),
+          people: 3,
+        ),
+      ]);
+      Menu week1 = Menu(meals: [
+        Meal(
+          mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+          cooking: Cooking(recipeId: "s1", yield: 1),
+          people: 4,
+        ),
+      ]);
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [week0, week1]);
+
+      // Saturday cook feeds Saturday (2) + Wednesday (3) = 5, NOT Monday
+      expect(
+        multi.servingsForCookEvent(
+          cookWeekIndex: 0,
+          cookMealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          recipes: recipes,
+        ),
+        5,
+      );
+
+      // Monday cook feeds only Monday (4)
+      expect(
+        multi.servingsForCookEvent(
+          cookWeekIndex: 1,
+          cookMealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+          recipes: recipes,
+        ),
+        4,
+      );
+    });
+  });
 }

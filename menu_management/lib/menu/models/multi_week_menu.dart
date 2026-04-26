@@ -1,5 +1,7 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/models/meal.dart";
+import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
@@ -38,6 +40,73 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     final List<Menu> newWeeks = [...weeks];
     newWeeks[index] = updatedWeek;
     return copyWith(weeks: newWeeks);
+  }
+
+  /// Recalculates yields across all weeks, allowing cross-week leftovers
+  /// when a recipe cooked late in week N is within maxStorageDays of meals
+  /// in week N+1.
+  MultiWeekMenu copyWithUpdatedYields({required List<Recipe> recipes}) {
+    List<Menu> updatedWeeks = [];
+    Map<String, int> carryOverCookDays = {};
+
+    for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+      Menu week = Menu.recalculateYields(
+        meals: [...weeks[weekIndex].meals],
+        recipes: recipes,
+        weekIndex: weekIndex,
+        externalCookEvents: carryOverCookDays,
+      );
+      updatedWeeks.add(week);
+
+      // Build carry-over: for each recipe cooked this week, record the latest cook day
+      for (Meal meal in week.meals) {
+        if (meal.cooking == null || meal.cooking!.yield <= 0) continue;
+        String recipeId = meal.cooking!.recipeId;
+        int absoluteDay = weekIndex * 7 + meal.mealTime.weekDay.value;
+        // Keep the latest cook day per recipe for carry-over
+        if (!carryOverCookDays.containsKey(recipeId) || absoluteDay > carryOverCookDays[recipeId]!) {
+          carryOverCookDays[recipeId] = absoluteDay;
+        }
+      }
+    }
+
+    return copyWith(weeks: updatedWeeks);
+  }
+
+  /// Total servings to cook for a recipe across all weeks (global sum).
+  int totalServingsForRecipe(String recipeId) {
+    return weeks.fold(0, (int sum, Menu week) => sum + week.totalServingsForRecipe(recipeId));
+  }
+
+  /// Returns the total people served by a specific cook event (yield > 0 meal).
+  /// The cook event at [cookWeekIndex]/[cookMealTime] feeds itself plus all
+  /// subsequent leftover occurrences (yield == 0) of the same recipe within
+  /// the recipe's maxStorageDays window.
+  int servingsForCookEvent({
+    required int cookWeekIndex,
+    required MealTime cookMealTime,
+    required List<Recipe> recipes,
+  }) {
+    // Find the cook meal
+    Meal? cookMeal = weeks[cookWeekIndex].meals.firstWhereOrNull((Meal m) => m.mealTime.isSameTime(cookMealTime));
+    if (cookMeal?.cooking == null || cookMeal!.cooking!.yield <= 0) return 0;
+
+    String recipeId = cookMeal.cooking!.recipeId;
+    Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == recipeId);
+    int maxDays = recipe?.maxStorageDays ?? 0;
+    int cookAbsoluteDay = cookWeekIndex * 7 + cookMealTime.weekDay.value;
+
+    int total = 0;
+    for (int wi = cookWeekIndex; wi < weeks.length; wi++) {
+      for (Meal meal in weeks[wi].meals) {
+        if (meal.cooking?.recipeId != recipeId) continue;
+        int mealAbsoluteDay = wi * 7 + meal.mealTime.weekDay.value;
+        if (mealAbsoluteDay < cookAbsoluteDay) continue;
+        if (mealAbsoluteDay - cookAbsoluteDay > maxDays) continue;
+        total += meal.people;
+      }
+    }
+    return total;
   }
 
   Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {

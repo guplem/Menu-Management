@@ -191,7 +191,7 @@ void main() {
         expect(recipe.type, RecipeType.meal);
         expect(recipe.lunch, true);
         expect(recipe.dinner, true);
-        expect(recipe.canBeStored, true);
+        expect(recipe.maxStorageDays, 6);
         expect(recipe.includeInMenuGeneration, true);
         expect(recipe.instructions, isEmpty);
       });
@@ -207,12 +207,12 @@ void main() {
       }
 
       test("rejects non-storable recipe when needToBeStored is true", () {
-        Recipe recipe = const Recipe(id: "r1", name: "Test", canBeStored: false);
+        Recipe recipe = const Recipe(id: "r1", name: "Test", maxStorageDays: 0);
         expect(recipe.fitsConfiguration(configWithTime(MealType.lunch, 60), needToBeStored: true, strictMealTime: false), false);
       });
 
       test("accepts non-storable recipe when needToBeStored is false", () {
-        Recipe recipe = const Recipe(id: "r1", name: "Test", canBeStored: false);
+        Recipe recipe = const Recipe(id: "r1", name: "Test", maxStorageDays: 0);
         expect(recipe.fitsConfiguration(configWithTime(MealType.lunch, 60), needToBeStored: false, strictMealTime: false), true);
       });
 
@@ -263,11 +263,31 @@ void main() {
           type: RecipeType.meal,
           lunch: true,
           dinner: true,
-          canBeStored: true,
+          maxStorageDays: 6,
           includeInMenuGeneration: false,
         );
         Recipe restored = Recipe.fromJson(original.toJson());
         expect(restored, original);
+      });
+
+      test("migrates old canBeStored: true to maxStorageDays: 6", () {
+        Map<String, Object?> oldJson = {"id": "r1", "name": "Test", "canBeStored": true};
+        Recipe recipe = Recipe.fromJson(oldJson);
+        expect(recipe.maxStorageDays, 6);
+        expect(recipe.canBeStored, true);
+      });
+
+      test("migrates old canBeStored: false to maxStorageDays: 0", () {
+        Map<String, Object?> oldJson = {"id": "r1", "name": "Test", "canBeStored": false};
+        Recipe recipe = Recipe.fromJson(oldJson);
+        expect(recipe.maxStorageDays, 0);
+        expect(recipe.canBeStored, false);
+      });
+
+      test("does not migrate when maxStorageDays already present", () {
+        Map<String, Object?> newJson = {"id": "r1", "name": "Test", "maxStorageDays": 3};
+        Recipe recipe = Recipe.fromJson(newJson);
+        expect(recipe.maxStorageDays, 3);
       });
     });
   });

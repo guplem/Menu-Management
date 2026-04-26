@@ -21,14 +21,25 @@ abstract class Recipe with _$Recipe {
     @Default(RecipeType.meal) RecipeType type,
     @Default(true) bool lunch,
     @Default(true) bool dinner,
-    @Default(true) bool canBeStored,
+    @Default(6) int maxStorageDays,
     @Default(true) bool includeInMenuGeneration,
   }) = _Recipe;
 
-  factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);
+  factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(_migrateCanBeStored(json));
+
+  /// Backward compatibility: migrate old canBeStored boolean to maxStorageDays
+  static Map<String, Object?> _migrateCanBeStored(Map<String, Object?> json) {
+    if (json.containsKey("canBeStored") && !json.containsKey("maxStorageDays")) {
+      json = {...json, "maxStorageDays": (json["canBeStored"] == true) ? 6 : 0};
+      json.remove("canBeStored");
+    }
+    return json;
+  }
 
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Recipe._();
+
+  bool get canBeStored => maxStorageDays > 0;
 
   int get workingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.workingTimeMinutes);
   int get cookingTimeMinutes => instructions.fold(0, (previousValue, element) => previousValue + element.cookingTimeMinutes);
@@ -39,7 +50,7 @@ abstract class Recipe with _$Recipe {
   }
 
   bool fitsConfiguration(MenuConfiguration configuration, {required bool needToBeStored, required bool strictMealTime}) {
-    if (needToBeStored && !canBeStored) {
+    if (needToBeStored && maxStorageDays <= 0) {
       return false;
     }
     if (!configuration.canBeCookedAtTheSpot && totalTimeMinutes > 0) {

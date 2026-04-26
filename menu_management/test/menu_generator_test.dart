@@ -14,14 +14,14 @@ import "package:menu_management/recipes/recipes_provider.dart";
 
 // ── Test recipe builders ──
 
-Recipe _breakfast({required String id, required String name, int totalMinutes = 10, bool canBeStored = false}) {
+Recipe _breakfast({required String id, required String name, int totalMinutes = 10, int maxStorageDays = 0}) {
   return Recipe(
     id: id,
     name: name,
     type: RecipeType.breakfast,
     lunch: false,
     dinner: false,
-    canBeStored: canBeStored,
+    maxStorageDays: maxStorageDays,
     instructions: totalMinutes > 0
         ? [Instruction(id: "${id}_i", description: "make $name", workingTimeMinutes: totalMinutes, cookingTimeMinutes: 0)]
         : [],
@@ -32,7 +32,7 @@ Recipe _meal({
   required String id,
   required String name,
   int totalMinutes = 20,
-  bool canBeStored = true,
+  int maxStorageDays = 6,
   bool lunch = true,
   bool dinner = true,
   bool carbs = true,
@@ -45,7 +45,7 @@ Recipe _meal({
     type: RecipeType.meal,
     lunch: lunch,
     dinner: dinner,
-    canBeStored: canBeStored,
+    maxStorageDays: maxStorageDays,
     carbs: carbs,
     proteins: proteins,
     vegetables: vegetables,
@@ -242,7 +242,7 @@ void main() {
 
   group("MenuGenerator yield logic", () {
     test("storable recipe reused across slots gets yield on first occurrence only", () {
-      Recipe storableRecipe = _meal(id: "m1", name: "Storable Pasta", canBeStored: true);
+      Recipe storableRecipe = _meal(id: "m1", name: "Storable Pasta", maxStorageDays: 6);
       RecipesProvider.addOrUpdate(newRecipe: storableRecipe);
 
       // Only 2 lunch slots with time, so the one storable recipe fills both
@@ -279,7 +279,7 @@ void main() {
 
   group("MenuGenerator zero-time slot backfilling", () {
     test("zero cooking time slot gets filled by a storable recipe from an earlier slot", () {
-      Recipe storableRecipe = _meal(id: "m1", name: "Storable Stew", canBeStored: true, totalMinutes: 30);
+      Recipe storableRecipe = _meal(id: "m1", name: "Storable Stew", maxStorageDays: 6, totalMinutes: 30);
       RecipesProvider.addOrUpdate(newRecipe: storableRecipe);
 
       List<MenuConfiguration> configs = [
@@ -350,7 +350,7 @@ void main() {
     test("generates menu with null cooking when no meal recipe fits the configuration", () {
       // Add a meal recipe that requires more time than the config allows
       RecipesProvider.addOrUpdate(
-        newRecipe: _meal(id: "m_slow", name: "Slow Braise", totalMinutes: 120, canBeStored: false),
+        newRecipe: _meal(id: "m_slow", name: "Slow Braise", totalMinutes: 120, maxStorageDays: 0),
       );
 
       List<MenuConfiguration> configs = [
