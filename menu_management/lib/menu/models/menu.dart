@@ -191,13 +191,18 @@ abstract class Menu with _$Menu {
     return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
   }
 
-  Menu copyWithUpdatedPeople({required MealTime mealTime, required int people}) {
+  Menu copyWithUpdatedPeople({required MealTime mealTime, required int people, required List<Recipe> recipes}) {
     List<Meal> newMeals = [...meals];
     int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
     if (index != -1) {
       newMeals[index] = newMeals[index].copyWith(people: people);
     }
-    return copyWith(meals: newMeals);
+    return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
+  }
+
+  /// Total number of servings to cook for a recipe, summing people across all meals that share it.
+  int totalServingsForRecipe(String recipeId) {
+    return meals.where((Meal m) => m.cooking?.recipeId == recipeId).fold(0, (int sum, Meal m) => sum + m.people);
   }
 
   String toStringBeautified({required List<Recipe> recipes}) {

@@ -261,16 +261,19 @@ void main() {
 
     group("copyWithUpdatedPeople", () {
       test("updates people count for matching meal", () {
+        Recipe recipe = _recipe();
+        List<Recipe> recipes = [recipe];
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
         Menu menu = Menu(
-          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: _recipe(), people: 2)],
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, people: 2)],
         );
-        Menu updated = menu.copyWithUpdatedPeople(mealTime: time, people: 4);
+        Menu updated = menu.copyWithUpdatedPeople(mealTime: time, people: 4, recipes: recipes);
         expect(updated.meals.first.people, 4);
       });
 
       test("does not change other meals", () {
         Recipe recipe = _recipe();
+        List<Recipe> recipes = [recipe];
         Menu menu = Menu(
           meals: [
             _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, people: 2),
@@ -278,9 +281,59 @@ void main() {
           ],
         );
         MealTime lunchTime = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
-        Menu updated = menu.copyWithUpdatedPeople(mealTime: lunchTime, people: 5);
+        Menu updated = menu.copyWithUpdatedPeople(mealTime: lunchTime, people: 5, recipes: recipes);
         expect(updated.meals[0].people, 5);
         expect(updated.meals[1].people, 3); // unchanged
+      });
+
+      test("recalculates yields after changing people", () {
+        Recipe storable = _recipe(id: "s1", canBeStored: true);
+        List<Recipe> recipes = [storable];
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: storable, yield: 2, people: 2),
+            _meal(weekDay: WeekDay.tuesday, mealType: MealType.lunch, recipe: storable, yield: 0, people: 2),
+          ],
+        );
+
+        // Change people on the leftovers meal (Tuesday)
+        MealTime tuesdayLunch = const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch);
+        Menu updated = menu.copyWithUpdatedPeople(mealTime: tuesdayLunch, people: 4, recipes: recipes);
+
+        // People updated
+        expect(updated.meals[1].people, 4);
+
+        // Yields should still be recalculated: first occurrence cooks, second is leftovers
+        expect(updated.meals[0].cooking!.yield, 2); // still first occurrence, yield = count of meals with that recipe
+        expect(updated.meals[1].cooking!.yield, 0); // still leftovers
+      });
+    });
+
+    group("totalServingsForRecipe", () {
+      test("sums people across all meals sharing the same recipe", () {
+        Recipe storable = _recipe(id: "s1", canBeStored: true);
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: storable, yield: 2, people: 2),
+            _meal(weekDay: WeekDay.tuesday, mealType: MealType.lunch, recipe: storable, yield: 0, people: 4),
+          ],
+        );
+
+        expect(menu.totalServingsForRecipe("s1"), 6); // 2 + 4
+      });
+
+      test("returns people for a single-occurrence recipe", () {
+        Recipe recipe = _recipe(id: "r1", canBeStored: false);
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: 1, people: 3)],
+        );
+
+        expect(menu.totalServingsForRecipe("r1"), 3);
+      });
+
+      test("returns 0 for unknown recipe id", () {
+        Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: _recipe(), people: 2)]);
+        expect(menu.totalServingsForRecipe("unknown"), 0);
       });
     });
 

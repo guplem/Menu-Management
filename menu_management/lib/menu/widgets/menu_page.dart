@@ -10,6 +10,7 @@ import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/shopping/shopping_page.dart";
+import "package:menu_management/theme/theme_custom.dart";
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key, required this.multiWeekMenu});
@@ -214,11 +215,38 @@ class _MenuPageState extends State<MenuPage> {
                                       width: 140,
                                       child: meal.cooking == null
                                           ? const SizedBox.shrink()
-                                          : Text(
-                                              "(${meal.cooking?.yield}) ${_recipes.firstWhereOrNull((r) => r.id == meal.cooking?.recipeId)?.name ?? "?"}",
-                                              textAlign: TextAlign.center,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 3,
+                                          : Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  _recipes.firstWhereOrNull((r) => r.id == meal.cooking?.recipeId)?.name ?? "?",
+                                                  textAlign: TextAlign.center,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                meal.cooking!.yield == 0
+                                                    ? Chip(
+                                                        label: const Text("Leftovers"),
+                                                        backgroundColor: ThemeCustom.colorScheme(context).primaryContainer,
+                                                        labelStyle: TextStyle(
+                                                          color: ThemeCustom.colorScheme(context).onPrimaryContainer,
+                                                          fontSize: 12,
+                                                        ),
+                                                        visualDensity: VisualDensity.compact,
+                                                        padding: EdgeInsets.zero,
+                                                      )
+                                                    : Chip(
+                                                        label: Text("Cook ${currentWeek.totalServingsForRecipe(meal.cooking!.recipeId)} servings"),
+                                                        backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
+                                                        labelStyle: TextStyle(
+                                                          color: ThemeCustom.colorScheme(context).onTertiaryContainer,
+                                                          fontSize: 12,
+                                                        ),
+                                                        visualDensity: VisualDensity.compact,
+                                                        padding: EdgeInsets.zero,
+                                                      ),
+                                              ],
                                             ),
                                     ),
                                     const SizedBox(height: 5),
@@ -233,6 +261,7 @@ class _MenuPageState extends State<MenuPage> {
                                                   Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
                                                     mealTime: meal.mealTime,
                                                     people: meal.people - 1,
+                                                    recipes: _recipes,
                                                   );
                                                   multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
                                                 }),
@@ -250,7 +279,11 @@ class _MenuPageState extends State<MenuPage> {
                                         IconButton(
                                           icon: const Icon(Icons.add, size: 18),
                                           onPressed: () => setState(() {
-                                            Menu updatedWeek = currentWeek.copyWithUpdatedPeople(mealTime: meal.mealTime, people: meal.people + 1);
+                                            Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
+                                              mealTime: meal.mealTime,
+                                              people: meal.people + 1,
+                                              recipes: _recipes,
+                                            );
                                             multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek);
                                           }),
                                         ),
