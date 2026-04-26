@@ -25,12 +25,12 @@ class ShoppingProductRow extends StatelessWidget {
     double over = recommendation.overBuyWaste;
     double expiry = recommendation.expiryWaste;
 
-    if (over == 0 && expiry == 0) return "Exact fit - no waste";
+    if (over == 0 && expiry == 0) return "Perfect fit - covers exactly what you need, no waste.";
 
     List<String> parts = [];
-    if (over > 0) parts.add("${over.toFormattedAmount()} $unit over-bought");
-    if (expiry > 0) parts.add("${expiry.toFormattedAmount()} $unit expired before use");
-    return "Least waste: ${parts.join(" + ")}";
+    if (over > 0) parts.add("${over.toFormattedAmount()} $unit left over after this week's use");
+    if (expiry > 0) parts.add("${expiry.toFormattedAmount()} $unit will expire before you finish it");
+    return "Recommended pack - least total waste among available options.\nWaste: ${parts.join(" + ")}.";
   }
 
   @override
