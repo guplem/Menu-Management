@@ -5,6 +5,7 @@ import "package:file_picker/file_picker.dart";
 import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/session_action.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -28,18 +29,27 @@ class Persistency {
   // Last session tracking
   // ============================================================
 
+  /// Override for tests. When non-null, session file is stored here instead of APPDATA.
+  static String? sessionDirOverride;
+
   static File get _lastSessionFile {
-    String appData = Platform.environment["APPDATA"] ?? Platform.environment["HOME"] ?? ".";
-    Directory dir = Directory("$appData/MenuManagement");
+    String dirPath;
+    if (sessionDirOverride != null) {
+      dirPath = sessionDirOverride!;
+    } else {
+      String appData = Platform.environment["APPDATA"] ?? Platform.environment["HOME"] ?? ".";
+      dirPath = "$appData/MenuManagement";
+    }
+    Directory dir = Directory(dirPath);
     if (!dir.existsSync()) dir.createSync(recursive: true);
     return File("${dir.path}/last_session.json");
   }
 
-  static Map<String, String?> _readLastSession() {
+  static Map<String, dynamic> _readLastSession() {
     try {
       File file = _lastSessionFile;
       if (file.existsSync()) {
-        return Map<String, String?>.from(jsonDecode(file.readAsStringSync()));
+        return Map<String, dynamic>.from(jsonDecode(file.readAsStringSync()));
       }
     } catch (_) {
       // Ignore errors reading last session
@@ -47,22 +57,62 @@ class Persistency {
     return {};
   }
 
-  static void _saveLastSession({String? tsrPath, String? tsmPath}) {
+  static void _saveLastSession({String? tsrPath, String? tsmPath, SessionAction? tsrAction, SessionAction? tsmAction}) {
     try {
-      Map<String, String?> session = _readLastSession();
+      Map<String, dynamic> session = _readLastSession();
       if (tsrPath != null) session["tsrPath"] = tsrPath;
       if (tsmPath != null) session["tsmPath"] = tsmPath;
+      if (tsrAction != null) session["tsrAction"] = tsrAction.name;
+      if (tsmAction != null) session["tsmAction"] = tsmAction.name;
       _lastSessionFile.writeAsStringSync(jsonEncode(session));
     } catch (_) {
       // Ignore errors saving last session
     }
   }
 
+  /// Clears the stored recipe book session (path and action).
+  static void clearLastTsrSession() {
+    try {
+      Map<String, dynamic> session = _readLastSession();
+      session.remove("tsrPath");
+      session.remove("tsrAction");
+      _lastSessionFile.writeAsStringSync(jsonEncode(session));
+    } catch (_) {
+      // Ignore errors
+    }
+  }
+
+  /// Clears the stored menu session (path and action).
+  static void clearLastTsmSession() {
+    try {
+      Map<String, dynamic> session = _readLastSession();
+      session.remove("tsmPath");
+      session.remove("tsmAction");
+      _lastSessionFile.writeAsStringSync(jsonEncode(session));
+    } catch (_) {
+      // Ignore errors
+    }
+  }
+
   /// Returns the last saved/loaded .tsr path, or null if none.
-  static String? get lastTsrPath => _readLastSession()["tsrPath"];
+  static String? get lastTsrPath => _readLastSession()["tsrPath"] as String?;
 
   /// Returns the last saved/loaded .tsm path, or null if none.
-  static String? get lastTsmPath => _readLastSession()["tsmPath"];
+  static String? get lastTsmPath => _readLastSession()["tsmPath"] as String?;
+
+  /// Returns the action type (saved/loaded) for the last .tsr session, or null if none.
+  static SessionAction? get lastTsrAction {
+    String? action = _readLastSession()["tsrAction"] as String?;
+    if (action == null) return null;
+    return SessionAction.values.firstWhere((a) => a.name == action, orElse: () => SessionAction.loaded);
+  }
+
+  /// Returns the action type (saved/loaded) for the last .tsm session, or null if none.
+  static SessionAction? get lastTsmAction {
+    String? action = _readLastSession()["tsmAction"] as String?;
+    if (action == null) return null;
+    return SessionAction.values.firstWhere((a) => a.name == action, orElse: () => SessionAction.loaded);
+  }
 
   // ============================================================
   // Load from a specific file path (no picker)
@@ -81,6 +131,7 @@ class Persistency {
 
       String data = await file.readAsString();
       _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
+      _saveLastSession(tsrPath: path, tsrAction: SessionAction.loaded);
       return true;
     } catch (_) {
       return false;
@@ -95,6 +146,7 @@ class Persistency {
       if (!file.existsSync()) return null;
 
       String data = await file.readAsString();
+      _saveLastSession(tsmPath: path, tsmAction: SessionAction.loaded);
       return _parseMenuFromJson(data, recipes: recipes);
     } catch (_) {
       return null;
@@ -247,7 +299,7 @@ class Persistency {
     File file = File(path);
     String data = _prettyEncoder.convert(tsrJson);
     await file.writeAsString(data);
-    _saveLastSession(tsrPath: path);
+    _saveLastSession(tsrPath: path, tsrAction: SessionAction.saved);
   }
 
   /// Saves a MultiWeekMenu to a specific .tsm file path.
@@ -258,7 +310,7 @@ class Persistency {
 
     File file = File(path);
     await file.writeAsString(data);
-    _saveLastSession(tsmPath: path);
+    _saveLastSession(tsmPath: path, tsmAction: SessionAction.saved);
   }
 
   // ============================================================
@@ -300,7 +352,7 @@ class Persistency {
 
       String data = await file.readAsString();
       _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
-      _saveLastSession(tsrPath: result.files.single.path!);
+      _saveLastSession(tsrPath: result.files.single.path!, tsrAction: SessionAction.loaded);
     }
   }
 
@@ -339,7 +391,7 @@ class Persistency {
       File file = File(result.files.single.path!);
 
       String data = await file.readAsString();
-      _saveLastSession(tsmPath: result.files.single.path!);
+      _saveLastSession(tsmPath: result.files.single.path!, tsmAction: SessionAction.loaded);
       return _parseMenuFromJson(data, recipes: recipes);
     }
     return null;

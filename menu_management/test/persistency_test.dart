@@ -14,6 +14,7 @@ import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/persistency.dart";
+import "package:menu_management/session_action.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
@@ -441,11 +442,109 @@ void main() {
   // ── Last session tracking ──
 
   group("last session tracking", () {
-    test("lastTsrPath is null when no session has been saved", () {
-      // On a fresh install or test environment, there may or may not be a session file.
-      // We just verify the getter does not throw.
-      Persistency.lastTsrPath;
-      Persistency.lastTsmPath;
+    late Directory sessionDir;
+
+    setUp(() {
+      sessionDir = Directory.systemTemp.createTempSync("session_test_");
+      Persistency.sessionDirOverride = sessionDir.path;
+    });
+
+    tearDown(() {
+      Persistency.sessionDirOverride = null;
+      if (sessionDir.existsSync()) {
+        sessionDir.deleteSync(recursive: true);
+      }
+    });
+
+    test("lastTsrPath and lastTsmPath are null on fresh session", () {
+      expect(Persistency.lastTsrPath, isNull);
+      expect(Persistency.lastTsmPath, isNull);
+      expect(Persistency.lastTsrAction, isNull);
+      expect(Persistency.lastTsmAction, isNull);
+    });
+
+    test("saveDataToPath records path and saved action for tsr", () async {
+      String path = "${tempDir.path}/test.tsr";
+      await Persistency.saveDataToPath(path: path, ingredients: [], recipes: []);
+
+      expect(Persistency.lastTsrPath, path);
+      expect(Persistency.lastTsrAction, SessionAction.saved);
+    });
+
+    test("saveMenuToPath records path and saved action for tsm", () async {
+      String path = "${tempDir.path}/test.tsm";
+      MultiWeekMenu menu = const MultiWeekMenu(weeks: [Menu(meals: [])]);
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: []);
+
+      expect(Persistency.lastTsmPath, path);
+      expect(Persistency.lastTsmAction, SessionAction.saved);
+    });
+
+    test("loadDataFromPath records path and loaded action for tsr", () async {
+      File tsrFile = File("${tempDir.path}/test.tsr");
+      tsrFile.writeAsStringSync(_validTsrContent());
+
+      await Persistency.loadDataFromPath(
+        path: tsrFile.path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
+
+      expect(Persistency.lastTsrPath, tsrFile.path);
+      expect(Persistency.lastTsrAction, SessionAction.loaded);
+    });
+
+    test("loadMenuFromPath records path and loaded action for tsm", () async {
+      File tsmFile = File("${tempDir.path}/test.tsm");
+      tsmFile.writeAsStringSync(_validTsmContent());
+
+      await Persistency.loadMenuFromPath(tsmFile.path, recipes: [_recipe(), _recipe(id: "r2", name: "Dinner Recipe")]);
+
+      expect(Persistency.lastTsmPath, tsmFile.path);
+      expect(Persistency.lastTsmAction, SessionAction.loaded);
+    });
+
+    test("clearLastTsrSession removes tsr path and action but keeps tsm", () async {
+      String tsrPath = "${tempDir.path}/test.tsr";
+      String tsmPath = "${tempDir.path}/test.tsm";
+      await Persistency.saveDataToPath(path: tsrPath, ingredients: [], recipes: []);
+      MultiWeekMenu menu = const MultiWeekMenu(weeks: [Menu(meals: [])]);
+      await Persistency.saveMenuToPath(path: tsmPath, multiWeekMenu: menu, recipes: []);
+
+      Persistency.clearLastTsrSession();
+
+      expect(Persistency.lastTsrPath, isNull);
+      expect(Persistency.lastTsrAction, isNull);
+      expect(Persistency.lastTsmPath, tsmPath);
+      expect(Persistency.lastTsmAction, SessionAction.saved);
+    });
+
+    test("clearLastTsmSession removes tsm path and action but keeps tsr", () async {
+      String tsrPath = "${tempDir.path}/test.tsr";
+      String tsmPath = "${tempDir.path}/test.tsm";
+      await Persistency.saveDataToPath(path: tsrPath, ingredients: [], recipes: []);
+      MultiWeekMenu menu = const MultiWeekMenu(weeks: [Menu(meals: [])]);
+      await Persistency.saveMenuToPath(path: tsmPath, multiWeekMenu: menu, recipes: []);
+
+      Persistency.clearLastTsmSession();
+
+      expect(Persistency.lastTsrPath, tsrPath);
+      expect(Persistency.lastTsrAction, SessionAction.saved);
+      expect(Persistency.lastTsmPath, isNull);
+      expect(Persistency.lastTsmAction, isNull);
+    });
+
+    test("loading after saving updates action from saved to loaded", () async {
+      String path = "${tempDir.path}/test.tsr";
+      await Persistency.saveDataToPath(path: path, ingredients: [const Ingredient(id: "ing1", name: "Salt")], recipes: []);
+      expect(Persistency.lastTsrAction, SessionAction.saved);
+
+      await Persistency.loadDataFromPath(
+        path: path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
+      expect(Persistency.lastTsrAction, SessionAction.loaded);
     });
   });
 }

@@ -7,6 +7,7 @@ import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/widgets/menu_page.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/session_action.dart";
 import "package:provider/provider.dart";
 
 void main() {
@@ -69,9 +70,10 @@ class _AppHomeState extends State<_AppHome> {
 
     // Dialog 1: Load recipe book?
     String? lastTsrPath = Persistency.lastTsrPath;
+    SessionAction? lastTsrAction = Persistency.lastTsrAction;
     String? recipeChoice = await _showLoadDialog(
       title: "Load a recipe book?",
-      lastSessionLabel: lastTsrPath != null ? "Load last saved" : null,
+      lastSessionLabel: lastTsrPath != null ? (lastTsrAction == SessionAction.saved ? "Open last save" : "Open last loaded") : null,
       defaultLabel: "Load default",
     );
 
@@ -88,6 +90,7 @@ class _AppHomeState extends State<_AppHome> {
         await _showErrorDialog("Could not load the last saved recipe book. The file may have been moved or corrupted.");
       }
     } else if (recipeChoice == "default") {
+      Persistency.clearLastTsrSession();
       recipesLoaded = await _tryLoadDefaultRecipes(ingredientsProvider, recipesProvider);
     }
 
@@ -99,9 +102,10 @@ class _AppHomeState extends State<_AppHome> {
 
     // Dialog 2: Load weekly menu?
     String? lastTsmPath = Persistency.lastTsmPath;
+    SessionAction? lastTsmAction = Persistency.lastTsmAction;
     String? menuChoice = await _showLoadDialog(
       title: "Load a weekly menu?",
-      lastSessionLabel: lastTsmPath != null ? "Load last saved" : null,
+      lastSessionLabel: lastTsmPath != null ? (lastTsmAction == SessionAction.saved ? "Open last save" : "Open last loaded") : null,
       defaultLabel: "Load default",
     );
 
@@ -114,6 +118,7 @@ class _AppHomeState extends State<_AppHome> {
         await _showErrorDialog("Could not load the last saved menu. The file may have been moved or corrupted.");
       }
     } else if (menuChoice == "default") {
+      Persistency.clearLastTsmSession();
       menu = await _tryLoadDefaultMenu();
     }
 
