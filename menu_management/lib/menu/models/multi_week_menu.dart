@@ -3,6 +3,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
@@ -60,12 +61,14 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
 
       // Build carry-over: for each recipe cooked this week, record the latest cook day
       for (Meal meal in week.meals) {
-        if (meal.cooking == null || meal.cooking!.yield <= 0) continue;
-        String recipeId = meal.cooking!.recipeId;
-        int absoluteDay = weekIndex * 7 + meal.mealTime.weekDay.value;
-        // Keep the latest cook day per recipe for carry-over
-        if (!carryOverCookDays.containsKey(recipeId) || absoluteDay > carryOverCookDays[recipeId]!) {
-          carryOverCookDays[recipeId] = absoluteDay;
+        for (SubMeal subMeal in meal.subMeals) {
+          if (subMeal.cooking == null || subMeal.cooking!.yield <= 0) continue;
+          String recipeId = subMeal.cooking!.recipeId;
+          int absoluteDay = weekIndex * 7 + meal.mealTime.weekDay.value;
+          // Keep the latest cook day per recipe for carry-over
+          if (!carryOverCookDays.containsKey(recipeId) || absoluteDay > carryOverCookDays[recipeId]!) {
+            carryOverCookDays[recipeId] = absoluteDay;
+          }
         }
       }
     }
@@ -78,20 +81,24 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return weeks.fold(0, (int sum, Menu week) => sum + week.totalServingsForRecipe(recipeId));
   }
 
-  /// Returns the total people served by a specific cook event (yield > 0 meal).
-  /// The cook event at [cookWeekIndex]/[cookMealTime] feeds itself plus all
+  /// Returns the total people served by a specific cook event (yield > 0 sub-meal).
+  /// The cook event at [cookWeekIndex]/[cookMealTime]/[subMealIndex] feeds itself plus all
   /// subsequent leftover occurrences (yield == 0) of the same recipe within
   /// the recipe's maxStorageDays window.
   int servingsForCookEvent({
     required int cookWeekIndex,
     required MealTime cookMealTime,
+    required int subMealIndex,
     required List<Recipe> recipes,
   }) {
     // Find the cook meal
     Meal? cookMeal = weeks[cookWeekIndex].meals.firstWhereOrNull((Meal m) => m.mealTime.isSameTime(cookMealTime));
-    if (cookMeal?.cooking == null || cookMeal!.cooking!.yield <= 0) return 0;
+    if (cookMeal == null || subMealIndex >= cookMeal.subMeals.length) return 0;
 
-    String recipeId = cookMeal.cooking!.recipeId;
+    SubMeal cookSubMeal = cookMeal.subMeals[subMealIndex];
+    if (cookSubMeal.cooking == null || cookSubMeal.cooking!.yield <= 0) return 0;
+
+    String recipeId = cookSubMeal.cooking!.recipeId;
     Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == recipeId);
     int maxDays = recipe?.maxStorageDays ?? 0;
     int cookAbsoluteDay = cookWeekIndex * 7 + cookMealTime.weekDay.value;
@@ -99,11 +106,13 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     int total = 0;
     for (int wi = cookWeekIndex; wi < weeks.length; wi++) {
       for (Meal meal in weeks[wi].meals) {
-        if (meal.cooking?.recipeId != recipeId) continue;
-        int mealAbsoluteDay = wi * 7 + meal.mealTime.weekDay.value;
-        if (mealAbsoluteDay < cookAbsoluteDay) continue;
-        if (mealAbsoluteDay - cookAbsoluteDay > maxDays) continue;
-        total += meal.people;
+        for (SubMeal subMeal in meal.subMeals) {
+          if (subMeal.cooking?.recipeId != recipeId) continue;
+          int mealAbsoluteDay = wi * 7 + meal.mealTime.weekDay.value;
+          if (mealAbsoluteDay < cookAbsoluteDay) continue;
+          if (mealAbsoluteDay - cookAbsoluteDay > maxDays) continue;
+          total += subMeal.people;
+        }
       }
     }
     return total;

@@ -7,6 +7,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
@@ -36,7 +37,7 @@ class MenuGenerator {
         .toList();
     Set<Recipe> breakfastsRecipes = breakfastRecipesList.shuffled(Random(seed)).toSet();
     Debug.logWarning(breakfastsRecipes.isEmpty, "No breakfasts found");
-    Map<MealTime, Recipe?> breakfastRecipes = getRecipesFor(
+    Map<MealTime, List<Recipe?>> breakfastRecipes = getRecipesFor(
       recipesToConsider: breakfastsRecipes,
       configurationsToFindRecipesFor: breakfastConfigurations,
     );
@@ -46,19 +47,25 @@ class MenuGenerator {
         .toList();
     Set<Recipe> mealsRecipes = mealRecipesList.shuffled(Random(seed)).toSet();
     Debug.logWarning(mealsRecipes.isEmpty, "No meals found");
-    Map<MealTime, Recipe?> mealsRecipesMap = getRecipesFor(recipesToConsider: mealsRecipes, configurationsToFindRecipesFor: mealsConfigurations);
+    Map<MealTime, List<Recipe?>> mealsRecipesMap = getRecipesFor(recipesToConsider: mealsRecipes, configurationsToFindRecipesFor: mealsConfigurations);
 
-    Map<MealTime, Recipe?> allSelected = {...breakfastRecipes, ...mealsRecipesMap};
+    Map<MealTime, List<Recipe?>> allSelected = {...breakfastRecipes, ...mealsRecipesMap};
 
     List<Meal> meals = configurations.map((config) {
       if (!config.requiresMeal) {
-        return Meal(mealTime: config.mealTime, cooking: null);
+        return Meal(mealTime: config.mealTime, subMeals: []);
       }
-      Recipe? recipe = allSelected[config.mealTime];
-      return Meal(
-        mealTime: config.mealTime,
-        cooking: recipe == null ? null : Cooking(recipeId: recipe.id, yield: -1),
-      );
+      List<Recipe?> recipesForSlot = allSelected[config.mealTime] ?? [];
+      int peoplePerSubMeal = config.mealCount > 0 ? (2 / config.mealCount).ceil() : 1;
+      List<SubMeal> subMeals = [];
+      for (int i = 0; i < config.mealCount; i++) {
+        Recipe? recipe = i < recipesForSlot.length ? recipesForSlot[i] : null;
+        subMeals.add(SubMeal(
+          cooking: recipe == null ? null : Cooking(recipeId: recipe.id, yield: -1),
+          people: peoplePerSubMeal,
+        ));
+      }
+      return Meal(mealTime: config.mealTime, subMeals: subMeals);
     }).toList();
 
     menu = Menu(meals: meals).copyWithUpdatedYields(recipes: recipes);
@@ -171,11 +178,52 @@ class MenuGenerator {
     return sortedConfigurations.sublist(0, previousThanIndex);
   }
 
-  Map<MealTime, Recipe?> getRecipesFor({required List<MenuConfiguration> configurationsToFindRecipesFor, required Set<Recipe> recipesToConsider}) {
+  Map<MealTime, List<Recipe?>> getRecipesFor({
+    required List<MenuConfiguration> configurationsToFindRecipesFor,
+    required Set<Recipe> recipesToConsider,
+  }) {
     if (configurationsToFindRecipesFor.isEmpty) {
       return {};
     }
 
+    // First, assign primary recipes (same as before, one per MealTime)
+    Map<MealTime, Recipe?> primaryResult = _assignPrimaryRecipes(
+      configurationsToFindRecipesFor: configurationsToFindRecipesFor,
+      recipesToConsider: recipesToConsider,
+    );
+
+    // Build the result with support for multiple sub-meals per MealTime
+    Map<MealTime, List<Recipe?>> result = {};
+    for (MenuConfiguration config in configurationsToFindRecipesFor) {
+      List<Recipe?> recipesForSlot = [primaryResult[config.mealTime]];
+
+      // Assign additional recipes for extra sub-meals (mealCount > 1)
+      for (int i = 1; i < config.mealCount; i++) {
+        // For additional sub-meals, pick a different recipe from the same pool
+        List<Recipe> alreadySelectedForSlot = recipesForSlot.whereType<Recipe>().toList();
+        Set<Recipe> remainingCandidates = recipesToConsider.difference(alreadySelectedForSlot.toSet());
+        Recipe? extraRecipe = getValidRecipeForConfiguration(
+          maxNumberOfTimesTheSameRecipeShouldBeUsed: 999,
+          strictMealTime: true,
+          configuration: config,
+          candidates: remainingCandidates.isEmpty ? recipesToConsider : remainingCandidates,
+          needToBeStored: false,
+          alreadySelected: primaryResult.values.whereType<Recipe>().toList(),
+        );
+        recipesForSlot.add(extraRecipe);
+      }
+
+      result[config.mealTime] = recipesForSlot;
+    }
+
+    return result;
+  }
+
+  /// Original recipe assignment logic, assigns one recipe per MealTime.
+  Map<MealTime, Recipe?> _assignPrimaryRecipes({
+    required List<MenuConfiguration> configurationsToFindRecipesFor,
+    required Set<Recipe> recipesToConsider,
+  }) {
     Map<MealTime, Recipe?> result = {};
 
     configurationsToFindRecipesFor.shuffle(Random(seed));
@@ -332,7 +380,7 @@ class MenuGenerator {
         // Get the recipes that have already been selected for the previous moments to consider them as candidates for the current configuration (missing a recipe).
         // Only consider recipes whose earliest assigned occurrence is within maxStorageDays of the target slot.
         int targetDay = configuration.mealTime.weekDay.value;
-        Set<Recipe> recipesToConsider = {};
+        Set<Recipe> recipesToConsiderForGap = {};
         for (MenuConfiguration previousMealTime in previousMealTimes) {
           Recipe? recipe = result[previousMealTime.mealTime];
           if (recipe != null && recipe.maxStorageDays > 0) {
@@ -342,17 +390,17 @@ class MenuGenerator {
                 .map((MapEntry<MealTime, Recipe?> e) => e.key.weekDay.value)
                 .reduce((int a, int b) => a < b ? a : b);
             if (targetDay - earliestDay <= recipe.maxStorageDays) {
-              recipesToConsider.add(recipe);
+              recipesToConsiderForGap.add(recipe);
             }
           }
         }
         // Get a valid recipe for the configuration from the previous moments
-        if (recipesToConsider.isNotEmpty) {
+        if (recipesToConsiderForGap.isNotEmpty) {
           Recipe? recipe = getValidRecipeForConfiguration(
             maxNumberOfTimesTheSameRecipeShouldBeUsed: maxNumberOfTimesTheSameRecipeShouldBeUsed,
             strictMealTime: false,
             configuration: configuration.copyWith(availableCookingTimeMinutes: 24 * 60),
-            candidates: recipesToConsider,
+            candidates: recipesToConsiderForGap,
             needToBeStored: true,
             alreadySelected: result.values.whereType<Recipe>().toList(),
           );
@@ -363,7 +411,7 @@ class MenuGenerator {
               true,
               "No recipe found for ${configuration.mealTime} from the previous moments.\n"
               "Previous moments: ${previousMealTimes.map((e) => e.mealTime).join(", ")}\n"
-              "Recipes to consider: ${recipesToConsider.map((e) => e.toShortString()).join(", ")}\n"
+              "Recipes to consider: ${recipesToConsiderForGap.map((e) => e.toShortString()).join(", ")}\n"
               "Already selected recipes: ${result.values.whereType<Recipe>().map((e) => e.toShortString()).join(", ")}\n"
               "Configurations that have been set: ${configurationsThatHaveBeenSet.map((e) => e.mealTime).join(", ")}\n"
               "Configurations that have not been set: ${configurationsThatHaveNotBeenSet.map((e) => e.mealTime).join(", ")}\n"

@@ -12,6 +12,7 @@ _MenuConfiguration _$MenuConfigurationFromJson(Map<String, dynamic> json) =>
       requiresMeal: json['requiresMeal'] as bool? ?? true,
       availableCookingTimeMinutes:
           (json['availableCookingTimeMinutes'] as num?)?.toInt() ?? 60,
+      mealCount: (json['mealCount'] as num?)?.toInt() ?? 1,
     );
 
 Map<String, dynamic> _$MenuConfigurationToJson(_MenuConfiguration instance) =>
@@ -19,4 +20,5 @@ Map<String, dynamic> _$MenuConfigurationToJson(_MenuConfiguration instance) =>
       'mealTime': instance.mealTime.toJson(),
       'requiresMeal': instance.requiresMeal,
       'availableCookingTimeMinutes': instance.availableCookingTimeMinutes,
+      'mealCount': instance.mealCount,
     };

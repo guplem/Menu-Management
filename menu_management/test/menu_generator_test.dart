@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
@@ -142,10 +143,10 @@ void main() {
       // All 21 slots (7 days x 3 meal types) should be present
       expect(menu.meals.length, configs.length);
 
-      // Disabled breakfast slots should exist but have null cooking
+      // Disabled breakfast slots should exist but have empty subMeals
       List<Meal> breakfastMeals = menu.meals.where((m) => m.mealTime.mealType == MealType.breakfast).toList();
       expect(breakfastMeals.length, 7);
-      expect(breakfastMeals.every((m) => m.cooking == null), true);
+      expect(breakfastMeals.every((m) => m.subMeals.isEmpty), true);
     });
 
     test("only assigns breakfast recipes to breakfast slots", () {
@@ -166,16 +167,16 @@ void main() {
       Menu menu = generator.menu!;
 
       for (Meal meal in menu.meals) {
-        if (meal.mealTime.mealType == MealType.breakfast && meal.cooking != null) {
+        if (meal.mealTime.mealType == MealType.breakfast && meal.subMeals.any((sm) => sm.cooking != null)) {
           expect(
-            RecipesProvider.instance.get(meal.cooking!.recipeId).type,
+            RecipesProvider.instance.get(meal.subMeals.first.cooking!.recipeId).type,
             RecipeType.breakfast,
             reason: "Breakfast slot at ${meal.mealTime.weekDay} should have a breakfast recipe",
           );
         }
-        if ((meal.mealTime.mealType == MealType.lunch || meal.mealTime.mealType == MealType.dinner) && meal.cooking != null) {
+        if ((meal.mealTime.mealType == MealType.lunch || meal.mealTime.mealType == MealType.dinner) && meal.subMeals.any((sm) => sm.cooking != null)) {
           expect(
-            RecipesProvider.instance.get(meal.cooking!.recipeId).type,
+            RecipesProvider.instance.get(meal.subMeals.first.cooking!.recipeId).type,
             RecipeType.meal,
             reason: "Lunch/dinner slot at ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a meal recipe",
           );
@@ -203,8 +204,8 @@ void main() {
 
       for (int i = 0; i < gen1.menu!.meals.length; i++) {
         expect(
-          gen1.menu!.meals[i].cooking?.recipeId,
-          gen2.menu!.meals[i].cooking?.recipeId,
+          gen1.menu!.meals[i].subMeals.firstOrNull?.cooking?.recipeId,
+          gen2.menu!.meals[i].subMeals.firstOrNull?.cooking?.recipeId,
           reason: "Slot $i should have the same recipe for the same seed",
         );
       }
@@ -231,7 +232,7 @@ void main() {
       // At least one slot should differ
       bool anyDifference = false;
       for (int i = 0; i < gen1.menu!.meals.length; i++) {
-        if (gen1.menu!.meals[i].cooking?.recipeId != gen2.menu!.meals[i].cooking?.recipeId) {
+        if (gen1.menu!.meals[i].subMeals.firstOrNull?.cooking?.recipeId != gen2.menu!.meals[i].subMeals.firstOrNull?.cooking?.recipeId) {
           anyDifference = true;
           break;
         }
@@ -264,15 +265,15 @@ void main() {
       Menu menu = generator.menu!;
 
       // Both slots should have the same recipe
-      expect(menu.meals[0].cooking?.recipeId, "m1");
-      expect(menu.meals[1].cooking?.recipeId, "m1");
+      expect(menu.meals[0].subMeals.firstOrNull?.cooking?.recipeId, "m1");
+      expect(menu.meals[1].subMeals.firstOrNull?.cooking?.recipeId, "m1");
 
       // First occurrence has yield = total count, rest have yield = 0
       List<Meal> sorted = [...menu.meals]..sort((a, b) => a.goesBefore(b) ? -1 : 1);
-      Meal first = sorted.firstWhere((m) => m.cooking?.yield != null && m.cooking!.yield > 0);
-      expect(first.cooking!.yield, 2);
+      Meal first = sorted.firstWhere((m) => m.subMeals.firstOrNull?.cooking?.yield != null && m.subMeals.first.cooking!.yield > 0);
+      expect(first.subMeals.first.cooking!.yield, 2);
 
-      int zeroYieldCount = menu.meals.where((m) => m.cooking?.yield == 0).length;
+      int zeroYieldCount = menu.meals.where((m) => m.subMeals.firstOrNull?.cooking?.yield == 0).length;
       expect(zeroYieldCount, 1);
     });
   });
@@ -301,7 +302,7 @@ void main() {
 
       // Both slots should be filled (the zero-time slot from leftovers)
       expect(menu.meals.length, 2);
-      bool allFilled = menu.meals.every((m) => m.cooking != null);
+      bool allFilled = menu.meals.every((m) => m.subMeals.any((sm) => sm.cooking != null));
       expect(allFilled, true, reason: "Zero-time slot should be filled via storable recipe from earlier slot");
     });
   });
@@ -366,7 +367,8 @@ void main() {
       Menu menu = generator.menu!;
 
       expect(menu.meals.length, 1);
-      expect(menu.meals.first.cooking, null, reason: "No fitting recipe, cooking should be null");
+      expect(menu.meals.first.subMeals.isNotEmpty, true, reason: "Required meal slot should have sub-meals");
+      expect(menu.meals.first.subMeals.first.cooking, isNull, reason: "No fitting recipe, cooking should be null");
     });
 
     test("disabled-only configurations produce meals with null cooking", () {
@@ -386,7 +388,7 @@ void main() {
       Menu menu = generator.menu!;
 
       expect(menu.meals.length, 1);
-      expect(menu.meals.first.cooking, isNull);
+      expect(menu.meals.first.subMeals.isEmpty, true);
     });
   });
 }

@@ -6,6 +6,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
@@ -33,8 +34,7 @@ Instruction _instruction({required String ingredientId, double amount = 100, Uni
 Meal _meal({required WeekDay weekDay, required MealType mealType, String? recipeId, int yield_ = 1, int people = 2}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    cooking: recipeId != null ? Cooking(recipeId: recipeId, yield: yield_) : null,
-    people: people,
+    subMeals: [SubMeal(cooking: recipeId != null ? Cooking(recipeId: recipeId, yield: yield_) : null, people: people)],
   );
 }
 

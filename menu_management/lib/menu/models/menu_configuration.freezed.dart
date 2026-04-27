@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MenuConfiguration {
 
- MealTime get mealTime; bool get requiresMeal; int get availableCookingTimeMinutes;
+ MealTime get mealTime; bool get requiresMeal; int get availableCookingTimeMinutes; int get mealCount;
 /// Create a copy of MenuConfiguration
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MenuConfigurationCopyWith<MenuConfiguration> get copyWith => _$MenuConfiguratio
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MenuConfiguration&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal)&&(identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) || other.availableCookingTimeMinutes == availableCookingTimeMinutes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MenuConfiguration&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal)&&(identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) || other.availableCookingTimeMinutes == availableCookingTimeMinutes)&&(identical(other.mealCount, mealCount) || other.mealCount == mealCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,mealTime,requiresMeal,availableCookingTimeMinutes);
+int get hashCode => Object.hash(runtimeType,mealTime,requiresMeal,availableCookingTimeMinutes,mealCount);
 
 @override
 String toString() {
-  return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes)';
+  return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes, mealCount: $mealCount)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $MenuConfigurationCopyWith<$Res>  {
   factory $MenuConfigurationCopyWith(MenuConfiguration value, $Res Function(MenuConfiguration) _then) = _$MenuConfigurationCopyWithImpl;
 @useResult
 $Res call({
- MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes
+ MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes, int mealCount
 });
 
 
@@ -65,11 +65,12 @@ class _$MenuConfigurationCopyWithImpl<$Res>
 
 /// Create a copy of MenuConfiguration
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? mealTime = null,Object? requiresMeal = null,Object? availableCookingTimeMinutes = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? mealTime = null,Object? requiresMeal = null,Object? availableCookingTimeMinutes = null,Object? mealCount = null,}) {
   return _then(_self.copyWith(
 mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
 as MealTime,requiresMeal: null == requiresMeal ? _self.requiresMeal : requiresMeal // ignore: cast_nullable_to_non_nullable
 as bool,availableCookingTimeMinutes: null == availableCookingTimeMinutes ? _self.availableCookingTimeMinutes : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+as int,mealCount: null == mealCount ? _self.mealCount : mealCount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -164,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes,  int mealCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MenuConfiguration() when $default != null:
-return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes);case _:
+return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes,_that.mealCount);case _:
   return orElse();
 
 }
@@ -185,10 +186,10 @@ return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes,  int mealCount)  $default,) {final _that = this;
 switch (_that) {
 case _MenuConfiguration():
-return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes);case _:
+return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes,_that.mealCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +206,10 @@ return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MealTime mealTime,  bool requiresMeal,  int availableCookingTimeMinutes,  int mealCount)?  $default,) {final _that = this;
 switch (_that) {
 case _MenuConfiguration() when $default != null:
-return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes);case _:
+return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinutes,_that.mealCount);case _:
   return null;
 
 }
@@ -220,12 +221,13 @@ return $default(_that.mealTime,_that.requiresMeal,_that.availableCookingTimeMinu
 @JsonSerializable()
 
 class _MenuConfiguration extends MenuConfiguration {
-  const _MenuConfiguration({required this.mealTime, this.requiresMeal = true, this.availableCookingTimeMinutes = 60}): super._();
+  const _MenuConfiguration({required this.mealTime, this.requiresMeal = true, this.availableCookingTimeMinutes = 60, this.mealCount = 1}): super._();
   factory _MenuConfiguration.fromJson(Map<String, dynamic> json) => _$MenuConfigurationFromJson(json);
 
 @override final  MealTime mealTime;
 @override@JsonKey() final  bool requiresMeal;
 @override@JsonKey() final  int availableCookingTimeMinutes;
+@override@JsonKey() final  int mealCount;
 
 /// Create a copy of MenuConfiguration
 /// with the given fields replaced by the non-null parameter values.
@@ -240,16 +242,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MenuConfiguration&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal)&&(identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) || other.availableCookingTimeMinutes == availableCookingTimeMinutes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MenuConfiguration&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.requiresMeal, requiresMeal) || other.requiresMeal == requiresMeal)&&(identical(other.availableCookingTimeMinutes, availableCookingTimeMinutes) || other.availableCookingTimeMinutes == availableCookingTimeMinutes)&&(identical(other.mealCount, mealCount) || other.mealCount == mealCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,mealTime,requiresMeal,availableCookingTimeMinutes);
+int get hashCode => Object.hash(runtimeType,mealTime,requiresMeal,availableCookingTimeMinutes,mealCount);
 
 @override
 String toString() {
-  return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes)';
+  return 'MenuConfiguration(mealTime: $mealTime, requiresMeal: $requiresMeal, availableCookingTimeMinutes: $availableCookingTimeMinutes, mealCount: $mealCount)';
 }
 
 
@@ -260,7 +262,7 @@ abstract mixin class _$MenuConfigurationCopyWith<$Res> implements $MenuConfigura
   factory _$MenuConfigurationCopyWith(_MenuConfiguration value, $Res Function(_MenuConfiguration) _then) = __$MenuConfigurationCopyWithImpl;
 @override @useResult
 $Res call({
- MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes
+ MealTime mealTime, bool requiresMeal, int availableCookingTimeMinutes, int mealCount
 });
 
 
@@ -277,11 +279,12 @@ class __$MenuConfigurationCopyWithImpl<$Res>
 
 /// Create a copy of MenuConfiguration
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? mealTime = null,Object? requiresMeal = null,Object? availableCookingTimeMinutes = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? mealTime = null,Object? requiresMeal = null,Object? availableCookingTimeMinutes = null,Object? mealCount = null,}) {
   return _then(_MenuConfiguration(
 mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
 as MealTime,requiresMeal: null == requiresMeal ? _self.requiresMeal : requiresMeal // ignore: cast_nullable_to_non_nullable
 as bool,availableCookingTimeMinutes: null == availableCookingTimeMinutes ? _self.availableCookingTimeMinutes : availableCookingTimeMinutes // ignore: cast_nullable_to_non_nullable
+as int,mealCount: null == mealCount ? _self.mealCount : mealCount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

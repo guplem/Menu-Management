@@ -8,6 +8,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -21,10 +22,10 @@ Recipe _testRecipe({required String id, required String name, List<Instruction> 
 }
 
 /// Helper to create a meal at a specific time with an optional recipe
-Meal _testMeal({required WeekDay weekDay, required MealType mealType, Recipe? recipe, int yield = 1}) {
+Meal _testMeal({required WeekDay weekDay, required MealType mealType, Recipe? recipe, int yield = 1, int people = 2}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null,
+    subMeals: [SubMeal(cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null, people: people)],
   );
 }
 
@@ -109,7 +110,7 @@ void main() {
       final MultiWeekMenu updated = original.updateWeekAt(0, updatedWeek1);
 
       expect(updated.weeks[0].meals.length, 1);
-      expect(updated.weeks[0].meals.first.cooking?.recipeId, "r1");
+      expect(updated.weeks[0].meals.first.subMeals.first.cooking?.recipeId, "r1");
       // Original unchanged
       expect(original.weeks[0].meals.length, 0);
     });
@@ -235,7 +236,7 @@ void main() {
       expect(json.containsKey("weeks"), true);
       final MultiWeekMenu restored = MultiWeekMenu.fromJson(json);
       expect(restored.weekCount, 1);
-      expect(restored.weeks.first.meals.first.cooking?.recipeId, "r1");
+      expect(restored.weeks.first.meals.first.subMeals.first.cooking?.recipeId, "r1");
     });
 
     test("old single-week Menu JSON lacks weeks key", () {
@@ -259,7 +260,7 @@ void main() {
       }
 
       expect(loaded.weekCount, 1);
-      expect(loaded.weeks.first.meals.first.cooking?.recipeId, "r1");
+      expect(loaded.weeks.first.meals.first.subMeals.first.cooking?.recipeId, "r1");
     });
   });
 
@@ -270,12 +271,12 @@ void main() {
       // Thursday = weekDay.thursday (value 5)
       Meal thursdayMeal = Meal(
         mealTime: const MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch),
-        cooking: Cooking(recipeId: "s1", yield: -1),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: -1), people: 2)],
       );
       // Monday next week = weekDay.monday (value 2)
       Meal mondayMeal = Meal(
         mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-        cooking: Cooking(recipeId: "s1", yield: -1),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: -1), people: 2)],
       );
 
       Menu week1 = Menu(meals: [thursdayMeal]);
@@ -288,8 +289,8 @@ void main() {
       // Actually: cross-week recalc - week 1 sees only itself (yield=1 for thursday),
       // week 2 monday: absolute day = 7*1+2 = 9, thursday absolute = 7*0+5 = 5, distance = 4 <= 6
       // So Monday week 2 is leftovers (yield=0)
-      expect(updated.weeks[0].meals[0].cooking?.yield, 1);
-      expect(updated.weeks[1].meals[0].cooking?.yield, 0);
+      expect(updated.weeks[0].meals[0].subMeals.first.cooking?.yield, 1);
+      expect(updated.weeks[1].meals[0].subMeals.first.cooking?.yield, 0);
     });
 
     test("recipe exceeding maxStorageDays across weeks gets a new cook event", () {
@@ -298,12 +299,12 @@ void main() {
       // Saturday week 1 = absolute day 0
       Meal satMeal = Meal(
         mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
-        cooking: Cooking(recipeId: "s1", yield: -1),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: -1), people: 2)],
       );
       // Wednesday week 1 = absolute day 4 (distance = 4 > 2, new cook)
       Meal wedMeal = Meal(
         mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
-        cooking: Cooking(recipeId: "s1", yield: -1),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: -1), people: 2)],
       );
 
       Menu week1 = Menu(meals: [satMeal, wedMeal]);
@@ -312,24 +313,22 @@ void main() {
       MultiWeekMenu updated = multi.copyWithUpdatedYields(recipes: [shortLife]);
 
       // Saturday: cook (yield=1, only itself within 2-day window)
-      expect(updated.weeks[0].meals[0].cooking?.yield, 1);
+      expect(updated.weeks[0].meals[0].subMeals.first.cooking?.yield, 1);
       // Wednesday: new cook (yield=1), too far from Saturday
-      expect(updated.weeks[0].meals[1].cooking?.yield, 1);
+      expect(updated.weeks[0].meals[1].subMeals.first.cooking?.yield, 1);
     });
 
     test("totalServingsForRecipe sums across all weeks", () {
       Menu week1 = Menu(meals: [
         Meal(
           mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-          cooking: Cooking(recipeId: "r1", yield: 1),
-          people: 2,
+          subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2)],
         ),
       ]);
       Menu week2 = Menu(meals: [
         Meal(
           mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-          cooking: Cooking(recipeId: "r1", yield: 0),
-          people: 3,
+          subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 0), people: 3)],
         ),
       ]);
       MultiWeekMenu multi = MultiWeekMenu(weeks: [week1, week2]);
@@ -346,20 +345,17 @@ void main() {
       Menu week0 = Menu(meals: [
         Meal(
           mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
-          cooking: Cooking(recipeId: "s1", yield: 2),
-          people: 2,
+          subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 2), people: 2)],
         ),
         Meal(
           mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
-          cooking: Cooking(recipeId: "s1", yield: 0),
-          people: 3,
+          subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 3)],
         ),
       ]);
       Menu week1 = Menu(meals: [
         Meal(
           mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-          cooking: Cooking(recipeId: "s1", yield: 1),
-          people: 4,
+          subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 1), people: 4)],
         ),
       ]);
       MultiWeekMenu multi = MultiWeekMenu(weeks: [week0, week1]);
@@ -369,6 +365,7 @@ void main() {
         multi.servingsForCookEvent(
           cookWeekIndex: 0,
           cookMealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          subMealIndex: 0,
           recipes: recipes,
         ),
         5,
@@ -379,6 +376,7 @@ void main() {
         multi.servingsForCookEvent(
           cookWeekIndex: 1,
           cookMealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+          subMealIndex: 0,
           recipes: recipes,
         ),
         4,

@@ -7,8 +7,12 @@ part "menu_configuration.g.dart";
 
 @freezed
 abstract class MenuConfiguration with _$MenuConfiguration {
-  const factory MenuConfiguration({required MealTime mealTime, @Default(true) bool requiresMeal, @Default(60) int availableCookingTimeMinutes}) =
-      _MenuConfiguration;
+  const factory MenuConfiguration({
+    required MealTime mealTime,
+    @Default(true) bool requiresMeal,
+    @Default(60) int availableCookingTimeMinutes,
+    @Default(1) int mealCount,
+  }) = _MenuConfiguration;
 
   factory MenuConfiguration.fromJson(Map<String, Object?> json) => _$MenuConfigurationFromJson(json);
 

@@ -2,6 +2,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
@@ -52,34 +53,38 @@ Map<String, List<CookingEvent>> buildCookingTimeline({
     Menu week = multiWeekMenu.weeks[weekIndex];
 
     for (Meal meal in week.meals) {
-      if (meal.cooking == null || meal.cooking!.yield <= 0) continue;
+      for (int si = 0; si < meal.subMeals.length; si++) {
+        SubMeal subMeal = meal.subMeals[si];
+        if (subMeal.cooking == null || subMeal.cooking!.yield <= 0) continue;
 
-      String recipeId = meal.cooking!.recipeId;
-      Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == recipeId);
-      if (recipe == null) continue;
+        String recipeId = subMeal.cooking!.recipeId;
+        Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == recipeId);
+        if (recipe == null) continue;
 
-      int peopleFactor;
-      if (recipe.maxStorageDays > 0) {
-        // Sum people only from meals within this cook event's storage window
-        peopleFactor = multiWeekMenu.servingsForCookEvent(
-          cookWeekIndex: weekIndex,
-          cookMealTime: meal.mealTime,
-          recipes: recipes,
-        );
-      } else {
-        peopleFactor = meal.people;
-      }
+        int peopleFactor;
+        if (recipe.maxStorageDays > 0) {
+          // Sum people only from sub-meals within this cook event's storage window
+          peopleFactor = multiWeekMenu.servingsForCookEvent(
+            cookWeekIndex: weekIndex,
+            cookMealTime: meal.mealTime,
+            subMealIndex: si,
+            recipes: recipes,
+          );
+        } else {
+          peopleFactor = subMeal.people;
+        }
 
-      int dayIndex = weekIndex * 7 + meal.mealTime.weekDay.value;
+        int dayIndex = weekIndex * 7 + meal.mealTime.weekDay.value;
 
-      for (Instruction instruction in recipe.instructions) {
-        for (IngredientUsage usage in instruction.ingredientsUsed) {
-          String ingredientId = usage.ingredient;
-          double amount = usage.quantity.amount * peopleFactor;
+        for (Instruction instruction in recipe.instructions) {
+          for (IngredientUsage usage in instruction.ingredientsUsed) {
+            String ingredientId = usage.ingredient;
+            double amount = usage.quantity.amount * peopleFactor;
 
-          raw[ingredientId] ??= {};
-          raw[ingredientId]![dayIndex] ??= {};
-          raw[ingredientId]![dayIndex]![usage.quantity.unit] = (raw[ingredientId]![dayIndex]![usage.quantity.unit] ?? 0) + amount;
+            raw[ingredientId] ??= {};
+            raw[ingredientId]![dayIndex] ??= {};
+            raw[ingredientId]![dayIndex]![usage.quantity.unit] = (raw[ingredientId]![dayIndex]![usage.quantity.unit] ?? 0) + amount;
+          }
         }
       }
     }

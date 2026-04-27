@@ -9,6 +9,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 
@@ -151,16 +152,19 @@ class Persistency {
       rawMenu = MultiWeekMenu.validated(weeks: [singleWeek]);
     }
 
-    // Validate: warn and strip meals with missing recipe IDs
+    // Validate: warn and strip sub-meals with missing recipe IDs
     List<String> warnings = [];
     List<Menu> validatedWeeks = rawMenu.weeks.map((Menu week) {
       List<Meal> validMeals = week.meals.map((Meal meal) {
-        if (meal.cooking == null) return meal;
-        if (!recipes.any((r) => r.id == meal.cooking!.recipeId)) {
-          warnings.add("Missing recipe '${meal.cooking!.recipeId}' at ${meal.mealTime.weekDay.name} ${meal.mealTime.mealType.name}");
-          return meal.copyWith(cooking: null);
-        }
-        return meal;
+        List<SubMeal> validSubMeals = meal.subMeals.map((SubMeal subMeal) {
+          if (subMeal.cooking == null) return subMeal;
+          if (!recipes.any((r) => r.id == subMeal.cooking!.recipeId)) {
+            warnings.add("Missing recipe '${subMeal.cooking!.recipeId}' at ${meal.mealTime.weekDay.name} ${meal.mealTime.mealType.name}");
+            return subMeal.copyWith(cooking: null);
+          }
+          return subMeal;
+        }).toList();
+        return meal.copyWith(subMeals: validSubMeals);
       }).toList();
       return week.copyWith(meals: validMeals);
     }).toList();
@@ -190,7 +194,20 @@ class Persistency {
 
     for (Map<String, dynamic> week in weeks) {
       for (Map<String, dynamic> meal in week["meals"]) {
-        if (meal["cooking"] != null) {
+        // New format: subMeals list
+        if (meal["subMeals"] != null) {
+          for (Map<String, dynamic> subMeal in meal["subMeals"]) {
+            if (subMeal["cooking"] != null) {
+              Map<String, dynamic> cooking = subMeal["cooking"];
+              String? recipeId = cooking["recipeId"];
+              if (recipeId != null) {
+                cooking["ref_name"] = recipes.firstWhereOrNull((r) => r.id == recipeId)?.name ?? "UNKNOWN";
+              }
+            }
+          }
+        }
+        // Old format fallback: single cooking field
+        else if (meal["cooking"] != null) {
           Map<String, dynamic> cooking = meal["cooking"];
           String? recipeId = cooking["recipeId"];
           if (recipeId != null) {

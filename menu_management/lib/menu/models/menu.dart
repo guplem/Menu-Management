@@ -5,6 +5,7 @@ import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -23,14 +24,14 @@ abstract class Menu with _$Menu {
   // Empty constant constructor. Must not have any parameter. Needed to be able to add non-static methods and getters
   const Menu._();
 
-  Menu copyWithUpdatedRecipe({required MealTime mealTime, required Recipe recipe, required List<Recipe> recipes}) {
+  Menu copyWithUpdatedRecipe({required MealTime mealTime, required int subMealIndex, required Recipe recipe, required List<Recipe> recipes}) {
     // Prepare relevant data
     Meal mealToUpdate = meals.firstWhere((meal) => meal.mealTime.isSameTime(mealTime));
 
     // No need to update the meal if it already has the recipe we want to update it to
-    if (mealToUpdate.cooking?.recipeId == recipe.id) return this;
+    if (mealToUpdate.subMeals[subMealIndex].cooking?.recipeId == recipe.id) return this;
 
-    mealToUpdate = mealToUpdate.copyWithUpdatedCooking(Cooking(recipeId: recipe.id, yield: 1));
+    mealToUpdate = mealToUpdate.copyWithSubMealCooking(subMealIndex, Cooking(recipeId: recipe.id, yield: 1));
 
     // Generate the updated meals list
     List<Meal> newMeals = [...meals];
@@ -70,43 +71,59 @@ abstract class Menu with _$Menu {
     // Start with any carry-over from previous weeks.
     Map<String, int> cookDay = {...externalCookEvents};
 
-    // First pass: determine which meals are "cook" vs "leftovers"
-    Map<MealTime, int> yieldMap = {};
-    for (Meal meal in sorted) {
-      String? recipeId = meal.cooking?.recipeId;
-      if (recipeId == null) continue;
-      Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
-      if (recipe == null || recipe.maxStorageDays <= 0) {
-        yieldMap[meal.mealTime] = 1;
-        continue;
-      }
+    // Yield map: (MealTime, subMealIndex) -> yield value
+    Map<(MealTime, int), int> yieldMap = {};
 
-      int absoluteDay = weekIndex * 7 + meal.mealTime.weekDay.value;
-      if (cookDay.containsKey(recipeId) && (absoluteDay - cookDay[recipeId]!) <= recipe.maxStorageDays) {
-        // Within storage window of a previous cook
-        yieldMap[meal.mealTime] = 0;
-      } else {
-        // New cook event
-        cookDay[recipeId] = absoluteDay;
-        // Count how many subsequent occurrences are within storage window
-        int count = sorted.where((Meal m) {
-          if (m.cooking?.recipeId != recipeId) return false;
-          int mDay = weekIndex * 7 + m.mealTime.weekDay.value;
-          return mDay >= absoluteDay && (mDay - absoluteDay) <= recipe.maxStorageDays;
-        }).length;
-        yieldMap[meal.mealTime] = count;
+    // First pass: determine which sub-meals are "cook" vs "leftovers"
+    for (Meal meal in sorted) {
+      for (int si = 0; si < meal.subMeals.length; si++) {
+        SubMeal subMeal = meal.subMeals[si];
+        String? recipeId = subMeal.cooking?.recipeId;
+        if (recipeId == null) continue;
+        Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
+        if (recipe == null || recipe.maxStorageDays <= 0) {
+          yieldMap[(meal.mealTime, si)] = 1;
+          continue;
+        }
+
+        int absoluteDay = weekIndex * 7 + meal.mealTime.weekDay.value;
+        if (cookDay.containsKey(recipeId) && (absoluteDay - cookDay[recipeId]!) <= recipe.maxStorageDays) {
+          // Within storage window of a previous cook
+          yieldMap[(meal.mealTime, si)] = 0;
+        } else {
+          // New cook event
+          cookDay[recipeId] = absoluteDay;
+          // Count how many subsequent sub-meal occurrences are within storage window
+          int count = 0;
+          for (Meal m in sorted) {
+            for (SubMeal sm in m.subMeals) {
+              if (sm.cooking?.recipeId != recipeId) continue;
+              int mDay = weekIndex * 7 + m.mealTime.weekDay.value;
+              if (mDay >= absoluteDay && (mDay - absoluteDay) <= recipe.maxStorageDays) {
+                count++;
+              }
+            }
+          }
+          yieldMap[(meal.mealTime, si)] = count;
+        }
       }
     }
 
     List<Meal> result = meals.map((Meal meal) {
-      String? recipeId = meal.cooking?.recipeId;
-      if (recipeId == null) return meal;
-      int yield = yieldMap[meal.mealTime] ?? 1;
-      return Meal(
-        mealTime: meal.mealTime,
-        cooking: Cooking(recipeId: recipeId, yield: yield),
-        people: meal.people,
-      );
+      List<SubMeal> updatedSubMeals = [];
+      for (int si = 0; si < meal.subMeals.length; si++) {
+        SubMeal subMeal = meal.subMeals[si];
+        if (subMeal.cooking == null) {
+          updatedSubMeals.add(subMeal);
+          continue;
+        }
+        int yieldValue = yieldMap[(meal.mealTime, si)] ?? 1;
+        updatedSubMeals.add(SubMeal(
+          cooking: Cooking(recipeId: subMeal.cooking!.recipeId, yield: yieldValue),
+          people: subMeal.people,
+        ));
+      }
+      return Meal(mealTime: meal.mealTime, subMeals: updatedSubMeals);
     }).toList();
 
     return Menu(meals: result);
@@ -117,40 +134,49 @@ abstract class Menu with _$Menu {
     Set<String> processedRecipeIds = {};
 
     for (Meal meal in meals) {
-      if (meal.cooking == null) continue;
-      int yields = meal.cooking!.yield;
+      for (SubMeal subMeal in meal.subMeals) {
+        if (subMeal.cooking == null) continue;
+        int yields = subMeal.cooking!.yield;
 
-      // Skip leftover meals (storable recipes reused from a previous cook).
-      if (yields <= 0) continue;
+        // Skip leftover sub-meals (storable recipes reused from a previous cook).
+        if (yields <= 0) continue;
 
-      // Process each unique recipe only once.
-      // Non-storable recipes have yield=1 for every occurrence, so without this guard
-      // each occurrence would be counted separately despite peopleFactor already summing all people.
-      String recipeId = meal.cooking!.recipeId;
-      if (processedRecipeIds.contains(recipeId)) continue;
-      processedRecipeIds.add(recipeId);
+        // Process each unique recipe only once.
+        // Non-storable recipes have yield=1 for every occurrence, so without this guard
+        // each occurrence would be counted separately despite peopleFactor already summing all people.
+        String recipeId = subMeal.cooking!.recipeId;
+        if (processedRecipeIds.contains(recipeId)) continue;
+        processedRecipeIds.add(recipeId);
 
-      // Calculate the total people across all meals sharing this recipe.
-      int peopleFactor = meals.where((Meal m) => m.cooking?.recipeId == recipeId).fold(0, (int sum, Meal m) => sum + m.people);
-
-      Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == meal.cooking!.recipeId);
-      if (recipe == null) continue;
-
-      for (Instruction instruction in recipe.instructions) {
-        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-          if (ingredients[ingredientUsage.ingredient] == null) {
-            ingredients[ingredientUsage.ingredient] = [];
+        // Calculate the total people across all sub-meals sharing this recipe.
+        int peopleFactor = 0;
+        for (Meal m in meals) {
+          for (SubMeal sm in m.subMeals) {
+            if (sm.cooking?.recipeId == recipeId) {
+              peopleFactor += sm.people;
+            }
           }
-          if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
-            ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
+        }
+
+        Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
+        if (recipe == null) continue;
+
+        for (Instruction instruction in recipe.instructions) {
+          for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+            if (ingredients[ingredientUsage.ingredient] == null) {
+              ingredients[ingredientUsage.ingredient] = [];
+            }
+            if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
+              ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
+            }
+            double amountToAdd = ingredientUsage.quantity.amount * peopleFactor;
+            Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
+              (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
+            );
+            Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
+            ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
+            ingredients[ingredientUsage.ingredient]!.add(newQuantity);
           }
-          double amountToAdd = ingredientUsage.quantity.amount * peopleFactor;
-          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
-            (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
-          );
-          Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
-          ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
-          ingredients[ingredientUsage.ingredient]!.add(newQuantity);
         }
       }
     }
@@ -165,39 +191,48 @@ abstract class Menu with _$Menu {
     Set<String> processedRecipeIds = {};
 
     for (Meal meal in meals) {
-      if (meal.cooking == null) continue;
-      if (meal.cooking!.yield <= 0) continue;
-      if (processedRecipeIds.contains(meal.cooking!.recipeId)) continue;
-      processedRecipeIds.add(meal.cooking!.recipeId);
+      for (SubMeal subMeal in meal.subMeals) {
+        if (subMeal.cooking == null) continue;
+        if (subMeal.cooking!.yield <= 0) continue;
+        if (processedRecipeIds.contains(subMeal.cooking!.recipeId)) continue;
+        processedRecipeIds.add(subMeal.cooking!.recipeId);
 
-      int peopleFactor = meals.where((Meal m) => m.cooking?.recipeId == meal.cooking?.recipeId).fold(0, (int sum, Meal m) => sum + m.people);
-
-      Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == meal.cooking!.recipeId);
-      if (recipe == null) continue;
-
-      for (Instruction instruction in recipe.instructions) {
-        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-          sources[ingredientUsage.ingredient] ??= [];
-
-          // Find or create the source entry for this recipe
-          int existingIndex = sources[ingredientUsage.ingredient]!.indexWhere((s) => s.recipeName == recipe.name);
-          if (existingIndex >= 0) {
-            IngredientSource existing = sources[ingredientUsage.ingredient]![existingIndex];
-            List<Quantity> updatedQuantities = [...existing.perServingQuantities];
-            Quantity? existingQty = updatedQuantities.firstWhereOrNull((q) => q.unit == ingredientUsage.quantity.unit);
-            if (existingQty != null) {
-              updatedQuantities.remove(existingQty);
-              updatedQuantities.add(existingQty.copyWith(amount: existingQty.amount + ingredientUsage.quantity.amount));
-            } else {
-              updatedQuantities.add(ingredientUsage.quantity);
+        int peopleFactor = 0;
+        for (Meal m in meals) {
+          for (SubMeal sm in m.subMeals) {
+            if (sm.cooking?.recipeId == subMeal.cooking?.recipeId) {
+              peopleFactor += sm.people;
             }
-            sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
-          } else {
-            sources[ingredientUsage.ingredient]!.add(IngredientSource(
-              recipeName: recipe.name,
-              perServingQuantities: [ingredientUsage.quantity],
-              servings: peopleFactor,
-            ));
+          }
+        }
+
+        Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId);
+        if (recipe == null) continue;
+
+        for (Instruction instruction in recipe.instructions) {
+          for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+            sources[ingredientUsage.ingredient] ??= [];
+
+            // Find or create the source entry for this recipe
+            int existingIndex = sources[ingredientUsage.ingredient]!.indexWhere((s) => s.recipeName == recipe.name);
+            if (existingIndex >= 0) {
+              IngredientSource existing = sources[ingredientUsage.ingredient]![existingIndex];
+              List<Quantity> updatedQuantities = [...existing.perServingQuantities];
+              Quantity? existingQty = updatedQuantities.firstWhereOrNull((q) => q.unit == ingredientUsage.quantity.unit);
+              if (existingQty != null) {
+                updatedQuantities.remove(existingQty);
+                updatedQuantities.add(existingQty.copyWith(amount: existingQty.amount + ingredientUsage.quantity.amount));
+              } else {
+                updatedQuantities.add(ingredientUsage.quantity);
+              }
+              sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
+            } else {
+              sources[ingredientUsage.ingredient]!.add(IngredientSource(
+                recipeName: recipe.name,
+                perServingQuantities: [ingredientUsage.quantity],
+                servings: peopleFactor,
+              ));
+            }
           }
         }
       }
@@ -206,35 +241,63 @@ abstract class Menu with _$Menu {
     return sources;
   }
 
-  Menu copyWithClearedMeal({required MealTime mealTime, required List<Recipe> recipes}) {
+  Menu copyWithClearedSubMeal({required MealTime mealTime, required int subMealIndex, required List<Recipe> recipes}) {
     List<Meal> newMeals = [...meals];
     int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
     if (index == -1) return this;
-    newMeals[index] = newMeals[index].copyWithUpdatedCooking(null);
+    newMeals[index] = newMeals[index].copyWithSubMealCooking(subMealIndex, null);
     return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
   }
 
-  Menu copyWithUpdatedPeople({required MealTime mealTime, required int people, required List<Recipe> recipes}) {
+  Menu copyWithAddedSubMeal({required MealTime mealTime, required List<Recipe> recipes}) {
+    List<Meal> newMeals = [...meals];
+    int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
+    if (index == -1) return this;
+    Meal meal = newMeals[index];
+    newMeals[index] = meal.copyWith(subMeals: [...meal.subMeals, const SubMeal()]);
+    return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
+  }
+
+  Menu copyWithRemovedSubMeal({required MealTime mealTime, required int subMealIndex, required List<Recipe> recipes}) {
+    List<Meal> newMeals = [...meals];
+    int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
+    if (index == -1) return this;
+    Meal meal = newMeals[index];
+    if (subMealIndex >= meal.subMeals.length) return this;
+    List<SubMeal> newSubMeals = [...meal.subMeals]..removeAt(subMealIndex);
+    newMeals[index] = meal.copyWith(subMeals: newSubMeals);
+    return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
+  }
+
+  Menu copyWithUpdatedPeople({required MealTime mealTime, required int subMealIndex, required int people, required List<Recipe> recipes}) {
     List<Meal> newMeals = [...meals];
     int index = newMeals.indexWhere((Meal meal) => meal.mealTime.isSameTime(mealTime));
     if (index != -1) {
-      newMeals[index] = newMeals[index].copyWith(people: people);
+      newMeals[index] = newMeals[index].copyWithSubMealPeople(subMealIndex, people);
     }
     return copyWith(meals: newMeals).copyWithUpdatedYields(recipes: recipes);
   }
 
-  /// Total number of servings to cook for a recipe, summing people across all meals that share it.
+  /// Total number of servings to cook for a recipe, summing people across all sub-meals that share it.
   int totalServingsForRecipe(String recipeId) {
-    return meals.where((Meal m) => m.cooking?.recipeId == recipeId).fold(0, (int sum, Meal m) => sum + m.people);
+    int total = 0;
+    for (Meal meal in meals) {
+      for (SubMeal subMeal in meal.subMeals) {
+        if (subMeal.cooking?.recipeId == recipeId) {
+          total += subMeal.people;
+        }
+      }
+    }
+    return total;
   }
 
   String toStringBeautified({required List<Recipe> recipes}) {
     // Format:
     // Weekday
-    //   Breakfast: recipe (yield pp)
-    //   Lunch: recipe (yield pp)
-    //   Dinner: recipe (yield pp)
-    // NOTE: If a meal has no recipe, it will be displayed as "-", with no yield
+    //   Breakfast: recipe (yield pp) [x people]
+    //   Lunch: recipe (yield pp) [x people]
+    //   Dinner: recipe (yield pp) [x people]
+    // NOTE: If a meal has no sub-meals or no recipe, it will be displayed as "-"
 
     String result = "";
     for (WeekDay weekDay in WeekDay.values) {
@@ -243,9 +306,22 @@ abstract class Menu with _$Menu {
       for (int i = 0; i < dayMeals.length; i++) {
         Meal? meal = dayMeals[i];
         String? mealType = MealType.values[i].name.capitalizeFirstLetter();
-        String recipeName = (meal?.cooking != null ? recipes.firstWhereOrNull((r) => r.id == meal!.cooking!.recipeId)?.name : null) ?? "-";
-        recipeName += meal?.cooking == null ? "" : " (${meal?.cooking?.yield.toString()} pp)";
-        result += "  $mealType: $recipeName\n";
+        if (meal == null || meal.subMeals.isEmpty) {
+          result += "  $mealType: -\n";
+        } else if (meal.subMeals.length == 1) {
+          SubMeal subMeal = meal.subMeals.first;
+          String recipeName = (subMeal.cooking != null ? recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId)?.name : null) ?? "-";
+          recipeName += subMeal.cooking == null ? "" : " (${subMeal.cooking!.yield} pp)";
+          result += "  $mealType: $recipeName\n";
+        } else {
+          result += "  $mealType:\n";
+          for (int si = 0; si < meal.subMeals.length; si++) {
+            SubMeal subMeal = meal.subMeals[si];
+            String recipeName = (subMeal.cooking != null ? recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId)?.name : null) ?? "-";
+            recipeName += subMeal.cooking == null ? "" : " (${subMeal.cooking!.yield} pp)";
+            result += "    ${si + 1}. $recipeName [${subMeal.people}p]\n";
+          }
+        }
       }
       result += "\n";
     }

@@ -115,6 +115,38 @@ class MenuConfigurationPage extends StatelessWidget {
                               },
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.restaurant_menu, size: 16),
+                              const SizedBox(width: 4),
+                              Text("Meals: ${menuConfiguration.mealCount}", style: Theme.of(context).textTheme.bodySmall),
+                              const SizedBox(width: 4),
+                              IconButton(
+                                icon: const Icon(Icons.remove, size: 16),
+                                visualDensity: VisualDensity.compact,
+                                onPressed: menuConfiguration.mealCount <= 1 || !menuConfiguration.requiresMeal
+                                    ? null
+                                    : () {
+                                        MenuProvider.update(
+                                          newConfiguration: menuConfiguration.copyWith(mealCount: menuConfiguration.mealCount - 1),
+                                        );
+                                      },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add, size: 16),
+                                visualDensity: VisualDensity.compact,
+                                onPressed: !menuConfiguration.requiresMeal
+                                    ? null
+                                    : () {
+                                        MenuProvider.update(
+                                          newConfiguration: menuConfiguration.copyWith(mealCount: menuConfiguration.mealCount + 1),
+                                        );
+                                      },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

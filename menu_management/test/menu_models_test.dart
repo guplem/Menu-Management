@@ -8,6 +8,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
@@ -24,8 +25,7 @@ Recipe _recipe({String id = "r1", String name = "Test Recipe", List<Instruction>
 Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch, Recipe? recipe, int yield = 1, int people = 2}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null,
-    people: people,
+    subMeals: [SubMeal(cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null, people: people)],
   );
 }
 
@@ -101,9 +101,14 @@ void main() {
   // ── Meal ──
 
   group("Meal", () {
-    test("defaults to 2 people", () {
+    test("subMeals default to empty list", () {
+      const Meal meal = Meal(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch));
+      expect(meal.subMeals, isEmpty);
+    });
+
+    test("helper creates meal with people 2 by default", () {
       Meal meal = _meal();
-      expect(meal.people, 2);
+      expect(meal.subMeals.first.people, 2);
     });
 
     test("goesBefore delegates to MealTime", () {
@@ -120,20 +125,56 @@ void main() {
       expect(earlier.goesAfter(later), false);
     });
 
-    test("copyWithUpdatedCooking replaces cooking", () {
+    test("copyWithSubMealCooking replaces cooking at index", () {
       Recipe recipe = _recipe();
       Meal meal = _meal();
       Cooking newCooking = Cooking(recipeId: recipe.id, yield: 3);
-      Meal updated = meal.copyWithUpdatedCooking(newCooking);
-      expect(updated.cooking?.yield, 3);
-      expect(updated.cooking?.recipeId, recipe.id);
+      Meal updated = meal.copyWithSubMealCooking(0, newCooking);
+      expect(updated.subMeals.first.cooking?.yield, 3);
+      expect(updated.subMeals.first.cooking?.recipeId, recipe.id);
     });
 
-    test("copyWithUpdatedCooking can set cooking to null", () {
+    test("copyWithSubMealCooking can set cooking to null", () {
       Recipe recipe = _recipe();
       Meal meal = _meal(recipe: recipe);
-      Meal updated = meal.copyWithUpdatedCooking(null);
-      expect(updated.cooking, null);
+      Meal updated = meal.copyWithSubMealCooking(0, null);
+      expect(updated.subMeals.first.cooking, null);
+    });
+
+    test("copyWithSubMealPeople updates people at index", () {
+      Meal meal = _meal(people: 2);
+      Meal updated = meal.copyWithSubMealPeople(0, 5);
+      expect(updated.subMeals.first.people, 5);
+    });
+  });
+
+  // ── SubMeal ──
+
+  group("SubMeal", () {
+    test("defaults to 1 person and no cooking", () {
+      const SubMeal subMeal = SubMeal();
+      expect(subMeal.people, 1);
+      expect(subMeal.cooking, isNull);
+    });
+
+    test("holds cooking and people", () {
+      const SubMeal subMeal = SubMeal(cooking: Cooking(recipeId: "r1", yield: 2), people: 4);
+      expect(subMeal.cooking?.recipeId, "r1");
+      expect(subMeal.cooking?.yield, 2);
+      expect(subMeal.people, 4);
+    });
+
+    test("equality by value", () {
+      const SubMeal a = SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2);
+      const SubMeal b = SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2);
+      expect(a, b);
+    });
+
+    test("copyWith updates fields", () {
+      const SubMeal original = SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2);
+      SubMeal updated = original.copyWith(people: 5);
+      expect(updated.people, 5);
+      expect(updated.cooking?.recipeId, "r1");
     });
   });
 
@@ -267,8 +308,8 @@ void main() {
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, people: 2)],
         );
-        Menu updated = menu.copyWithUpdatedPeople(mealTime: time, people: 4, recipes: recipes);
-        expect(updated.meals.first.people, 4);
+        Menu updated = menu.copyWithUpdatedPeople(mealTime: time, subMealIndex: 0, people: 4, recipes: recipes);
+        expect(updated.meals.first.subMeals.first.people, 4);
       });
 
       test("does not change other meals", () {
@@ -281,9 +322,9 @@ void main() {
           ],
         );
         MealTime lunchTime = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
-        Menu updated = menu.copyWithUpdatedPeople(mealTime: lunchTime, people: 5, recipes: recipes);
-        expect(updated.meals[0].people, 5);
-        expect(updated.meals[1].people, 3); // unchanged
+        Menu updated = menu.copyWithUpdatedPeople(mealTime: lunchTime, subMealIndex: 0, people: 5, recipes: recipes);
+        expect(updated.meals[0].subMeals.first.people, 5);
+        expect(updated.meals[1].subMeals.first.people, 3); // unchanged
       });
 
       test("recalculates yields after changing people", () {
@@ -298,14 +339,14 @@ void main() {
 
         // Change people on the leftovers meal (Tuesday)
         MealTime tuesdayLunch = const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch);
-        Menu updated = menu.copyWithUpdatedPeople(mealTime: tuesdayLunch, people: 4, recipes: recipes);
+        Menu updated = menu.copyWithUpdatedPeople(mealTime: tuesdayLunch, subMealIndex: 0, people: 4, recipes: recipes);
 
         // People updated
-        expect(updated.meals[1].people, 4);
+        expect(updated.meals[1].subMeals.first.people, 4);
 
         // Yields should still be recalculated: first occurrence cooks, second is leftovers
-        expect(updated.meals[0].cooking!.yield, 2); // still first occurrence, yield = count of meals with that recipe
-        expect(updated.meals[1].cooking!.yield, 0); // still leftovers
+        expect(updated.meals[0].subMeals.first.cooking!.yield, 2); // still first occurrence, yield = count of meals with that recipe
+        expect(updated.meals[1].subMeals.first.cooking!.yield, 0); // still leftovers
       });
     });
 
@@ -337,8 +378,8 @@ void main() {
       });
     });
 
-    group("copyWithClearedMeal", () {
-      test("sets cooking to null for the specified meal time", () {
+    group("copyWithClearedSubMeal", () {
+      test("sets cooking to null for the specified sub-meal", () {
         Recipe recipe = _recipe(id: "r1");
         List<Recipe> recipes = [recipe];
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
@@ -346,8 +387,8 @@ void main() {
           meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)],
         );
 
-        Menu updated = menu.copyWithClearedMeal(mealTime: time, recipes: recipes);
-        expect(updated.meals.first.cooking, isNull);
+        Menu updated = menu.copyWithClearedSubMeal(mealTime: time, subMealIndex: 0, recipes: recipes);
+        expect(updated.meals.first.subMeals.first.cooking, isNull);
       });
 
       test("does not affect other meals", () {
@@ -361,9 +402,9 @@ void main() {
           ],
         );
 
-        Menu updated = menu.copyWithClearedMeal(mealTime: lunchTime, recipes: recipes);
-        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.lunch).cooking, isNull);
-        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.dinner).cooking, isNotNull);
+        Menu updated = menu.copyWithClearedSubMeal(mealTime: lunchTime, subMealIndex: 0, recipes: recipes);
+        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.lunch).subMeals.first.cooking, isNull);
+        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.dinner).subMeals.first.cooking, isNotNull);
       });
 
       test("recalculates yields after clearing a shared recipe", () {
@@ -378,12 +419,74 @@ void main() {
         );
         MealTime satLunch = const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch);
 
-        Menu updated = menu.copyWithClearedMeal(mealTime: satLunch, recipes: recipes);
+        Menu updated = menu.copyWithClearedSubMeal(mealTime: satLunch, subMealIndex: 0, recipes: recipes);
         // Saturday lunch cleared
-        expect(updated.meals.firstWhere((m) => m.mealTime.isSameTime(satLunch)).cooking, isNull);
+        expect(updated.meals.firstWhere((m) => m.mealTime.isSameTime(satLunch)).subMeals.first.cooking, isNull);
         // Sunday lunch is now the sole user of the recipe, yield should be 1
         MealTime sunLunch = const MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch);
-        expect(updated.meals.firstWhere((m) => m.mealTime.isSameTime(sunLunch)).cooking?.yield, 1);
+        expect(updated.meals.firstWhere((m) => m.mealTime.isSameTime(sunLunch)).subMeals.first.cooking?.yield, 1);
+      });
+    });
+
+    group("copyWithAddedSubMeal", () {
+      test("adds a sub-meal to the specified time slot", () {
+        Recipe recipe = _recipe();
+        List<Recipe> recipes = [recipe];
+        MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+        Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)]);
+
+        Menu updated = menu.copyWithAddedSubMeal(mealTime: time, recipes: recipes);
+        expect(updated.meals.first.subMeals.length, 2);
+        expect(updated.meals.first.subMeals[0].cooking?.recipeId, "r1");
+        expect(updated.meals.first.subMeals[1].cooking, isNull);
+        expect(updated.meals.first.subMeals[1].people, 1);
+      });
+
+      test("does not affect other meals", () {
+        Recipe recipe = _recipe();
+        List<Recipe> recipes = [recipe];
+        MealTime lunchTime = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+        Menu menu = Menu(
+          meals: [
+            _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe),
+            _meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipe: recipe),
+          ],
+        );
+
+        Menu updated = menu.copyWithAddedSubMeal(mealTime: lunchTime, recipes: recipes);
+        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.lunch).subMeals.length, 2);
+        expect(updated.meals.firstWhere((m) => m.mealTime.mealType == MealType.dinner).subMeals.length, 1);
+      });
+    });
+
+    group("copyWithRemovedSubMeal", () {
+      test("removes a sub-meal at the specified index", () {
+        Recipe r1 = _recipe(id: "r1");
+        Recipe r2 = _recipe(id: "r2");
+        List<Recipe> recipes = [r1, r2];
+        MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+        Menu menu = Menu(
+          meals: [
+            Meal(mealTime: time, subMeals: [
+              SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 1),
+              SubMeal(cooking: Cooking(recipeId: "r2", yield: 1), people: 1),
+            ]),
+          ],
+        );
+
+        Menu updated = menu.copyWithRemovedSubMeal(mealTime: time, subMealIndex: 0, recipes: recipes);
+        expect(updated.meals.first.subMeals.length, 1);
+        expect(updated.meals.first.subMeals.first.cooking?.recipeId, "r2");
+      });
+
+      test("returns same menu if subMealIndex is out of range", () {
+        Recipe recipe = _recipe();
+        List<Recipe> recipes = [recipe];
+        MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+        Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)]);
+
+        Menu updated = menu.copyWithRemovedSubMeal(mealTime: time, subMealIndex: 5, recipes: recipes);
+        expect(updated.meals.first.subMeals.length, 1);
       });
     });
 
@@ -397,8 +500,8 @@ void main() {
           meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: original)],
         );
 
-        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, recipe: replacement, recipes: recipes);
-        expect(updated.meals.first.cooking?.recipeId, "r2");
+        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, subMealIndex: 0, recipe: replacement, recipes: recipes);
+        expect(updated.meals.first.subMeals.first.cooking?.recipeId, "r2");
       });
 
       test("returns same menu if recipe is already set", () {
@@ -409,7 +512,7 @@ void main() {
           meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)],
         );
 
-        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, recipe: recipe, recipes: recipes);
+        Menu updated = menu.copyWithUpdatedRecipe(mealTime: time, subMealIndex: 0, recipe: recipe, recipes: recipes);
         expect(identical(updated, menu), true);
       });
     });
@@ -428,10 +531,10 @@ void main() {
 
         Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
         // First occurrence: yield = total count of this recipe = 3
-        expect(updated.meals[0].cooking?.yield, 3);
+        expect(updated.meals[0].subMeals.first.cooking?.yield, 3);
         // Later occurrences: yield = 0 (use leftovers)
-        expect(updated.meals[1].cooking?.yield, 0);
-        expect(updated.meals[2].cooking?.yield, 0);
+        expect(updated.meals[1].subMeals.first.cooking?.yield, 0);
+        expect(updated.meals[2].subMeals.first.cooking?.yield, 0);
       });
 
       test("non-storable recipe always gets yield 1", () {
@@ -445,8 +548,8 @@ void main() {
         );
 
         Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
-        expect(updated.meals[0].cooking?.yield, 1);
-        expect(updated.meals[1].cooking?.yield, 1);
+        expect(updated.meals[0].subMeals.first.cooking?.yield, 1);
+        expect(updated.meals[1].subMeals.first.cooking?.yield, 1);
       });
 
       test("null cooking meals are preserved", () {
@@ -454,7 +557,7 @@ void main() {
           meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch)],
         );
         Menu updated = menu.copyWithUpdatedYields(recipes: []);
-        expect(updated.meals.first.cooking, null);
+        expect(updated.meals.first.subMeals.first.cooking, null);
       });
 
       test("respects maxStorageDays: leftover beyond storage window becomes a new cook", () {
@@ -471,11 +574,11 @@ void main() {
 
         Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
         // Saturday: cook for Sat + Sun (2 within window)
-        expect(updated.meals[0].cooking?.yield, 2);
+        expect(updated.meals[0].subMeals.first.cooking?.yield, 2);
         // Sunday: leftovers from Saturday
-        expect(updated.meals[1].cooking?.yield, 0);
+        expect(updated.meals[1].subMeals.first.cooking?.yield, 0);
         // Wednesday: outside storage window, new cook event (only itself)
-        expect(updated.meals[2].cooking?.yield, 1);
+        expect(updated.meals[2].subMeals.first.cooking?.yield, 1);
       });
 
       test("short maxStorageDays creates multiple cook events in one week", () {
@@ -492,11 +595,11 @@ void main() {
 
         Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
         // Saturday: cook for Sat + Mon (2 within 2-day window)
-        expect(updated.meals[0].cooking?.yield, 2);
+        expect(updated.meals[0].subMeals.first.cooking?.yield, 2);
         // Monday: leftovers from Saturday (distance = 2 <= 2)
-        expect(updated.meals[1].cooking?.yield, 0);
+        expect(updated.meals[1].subMeals.first.cooking?.yield, 0);
         // Thursday: new cook (distance from Saturday = 5 > 2), only itself
-        expect(updated.meals[2].cooking?.yield, 1);
+        expect(updated.meals[2].subMeals.first.cooking?.yield, 1);
       });
 
       test("maxStorageDays: 0 always yields 1 (same as non-storable)", () {
@@ -510,8 +613,8 @@ void main() {
         );
 
         Menu updated = menu.copyWithUpdatedYields(recipes: recipes);
-        expect(updated.meals[0].cooking?.yield, 1);
-        expect(updated.meals[1].cooking?.yield, 1);
+        expect(updated.meals[0].subMeals.first.cooking?.yield, 1);
+        expect(updated.meals[1].subMeals.first.cooking?.yield, 1);
       });
     });
 
@@ -878,8 +981,8 @@ void main() {
       Meal original = _meal(recipe: recipe, people: 4);
       String encoded = jsonEncode(original.toJson());
       Meal restored = Meal.fromJson(jsonDecode(encoded));
-      expect(restored.people, 4);
-      expect(restored.cooking?.recipeId, "r1");
+      expect(restored.subMeals.first.people, 4);
+      expect(restored.subMeals.first.cooking?.recipeId, "r1");
     });
 
     test("Menu round-trips through JSON encode/decode", () {
@@ -888,7 +991,29 @@ void main() {
       String encoded = jsonEncode(original.toJson());
       Menu restored = Menu.fromJson(jsonDecode(encoded));
       expect(restored.meals.length, 1);
-      expect(restored.meals.first.cooking?.recipeId, "r1");
+      expect(restored.meals.first.subMeals.first.cooking?.recipeId, "r1");
+    });
+
+    test("Meal.fromJson migrates old format (cooking + people) to subMeals", () {
+      Map<String, dynamic> oldFormat = {
+        "mealTime": {"weekDay": "saturday", "mealType": "lunch"},
+        "cooking": {"recipeId": "r1", "yield": 2},
+        "people": 3,
+      };
+      Meal restored = Meal.fromJson(oldFormat);
+      expect(restored.subMeals.length, 1);
+      expect(restored.subMeals.first.cooking?.recipeId, "r1");
+      expect(restored.subMeals.first.cooking?.yield, 2);
+      expect(restored.subMeals.first.people, 3);
+    });
+
+    test("SubMeal round-trips through JSON encode/decode", () {
+      SubMeal original = const SubMeal(cooking: Cooking(recipeId: "r1", yield: 2), people: 3);
+      String encoded = jsonEncode(original.toJson());
+      SubMeal restored = SubMeal.fromJson(jsonDecode(encoded));
+      expect(restored.cooking?.recipeId, "r1");
+      expect(restored.cooking?.yield, 2);
+      expect(restored.people, 3);
     });
   });
 }

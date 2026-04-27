@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Meal {
 
- Cooking? get cooking; MealTime get mealTime; int get people;
+ MealTime get mealTime; List<SubMeal> get subMeals;
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MealCopyWith<Meal> get copyWith => _$MealCopyWithImpl<Meal>(this as Meal, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Meal&&(identical(other.cooking, cooking) || other.cooking == cooking)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.people, people) || other.people == people));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Meal&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&const DeepCollectionEquality().equals(other.subMeals, subMeals));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cooking,mealTime,people);
+int get hashCode => Object.hash(runtimeType,mealTime,const DeepCollectionEquality().hash(subMeals));
 
 @override
 String toString() {
-  return 'Meal(cooking: $cooking, mealTime: $mealTime, people: $people)';
+  return 'Meal(mealTime: $mealTime, subMeals: $subMeals)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $MealCopyWith<$Res>  {
   factory $MealCopyWith(Meal value, $Res Function(Meal) _then) = _$MealCopyWithImpl;
 @useResult
 $Res call({
- Cooking? cooking, MealTime mealTime, int people
+ MealTime mealTime, List<SubMeal> subMeals
 });
 
 
-$CookingCopyWith<$Res>? get cooking;$MealTimeCopyWith<$Res> get mealTime;
+$MealTimeCopyWith<$Res> get mealTime;
 
 }
 /// @nodoc
@@ -65,27 +65,14 @@ class _$MealCopyWithImpl<$Res>
 
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? cooking = freezed,Object? mealTime = null,Object? people = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? mealTime = null,Object? subMeals = null,}) {
   return _then(_self.copyWith(
-cooking: freezed == cooking ? _self.cooking : cooking // ignore: cast_nullable_to_non_nullable
-as Cooking?,mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
-as MealTime,people: null == people ? _self.people : people // ignore: cast_nullable_to_non_nullable
-as int,
+mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
+as MealTime,subMeals: null == subMeals ? _self.subMeals : subMeals // ignore: cast_nullable_to_non_nullable
+as List<SubMeal>,
   ));
 }
 /// Create a copy of Meal
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$CookingCopyWith<$Res>? get cooking {
-    if (_self.cooking == null) {
-    return null;
-  }
-
-  return $CookingCopyWith<$Res>(_self.cooking!, (value) {
-    return _then(_self.copyWith(cooking: value));
-  });
-}/// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -176,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Cooking? cooking,  MealTime mealTime,  int people)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MealTime mealTime,  List<SubMeal> subMeals)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Meal() when $default != null:
-return $default(_that.cooking,_that.mealTime,_that.people);case _:
+return $default(_that.mealTime,_that.subMeals);case _:
   return orElse();
 
 }
@@ -197,10 +184,10 @@ return $default(_that.cooking,_that.mealTime,_that.people);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Cooking? cooking,  MealTime mealTime,  int people)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MealTime mealTime,  List<SubMeal> subMeals)  $default,) {final _that = this;
 switch (_that) {
 case _Meal():
-return $default(_that.cooking,_that.mealTime,_that.people);case _:
+return $default(_that.mealTime,_that.subMeals);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -217,10 +204,10 @@ return $default(_that.cooking,_that.mealTime,_that.people);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Cooking? cooking,  MealTime mealTime,  int people)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MealTime mealTime,  List<SubMeal> subMeals)?  $default,) {final _that = this;
 switch (_that) {
 case _Meal() when $default != null:
-return $default(_that.cooking,_that.mealTime,_that.people);case _:
+return $default(_that.mealTime,_that.subMeals);case _:
   return null;
 
 }
@@ -232,12 +219,17 @@ return $default(_that.cooking,_that.mealTime,_that.people);case _:
 @JsonSerializable()
 
 class _Meal extends Meal {
-  const _Meal({required this.cooking, required this.mealTime, this.people = 2}): super._();
+  const _Meal({required this.mealTime, final  List<SubMeal> subMeals = const []}): _subMeals = subMeals,super._();
   factory _Meal.fromJson(Map<String, dynamic> json) => _$MealFromJson(json);
 
-@override final  Cooking? cooking;
 @override final  MealTime mealTime;
-@override@JsonKey() final  int people;
+ final  List<SubMeal> _subMeals;
+@override@JsonKey() List<SubMeal> get subMeals {
+  if (_subMeals is EqualUnmodifiableListView) return _subMeals;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_subMeals);
+}
+
 
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
@@ -252,16 +244,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Meal&&(identical(other.cooking, cooking) || other.cooking == cooking)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.people, people) || other.people == people));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Meal&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&const DeepCollectionEquality().equals(other._subMeals, _subMeals));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cooking,mealTime,people);
+int get hashCode => Object.hash(runtimeType,mealTime,const DeepCollectionEquality().hash(_subMeals));
 
 @override
 String toString() {
-  return 'Meal(cooking: $cooking, mealTime: $mealTime, people: $people)';
+  return 'Meal(mealTime: $mealTime, subMeals: $subMeals)';
 }
 
 
@@ -272,11 +264,11 @@ abstract mixin class _$MealCopyWith<$Res> implements $MealCopyWith<$Res> {
   factory _$MealCopyWith(_Meal value, $Res Function(_Meal) _then) = __$MealCopyWithImpl;
 @override @useResult
 $Res call({
- Cooking? cooking, MealTime mealTime, int people
+ MealTime mealTime, List<SubMeal> subMeals
 });
 
 
-@override $CookingCopyWith<$Res>? get cooking;@override $MealTimeCopyWith<$Res> get mealTime;
+@override $MealTimeCopyWith<$Res> get mealTime;
 
 }
 /// @nodoc
@@ -289,28 +281,15 @@ class __$MealCopyWithImpl<$Res>
 
 /// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? cooking = freezed,Object? mealTime = null,Object? people = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? mealTime = null,Object? subMeals = null,}) {
   return _then(_Meal(
-cooking: freezed == cooking ? _self.cooking : cooking // ignore: cast_nullable_to_non_nullable
-as Cooking?,mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
-as MealTime,people: null == people ? _self.people : people // ignore: cast_nullable_to_non_nullable
-as int,
+mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
+as MealTime,subMeals: null == subMeals ? _self._subMeals : subMeals // ignore: cast_nullable_to_non_nullable
+as List<SubMeal>,
   ));
 }
 
 /// Create a copy of Meal
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$CookingCopyWith<$Res>? get cooking {
-    if (_self.cooking == null) {
-    return null;
-  }
-
-  return $CookingCopyWith<$Res>(_self.cooking!, (value) {
-    return _then(_self.copyWith(cooking: value));
-  });
-}/// Create a copy of Meal
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')

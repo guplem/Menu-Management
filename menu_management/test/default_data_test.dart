@@ -119,7 +119,7 @@ void main() {
 
       for (int w = 0; w < menu.weekCount; w++) {
         for (var meal in menu.weeks[w].meals) {
-          expect(meal.cooking, isNotNull, reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a recipe");
+          expect(meal.subMeals.first.cooking, isNotNull, reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a recipe");
         }
       }
     });
@@ -137,11 +137,13 @@ void main() {
           var loaded = menu.weeks[w].meals[m];
           Map<String, dynamic> raw = rawMeals[m];
 
-          String rawRecipeId = raw["cooking"]["recipeId"];
-          int rawYield = raw["cooking"]["yield"];
+          // Old-format TSM files have cooking/people at meal level; migration moves them to subMeals
+          Map<String, dynamic>? rawCooking = raw["cooking"] ?? raw["subMeals"]?[0]?["cooking"];
+          String rawRecipeId = rawCooking!["recipeId"];
+          int rawYield = rawCooking["yield"];
 
-          expect(loaded.cooking!.recipeId, rawRecipeId, reason: "Week ${w + 1} meal $m recipeId");
-          expect(cookingYield(loaded.cooking!), rawYield, reason: "Week ${w + 1} meal $m yield");
+          expect(loaded.subMeals.first.cooking!.recipeId, rawRecipeId, reason: "Week ${w + 1} meal $m recipeId");
+          expect(cookingYield(loaded.subMeals.first.cooking!), rawYield, reason: "Week ${w + 1} meal $m yield");
         }
       }
     });
@@ -193,11 +195,11 @@ void main() {
 
       for (int w = 0; w < menu.weekCount; w++) {
         for (var meal in menu.weeks[w].meals) {
-          if (meal.cooking != null) {
+          if (meal.subMeals.first.cooking != null) {
             expect(
-              recipeIds.contains(meal.cooking!.recipeId),
+              recipeIds.contains(meal.subMeals.first.cooking!.recipeId),
               true,
-              reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} references missing recipe ID '${meal.cooking!.recipeId}'",
+              reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} references missing recipe ID '${meal.subMeals.first.cooking!.recipeId}'",
             );
           }
         }

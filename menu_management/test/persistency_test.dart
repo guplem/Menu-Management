@@ -12,6 +12,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
@@ -38,7 +39,7 @@ Recipe _recipe({String id = "r1", String name = "Test Recipe"}) {
 Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch, Recipe? recipe}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: 1) : null,
+    subMeals: [SubMeal(cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: 1) : null, people: 2)],
   );
 }
 
@@ -227,7 +228,7 @@ void main() {
       MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: []);
 
       expect(menu, isNotNull);
-      expect(menu!.weeks.first.meals.first.cooking, isNull);
+      expect(menu!.weeks.first.meals.first.subMeals.first.cooking, isNull);
     });
 
     test("keeps cooking for meals with valid recipeId", () async {
@@ -254,8 +255,8 @@ void main() {
       MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: recipes);
 
       expect(menu, isNotNull);
-      expect(menu!.weeks.first.meals.first.cooking, isNotNull);
-      expect(menu.weeks.first.meals.first.cooking!.recipeId, "valid-id");
+      expect(menu!.weeks.first.meals.first.subMeals.first.cooking, isNotNull);
+      expect(menu.weeks.first.meals.first.subMeals.first.cooking!.recipeId, "valid-id");
     });
   });
 
@@ -346,7 +347,7 @@ void main() {
 
       expect(loaded, isNotNull);
       expect(loaded!.weekCount, 1);
-      expect(loaded.weeks.first.meals.first.cooking!.recipeId, "r1");
+      expect(loaded.weeks.first.meals.first.subMeals.first.cooking!.recipeId, "r1");
     });
 
     test("saved menu file is pretty-printed with tab indentation", () async {
@@ -374,7 +375,7 @@ void main() {
       await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
 
       Map<String, dynamic> savedJson = jsonDecode(File(path).readAsStringSync());
-      Map<String, dynamic> cooking = savedJson["weeks"][0]["meals"][0]["cooking"];
+      Map<String, dynamic> cooking = savedJson["weeks"][0]["meals"][0]["subMeals"][0]["cooking"];
       expect(cooking["ref_name"], "Pizza");
     });
   });
