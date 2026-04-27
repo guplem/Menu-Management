@@ -273,11 +273,11 @@ class _MenuPageState extends State<MenuPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.remove, size: 18),
+                  icon: Icon(Icons.remove, size: 18, color: isHighlighted ? null : Colors.transparent),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                  onPressed: subMeal.people <= 0
+                  onPressed: !isHighlighted || subMeal.people <= 0
                       ? null
                       : () => setState(() {
                           Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
@@ -300,11 +300,11 @@ class _MenuPageState extends State<MenuPage> {
                   size: 18,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: Icon(Icons.add, size: 18, color: isHighlighted ? null : Colors.transparent),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                  onPressed: () => setState(() {
+                  onPressed: !isHighlighted ? null : () => setState(() {
                     Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
                       mealTime: meal.mealTime,
                       subMealIndex: subMealIndex,
