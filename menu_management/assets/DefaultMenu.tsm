@@ -490,7 +490,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -538,7 +546,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -586,7 +602,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -634,7 +658,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -682,7 +714,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -830,7 +870,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -878,7 +926,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -926,7 +982,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -974,7 +1038,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
@@ -1022,7 +1094,15 @@
                 "yield": 1,
                 "ref_name": "Leche con Cereales de Avena y Fruta"
               },
-              "people": 2
+              "people": 1
+            },
+            {
+              "cooking": {
+                "recipeId": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+                "yield": 1,
+                "ref_name": "Leche con Cereales y Fruta"
+              },
+              "people": 1
             }
           ]
         },
