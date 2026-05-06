@@ -1525,6 +1525,37 @@
         }
       ],
       "density": 0.75
+    },
+    {
+      "id": "3ec73870-4979-11f1-8e86-7bc92e29aa26",
+      "name": "Cereales Avena",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/15611/cereales-avena-crunchy-hacendado-85-avena-integral-bajo-contenido-azucar-caja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.35
+    },
+    {
+      "id": "601e1250-4979-11f1-8e86-7bc92e29aa26",
+      "name": "Cereales Avena Chocolate",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52751/cereales-avena-crunchy-hacendado-cacao-caja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.35
+    },
+    {
+      "id": "b7642f30-497a-11f1-8e86-7bc92e29aa26",
+      "name": "Mandarina",
+      "products": []
     }
   ],
   "Recipes": [
@@ -2000,6 +2031,72 @@
     {
       "id": "ac83d590-8a8b-1e23-b9ad-f37d25fb840b",
       "name": "Leche con Cereales y Fruta",
+      "instructions": [
+        {
+          "id": "ab9a3900-bfc4-1e26-9945-616ebfb2d36f",
+          "ingredientsUsed": [
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            },
+            {
+              "ingredient": "3ec73870-4979-11f1-8e86-7bc92e29aa26",
+              "quantity": {
+                "amount": 75.0,
+                "unit": "grams"
+              },
+              "ref_name": "Cereales Avena"
+            },
+            {
+              "ingredient": "601e1250-4979-11f1-8e86-7bc92e29aa26",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Cereales Avena Chocolate"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Mix Cereals and Milk",
+          "outputs": [],
+          "inputs": []
+        },
+        {
+          "id": "c98492f0-85b6-1e99-9cbf-85317f03e969",
+          "ingredientsUsed": [
+            {
+              "ingredient": "b7642f30-497a-11f1-8e86-7bc92e29aa26",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Mandarina"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Serve With a Piece of Fruit",
+          "outputs": [],
+          "inputs": []
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": true,
+      "type": "breakfast",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "ac83d590-8a8b-1e23-b9ad-f37d25fb840b",
+      "name": "Leche con Cereales de Avena y Fruta",
       "instructions": [
         {
           "id": "ab9a3900-bfc4-1e26-9945-616ebfb2d36f",
