@@ -209,6 +209,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
           const SizedBox(height: 10),
           ...newInstruction.ingredientsUsed.map(
             (ingredientUsage) => Padding(
+              key: ValueKey(ingredientUsage.ingredient),
               padding: const EdgeInsets.symmetric(vertical: 7),
               child: IngredientQuantity(
                 ingredientUsage: ingredientUsage,

@@ -121,6 +121,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
           const SizedBox(height: 15),
           ...newInstruction.ingredientsUsed.map(
             (IngredientUsage ingredientUsage) => Padding(
+              key: ValueKey(ingredientUsage.ingredient),
               padding: const EdgeInsets.symmetric(vertical: 7.0),
               child: IngredientQuantity(
                 ingredientUsage: ingredientUsage,
