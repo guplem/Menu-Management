@@ -2030,7 +2030,7 @@
     },
     {
       "id": "ac83d590-8a8b-1e23-b9ad-f37d25fb840b",
-      "name": "Leche con Cereales y Fruta",
+      "name": "Leche con Cereales de Avena y Fruta",
       "instructions": [
         {
           "id": "ab9a3900-bfc4-1e26-9945-616ebfb2d36f",
@@ -2070,12 +2070,12 @@
           "id": "c98492f0-85b6-1e99-9cbf-85317f03e969",
           "ingredientsUsed": [
             {
-              "ingredient": "b7642f30-497a-11f1-8e86-7bc92e29aa26",
+              "ingredient": "cdf54e80-7ac9-1e99-9cbf-85317f03e969",
               "quantity": {
                 "amount": 1.0,
                 "unit": "pieces"
               },
-              "ref_name": "Mandarina"
+              "ref_name": "Banana"
             }
           ],
           "workingTimeMinutes": 1,
@@ -2095,11 +2095,11 @@
       "includeInMenuGeneration": true
     },
     {
-      "id": "ac83d590-8a8b-1e23-b9ad-f37d25fb840b",
-      "name": "Leche con Cereales de Avena y Fruta",
+      "id": "d3bb25c1-4981-11f1-be4b-70cd0dbaa945",
+      "name": "Leche con Cereales y Fruta",
       "instructions": [
         {
-          "id": "ab9a3900-bfc4-1e26-9945-616ebfb2d36f",
+          "id": "d3bb9af5-4981-11f1-ab38-70cd0dbaa945",
           "ingredientsUsed": [
             {
               "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
@@ -2125,15 +2125,15 @@
           "inputs": []
         },
         {
-          "id": "c98492f0-85b6-1e99-9cbf-85317f03e969",
+          "id": "d3bb9af6-4981-11f1-9fa2-70cd0dbaa945",
           "ingredientsUsed": [
             {
-              "ingredient": "cdf54e80-7ac9-1e99-9cbf-85317f03e969",
+              "ingredient": "b7642f30-497a-11f1-8e86-7bc92e29aa26",
               "quantity": {
                 "amount": 1.0,
                 "unit": "pieces"
               },
-              "ref_name": "Banana"
+              "ref_name": "Mandarina"
             }
           ],
           "workingTimeMinutes": 1,
