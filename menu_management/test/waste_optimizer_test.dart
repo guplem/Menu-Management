@@ -12,7 +12,13 @@ Product _product({
   Unit unit = Unit.grams,
   int? shelfLifeDays,
 }) {
-  return Product(link: "https://example.com", quantityPerItem: quantityPerItem, itemsPerPack: itemsPerPack, unit: unit, shelfLifeDays: shelfLifeDays);
+  return Product(
+    link: "https://example.com",
+    quantityPerItem: quantityPerItem,
+    itemsPerPack: itemsPerPack,
+    unit: unit,
+    shelfLifeDaysOpened: shelfLifeDays,
+  );
 }
 
 Ingredient _ingredient({double? density}) {

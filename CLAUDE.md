@@ -175,7 +175,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0007](adr/0007-flutter-essentials-as-local-library.md) | flutter_essentials as a local library directory, not a separate package |
 | [0008](adr/0008-multi-week-menus.md) | Multi-week menus: MultiWeekMenu wraps List\<Menu\>, independent generation per week |
 | [0009](adr/0009-cooking-recipe-id-reference.md) | Cooking stores recipe ID (not full Recipe), parameterized model methods, ref_name for readability |
-| [0010](adr/0010-product-entity-store-products.md) | Product entity on Ingredient: optional store product data enabling pack-based shopping list display |
+| [0010](adr/0010-product-entity-store-products.md) | Product entity on Ingredient: optional store product data for pack-based shopping list display, shelf-life tracking (opened + closed), and menu expiry warnings |
 | [0011](adr/0011-grams-per-piece-conversion.md) | Grams-per-piece conversion: optional field bridging pieces and grams for shopping list calculations |
 | [0012](adr/0012-max-storage-days.md) | maxStorageDays replaces canBeStored boolean; cross-week leftover tracking |
 | [0013](adr/0013-multiple-sub-meals-per-time-slot.md) | Multiple sub-meals per time slot: SubMeal model, per-person meal assignment |

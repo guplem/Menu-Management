@@ -57,7 +57,7 @@ ProductRecommendation _simulateProduct({
   required List<CookingEvent> events,
   required Ingredient ingredient,
 }) {
-  int? shelfLife = product.shelfLifeDays;
+  int? shelfLife = product.shelfLifeDaysOpened;
 
   // Convert events to product's unit and sort by day
   List<_NormalizedEvent> normalizedEvents = _normalizeEvents(events: events, product: product, ingredient: ingredient);

@@ -6,13 +6,39 @@ part "product.g.dart";
 
 @freezed
 abstract class Product with _$Product {
-  const factory Product({required String link, @Default(1) int itemsPerPack, required double quantityPerItem, required Unit unit, @JsonKey(includeIfNull: false) int? shelfLifeDays}) = _Product;
+  const factory Product({
+    required String link,
+    @Default(1) int itemsPerPack,
+    required double quantityPerItem,
+    required Unit unit,
+    @JsonKey(includeIfNull: false) int? shelfLifeDaysOpened,
+    @JsonKey(includeIfNull: false) int? shelfLifeDaysClosed,
+  }) = _Product;
 
-  factory Product.fromJson(Map<String, Object?> json) => _$ProductFromJson(json);
+  factory Product.fromJson(Map<String, Object?> json) => _$ProductFromJson(_migrateShelfLifeDays(json));
+
+  /// Backward compatibility: legacy "shelfLifeDays" JSON key (formerly "days after opening")
+  /// is mapped to [shelfLifeDaysOpened]. The new key takes precedence when both are present.
+  static Map<String, Object?> _migrateShelfLifeDays(Map<String, Object?> json) {
+    if (json.containsKey("shelfLifeDays") && !json.containsKey("shelfLifeDaysOpened")) {
+      json = {...json, "shelfLifeDaysOpened": json["shelfLifeDays"]};
+      json.remove("shelfLifeDays");
+    }
+    return json;
+  }
 
   const Product._();
 
   double get totalQuantityPerPack => itemsPerPack * quantityPerItem;
+
+  /// Whether this product may already be expired by [absoluteDayIndex] of the menu,
+  /// assuming a single shopping trip the day before the menu starts (purchase day = -1).
+  /// Returns false when [shelfLifeDaysClosed] is null (treated as indefinite when sealed).
+  bool mayBeExpiredOnDay(int absoluteDayIndex) {
+    final int? closed = shelfLifeDaysClosed;
+    if (closed == null) return false;
+    return absoluteDayIndex + 1 >= closed;
+  }
 
   /// Returns a human-readable pack label, or null when a single-item pack has no extra info to show.
   ///

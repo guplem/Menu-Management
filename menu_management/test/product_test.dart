@@ -11,9 +11,17 @@ Product _product({
   int itemsPerPack = 1,
   double quantityPerItem = 250,
   Unit unit = Unit.grams,
-  int? shelfLifeDays,
+  int? shelfLifeDaysOpened,
+  int? shelfLifeDaysClosed,
 }) {
-  return Product(link: link, itemsPerPack: itemsPerPack, quantityPerItem: quantityPerItem, unit: unit, shelfLifeDays: shelfLifeDays);
+  return Product(
+    link: link,
+    itemsPerPack: itemsPerPack,
+    quantityPerItem: quantityPerItem,
+    unit: unit,
+    shelfLifeDaysOpened: shelfLifeDaysOpened,
+    shelfLifeDaysClosed: shelfLifeDaysClosed,
+  );
 }
 
 void main() {
@@ -408,41 +416,152 @@ void main() {
     });
   });
 
-  // ── Product shelfLifeDays ──
+  // ── Product shelfLifeDaysOpened ──
 
-  group("Product shelfLifeDays", () {
+  group("Product shelfLifeDaysOpened", () {
     test("defaults to null when not provided", () {
       Product product = _product();
-      expect(product.shelfLifeDays, isNull);
+      expect(product.shelfLifeDaysOpened, isNull);
     });
 
-    test("stores shelfLifeDays when provided", () {
-      Product product = _product(shelfLifeDays: 3);
-      expect(product.shelfLifeDays, 3);
+    test("stores shelfLifeDaysOpened when provided", () {
+      Product product = _product(shelfLifeDaysOpened: 3);
+      expect(product.shelfLifeDaysOpened, 3);
     });
 
-    test("round-trips through JSON with shelfLifeDays", () {
-      Product original = _product(shelfLifeDays: 5);
+    test("round-trips through JSON with shelfLifeDaysOpened", () {
+      Product original = _product(shelfLifeDaysOpened: 5);
       String encoded = jsonEncode(original.toJson());
       Product restored = Product.fromJson(jsonDecode(encoded));
-      expect(restored.shelfLifeDays, 5);
+      expect(restored.shelfLifeDaysOpened, 5);
     });
 
-    test("deserializes old JSON without shelfLifeDays", () {
+    test("omits shelfLifeDaysOpened from JSON when null", () {
+      Product product = _product();
+      Map<String, dynamic> json = product.toJson();
+      expect(json.containsKey("shelfLifeDaysOpened"), isFalse);
+    });
+  });
+
+  // ── Product shelfLifeDaysClosed ──
+
+  group("Product shelfLifeDaysClosed", () {
+    test("defaults to null when not provided", () {
+      Product product = _product();
+      expect(product.shelfLifeDaysClosed, isNull);
+    });
+
+    test("stores shelfLifeDaysClosed when provided", () {
+      Product product = _product(shelfLifeDaysClosed: 7);
+      expect(product.shelfLifeDaysClosed, 7);
+    });
+
+    test("round-trips through JSON with shelfLifeDaysClosed", () {
+      Product original = _product(shelfLifeDaysClosed: 5);
+      String encoded = jsonEncode(original.toJson());
+      Product restored = Product.fromJson(jsonDecode(encoded));
+      expect(restored.shelfLifeDaysClosed, 5);
+    });
+
+    test("omits shelfLifeDaysClosed from JSON when null", () {
+      Product product = _product();
+      Map<String, dynamic> json = product.toJson();
+      expect(json.containsKey("shelfLifeDaysClosed"), isFalse);
+    });
+
+    test("round-trips through JSON with both shelf life fields", () {
+      Product original = _product(shelfLifeDaysOpened: 3, shelfLifeDaysClosed: 7);
+      String encoded = jsonEncode(original.toJson());
+      Product restored = Product.fromJson(jsonDecode(encoded));
+      expect(restored.shelfLifeDaysOpened, 3);
+      expect(restored.shelfLifeDaysClosed, 7);
+    });
+  });
+
+  // ── Product backward-compat (legacy shelfLifeDays JSON key) ──
+
+  group("Product backward compatibility for shelfLifeDays", () {
+    test("legacy shelfLifeDays JSON key maps to shelfLifeDaysOpened", () {
+      Map<String, dynamic> legacyJson = {
+        "link": "https://example.com",
+        "quantityPerItem": 250.0,
+        "unit": "grams",
+        "shelfLifeDays": 4,
+      };
+      Product restored = Product.fromJson(legacyJson);
+      expect(restored.shelfLifeDaysOpened, 4);
+      expect(restored.shelfLifeDaysClosed, isNull);
+    });
+
+    test("missing both shelf life keys yields both null", () {
       Map<String, dynamic> oldJson = {
         "link": "https://example.com",
         "quantityPerItem": 250.0,
         "unit": "grams",
       };
       Product restored = Product.fromJson(oldJson);
-      expect(restored.shelfLifeDays, isNull);
+      expect(restored.shelfLifeDaysOpened, isNull);
+      expect(restored.shelfLifeDaysClosed, isNull);
     });
 
-    test("omits shelfLifeDays from JSON when null", () {
-      Product product = _product();
+    test("new shelfLifeDaysOpened key takes precedence over legacy shelfLifeDays", () {
+      Map<String, dynamic> mixed = {
+        "link": "https://example.com",
+        "quantityPerItem": 250.0,
+        "unit": "grams",
+        "shelfLifeDays": 99,
+        "shelfLifeDaysOpened": 4,
+      };
+      Product restored = Product.fromJson(mixed);
+      expect(restored.shelfLifeDaysOpened, 4);
+    });
+
+    test("toJson never writes legacy shelfLifeDays key", () {
+      Product product = _product(shelfLifeDaysOpened: 3);
       Map<String, dynamic> json = product.toJson();
       expect(json.containsKey("shelfLifeDays"), isFalse);
+      expect(json.containsKey("shelfLifeDaysOpened"), isTrue);
     });
   });
 
+  // ── Product.mayBeExpiredOnDay ──
+
+  group("Product.mayBeExpiredOnDay", () {
+    test("returns false when shelfLifeDaysClosed is null", () {
+      Product product = _product();
+      expect(product.mayBeExpiredOnDay(0), isFalse);
+      expect(product.mayBeExpiredOnDay(100), isFalse);
+    });
+
+    test("returns true on Monday (day 0) when shelfLifeDaysClosed is 1", () {
+      // Purchase on Sunday (day -1), meal on Monday: 1 day elapsed equals shelf life of 1 -> expired.
+      Product product = _product(shelfLifeDaysClosed: 1);
+      expect(product.mayBeExpiredOnDay(0), isTrue);
+    });
+
+    test("returns false on Monday (day 0) when shelfLifeDaysClosed is 2", () {
+      Product product = _product(shelfLifeDaysClosed: 2);
+      expect(product.mayBeExpiredOnDay(0), isFalse);
+    });
+
+    test("returns true on Tuesday (day 1) when shelfLifeDaysClosed is 2", () {
+      Product product = _product(shelfLifeDaysClosed: 2);
+      expect(product.mayBeExpiredOnDay(1), isTrue);
+    });
+
+    test("returns true for week 2 day 0 (D=7) when shelfLifeDaysClosed is 7", () {
+      Product product = _product(shelfLifeDaysClosed: 7);
+      expect(product.mayBeExpiredOnDay(7), isTrue);
+    });
+
+    test("returns false for week 2 day 0 (D=7) when shelfLifeDaysClosed is 14", () {
+      Product product = _product(shelfLifeDaysClosed: 14);
+      expect(product.mayBeExpiredOnDay(7), isFalse);
+    });
+
+    test("ignores shelfLifeDaysOpened entirely (only closed matters)", () {
+      Product product = _product(shelfLifeDaysOpened: 1, shelfLifeDaysClosed: 100);
+      expect(product.mayBeExpiredOnDay(50), isFalse);
+    });
+  });
 }

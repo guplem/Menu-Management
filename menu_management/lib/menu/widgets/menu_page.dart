@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/expiry_warnings.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -191,6 +193,14 @@ class _MenuPageState extends State<MenuPage> {
     Recipe? recipe = subMeal.cooking != null ? _recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId) : null;
     bool isHighlighted = highlightedRecipeId != null && subMeal.cooking?.recipeId == highlightedRecipeId;
 
+    int absoluteDayIndex = currentWeekIndex * 7 + meal.mealTime.weekDay.value;
+    List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+      meal: meal,
+      absoluteDayIndex: absoluteDayIndex,
+      recipes: _recipes,
+      ingredients: IngredientsProvider.instance.ingredients,
+    );
+
     return MouseRegion(
       onHover: (_) {
         if (subMeal.cooking != null) {
@@ -218,11 +228,26 @@ class _MenuPageState extends State<MenuPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const SizedBox(height: 4),
-                          Text(
-                            recipe?.name ?? "?",
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  recipe?.name ?? "?",
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
+                              ),
+                              if (warnings.isNotEmpty) ...[
+                                const SizedBox(width: 4),
+                                Tooltip(
+                                  message: _buildExpiryTooltipMessage(warnings),
+                                  child: Icon(Icons.warning_rounded, size: 16, color: Theme.of(context).colorScheme.error),
+                                ),
+                              ],
+                            ],
                           ),
                           const SizedBox(height: 4),
                           Padding(
@@ -320,6 +345,14 @@ class _MenuPageState extends State<MenuPage> {
         ),
       ),
     );
+  }
+
+  String _buildExpiryTooltipMessage(List<MealExpiryWarning> warnings) {
+    if (warnings.length == 1) {
+      return "${warnings.first.ingredient.name} may have expired before this meal.";
+    }
+    String list = warnings.map((MealExpiryWarning w) => "- ${w.ingredient.name}").join("\n");
+    return "These may have expired before this meal:\n$list";
   }
 
   void _showRecipePicker(Meal meal, int subMealIndex) {

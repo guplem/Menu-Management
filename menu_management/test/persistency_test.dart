@@ -269,7 +269,7 @@ void main() {
         Ingredient(
           id: "ing1",
           name: "Salt",
-          products: [Product(link: "https://example.com/salt", quantityPerItem: 1000, unit: Unit.grams, shelfLifeDays: 365, itemsPerPack: 1)],
+          products: [Product(link: "https://example.com/salt", quantityPerItem: 1000, unit: Unit.grams, shelfLifeDaysOpened: 365, itemsPerPack: 1)],
           density: 1.2,
         ),
         Ingredient(
@@ -295,7 +295,7 @@ void main() {
       expect(loaded, true);
       expect(IngredientsProvider.instance.ingredients.length, 2);
       expect(IngredientsProvider.instance.ingredients.first.products.length, 1);
-      expect(IngredientsProvider.instance.ingredients.first.products.first.shelfLifeDays, 365);
+      expect(IngredientsProvider.instance.ingredients.first.products.first.shelfLifeDaysOpened, 365);
       expect(IngredientsProvider.instance.ingredients.first.density, 1.2);
       expect(RecipesProvider.instance.recipes.length, 1);
       expect(RecipesProvider.instance.recipes.first.instructions.first.ingredientsUsed.first.ingredient, "ing2");
@@ -419,7 +419,7 @@ void main() {
       Ingredient original = Ingredient(
         id: "ing1",
         name: "Test",
-        products: [Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams, shelfLifeDays: 7, itemsPerPack: 2)],
+        products: [Product(link: "https://example.com", quantityPerItem: 500, unit: Unit.grams, shelfLifeDaysOpened: 7, itemsPerPack: 2)],
         density: 1.05,
       );
       String encoded = jsonEncode(original.toJson());

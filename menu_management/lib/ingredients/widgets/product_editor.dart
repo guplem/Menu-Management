@@ -31,7 +31,8 @@ class _ProductEditorState extends State<ProductEditor> {
   late final TextEditingController _linkController;
   late final TextEditingController _itemsPerPackController;
   late final TextEditingController _quantityPerItemController;
-  late final TextEditingController _shelfLifeDaysController;
+  late final TextEditingController _shelfLifeDaysOpenedController;
+  late final TextEditingController _shelfLifeDaysClosedController;
   late Unit _selectedUnit;
 
   @override
@@ -41,7 +42,8 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController = TextEditingController();
     _itemsPerPackController = TextEditingController(text: "1");
     _quantityPerItemController = TextEditingController();
-    _shelfLifeDaysController = TextEditingController();
+    _shelfLifeDaysOpenedController = TextEditingController();
+    _shelfLifeDaysClosedController = TextEditingController();
     _selectedUnit = Unit.grams;
   }
 
@@ -50,7 +52,8 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController.dispose();
     _itemsPerPackController.dispose();
     _quantityPerItemController.dispose();
-    _shelfLifeDaysController.dispose();
+    _shelfLifeDaysOpenedController.dispose();
+    _shelfLifeDaysClosedController.dispose();
     super.dispose();
   }
 
@@ -59,7 +62,8 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController.text = product.link;
     _itemsPerPackController.text = product.itemsPerPack.toString();
     _quantityPerItemController.text = product.quantityPerItem.toString();
-    _shelfLifeDaysController.text = product.shelfLifeDays?.toString() ?? "";
+    _shelfLifeDaysOpenedController.text = product.shelfLifeDaysOpened?.toString() ?? "";
+    _shelfLifeDaysClosedController.text = product.shelfLifeDaysClosed?.toString() ?? "";
     _selectedUnit = product.unit;
     setState(() => _editingIndex = index);
   }
@@ -68,7 +72,8 @@ class _ProductEditorState extends State<ProductEditor> {
     _linkController.clear();
     _itemsPerPackController.text = "1";
     _quantityPerItemController.clear();
-    _shelfLifeDaysController.clear();
+    _shelfLifeDaysOpenedController.clear();
+    _shelfLifeDaysClosedController.clear();
     _selectedUnit = Unit.grams;
     setState(() => _editingIndex = null);
   }
@@ -92,13 +97,15 @@ class _ProductEditorState extends State<ProductEditor> {
   }
 
   Product _buildProductFromForm() {
-    int? shelfLifeDays = int.tryParse(_shelfLifeDaysController.text);
+    int? shelfLifeDaysOpened = int.tryParse(_shelfLifeDaysOpenedController.text);
+    int? shelfLifeDaysClosed = int.tryParse(_shelfLifeDaysClosedController.text);
     return Product(
       link: _linkController.text.trim(),
       itemsPerPack: int.parse(_itemsPerPackController.text),
       quantityPerItem: double.parse(_quantityPerItemController.text),
       unit: _selectedUnit,
-      shelfLifeDays: shelfLifeDays,
+      shelfLifeDaysOpened: shelfLifeDaysOpened,
+      shelfLifeDaysClosed: shelfLifeDaysClosed,
     );
   }
 
@@ -201,8 +208,23 @@ class _ProductEditorState extends State<ProductEditor> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: _shelfLifeDaysController,
-              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Shelf life (days after opening)", hintText: "Leave empty for non-perishable"),
+              controller: _shelfLifeDaysOpenedController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "Shelf life after opening (days)",
+                hintText: "Leave empty if it does not go bad once opened",
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _shelfLifeDaysClosedController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "Shelf life sealed (days from purchase)",
+                hintText: "Leave empty for indefinite when sealed",
+              ),
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
             ),

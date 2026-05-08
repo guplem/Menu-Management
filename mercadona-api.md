@@ -36,7 +36,7 @@ The API is **region-locked**. Some products return 404 depending on the warehous
 |-------|------|-------------|
 | `packaging` | string? | `"Pieza"` (single item), `"Pack-N"` (multi-pack), `"Bandeja"` (tray), `"Bote"` (jar/can), `"Brik"` (brick), `"Paquete"` (package), etc. |
 | `share_url` | string | Canonical product URL for the `link` field in the Product model. |
-| `details.storage_instructions` | string | Look for "consumir en N dias" to derive `shelfLifeDays`. |
+| `details.storage_instructions` | string | Look for "consumir en N dias" to derive `shelfLifeDaysOpened` (days after opening). If the page also lists a separate sealed shelf life, set `shelfLifeDaysClosed` from that. |
 | `is_bulk` | bool | `true` for items sold by weight (e.g., fresh produce sold per piece). |
 
 ## Mapping API Response to Product Model Fields
@@ -50,7 +50,9 @@ Product(
   unit:            "grams" if size_format == "kg"
                    "centiliters" if size_format == "l"
                    "pieces" if the product is countable (see below)
-  shelfLifeDays:   parse from details.storage_instructions, null if not found
+  shelfLifeDaysOpened: parse from details.storage_instructions (days after opening), null if not found
+  shelfLifeDaysClosed: parse from details.storage_instructions when a separate sealed
+                       shelf life is given, null if indefinite when sealed
 )
 ```
 

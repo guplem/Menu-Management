@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Product {
 
- String get link; int get itemsPerPack; double get quantityPerItem; Unit get unit;@JsonKey(includeIfNull: false) int? get shelfLifeDays;
+ String get link; int get itemsPerPack; double get quantityPerItem; Unit get unit;@JsonKey(includeIfNull: false) int? get shelfLifeDaysOpened;@JsonKey(includeIfNull: false) int? get shelfLifeDaysClosed;
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ProductCopyWith<Product> get copyWith => _$ProductCopyWithImpl<Product>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.link, link) || other.link == link)&&(identical(other.itemsPerPack, itemsPerPack) || other.itemsPerPack == itemsPerPack)&&(identical(other.quantityPerItem, quantityPerItem) || other.quantityPerItem == quantityPerItem)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.shelfLifeDays, shelfLifeDays) || other.shelfLifeDays == shelfLifeDays));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.link, link) || other.link == link)&&(identical(other.itemsPerPack, itemsPerPack) || other.itemsPerPack == itemsPerPack)&&(identical(other.quantityPerItem, quantityPerItem) || other.quantityPerItem == quantityPerItem)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.shelfLifeDaysOpened, shelfLifeDaysOpened) || other.shelfLifeDaysOpened == shelfLifeDaysOpened)&&(identical(other.shelfLifeDaysClosed, shelfLifeDaysClosed) || other.shelfLifeDaysClosed == shelfLifeDaysClosed));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,link,itemsPerPack,quantityPerItem,unit,shelfLifeDays);
+int get hashCode => Object.hash(runtimeType,link,itemsPerPack,quantityPerItem,unit,shelfLifeDaysOpened,shelfLifeDaysClosed);
 
 @override
 String toString() {
-  return 'Product(link: $link, itemsPerPack: $itemsPerPack, quantityPerItem: $quantityPerItem, unit: $unit, shelfLifeDays: $shelfLifeDays)';
+  return 'Product(link: $link, itemsPerPack: $itemsPerPack, quantityPerItem: $quantityPerItem, unit: $unit, shelfLifeDaysOpened: $shelfLifeDaysOpened, shelfLifeDaysClosed: $shelfLifeDaysClosed)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ProductCopyWith<$Res>  {
   factory $ProductCopyWith(Product value, $Res Function(Product) _then) = _$ProductCopyWithImpl;
 @useResult
 $Res call({
- String link, int itemsPerPack, double quantityPerItem, Unit unit,@JsonKey(includeIfNull: false) int? shelfLifeDays
+ String link, int itemsPerPack, double quantityPerItem, Unit unit,@JsonKey(includeIfNull: false) int? shelfLifeDaysOpened,@JsonKey(includeIfNull: false) int? shelfLifeDaysClosed
 });
 
 
@@ -65,13 +65,14 @@ class _$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? link = null,Object? itemsPerPack = null,Object? quantityPerItem = null,Object? unit = null,Object? shelfLifeDays = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? link = null,Object? itemsPerPack = null,Object? quantityPerItem = null,Object? unit = null,Object? shelfLifeDaysOpened = freezed,Object? shelfLifeDaysClosed = freezed,}) {
   return _then(_self.copyWith(
 link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,itemsPerPack: null == itemsPerPack ? _self.itemsPerPack : itemsPerPack // ignore: cast_nullable_to_non_nullable
 as int,quantityPerItem: null == quantityPerItem ? _self.quantityPerItem : quantityPerItem // ignore: cast_nullable_to_non_nullable
 as double,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
-as Unit,shelfLifeDays: freezed == shelfLifeDays ? _self.shelfLifeDays : shelfLifeDays // ignore: cast_nullable_to_non_nullable
+as Unit,shelfLifeDaysOpened: freezed == shelfLifeDaysOpened ? _self.shelfLifeDaysOpened : shelfLifeDaysOpened // ignore: cast_nullable_to_non_nullable
+as int?,shelfLifeDaysClosed: freezed == shelfLifeDaysClosed ? _self.shelfLifeDaysClosed : shelfLifeDaysClosed // ignore: cast_nullable_to_non_nullable
 as int?,
   ));
 }
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String link,  int itemsPerPack,  double quantityPerItem,  Unit unit, @JsonKey(includeIfNull: false)  int? shelfLifeDays)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String link,  int itemsPerPack,  double quantityPerItem,  Unit unit, @JsonKey(includeIfNull: false)  int? shelfLifeDaysOpened, @JsonKey(includeIfNull: false)  int? shelfLifeDaysClosed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_that.shelfLifeDays);case _:
+return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_that.shelfLifeDaysOpened,_that.shelfLifeDaysClosed);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String link,  int itemsPerPack,  double quantityPerItem,  Unit unit, @JsonKey(includeIfNull: false)  int? shelfLifeDays)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String link,  int itemsPerPack,  double quantityPerItem,  Unit unit, @JsonKey(includeIfNull: false)  int? shelfLifeDaysOpened, @JsonKey(includeIfNull: false)  int? shelfLifeDaysClosed)  $default,) {final _that = this;
 switch (_that) {
 case _Product():
-return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_that.shelfLifeDays);case _:
+return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_that.shelfLifeDaysOpened,_that.shelfLifeDaysClosed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String link,  int itemsPerPack,  double quantityPerItem,  Unit unit, @JsonKey(includeIfNull: false)  int? shelfLifeDays)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String link,  int itemsPerPack,  double quantityPerItem,  Unit unit, @JsonKey(includeIfNull: false)  int? shelfLifeDaysOpened, @JsonKey(includeIfNull: false)  int? shelfLifeDaysClosed)?  $default,) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_that.shelfLifeDays);case _:
+return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_that.shelfLifeDaysOpened,_that.shelfLifeDaysClosed);case _:
   return null;
 
 }
@@ -213,14 +214,15 @@ return $default(_that.link,_that.itemsPerPack,_that.quantityPerItem,_that.unit,_
 @JsonSerializable()
 
 class _Product extends Product {
-  const _Product({required this.link, this.itemsPerPack = 1, required this.quantityPerItem, required this.unit, @JsonKey(includeIfNull: false) this.shelfLifeDays}): super._();
+  const _Product({required this.link, this.itemsPerPack = 1, required this.quantityPerItem, required this.unit, @JsonKey(includeIfNull: false) this.shelfLifeDaysOpened, @JsonKey(includeIfNull: false) this.shelfLifeDaysClosed}): super._();
   factory _Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 
 @override final  String link;
 @override@JsonKey() final  int itemsPerPack;
 @override final  double quantityPerItem;
 @override final  Unit unit;
-@override@JsonKey(includeIfNull: false) final  int? shelfLifeDays;
+@override@JsonKey(includeIfNull: false) final  int? shelfLifeDaysOpened;
+@override@JsonKey(includeIfNull: false) final  int? shelfLifeDaysClosed;
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.link, link) || other.link == link)&&(identical(other.itemsPerPack, itemsPerPack) || other.itemsPerPack == itemsPerPack)&&(identical(other.quantityPerItem, quantityPerItem) || other.quantityPerItem == quantityPerItem)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.shelfLifeDays, shelfLifeDays) || other.shelfLifeDays == shelfLifeDays));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.link, link) || other.link == link)&&(identical(other.itemsPerPack, itemsPerPack) || other.itemsPerPack == itemsPerPack)&&(identical(other.quantityPerItem, quantityPerItem) || other.quantityPerItem == quantityPerItem)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.shelfLifeDaysOpened, shelfLifeDaysOpened) || other.shelfLifeDaysOpened == shelfLifeDaysOpened)&&(identical(other.shelfLifeDaysClosed, shelfLifeDaysClosed) || other.shelfLifeDaysClosed == shelfLifeDaysClosed));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,link,itemsPerPack,quantityPerItem,unit,shelfLifeDays);
+int get hashCode => Object.hash(runtimeType,link,itemsPerPack,quantityPerItem,unit,shelfLifeDaysOpened,shelfLifeDaysClosed);
 
 @override
 String toString() {
-  return 'Product(link: $link, itemsPerPack: $itemsPerPack, quantityPerItem: $quantityPerItem, unit: $unit, shelfLifeDays: $shelfLifeDays)';
+  return 'Product(link: $link, itemsPerPack: $itemsPerPack, quantityPerItem: $quantityPerItem, unit: $unit, shelfLifeDaysOpened: $shelfLifeDaysOpened, shelfLifeDaysClosed: $shelfLifeDaysClosed)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$ProductCopyWith<$Res> implements $ProductCopyWith<$Res> {
   factory _$ProductCopyWith(_Product value, $Res Function(_Product) _then) = __$ProductCopyWithImpl;
 @override @useResult
 $Res call({
- String link, int itemsPerPack, double quantityPerItem, Unit unit,@JsonKey(includeIfNull: false) int? shelfLifeDays
+ String link, int itemsPerPack, double quantityPerItem, Unit unit,@JsonKey(includeIfNull: false) int? shelfLifeDaysOpened,@JsonKey(includeIfNull: false) int? shelfLifeDaysClosed
 });
 
 
@@ -272,13 +274,14 @@ class __$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? link = null,Object? itemsPerPack = null,Object? quantityPerItem = null,Object? unit = null,Object? shelfLifeDays = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? link = null,Object? itemsPerPack = null,Object? quantityPerItem = null,Object? unit = null,Object? shelfLifeDaysOpened = freezed,Object? shelfLifeDaysClosed = freezed,}) {
   return _then(_Product(
 link: null == link ? _self.link : link // ignore: cast_nullable_to_non_nullable
 as String,itemsPerPack: null == itemsPerPack ? _self.itemsPerPack : itemsPerPack // ignore: cast_nullable_to_non_nullable
 as int,quantityPerItem: null == quantityPerItem ? _self.quantityPerItem : quantityPerItem // ignore: cast_nullable_to_non_nullable
 as double,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
-as Unit,shelfLifeDays: freezed == shelfLifeDays ? _self.shelfLifeDays : shelfLifeDays // ignore: cast_nullable_to_non_nullable
+as Unit,shelfLifeDaysOpened: freezed == shelfLifeDaysOpened ? _self.shelfLifeDaysOpened : shelfLifeDaysOpened // ignore: cast_nullable_to_non_nullable
+as int?,shelfLifeDaysClosed: freezed == shelfLifeDaysClosed ? _self.shelfLifeDaysClosed : shelfLifeDaysClosed // ignore: cast_nullable_to_non_nullable
 as int?,
   ));
 }
