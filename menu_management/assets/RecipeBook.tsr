@@ -214,7 +214,7 @@
           "quantityPerItem": 62.5,
           "unit": "grams",
           "shelfLifeDaysOpened": 3,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysClosed": 45
         },
         {
           "link": "https://tienda.mercadona.es/product/52406/queso-fresco-burgos-natural-hacendado-pack-2",
@@ -222,7 +222,7 @@
           "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 3,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysClosed": 45
         }
       ],
       "density": 1.05
