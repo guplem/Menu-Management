@@ -349,7 +349,7 @@
           "quantityPerItem": 87.5,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 3,
+          "shelfLifeDaysClosed": 6,
           "canBeFrozen": true
         },
         {
@@ -358,7 +358,7 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 3,
+          "shelfLifeDaysClosed": 6,
           "canBeFrozen": true
         }
       ],
