@@ -34,16 +34,16 @@
           "itemsPerPack": 1,
           "quantityPerItem": 720.0,
           "unit": "grams",
-          "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 10
+          "shelfLifeDaysOpened": 21,
+          "shelfLifeDaysClosed": 21
         },
         {
           "link": "https://tienda.mercadona.es/product/69967/tomate-ramillete-mallorca-bandeja",
           "itemsPerPack": 10,
           "quantityPerItem": 1.0,
           "unit": "pieces",
-          "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 10
+          "shelfLifeDaysOpened": 21,
+          "shelfLifeDaysClosed": 21
         }
       ],
       "density": 0.95
@@ -2107,7 +2107,7 @@
             {
               "ingredient": "fe71deee-e360-45ef-af6c-d6b64de852f2",
               "quantity": {
-                "amount": 0.5,
+                "amount": 0.25,
                 "unit": "pieces"
               },
               "ref_name": "Lechuga Iceberg"
