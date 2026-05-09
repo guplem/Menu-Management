@@ -228,5 +228,44 @@ void main() {
       );
       expect(warnings.map((w) => w.ingredient.id).toSet(), {"i1", "i2"});
     });
+
+    test("returns empty when the only sub-meal is a leftover (yield == 0)", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Ingredient ingredient = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 1)]);
+      Meal leftoverOnly = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+        subMeals: [
+          SubMeal(cooking: const Cooking(recipeId: "r1", yield: 0)),
+        ],
+      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: leftoverOnly,
+        absoluteDayIndex: 5,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, isEmpty);
+    });
+
+    test("ignores leftover sub-meals when aggregating with cooking sub-meals", () {
+      Recipe r1 = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Recipe r2 = _recipe(id: "r2", ingredientIds: ["i2"]);
+      Ingredient i1 = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 1)]);
+      Ingredient i2 = _ingredient(id: "i2", products: [_product(shelfLifeDaysClosed: 2)]);
+      Meal meal = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+        subMeals: [
+          SubMeal(cooking: const Cooking(recipeId: "r1", yield: 0)), // leftover, must be ignored
+          SubMeal(cooking: const Cooking(recipeId: "r2", yield: 1)),
+        ],
+      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: meal,
+        absoluteDayIndex: 10,
+        recipes: [r1, r2],
+        ingredients: [i1, i2],
+      );
+      expect(warnings.map((w) => w.ingredient.id).toSet(), {"i2"});
+    });
   });
 }

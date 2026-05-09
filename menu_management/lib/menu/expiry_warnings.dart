@@ -29,6 +29,10 @@ class MealExpiryWarning {
 /// or null = indefinite when sealed), no warning fires for that ingredient -- the user can buy
 /// the surviving variant.
 ///
+/// Leftover sub-meals (yield == 0) are skipped entirely: their raw ingredients were
+/// already consumed on the original cook day, so they do not introduce new shelf-life
+/// risk on the day the leftover is eaten.
+///
 /// Ingredients with zero products are skipped (no shelf-life data to base a warning on).
 List<MealExpiryWarning> expiryWarningsForMeal({
   required Meal meal,
@@ -42,6 +46,7 @@ List<MealExpiryWarning> expiryWarningsForMeal({
   for (SubMeal subMeal in meal.subMeals) {
     Cooking? cooking = subMeal.cooking;
     if (cooking == null) continue;
+    if (cooking.yield == 0) continue;
     Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
     if (recipe == null) continue;
 
