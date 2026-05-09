@@ -1822,6 +1822,22 @@
       "id": "b7642f30-497a-11f1-8e86-7bc92e29aa26",
       "name": "Mandarina",
       "products": []
+    },
+    {
+      "id": "baa4e2fa-10cb-471d-aeb3-344e1c99623d",
+      "name": "Bacon",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/16252/bacon-hacendado-cintas",
+          "itemsPerPack": 2,
+          "quantityPerItem": 130.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 7,
+          "shelfLifeDaysClosed": 30,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 0.95
     }
   ],
   "Recipes": [
@@ -5389,7 +5405,7 @@
             {
               "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Cebolla"
@@ -5397,7 +5413,7 @@
             {
               "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 2.0,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Ajo troceado"
@@ -5418,9 +5434,9 @@
           "id": "45f956fe-15f1-48b4-a80b-e4a48346a673",
           "ingredientsUsed": [
             {
-              "ingredient": "e6500b40-41b8-10ba-b0dd-9d041637ca66",
+              "ingredient": "baa4e2fa-10cb-471d-aeb3-344e1c99623d",
               "quantity": {
-                "amount": 150.0,
+                "amount": 50.0,
                 "unit": "grams"
               },
               "ref_name": "Panceta"
@@ -5443,7 +5459,7 @@
             {
               "ingredient": "2b038570-6607-11ef-a13c-df814629faab",
               "quantity": {
-                "amount": 250.0,
+                "amount": 80.0,
                 "unit": "grams"
               },
               "ref_name": "Champiñones"
@@ -5466,7 +5482,7 @@
             {
               "ingredient": "c8c654e0-6607-11ef-a13c-df814629faab",
               "quantity": {
-                "amount": 300.0,
+                "amount": 250.0,
                 "unit": "grams"
               },
               "ref_name": "Guisantes"
