@@ -26,9 +26,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "4d1df610-caa8-1098-91d0-51096b672064",
+                "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
                 "yield": 3,
-                "ref_name": "Judías verdes con patatas y pollo a la plancha"
+                "ref_name": "Verduras al horno con arroz"
               },
               "people": 2
             }
@@ -130,9 +130,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "4d1df610-caa8-1098-91d0-51096b672064",
+                "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
                 "yield": 0,
-                "ref_name": "Judías verdes con patatas y pollo a la plancha"
+                "ref_name": "Verduras al horno con arroz"
               },
               "people": 2
             }
@@ -242,9 +242,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "4d1df610-caa8-1098-91d0-51096b672064",
+                "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
                 "yield": 0,
-                "ref_name": "Judías verdes con patatas y pollo a la plancha"
+                "ref_name": "Verduras al horno con arroz"
               },
               "people": 2
             }
@@ -786,9 +786,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
+                "recipeId": "4d1df610-caa8-1098-91d0-51096b672064",
                 "yield": 3,
-                "ref_name": "Verduras al horno con arroz"
+                "ref_name": "Judías verdes con patatas y pollo a la plancha"
               },
               "people": 2
             }
@@ -890,9 +890,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
+                "recipeId": "4d1df610-caa8-1098-91d0-51096b672064",
                 "yield": 0,
-                "ref_name": "Verduras al horno con arroz"
+                "ref_name": "Judías verdes con patatas y pollo a la plancha"
               },
               "people": 2
             }
@@ -1002,9 +1002,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
+                "recipeId": "4d1df610-caa8-1098-91d0-51096b672064",
                 "yield": 0,
-                "ref_name": "Verduras al horno con arroz"
+                "ref_name": "Judías verdes con patatas y pollo a la plancha"
               },
               "people": 2
             }

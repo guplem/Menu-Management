@@ -81,8 +81,8 @@
           "itemsPerPack": 2,
           "quantityPerItem": 200.0,
           "unit": "grams",
-          "shelfLifeDaysOpened": 4,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysOpened": 7,
+          "shelfLifeDaysClosed": 21
         }
       ],
       "density": 1.05,
@@ -330,7 +330,7 @@
           "quantityPerItem": 87.5,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         },
         {
           "link": "https://tienda.mercadona.es/product/87203/escalopin-salmon-bandeja",
@@ -338,7 +338,7 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.05
@@ -448,7 +448,7 @@
           "quantityPerItem": 550.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 3
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.05
@@ -1216,7 +1216,7 @@
           "quantityPerItem": 300.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         },
         {
           "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
@@ -1224,7 +1224,7 @@
           "quantityPerItem": 305.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         },
         {
           "link": "https://tienda.mercadona.es/product/3682/pechugas-enteras-pollo-bandeja",
@@ -1232,7 +1232,7 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         },
         {
           "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
@@ -1240,7 +1240,7 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.05
@@ -1324,7 +1324,7 @@
           "quantityPerItem": 640.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 3
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.0
@@ -1352,7 +1352,7 @@
           "quantityPerItem": 530.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.05
@@ -1409,17 +1409,13 @@
           "link": "https://tienda.mercadona.es/product/6566/tortellini-tres-quesos-pagani-paquete",
           "itemsPerPack": 1,
           "quantityPerItem": 250.0,
-          "unit": "grams",
-          "shelfLifeDaysOpened": 5,
-          "shelfLifeDaysClosed": 30
+          "unit": "grams"
         },
         {
           "link": "https://tienda.mercadona.es/product/6565/tortellini-carne-pagani-paquete",
           "itemsPerPack": 1,
           "quantityPerItem": 250.0,
-          "unit": "grams",
-          "shelfLifeDaysOpened": 5,
-          "shelfLifeDaysClosed": 30
+          "unit": "grams"
         }
       ],
       "density": 0.8
@@ -1434,7 +1430,7 @@
           "quantityPerItem": 550.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         },
         {
           "link": "https://tienda.mercadona.es/product/2788/muslos-pollo-deshuesados-con-piel-bandeja",
@@ -1442,7 +1438,7 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 2
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.05
@@ -1596,7 +1592,7 @@
           "quantityPerItem": 90.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 4
+          "shelfLifeDaysClosed": 7
         },
         {
           "link": "https://tienda.mercadona.es/product/2622/burger-pollo-bandeja",
@@ -1604,7 +1600,7 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 4
+          "shelfLifeDaysClosed": 7
         }
       ],
       "density": 1.0
