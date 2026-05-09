@@ -10,7 +10,8 @@
           "quantityPerItem": 350.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 5,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysClosed": 14,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/9369/media-hogaza-integral-avena-semillas-girasol-sesamo-rebanado-paquete",
@@ -18,7 +19,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 5,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysClosed": 14,
+          "canBeFrozen": true
         }
       ],
       "density": 0.4
@@ -83,7 +85,8 @@
           "quantityPerItem": 200.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 21
+          "shelfLifeDaysClosed": 21,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05,
@@ -99,7 +102,8 @@
           "quantityPerItem": 330.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 21,
-          "shelfLifeDaysClosed": 45
+          "shelfLifeDaysClosed": 45,
+          "canBeFrozen": true
         }
       ],
       "density": 1.1,
@@ -115,7 +119,8 @@
           "quantityPerItem": 120.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 30
+          "shelfLifeDaysClosed": 30,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05,
@@ -344,7 +349,8 @@
           "quantityPerItem": 87.5,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 3
+          "shelfLifeDaysClosed": 3,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/87203/escalopin-salmon-bandeja",
@@ -352,7 +358,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 3
+          "shelfLifeDaysClosed": 3,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05
@@ -421,7 +428,8 @@
           "quantityPerItem": 600.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 3,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysClosed": 14,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/80773/tortilla-patata-con-chorizo-hacendado-con-aceite-oliva-bandeja",
@@ -429,7 +437,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 3,
-          "shelfLifeDaysClosed": 14
+          "shelfLifeDaysClosed": 14,
+          "canBeFrozen": true
         }
       ],
       "density": 1.0
@@ -444,7 +453,8 @@
           "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/63007/nuggets-pavo-hacendado-ultracongelados-paquete",
@@ -452,7 +462,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.7
@@ -467,7 +478,8 @@
           "quantityPerItem": 550.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05
@@ -688,7 +700,8 @@
           "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/22649/pizza-masa-fina-barbacoa-hacendado-ultracongelada",
@@ -696,7 +709,8 @@
           "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/63501/pizza-atun-hacendado-ultracongelada",
@@ -704,7 +718,8 @@
           "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/63339/pizza-masa-fina-jamon-hacendado-ultracongelada",
@@ -712,7 +727,8 @@
           "quantityPerItem": 400.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/13943/pizza-truffata-con-queso-champinones-trufa-hacendado-ultracongelada",
@@ -720,7 +736,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/22649/pizza-masa-fina-barbacoa-hacendado-ultracongelada",
@@ -728,7 +745,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/63501/pizza-atun-hacendado-ultracongelada",
@@ -736,7 +754,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/63339/pizza-masa-fina-jamon-hacendado-ultracongelada",
@@ -744,7 +763,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.85
@@ -919,7 +939,8 @@
           "quantityPerItem": 300.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 5,
-          "shelfLifeDaysClosed": 7
+          "shelfLifeDaysClosed": 7,
+          "canBeFrozen": true
         }
       ],
       "density": 0.3
@@ -972,7 +993,8 @@
           "quantityPerItem": 1000.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.65
@@ -1145,7 +1167,8 @@
           "quantityPerItem": 360.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 30
+          "shelfLifeDaysClosed": 30,
+          "canBeFrozen": true
         }
       ],
       "density": 0.95
@@ -1160,7 +1183,8 @@
           "quantityPerItem": 100.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 21,
-          "shelfLifeDaysClosed": 60
+          "shelfLifeDaysClosed": 60,
+          "canBeFrozen": true
         }
       ],
       "density": 0.45
@@ -1204,7 +1228,8 @@
           "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 3,
-          "shelfLifeDaysClosed": 730
+          "shelfLifeDaysClosed": 730,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/16415/guisantes-extra-hacendado-pack-3",
@@ -1212,7 +1237,8 @@
           "quantityPerItem": 120.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 5,
-          "shelfLifeDaysClosed": 730
+          "shelfLifeDaysClosed": 730,
+          "canBeFrozen": true
         }
       ],
       "density": 1.0
@@ -1300,7 +1326,8 @@
           "quantityPerItem": 300.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
@@ -1308,7 +1335,8 @@
           "quantityPerItem": 305.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/3682/pechugas-enteras-pollo-bandeja",
@@ -1316,7 +1344,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/3724/pechugas-enteras-pollo-bandeja",
@@ -1324,7 +1353,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05
@@ -1354,7 +1384,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 10,
-          "shelfLifeDaysClosed": 60
+          "shelfLifeDaysClosed": 60,
+          "canBeFrozen": true
         }
       ],
       "density": 0.8
@@ -1414,7 +1445,8 @@
           "quantityPerItem": 640.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         }
       ],
       "density": 1.0
@@ -1444,7 +1476,8 @@
           "quantityPerItem": 530.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05
@@ -1459,7 +1492,8 @@
           "quantityPerItem": 200.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 30
+          "shelfLifeDaysClosed": 30,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/53056/salchichas-cocidas-hacendado-pollo-pavo-sabor-ahumado-pack-2",
@@ -1467,7 +1501,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 7,
-          "shelfLifeDaysClosed": 30
+          "shelfLifeDaysClosed": 30,
+          "canBeFrozen": true
         }
       ],
       "density": 1.0
@@ -1505,7 +1540,8 @@
           "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 14,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/6565/tortellini-carne-pagani-paquete",
@@ -1513,7 +1549,8 @@
           "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 14,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.8
@@ -1528,7 +1565,8 @@
           "quantityPerItem": 550.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/2788/muslos-pollo-deshuesados-con-piel-bandeja",
@@ -1536,7 +1574,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05
@@ -1649,7 +1688,8 @@
           "quantityPerItem": 500.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.75,
@@ -1701,7 +1741,8 @@
           "quantityPerItem": 90.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         },
         {
           "link": "https://tienda.mercadona.es/product/2622/burger-pollo-bandeja",
@@ -1709,7 +1750,8 @@
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysOpened": 2,
-          "shelfLifeDaysClosed": 5
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
         }
       ],
       "density": 1.0
@@ -1724,7 +1766,8 @@
           "quantityPerItem": 1000.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.7
@@ -1739,7 +1782,8 @@
           "quantityPerItem": 450.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
-          "shelfLifeDaysClosed": 365
+          "shelfLifeDaysClosed": 365,
+          "canBeFrozen": true
         }
       ],
       "density": 0.75

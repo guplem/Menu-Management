@@ -13,6 +13,7 @@ _Product _$ProductFromJson(Map<String, dynamic> json) => _Product(
   unit: $enumDecode(_$UnitEnumMap, json['unit']),
   shelfLifeDaysOpened: (json['shelfLifeDaysOpened'] as num?)?.toInt(),
   shelfLifeDaysClosed: (json['shelfLifeDaysClosed'] as num?)?.toInt(),
+  canBeFrozen: json['canBeFrozen'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$ProductToJson(_Product instance) => <String, dynamic>{
@@ -22,6 +23,7 @@ Map<String, dynamic> _$ProductToJson(_Product instance) => <String, dynamic>{
   'unit': _$UnitEnumMap[instance.unit]!,
   'shelfLifeDaysOpened': ?instance.shelfLifeDaysOpened,
   'shelfLifeDaysClosed': ?instance.shelfLifeDaysClosed,
+  'canBeFrozen': instance.canBeFrozen,
 };
 
 const _$UnitEnumMap = {

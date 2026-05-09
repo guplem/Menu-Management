@@ -13,6 +13,7 @@ Product _product({
   Unit unit = Unit.grams,
   int? shelfLifeDaysOpened,
   int? shelfLifeDaysClosed,
+  bool canBeFrozen = false,
 }) {
   return Product(
     link: link,
@@ -21,6 +22,7 @@ Product _product({
     unit: unit,
     shelfLifeDaysOpened: shelfLifeDaysOpened,
     shelfLifeDaysClosed: shelfLifeDaysClosed,
+    canBeFrozen: canBeFrozen,
   );
 }
 
@@ -562,6 +564,45 @@ void main() {
     test("ignores shelfLifeDaysOpened entirely (only closed matters)", () {
       Product product = _product(shelfLifeDaysOpened: 1, shelfLifeDaysClosed: 100);
       expect(product.mayBeExpiredOnDay(50), isFalse);
+    });
+  });
+
+  // ── Product canBeFrozen ──
+
+  group("Product canBeFrozen", () {
+    test("defaults to false when not provided", () {
+      Product product = const Product(link: "https://example.com", quantityPerItem: 250, unit: Unit.grams);
+      expect(product.canBeFrozen, isFalse);
+    });
+
+    test("stores canBeFrozen when set to true", () {
+      Product product = _product(canBeFrozen: true);
+      expect(product.canBeFrozen, isTrue);
+    });
+
+    test("round-trips through JSON when true", () {
+      Product original = _product(canBeFrozen: true);
+      String encoded = jsonEncode(original.toJson());
+      Product restored = Product.fromJson(jsonDecode(encoded));
+      expect(restored.canBeFrozen, isTrue);
+    });
+
+    test("round-trips through JSON when false", () {
+      Product original = _product();
+      String encoded = jsonEncode(original.toJson());
+      Product restored = Product.fromJson(jsonDecode(encoded));
+      expect(restored.canBeFrozen, isFalse);
+    });
+
+    test("old JSON without canBeFrozen key restores to false", () {
+      Map<String, dynamic> oldJson = {
+        "link": "https://example.com",
+        "quantityPerItem": 250.0,
+        "unit": "grams",
+        "shelfLifeDaysClosed": 3,
+      };
+      Product restored = Product.fromJson(oldJson);
+      expect(restored.canBeFrozen, isFalse);
     });
   });
 }

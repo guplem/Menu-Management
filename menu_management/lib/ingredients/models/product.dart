@@ -13,6 +13,7 @@ abstract class Product with _$Product {
     required Unit unit,
     @JsonKey(includeIfNull: false) int? shelfLifeDaysOpened,
     @JsonKey(includeIfNull: false) int? shelfLifeDaysClosed,
+    @Default(false) bool canBeFrozen,
   }) = _Product;
 
   factory Product.fromJson(Map<String, Object?> json) => _$ProductFromJson(_migrateShelfLifeDays(json));

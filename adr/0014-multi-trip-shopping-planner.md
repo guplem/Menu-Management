@@ -30,7 +30,7 @@ When no trip can possibly serve a perishable event fresh (very short shelf life 
 
 ### Per-event shelf life lookup
 
-Shelf life is read from `ingredient.products.firstWhereOrNull((p) => p.unit == quantity.unit)?.shelfLifeDaysClosed`. The first product that matches the cooking event's unit drives the decision. Other product variants (e.g., a longer-shelf-life version) are ignored. This matches the existing single-trip copy logic, which also keys off `products.first`.
+Shelf life is read from the same-unit product variants of the ingredient. ADR 0015 changes this from a first-match lookup to an any-match across same-unit variants: if any variant has `shelfLifeDaysClosed = null` the ingredient is treated as non-perishable, otherwise the planner uses the maximum `shelfLifeDaysClosed` across the matching variants. This mirrors the menu warning's "warn only if every variant is past sealed life" policy and lets a long-life variant consolidate trips that would otherwise be split. The original first-match wording is kept here for historical context.
 
 ### Owned amounts
 
@@ -38,15 +38,17 @@ Shelf life is read from `ingredient.products.firstWhereOrNull((p) => p.unit == q
 
 ### UI
 
-`ShoppingPage` gets a single boolean `_splitByFreshness` and an `IconButton` action in the AppBar. When ON, a small banner under the AppBar reports the trip count and weeks involved, and the floating copy button emits a sectioned text output (`Week 1\n--------\n...\n\nWeek 2\n--------\n...`). When OFF, the copy output is unchanged from before this change. The on-screen list is intentionally not sectioned in this version; the toggle is purely a copy-format switch plus a short status banner. This keeps the diff small and avoids restructuring the existing per-ingredient widget which already exposes owned input, recommendations, and recipe sources.
+`ShoppingPage` originally exposed a single boolean `_splitByFreshness` and an `IconButton` action in the AppBar: when ON, a small banner under the AppBar reported the trip count and weeks involved, and the floating copy button emitted a sectioned text output (`Week 1\n--------\n...\n\nWeek 2\n--------\n...`). When OFF, the copy output was a flat list ignoring shelf life.
+
+ADR 0015 supersedes this UI: the OFF mode (flat list, ignore shelf life) was dropped, and the toggle was renamed `_useFreezerStrategy`. Both modes now produce sectioned, freshness-aware copy output. OFF is the original ON behavior (multi-trip, no freezing). ON is the new freezer-aware mode where freezable items ride trip 0 with a `(freeze on arrival)` suffix and only non-freezable perishables can force later trips. The on-screen list is still not sectioned; the toggle is still purely a copy-format switch plus a short status banner.
 
 ## Consequences
 
 - The user can now produce a "buy these things on this trip" plan with one click, without having to mentally split the menu themselves.
 - The greedy is optimal for minimum trip count under the week-boundary trip schedule: standard interval point cover. There is no smaller set of trips that respects every event's freshness window.
 - Trips are weekly-only by construction. If the user has a real-world cadence like "I shop on Wednesday and Saturday", the planner cannot match it. Adding configurable trip days would mean exposing trip schedules in the UI; deferred until requested.
-- The planner uses the first-matching-unit product for shelf life, so an ingredient with both a short-life and a long-life variant is treated as if the user always picks the first variant. This is consistent with the rest of the shopping page's `products.first` behavior. A smarter heuristic would let the planner pick which variant to suggest per trip; out of scope for this ADR.
+- The planner originally used the first-matching-unit product for shelf life. ADR 0015 promoted this to an any-match: the longest sealed shelf life among same-unit variants drives trip planning, and any freezable variant makes the ingredient freezable for the freezer-aware mode. The shopping page's pack-display code (`products.first`) is unaffected; only the planner's shelf-life and freezable lookups changed.
 - Non-perishables defaulting to trip 0 means a menu of only non-perishables produces a single trip 0, matching the prior single-trip behavior exactly.
 - Owned amounts are still tracked at the ingredient level (one number, one selected unit), not per-trip. The planner subtracts owned from earliest events first, which usually means owned reduces what is bought on the earliest trip. There is no way today for the user to say "I have 100g of X but I want to use it on trip 2". If this comes up we can add per-event owned overrides.
 - The on-screen list does not visually sectionize when the toggle is on. The banner under the AppBar is the only on-screen feedback besides the copy output. If users want section headers on screen we can iterate on the per-ingredient widget without changing the planner.
-- The `single-shopping-trip` assumption in ADR 0010's menu expiry warning is unchanged: that warning still assumes one purchase the day before menu day 0. Multi-trip mode is a property of the shopping list copy, not of the menu warning. Reconciling them (warning aware of trips) is possible later but not part of this change.
+- The `single-shopping-trip` assumption in ADR 0010's menu expiry warning is unchanged: that warning still assumes one purchase the day before menu day 0. Multi-trip mode is a property of the shopping list copy, not of the menu warning. Reconciling them (warning aware of trips) is possible later but not part of this change. The freeze-aware single-trip mode is documented in ADR 0015 and likewise does not change the menu warning's single-trip assumption.

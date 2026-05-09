@@ -243,13 +243,7 @@ class _MenuPageState extends State<MenuPage> {
                                   maxLines: 2,
                                 ),
                               ),
-                              if (warnings.isNotEmpty) ...[
-                                const SizedBox(width: 4),
-                                Tooltip(
-                                  message: _buildExpiryTooltipMessage(warnings),
-                                  child: Icon(Icons.warning_rounded, size: 16, color: Theme.of(context).colorScheme.error),
-                                ),
-                              ],
+                              ..._buildExpiryIndicator(warnings),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -350,12 +344,59 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  String _buildExpiryTooltipMessage(List<MealExpiryWarning> warnings) {
-    if (warnings.length == 1) {
-      return "${warnings.first.ingredient.name} may have expired before this meal.";
+  List<Widget> _buildExpiryIndicator(List<MealExpiryWarning> warnings) {
+    if (warnings.isEmpty) return const [];
+
+    List<MealExpiryWarning> impossible = warnings.where((MealExpiryWarning w) => w.severity == MealExpirySeverity.impossible).toList();
+    List<MealExpiryWarning> freezeRequired = warnings.where((MealExpiryWarning w) => w.severity == MealExpirySeverity.freezeRequired).toList();
+
+    if (impossible.isNotEmpty) {
+      return [
+        const SizedBox(width: 4),
+        Tooltip(
+          message: _buildImpossibleTooltipMessage(impossible: impossible, freezeRequired: freezeRequired),
+          child: Icon(Icons.warning_rounded, size: 16, color: Theme.of(context).colorScheme.error),
+        ),
+      ];
     }
-    String list = warnings.map((MealExpiryWarning w) => "- ${w.ingredient.name}").join("\n");
-    return "These may have expired before this meal:\n$list";
+
+    return [
+      const SizedBox(width: 4),
+      Tooltip(
+        message: _buildFreezeTooltipMessage(freezeRequired),
+        child: Icon(Icons.ac_unit, size: 16, color: Colors.blue.shade400),
+      ),
+    ];
+  }
+
+  String _buildImpossibleTooltipMessage({
+    required List<MealExpiryWarning> impossible,
+    required List<MealExpiryWarning> freezeRequired,
+  }) {
+    StringBuffer buffer = StringBuffer();
+    if (impossible.length == 1) {
+      buffer.write("${impossible.first.ingredient.name} may have expired before this meal.");
+    } else {
+      buffer.write("These may have expired before this meal:");
+      for (MealExpiryWarning w in impossible) {
+        buffer.write("\n- ${w.ingredient.name}");
+      }
+    }
+    if (freezeRequired.isNotEmpty) {
+      buffer.write("\n\nFreeze on arrival to use later:");
+      for (MealExpiryWarning w in freezeRequired) {
+        buffer.write("\n- ${w.ingredient.name}");
+      }
+    }
+    return buffer.toString();
+  }
+
+  String _buildFreezeTooltipMessage(List<MealExpiryWarning> freezeRequired) {
+    if (freezeRequired.length == 1) {
+      return "Freeze ${freezeRequired.first.ingredient.name} on arrival to use it for this meal.";
+    }
+    String list = freezeRequired.map((MealExpiryWarning w) => "- ${w.ingredient.name}").join("\n");
+    return "Freeze these on arrival to use them for this meal:\n$list";
   }
 
   void _showRecipePicker(Meal meal, int subMealIndex) {

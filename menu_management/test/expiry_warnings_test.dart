@@ -14,12 +14,13 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
-Product _product({String link = "https://example.com/p", int? shelfLifeDaysClosed}) {
+Product _product({String link = "https://example.com/p", int? shelfLifeDaysClosed, bool canBeFrozen = false}) {
   return Product(
     link: link,
     quantityPerItem: 250,
     unit: Unit.grams,
     shelfLifeDaysClosed: shelfLifeDaysClosed,
+    canBeFrozen: canBeFrozen,
   );
 }
 
@@ -266,6 +267,102 @@ void main() {
         ingredients: [i1, i2],
       );
       expect(warnings.map((w) => w.ingredient.id).toSet(), {"i2"});
+    });
+  });
+
+  group("MealExpiryWarning severity", () {
+    test("severity is impossible when single non-freezable product is past sealed life", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Product expired = _product(shelfLifeDaysClosed: 2);
+      Ingredient ingredient = _ingredient(id: "i1", products: [expired]);
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: _meal(recipeId: "r1"),
+        absoluteDayIndex: 5,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, hasLength(1));
+      expect(warnings.first.severity, MealExpirySeverity.impossible);
+    });
+
+    test("severity is freezeRequired when single freezable product is past sealed life", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Product chicken = _product(shelfLifeDaysClosed: 3, canBeFrozen: true);
+      Ingredient ingredient = _ingredient(id: "i1", name: "Chicken", products: [chicken]);
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: _meal(recipeId: "r1"),
+        absoluteDayIndex: 14,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, hasLength(1));
+      expect(warnings.first.severity, MealExpirySeverity.freezeRequired);
+    });
+
+    test("severity is freezeRequired when at least one expired variant is freezable", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Product nonFreezable = _product(link: "https://example.com/p1", shelfLifeDaysClosed: 2);
+      Product freezable = _product(link: "https://example.com/p2", shelfLifeDaysClosed: 3, canBeFrozen: true);
+      Ingredient ingredient = _ingredient(id: "i1", products: [nonFreezable, freezable]);
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: _meal(recipeId: "r1"),
+        absoluteDayIndex: 10,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, hasLength(1));
+      expect(warnings.first.severity, MealExpirySeverity.freezeRequired);
+    });
+
+    test("severity is impossible when no expired variant is freezable", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Product small = _product(link: "https://example.com/p1", shelfLifeDaysClosed: 2);
+      Product big = _product(link: "https://example.com/p2", shelfLifeDaysClosed: 3);
+      Ingredient ingredient = _ingredient(id: "i1", products: [small, big]);
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: _meal(recipeId: "r1"),
+        absoluteDayIndex: 10,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, hasLength(1));
+      expect(warnings.first.severity, MealExpirySeverity.impossible);
+    });
+
+    test("freezable variant that survives sealed produces no warning at all", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Product longLifeFreezable = _product(shelfLifeDaysClosed: 30, canBeFrozen: true);
+      Ingredient ingredient = _ingredient(id: "i1", products: [longLifeFreezable]);
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: _meal(recipeId: "r1"),
+        absoluteDayIndex: 5,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, isEmpty);
+    });
+
+    test("a meal with one impossible and one freezeRequired ingredient produces both severities", () {
+      Recipe r1 = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Recipe r2 = _recipe(id: "r2", ingredientIds: ["i2"]);
+      Ingredient i1 = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 2)]); // impossible
+      Ingredient i2 = _ingredient(id: "i2", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]); // freezeRequired
+      Meal meal = Meal(
+        mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+        subMeals: [
+          SubMeal(cooking: const Cooking(recipeId: "r1", yield: 1)),
+          SubMeal(cooking: const Cooking(recipeId: "r2", yield: 1)),
+        ],
+      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
+        meal: meal,
+        absoluteDayIndex: 10,
+        recipes: [r1, r2],
+        ingredients: [i1, i2],
+      );
+      Map<String, MealExpirySeverity> bySeverity = {for (MealExpiryWarning w in warnings) w.ingredient.id: w.severity};
+      expect(bySeverity["i1"], MealExpirySeverity.impossible);
+      expect(bySeverity["i2"], MealExpirySeverity.freezeRequired);
     });
   });
 }

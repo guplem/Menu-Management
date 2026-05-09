@@ -34,6 +34,7 @@ class _ProductEditorState extends State<ProductEditor> {
   late final TextEditingController _shelfLifeDaysOpenedController;
   late final TextEditingController _shelfLifeDaysClosedController;
   late Unit _selectedUnit;
+  late bool _canBeFrozen;
 
   @override
   void initState() {
@@ -45,6 +46,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _shelfLifeDaysOpenedController = TextEditingController();
     _shelfLifeDaysClosedController = TextEditingController();
     _selectedUnit = Unit.grams;
+    _canBeFrozen = false;
   }
 
   @override
@@ -65,6 +67,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _shelfLifeDaysOpenedController.text = product.shelfLifeDaysOpened?.toString() ?? "";
     _shelfLifeDaysClosedController.text = product.shelfLifeDaysClosed?.toString() ?? "";
     _selectedUnit = product.unit;
+    _canBeFrozen = product.canBeFrozen;
     setState(() => _editingIndex = index);
   }
 
@@ -75,6 +78,7 @@ class _ProductEditorState extends State<ProductEditor> {
     _shelfLifeDaysOpenedController.clear();
     _shelfLifeDaysClosedController.clear();
     _selectedUnit = Unit.grams;
+    _canBeFrozen = false;
     setState(() => _editingIndex = null);
   }
 
@@ -106,6 +110,7 @@ class _ProductEditorState extends State<ProductEditor> {
       unit: _selectedUnit,
       shelfLifeDaysOpened: shelfLifeDaysOpened,
       shelfLifeDaysClosed: shelfLifeDaysClosed,
+      canBeFrozen: _canBeFrozen,
     );
   }
 
@@ -227,6 +232,17 @@ class _ProductEditorState extends State<ProductEditor> {
               ),
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text("Can be frozen"),
+                const SizedBox(width: 8),
+                Switch(
+                  value: _canBeFrozen,
+                  onChanged: (bool value) => setState(() => _canBeFrozen = value),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             Row(

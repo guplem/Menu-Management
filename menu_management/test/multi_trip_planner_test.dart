@@ -11,6 +11,7 @@ Product _product({
   int? shelfLifeDaysClosed,
   double quantityPerItem = 100,
   int itemsPerPack = 1,
+  bool canBeFrozen = false,
 }) {
   return Product(
     link: "https://example.com/p",
@@ -18,6 +19,7 @@ Product _product({
     quantityPerItem: quantityPerItem,
     itemsPerPack: itemsPerPack,
     shelfLifeDaysClosed: shelfLifeDaysClosed,
+    canBeFrozen: canBeFrozen,
   );
 }
 
@@ -350,6 +352,279 @@ void main() {
       expect(trips[0].weekIndex, 0);
       expect(trips[1].weekIndex, 1);
       expect(trips[2].weekIndex, 2);
+    });
+
+    test("TripItem.freezeOnArrival defaults to false in non-freezing mode", () {
+      Ingredient banana = _ingredient(id: "banana", products: [_product(shelfLifeDaysClosed: 5, canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "banana": [_event(day: 2, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [banana],
+      );
+
+      expect(trips.first.items.first.freezeOnArrival, isFalse);
+    });
+  });
+
+  group("planShoppingTrips with assumeFreezerForFreezable: true", () {
+    test("freezable perishable ingredient rides trip 0 with freezeOnArrival flag", () {
+      // Chicken with 3-day closed shelf life used on day 14 (week 3).
+      // Without freezing this would force trip 2; with freezing it rides trip 0.
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 14, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [chicken],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+      expect(trips.first.items.first.freezeOnArrival, isTrue);
+    });
+
+    test("non-freezable perishable still forces a later trip when shelf life exceeded", () {
+      // Banana, 5-day shelf life, NOT freezable, used day 14. Must go on trip 2.
+      Ingredient banana = _ingredient(id: "banana", products: [_product(shelfLifeDaysClosed: 5)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "banana": [_event(day: 14, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [banana],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 2);
+      expect(trips.first.items.first.freezeOnArrival, isFalse);
+    });
+
+    test("mixed freezable + non-freezable: freezable on trip 0 (frozen), non-freezable on later trip", () {
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Ingredient banana = _ingredient(id: "banana", products: [_product(shelfLifeDaysClosed: 5)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 14, amount: 200)],
+        "banana": [_event(day: 14, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [chicken, banana],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 2);
+      ShoppingTrip trip0 = trips.firstWhere((t) => t.weekIndex == 0);
+      ShoppingTrip later = trips.firstWhere((t) => t.weekIndex > 0);
+      expect(trip0.items.length, 1);
+      expect(trip0.items.first.ingredientId, "chicken");
+      expect(trip0.items.first.freezeOnArrival, isTrue);
+      expect(later.items.length, 1);
+      expect(later.items.first.ingredientId, "banana");
+      expect(later.items.first.freezeOnArrival, isFalse);
+    });
+
+    test("freezable item used within shelf life from trip 0 does not need freezing flag", () {
+      // Chicken on day 1, shelf life 3 days. Trip 0 (day -1) → 2 days elapsed → fresh.
+      // No freezing actually needed; the planner should NOT mark freezeOnArrival.
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 1, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [chicken],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+      expect(trips.first.items.first.freezeOnArrival, isFalse);
+    });
+
+    test("freezable non-perishable (null shelf life) is not flagged for freezing", () {
+      // Long-shelf-life dry pasta marked canBeFrozen=true should not get the freeze flag
+      // since it does not need freezing to last.
+      Ingredient pasta = _ingredient(id: "pasta", products: [_product(canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "pasta": [_event(day: 14, amount: 500)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [pasta],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+      expect(trips.first.items.first.freezeOnArrival, isFalse);
+    });
+
+    test("two freezable events in distant weeks both ride trip 0 with freeze flag", () {
+      // Same ingredient on day 2 (within shelf life from trip 0) and day 14 (would expire).
+      // Both should aggregate on trip 0; the aggregated item is freeze-on-arrival because
+      // at least one underlying event needs freezing.
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 2, amount: 100), _event(day: 14, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [chicken],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+      expect(trips.first.items.first.amount, 300);
+      expect(trips.first.items.first.freezeOnArrival, isTrue);
+    });
+
+    test("owned amount reduces freezable event amount before trip planning", () {
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 14, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [chicken],
+        assumeFreezerForFreezable: true,
+        ownedAmounts: const {
+          "chicken": [Quantity(amount: 50, unit: Unit.grams)],
+        },
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+      expect(trips.first.items.first.amount, 150);
+      expect(trips.first.items.first.freezeOnArrival, isTrue);
+    });
+
+    test("owned amount fully covering a freezable event produces no trips", () {
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 14, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [chicken],
+        assumeFreezerForFreezable: true,
+        ownedAmounts: const {
+          "chicken": [Quantity(amount: 200, unit: Unit.grams)],
+        },
+      );
+
+      expect(trips, isEmpty);
+    });
+  });
+
+  group("planShoppingTrips multi-variant same-unit any-match semantics", () {
+    test("uses the longest sealed shelf life across same-unit variants to consolidate trips", () {
+      // Two grams variants: 2-day and 30-day. Two events on day 0 and day 14.
+      // First-match (2-day) would force two separate trips (one per event window).
+      // Any-match (30-day) lets a single trip cover both events.
+      Ingredient ingredient = _ingredient(
+        id: "i1",
+        products: [
+          _product(shelfLifeDaysClosed: 2),
+          _product(shelfLifeDaysClosed: 30),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "i1": [_event(day: 0, amount: 100), _event(day: 14, amount: 100)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [ingredient],
+      );
+
+      expect(trips.length, 1);
+    });
+
+    test("treats ingredient as non-perishable when any same-unit variant has null shelf life", () {
+      // One grams variant has shelfLifeDaysClosed=2, another has null (indefinite when sealed).
+      // Planner should treat as non-perishable and ride trip 0 for any event day.
+      Ingredient ingredient = _ingredient(
+        id: "i1",
+        products: [
+          _product(shelfLifeDaysClosed: 2),
+          _product(),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "i1": [_event(day: 14, amount: 100)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [ingredient],
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+    });
+
+    test("treats ingredient as freezable when any same-unit variant is freezable", () {
+      // [non-freezable, freezable] same-unit variants. With freezer mode on, an event
+      // on day 14 should ride trip 0 with freezeOnArrival=true.
+      Ingredient ingredient = _ingredient(
+        id: "i1",
+        products: [
+          _product(shelfLifeDaysClosed: 3),
+          _product(shelfLifeDaysClosed: 3, canBeFrozen: true),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "i1": [_event(day: 14, amount: 100)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [ingredient],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, 0);
+      expect(trips.first.items.first.freezeOnArrival, isTrue);
+    });
+
+    test("not freezable when no same-unit variant has canBeFrozen", () {
+      // Both variants have canBeFrozen=false. Even with freezer mode on, planner forces a later trip.
+      Ingredient ingredient = _ingredient(
+        id: "i1",
+        products: [
+          _product(shelfLifeDaysClosed: 3),
+          _product(shelfLifeDaysClosed: 5),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "i1": [_event(day: 14, amount: 100)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [ingredient],
+        assumeFreezerForFreezable: true,
+      );
+
+      expect(trips.length, 1);
+      expect(trips.first.weekIndex, greaterThan(0));
+      expect(trips.first.items.first.freezeOnArrival, isFalse);
     });
   });
 }

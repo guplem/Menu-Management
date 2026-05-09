@@ -41,10 +41,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
   /// Per-recipe breakdown of ingredient usage (which recipes need each ingredient).
   late final Map<String, List<IngredientSource>> ingredientSources;
 
-  /// When true, the copy output is split into one shopping trip per week as needed
-  /// so nothing the user buys is past its sealed shelf life when used. When false,
-  /// the copy output is one flat list assuming a single purchase before menu day 0.
-  bool _ensureFreshness = false;
+  /// When true, the planner assumes freezable products are frozen on arrival, so a single
+  /// trip 0 covers the whole menu unless non-freezable items force later trips. When false,
+  /// the planner ignores the freezer and splits trips strictly by sealed shelf life.
+  /// In both modes the copy output is sectioned per trip.
+  bool _useFreezerStrategy = false;
 
   @override
   void initState() {
@@ -70,7 +71,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<ShoppingTrip> plannedTrips = _ensureFreshness ? _planTrips() : const [];
+    List<ShoppingTrip> plannedTrips = _planTrips();
 
     return Scaffold(
       appBar: AppBar(
@@ -81,35 +82,33 @@ class _ShoppingPageState extends State<ShoppingPage> {
             child: Row(
               children: [
                 Tooltip(
-                  message: "On: the copy button splits the list into multiple shopping trips so nothing expires "
-                      "before it is cooked. Off: one purchase the day before the menu starts.",
-                  child: const Text("Ensure freshness"),
+                  message: "Off: shop multiple times so nothing expires before cooking.\n"
+                      "On: shop once and freeze items that would otherwise expire.",
+                  child: const Text("Try to make one trip"),
                 ),
                 const SizedBox(width: 8),
                 Switch(
-                  value: _ensureFreshness,
+                  value: _useFreezerStrategy,
                   onChanged: (bool value) {
-                    setState(() => _ensureFreshness = value);
+                    setState(() => _useFreezerStrategy = value);
                   },
                 ),
               ],
             ),
           ),
         ],
-        bottom: _ensureFreshness
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(28),
-                child: Container(
-                  width: double.infinity,
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Text(
-                    "Multi-trip mode: copy will split into ${plannedTrips.length} ${plannedTrips.length == 1 ? "trip" : "trips"} (${plannedTrips.map((t) => "Week ${t.weekIndex + 1}").join(", ")}).",
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
-                  ),
-                ),
-              )
-            : null,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(28),
+          child: Container(
+            width: double.infinity,
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              _buildBannerText(plannedTrips),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: "Copy to clipboard",
@@ -196,8 +195,16 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 
   void _copyToClipboard() {
-    String text = _ensureFreshness ? _buildMultiTripCopyText() : _buildSingleListCopyText();
+    String text = _buildMultiTripCopyText();
     Clipboard.setData(ClipboardData(text: text));
+  }
+
+  String _buildBannerText(List<ShoppingTrip> trips) {
+    String prefix = _useFreezerStrategy ? "One-trip mode" : "Multi-trip mode";
+    if (trips.isEmpty) return "$prefix: nothing to plan.";
+    String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
+    String weeksText = trips.map((ShoppingTrip t) => "Week ${t.weekIndex + 1}").join(", ");
+    return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
   String _buildSingleListCopyText() {
@@ -234,28 +241,41 @@ class _ShoppingPageState extends State<ShoppingPage> {
       for (MapEntry<String, List<TripItem>> entry in byIngredient.entries) {
         Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
         List<Quantity> tripQuantities = entry.value.map((TripItem i) => Quantity(amount: i.amount, unit: i.unit)).toList();
-        _appendIngredientLines(buffer: buffer, ingredient: ingredient, remaining: tripQuantities);
+        bool freezeOnArrival = entry.value.any((TripItem i) => i.freezeOnArrival);
+        _appendIngredientLines(
+          buffer: buffer,
+          ingredient: ingredient,
+          remaining: tripQuantities,
+          freezeOnArrival: freezeOnArrival,
+        );
       }
     }
 
     return buffer.toString().trimRight();
   }
 
-  void _appendIngredientLines({required StringBuffer buffer, required Ingredient ingredient, required List<Quantity> remaining}) {
+  void _appendIngredientLines({
+    required StringBuffer buffer,
+    required Ingredient ingredient,
+    required List<Quantity> remaining,
+    bool freezeOnArrival = false,
+  }) {
     // Round to whole units to match the on-screen / single-list display semantics.
     // Sub-1-unit residuals (e.g., 0.3 teaspoons of a spice) drop out instead of rendering as "0 teaspoons".
     List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
     if (!rounded.any((q) => q.amount > 0)) return;
+
+    String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
 
     if (ingredient.products.isNotEmpty) {
       Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
       if (primaryRemaining == null) {
         // No matching product unit -> fall back to raw amount line.
         String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-        buffer.writeln("${ingredient.name}: $amounts");
+        buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
         return;
       }
-      buffer.writeln(ingredient.name);
+      buffer.writeln("${ingredient.name}$freezeSuffix");
       for (Product product in ingredient.products) {
         if (product.unit != primaryRemaining.unit) continue;
         int packs = product.packsNeeded(primaryRemaining.amount);
@@ -266,7 +286,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
       }
     } else {
       String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-      buffer.writeln("${ingredient.name}: $amounts");
+      buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
     }
   }
 
@@ -300,6 +320,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
       cookingTimeline: cookingTimeline,
       ingredients: allIngredients,
       ownedAmounts: ownedQuantitiesPerIngredient,
+      assumeFreezerForFreezable: _useFreezerStrategy,
     );
   }
 }

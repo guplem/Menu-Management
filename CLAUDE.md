@@ -46,7 +46,7 @@ No duplication between them. If setup instructions are in README, CLAUDE.md only
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `cd menu_management && ./build_and_copy.bat` | Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 249 tests across 7 files |
+| Run all tests | `cd menu_management && flutter test test/` | 530 tests across 17 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 
@@ -180,6 +180,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0012](adr/0012-max-storage-days.md) | maxStorageDays replaces canBeStored boolean; cross-week leftover tracking |
 | [0013](adr/0013-multiple-sub-meals-per-time-slot.md) | Multiple sub-meals per time slot: SubMeal model, per-person meal assignment |
 | [0014](adr/0014-multi-trip-shopping-planner.md) | Multi-trip shopping planner: optional toggle that splits the copy output by trip, greedy interval point cover for minimum trips |
+| [0015](adr/0015-freezable-products-and-freezer-aware-trips.md) | Product.canBeFrozen flag: blue freeze-required severity on the menu warning, freezer-aware single-trip mode in the shopping list |
 
 **Create a new ADR** when making an architectural decision with trade-offs worth preserving. Use the next sequential number.
 

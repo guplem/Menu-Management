@@ -8,15 +8,25 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
+/// Severity of a [MealExpiryWarning].
+///
+/// - [impossible]: every product variant is past sealed shelf life and none can be frozen.
+///   The user cannot get fresh ingredients to this meal day under the single-trip assumption.
+/// - [freezeRequired]: every product variant is past sealed shelf life, but at least one
+///   variant can be frozen on arrival, so the meal is still doable.
+enum MealExpirySeverity { impossible, freezeRequired }
+
 /// A single ingredient on a meal that may have already expired by the meal's day.
 class MealExpiryWarning {
-  const MealExpiryWarning({required this.ingredient, required this.products});
+  const MealExpiryWarning({required this.ingredient, required this.products, required this.severity});
 
   final Ingredient ingredient;
 
   /// All product variants of [ingredient] (every one of them may be expired by the meal day,
   /// otherwise the warning would not have been produced).
   final List<Product> products;
+
+  final MealExpirySeverity severity;
 }
 
 /// Returns the expiry warnings for [meal] on [absoluteDayIndex] of a multi-week menu.
@@ -28,6 +38,10 @@ class MealExpiryWarning {
 /// (per [Product.mayBeExpiredOnDay]). If any variant survives (long-enough sealed shelf life
 /// or null = indefinite when sealed), no warning fires for that ingredient -- the user can buy
 /// the surviving variant.
+///
+/// The [MealExpiryWarning.severity] is [MealExpirySeverity.freezeRequired] when at least one
+/// of the expired variants has [Product.canBeFrozen] set; the user can still buy on day -1 and
+/// freeze on arrival. Otherwise it is [MealExpirySeverity.impossible].
 ///
 /// Leftover sub-meals (yield == 0) are skipped entirely: their raw ingredients were
 /// already consumed on the original cook day, so they do not introduce new shelf-life
@@ -60,7 +74,9 @@ List<MealExpiryWarning> expiryWarningsForMeal({
         bool anySurvives = ingredient.products.any((Product p) => !p.mayBeExpiredOnDay(absoluteDayIndex));
         if (anySurvives) continue;
 
-        warnings.add(MealExpiryWarning(ingredient: ingredient, products: ingredient.products));
+        bool anyFreezable = ingredient.products.any((Product p) => p.canBeFrozen);
+        MealExpirySeverity severity = anyFreezable ? MealExpirySeverity.freezeRequired : MealExpirySeverity.impossible;
+        warnings.add(MealExpiryWarning(ingredient: ingredient, products: ingredient.products, severity: severity));
       }
     }
   }
