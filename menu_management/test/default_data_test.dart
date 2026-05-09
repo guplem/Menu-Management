@@ -239,38 +239,4 @@ void main() {
     });
   });
 
-  group("DIAGNOSTIC", () {
-    test("caldo de pollo aggregation across default menu", () async {
-      List<Recipe> recipes = await loadRecipesAndGetList();
-      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
-
-      const String caldoId = "40ea28e4-3537-4f7c-9623-01214c168ef3";
-      const String sopaRecipeId = "dde64fa9-379a-4c26-8f3c-98c40f708b16";
-
-      int totalSopaOccurrences = 0;
-      int totalSopaPeople = 0;
-      for (int w = 0; w < menu.weekCount; w++) {
-        for (var meal in menu.weeks[w].meals) {
-          for (var sm in meal.subMeals) {
-            if (sm.cooking?.recipeId == sopaRecipeId) {
-              totalSopaOccurrences++;
-              totalSopaPeople += sm.people;
-              // ignore: avoid_print
-              print("Sopa: week=${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} people=${sm.people} yield=${cookingYield(sm.cooking!)}");
-            }
-          }
-        }
-      }
-      // ignore: avoid_print
-      print("Total Sopa occurrences: $totalSopaOccurrences | total people: $totalSopaPeople");
-
-      var allIngredients = menu.allIngredients(recipes: recipes);
-      var caldoQuantities = allIngredients[caldoId];
-      // ignore: avoid_print
-      print("Caldo de Pollo aggregated quantities: $caldoQuantities");
-
-      // Force-fail so output is captured.
-      expect(caldoQuantities, isNull);
-    });
-  });
 }
