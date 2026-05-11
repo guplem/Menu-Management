@@ -270,6 +270,107 @@ void main() {
     });
   });
 
+  group("expiryWarningsForSubMeal", () {
+    test("returns empty when sub-meal has no cooking", () {
+      List<MealExpiryWarning> warnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(),
+        absoluteDayIndex: 5,
+        recipes: const [],
+        ingredients: const [],
+      );
+      expect(warnings, isEmpty);
+    });
+
+    test("returns empty when sub-meal is a leftover (yield == 0)", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Ingredient ingredient = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 1)]);
+      List<MealExpiryWarning> warnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(cooking: Cooking(recipeId: "r1", yield: 0)),
+        absoluteDayIndex: 5,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, isEmpty);
+    });
+
+    test("returns empty when recipe ID is unknown", () {
+      List<MealExpiryWarning> warnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(cooking: Cooking(recipeId: "unknown", yield: 1)),
+        absoluteDayIndex: 5,
+        recipes: const [],
+        ingredients: const [],
+      );
+      expect(warnings, isEmpty);
+    });
+
+    test("warns only for ingredients of its own recipe (not siblings in the meal)", () {
+      // Regression: previously the UI computed warnings at the meal level and rendered them on
+      // every sub-meal, so a mandarina sub-meal would display a banana warning that came from
+      // the avena+banana sibling sub-meal.
+      Recipe avenaRecipe = _recipe(id: "avena", ingredientIds: ["banana"]);
+      Recipe cerealesRecipe = _recipe(id: "cereales", ingredientIds: ["mandarina"]);
+      Ingredient banana = _ingredient(id: "banana", name: "Banana", products: [_product(shelfLifeDaysClosed: 7)]);
+      Ingredient mandarina = _ingredient(id: "mandarina", name: "Mandarina"); // no products: nothing to warn about
+
+      List<MealExpiryWarning> bananaWarnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(cooking: Cooking(recipeId: "avena", yield: 1)),
+        absoluteDayIndex: 10,
+        recipes: [avenaRecipe, cerealesRecipe],
+        ingredients: [banana, mandarina],
+      );
+      expect(bananaWarnings.map((w) => w.ingredient.id).toSet(), {"banana"});
+
+      List<MealExpiryWarning> mandarinaWarnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(cooking: Cooking(recipeId: "cereales", yield: 1)),
+        absoluteDayIndex: 10,
+        recipes: [avenaRecipe, cerealesRecipe],
+        ingredients: [banana, mandarina],
+      );
+      expect(mandarinaWarnings, isEmpty);
+    });
+
+    test("deduplicates warnings across instructions using the same ingredient", () {
+      Recipe recipe = Recipe(
+        id: "r1",
+        name: "r1",
+        instructions: [
+          Instruction(
+            id: "s1",
+            description: "first",
+            ingredientsUsed: [IngredientUsage(ingredient: "i1", quantity: const Quantity(amount: 100, unit: Unit.grams))],
+          ),
+          Instruction(
+            id: "s2",
+            description: "second",
+            ingredientsUsed: [IngredientUsage(ingredient: "i1", quantity: const Quantity(amount: 50, unit: Unit.grams))],
+          ),
+        ],
+      );
+      Ingredient i1 = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 1)]);
+      List<MealExpiryWarning> warnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(cooking: Cooking(recipeId: "r1", yield: 1)),
+        absoluteDayIndex: 5,
+        recipes: [recipe],
+        ingredients: [i1],
+      );
+      expect(warnings, hasLength(1));
+    });
+
+    test("severity is freezeRequired when freezable variant is the only one expired", () {
+      Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);
+      Product freezable = _product(shelfLifeDaysClosed: 3, canBeFrozen: true);
+      Ingredient ingredient = _ingredient(id: "i1", products: [freezable]);
+      List<MealExpiryWarning> warnings = expiryWarningsForSubMeal(
+        subMeal: const SubMeal(cooking: Cooking(recipeId: "r1", yield: 1)),
+        absoluteDayIndex: 14,
+        recipes: [recipe],
+        ingredients: [ingredient],
+      );
+      expect(warnings, hasLength(1));
+      expect(warnings.first.severity, MealExpirySeverity.freezeRequired);
+    });
+  });
+
   group("MealExpiryWarning severity", () {
     test("severity is impossible when single non-freezable product is past sealed life", () {
       Recipe recipe = _recipe(id: "r1", ingredientIds: ["i1"]);

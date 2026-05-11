@@ -29,7 +29,7 @@ class MealExpiryWarning {
   final MealExpirySeverity severity;
 }
 
-/// Returns the expiry warnings for [meal] on [absoluteDayIndex] of a multi-week menu.
+/// Returns the expiry warnings for a single [subMeal] on [absoluteDayIndex] of a multi-week menu.
 ///
 /// Assumes a single shopping trip the day before menu day 0 (purchase day = -1),
 /// so days elapsed from purchase to a meal at day D is D + 1.
@@ -43,11 +43,51 @@ class MealExpiryWarning {
 /// of the expired variants has [Product.canBeFrozen] set; the user can still buy on day -1 and
 /// freeze on arrival. Otherwise it is [MealExpirySeverity.impossible].
 ///
-/// Leftover sub-meals (yield == 0) are skipped entirely: their raw ingredients were
-/// already consumed on the original cook day, so they do not introduce new shelf-life
-/// risk on the day the leftover is eaten.
+/// Returns an empty list when [SubMeal.cooking] is null, when the cooking is a leftover
+/// (yield == 0, since the raw ingredients were already consumed on the original cook day),
+/// or when the recipe ID is unknown.
 ///
 /// Ingredients with zero products are skipped (no shelf-life data to base a warning on).
+List<MealExpiryWarning> expiryWarningsForSubMeal({
+  required SubMeal subMeal,
+  required int absoluteDayIndex,
+  required List<Recipe> recipes,
+  required List<Ingredient> ingredients,
+}) {
+  Cooking? cooking = subMeal.cooking;
+  if (cooking == null) return const [];
+  if (cooking.yield == 0) return const [];
+  Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
+  if (recipe == null) return const [];
+
+  Set<String> seenIngredientIds = {};
+  List<MealExpiryWarning> warnings = [];
+
+  for (Instruction instruction in recipe.instructions) {
+    for (IngredientUsage usage in instruction.ingredientsUsed) {
+      if (!seenIngredientIds.add(usage.ingredient)) continue;
+      Ingredient? ingredient = ingredients.firstWhereOrNull((Ingredient i) => i.id == usage.ingredient);
+      if (ingredient == null) continue;
+      if (ingredient.products.isEmpty) continue;
+
+      bool anySurvives = ingredient.products.any((Product p) => !p.mayBeExpiredOnDay(absoluteDayIndex));
+      if (anySurvives) continue;
+
+      bool anyFreezable = ingredient.products.any((Product p) => p.canBeFrozen);
+      MealExpirySeverity severity = anyFreezable ? MealExpirySeverity.freezeRequired : MealExpirySeverity.impossible;
+      warnings.add(MealExpiryWarning(ingredient: ingredient, products: ingredient.products, severity: severity));
+    }
+  }
+
+  return warnings;
+}
+
+/// Aggregates [expiryWarningsForSubMeal] across every sub-meal in [meal], deduplicating
+/// warnings that name the same ingredient (e.g., when two sibling sub-meals both use banana).
+///
+/// Prefer [expiryWarningsForSubMeal] when displaying a warning next to a specific sub-meal:
+/// rendering meal-level warnings on each sub-meal would attribute one sub-meal's ingredient
+/// risk to another sibling sub-meal that does not actually use that ingredient.
 List<MealExpiryWarning> expiryWarningsForMeal({
   required Meal meal,
   required int absoluteDayIndex,
@@ -58,26 +98,14 @@ List<MealExpiryWarning> expiryWarningsForMeal({
   List<MealExpiryWarning> warnings = [];
 
   for (SubMeal subMeal in meal.subMeals) {
-    Cooking? cooking = subMeal.cooking;
-    if (cooking == null) continue;
-    if (cooking.yield == 0) continue;
-    Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
-    if (recipe == null) continue;
-
-    for (Instruction instruction in recipe.instructions) {
-      for (IngredientUsage usage in instruction.ingredientsUsed) {
-        if (!seenIngredientIds.add(usage.ingredient)) continue;
-        Ingredient? ingredient = ingredients.firstWhereOrNull((Ingredient i) => i.id == usage.ingredient);
-        if (ingredient == null) continue;
-        if (ingredient.products.isEmpty) continue;
-
-        bool anySurvives = ingredient.products.any((Product p) => !p.mayBeExpiredOnDay(absoluteDayIndex));
-        if (anySurvives) continue;
-
-        bool anyFreezable = ingredient.products.any((Product p) => p.canBeFrozen);
-        MealExpirySeverity severity = anyFreezable ? MealExpirySeverity.freezeRequired : MealExpirySeverity.impossible;
-        warnings.add(MealExpiryWarning(ingredient: ingredient, products: ingredient.products, severity: severity));
-      }
+    List<MealExpiryWarning> subWarnings = expiryWarningsForSubMeal(
+      subMeal: subMeal,
+      absoluteDayIndex: absoluteDayIndex,
+      recipes: recipes,
+      ingredients: ingredients,
+    );
+    for (MealExpiryWarning w in subWarnings) {
+      if (seenIngredientIds.add(w.ingredient.id)) warnings.add(w);
     }
   }
 

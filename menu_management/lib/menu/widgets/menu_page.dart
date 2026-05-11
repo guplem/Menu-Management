@@ -194,15 +194,12 @@ class _MenuPageState extends State<MenuPage> {
     bool isHighlighted = highlightedRecipeId != null && subMeal.cooking?.recipeId == highlightedRecipeId;
 
     int absoluteDayIndex = currentWeekIndex * 7 + meal.mealTime.weekDay.value;
-    bool isLeftover = subMeal.cooking != null && subMeal.cooking!.yield == 0;
-    List<MealExpiryWarning> warnings = isLeftover
-        ? const []
-        : expiryWarningsForMeal(
-            meal: meal,
-            absoluteDayIndex: absoluteDayIndex,
-            recipes: _recipes,
-            ingredients: IngredientsProvider.instance.ingredients,
-          );
+    List<MealExpiryWarning> warnings = expiryWarningsForSubMeal(
+      subMeal: subMeal,
+      absoluteDayIndex: absoluteDayIndex,
+      recipes: _recipes,
+      ingredients: IngredientsProvider.instance.ingredients,
+    );
 
     return MouseRegion(
       onHover: (_) {
