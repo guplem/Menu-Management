@@ -1104,6 +1104,27 @@
       "density": 0.8
     },
     {
+      "id": "2bcc9c1a-c4f5-46ea-89c1-2c4cadf5eab6",
+      "name": "Fideos yakisoba sabor soja (sobre)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/8730/fideos-orientales-yakisoba-sabor-soja-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 90.0,
+          "unit": "grams",
+          "shelfLifeDaysClosed": 365
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/8730/fideos-orientales-yakisoba-sabor-soja-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysClosed": 365
+        }
+      ],
+      "density": 0.6
+    },
+    {
       "id": "040799a0-c9fd-10a7-a87d-2fef2dcd1072",
       "name": "Garbanzos cocidos",
       "products": [
@@ -5587,6 +5608,79 @@
       "type": "meal",
       "lunch": true,
       "dinner": false,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "12cc24c3-cc8c-407e-a0ea-e7adadc9c82c",
+      "name": "Fideos yakisoba",
+      "instructions": [
+        {
+          "id": "1abb1e5f-281f-4405-9f3a-5bbdec974d92",
+          "ingredientsUsed": [
+            {
+              "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 22.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Agua"
+            }
+          ],
+          "workingTimeMinutes": 0,
+          "cookingTimeMinutes": 3,
+          "description": "Hervir 220 ml de agua en una sartén pequeña",
+          "outputs": [
+            {
+              "id": "c1bca57e-cb02-48fa-bdce-6cd6e1efb402",
+              "description": "Agua hirviendo"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "6195b762-1749-49a4-b84b-598ffea2bb33",
+          "ingredientsUsed": [
+            {
+              "ingredient": "2bcc9c1a-c4f5-46ea-89c1-2c4cadf5eab6",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Fideos yakisoba sabor soja (sobre)"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 3,
+          "description": "Añadir los fideos y el contenido del sobre de verduras, cocer 2-3 minutos hasta que el agua se haya evaporado casi por completo",
+          "outputs": [
+            {
+              "id": "e493414e-2d7d-42b9-8c3f-66c3687681ad",
+              "description": "Fideos cocidos con verduras"
+            }
+          ],
+          "inputs": [
+            "c1bca57e-cb02-48fa-bdce-6cd6e1efb402"
+          ]
+        },
+        {
+          "id": "56185a8e-fa96-41d7-8e5f-a7d67199f2cd",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 1,
+          "description": "Añadir la salsa, mezclar bien y dejar hervir hasta que el agua se haya evaporado por completo. Servir",
+          "outputs": [],
+          "inputs": [
+            "e493414e-2d7d-42b9-8c3f-66c3687681ad"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
       "maxStorageDays": 0,
       "includeInMenuGeneration": true
     },

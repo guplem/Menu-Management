@@ -422,9 +422,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "a49fd5b0-6606-11ef-a13c-df814629faab",
+                "recipeId": "12cc24c3-cc8c-407e-a0ea-e7adadc9c82c",
                 "yield": 1,
-                "ref_name": "Guisantes Salteados"
+                "ref_name": "Fideos yakisoba"
               },
               "people": 2
             }
