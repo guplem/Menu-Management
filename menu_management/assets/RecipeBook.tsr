@@ -891,6 +891,29 @@
       "density": 0.7
     },
     {
+      "id": "54560a4a-fce9-49e7-8d4c-3e5f771fe68b",
+      "name": "Quinoa cocida",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/22278/quinoa-cocida-blanca-roja-sabroz-brillante-pack-2",
+          "itemsPerPack": 2,
+          "quantityPerItem": 125.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 365
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/22278/quinoa-cocida-blanca-roja-sabroz-brillante-pack-2",
+          "itemsPerPack": 2,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 365
+        }
+      ],
+      "density": 0.85
+    },
+    {
       "id": "ba1843d0-5949-1eeb-9877-9f2416bff04c",
       "name": "Pepino",
       "products": [
@@ -5569,7 +5592,7 @@
     },
     {
       "id": "788b458a-2cdd-4918-ada6-d9eac9802116",
-      "name": "Verduras al horno con arroz",
+      "name": "Verduras al horno con quinoa",
       "instructions": [
         {
           "id": "51a0d325-5fb8-40c3-bd93-89df8ab5f805",
@@ -5668,21 +5691,21 @@
           "id": "5de02f08-526f-4087-8891-a76666f94603",
           "ingredientsUsed": [
             {
-              "ingredient": "c49f4080-2fda-1eeb-9b52-298d2e408b19",
+              "ingredient": "54560a4a-fce9-49e7-8d4c-3e5f771fe68b",
               "quantity": {
                 "amount": 1.0,
                 "unit": "pieces"
               },
-              "ref_name": "Arroz Instantáneo"
+              "ref_name": "Quinoa cocida"
             }
           ],
           "workingTimeMinutes": 0,
           "cookingTimeMinutes": 2,
-          "description": "Preparar el arroz instantáneo",
+          "description": "Calentar la quinoa cocida",
           "outputs": [
             {
               "id": "eb4679cd-22ac-40d9-ba10-b572c0e7496c",
-              "description": "Arroz preparado"
+              "description": "Quinoa preparada"
             }
           ],
           "inputs": []
@@ -5692,7 +5715,7 @@
           "ingredientsUsed": [],
           "workingTimeMinutes": 1,
           "cookingTimeMinutes": 0,
-          "description": "Servir las verduras sobre el arroz",
+          "description": "Servir las verduras sobre la quinoa",
           "outputs": [],
           "inputs": []
         }

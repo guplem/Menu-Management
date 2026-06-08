@@ -28,7 +28,7 @@
               "cooking": {
                 "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
                 "yield": 3,
-                "ref_name": "Verduras al horno con arroz"
+                "ref_name": "Verduras al horno con quinoa"
               },
               "people": 2
             }
@@ -132,7 +132,7 @@
               "cooking": {
                 "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
                 "yield": 0,
-                "ref_name": "Verduras al horno con arroz"
+                "ref_name": "Verduras al horno con quinoa"
               },
               "people": 2
             }
@@ -244,7 +244,7 @@
               "cooking": {
                 "recipeId": "788b458a-2cdd-4918-ada6-d9eac9802116",
                 "yield": 0,
-                "ref_name": "Verduras al horno con arroz"
+                "ref_name": "Verduras al horno con quinoa"
               },
               "people": 2
             }
