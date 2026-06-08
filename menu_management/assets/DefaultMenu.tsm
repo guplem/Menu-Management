@@ -422,9 +422,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "47060f40-8aa8-1e23-b9ad-f37d25fb840b",
+                "recipeId": "a49fd5b0-6606-11ef-a13c-df814629faab",
                 "yield": 1,
-                "ref_name": "Humus con zanahoria y queso"
+                "ref_name": "Guisantes Salteados"
               },
               "people": 2
             }
