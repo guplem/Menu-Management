@@ -149,8 +149,23 @@
           "itemsPerPack": 6,
           "quantityPerItem": 1.0,
           "unit": "pieces",
-          "shelfLifeDaysOpened": 21,
+          "shelfLifeDaysOpened": 28,
           "shelfLifeDaysClosed": 28
+        }
+      ],
+      "density": 1.03
+    },
+    {
+      "id": "42d782e2-cd9f-44fb-a064-acffe699c74e",
+      "name": "Huevo duro precocido",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/31010/huevos-cocidos-paquete",
+          "itemsPerPack": 6,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 30,
+          "shelfLifeDaysClosed": 30
         }
       ],
       "density": 1.03
@@ -1986,7 +2001,7 @@
           "ingredientsUsed": [],
           "workingTimeMinutes": 0,
           "cookingTimeMinutes": 5,
-          "description": "Heat Water (One big pot and one small pot)",
+          "description": "Heat Water (One big pot)",
           "outputs": [
             {
               "id": "eb794090-a0eb-1e99-9cbf-85317f03e969",
@@ -2024,17 +2039,17 @@
           "id": "b1e8da90-6e6c-1e99-9cbf-85317f03e969",
           "ingredientsUsed": [
             {
-              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "ingredient": "42d782e2-cd9f-44fb-a064-acffe699c74e",
               "quantity": {
                 "amount": 0.5,
                 "unit": "pieces"
               },
-              "ref_name": "Huevo"
+              "ref_name": "Huevo duro precocido"
             }
           ],
           "workingTimeMinutes": 1,
-          "cookingTimeMinutes": 10,
-          "description": "Boil Eggs",
+          "cookingTimeMinutes": 0,
+          "description": "Slice the pre-cooked hard-boiled egg",
           "outputs": [
             {
               "id": "bbe86c30-6f99-1e99-9cbf-85317f03e969",
