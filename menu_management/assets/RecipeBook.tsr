@@ -5037,7 +5037,7 @@
             {
               "ingredient": "5d213070-8277-11ef-91e8-3ff59147e22a",
               "quantity": {
-                "amount": 150.0,
+                "amount": 100.0,
                 "unit": "grams"
               },
               "ref_name": "Arroz"
