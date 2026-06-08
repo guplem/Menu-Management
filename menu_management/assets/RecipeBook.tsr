@@ -5562,7 +5562,7 @@
             {
               "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
               "quantity": {
-                "amount": 2.0,
+                "amount": 1.0,
                 "unit": "pieces"
               },
               "ref_name": "Patata"
@@ -5570,7 +5570,7 @@
             {
               "ingredient": "f4c3d230-c43f-10a4-855b-21d41fd3dece",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Pimiento Rojo"
@@ -5578,7 +5578,7 @@
             {
               "ingredient": "2cc45c00-c4ae-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Calabacín"
@@ -5586,7 +5586,7 @@
             {
               "ingredient": "8688350e-e38f-4a47-ad15-528ec384069f",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Boniato"
