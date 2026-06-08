@@ -5312,7 +5312,7 @@
             {
               "ingredient": "2cd926e5-7a02-49b5-a16e-8ef176b009e7",
               "quantity": {
-                "amount": 4.0,
+                "amount": 2.0,
                 "unit": "pieces"
               },
               "ref_name": "Muslos de pollo deshuesados"
@@ -5320,8 +5320,8 @@
             {
               "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 1.0,
-                "unit": "pieces"
+                "amount": 40.0,
+                "unit": "grams"
               },
               "ref_name": "Cebolla"
             },
