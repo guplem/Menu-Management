@@ -5771,8 +5771,8 @@
             {
               "ingredient": "40ea28e4-3537-4f7c-9623-01214c168ef3",
               "quantity": {
-                "amount": 1.0,
-                "unit": "pieces"
+                "amount": 50.0,
+                "unit": "centiliters"
               },
               "ref_name": "Caldo de Pollo"
             }
