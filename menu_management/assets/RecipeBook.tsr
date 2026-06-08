@@ -1634,11 +1634,11 @@
       "density": 1.05
     },
     {
-      "id": "3867ff41-f940-4c79-bf00-18bb2e0801f7",
-      "name": "Garbanzos a la jardinera (lata)",
+      "id": "5ae29e4e-084c-46f1-a279-9b089a876651",
+      "name": "Fabada (lata)",
       "products": [
         {
-          "link": "https://tienda.mercadona.es/product/26110/garbanzos-jardinera-hacendado-bote",
+          "link": "https://tienda.mercadona.es/product/35590/fabada-hacendado-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 420.0,
           "unit": "grams",
@@ -1646,7 +1646,7 @@
           "shelfLifeDaysClosed": 730
         },
         {
-          "link": "https://tienda.mercadona.es/product/26110/garbanzos-jardinera-hacendado-bote",
+          "link": "https://tienda.mercadona.es/product/35590/fabada-hacendado-bote",
           "itemsPerPack": 1,
           "quantityPerItem": 1.0,
           "unit": "pieces",
@@ -5560,18 +5560,18 @@
     },
     {
       "id": "7b7e2fd1-9788-47ae-ad8f-159a2ca41097",
-      "name": "Garbanzos a la jardinera (en lata)",
+      "name": "Fabada (en lata)",
       "instructions": [
         {
           "id": "3df47599-f3f5-4298-8a77-3e170a5595fc",
           "ingredientsUsed": [
             {
-              "ingredient": "3867ff41-f940-4c79-bf00-18bb2e0801f7",
+              "ingredient": "5ae29e4e-084c-46f1-a279-9b089a876651",
               "quantity": {
                 "amount": 1.0,
                 "unit": "pieces"
               },
-              "ref_name": "Garbanzos a la jardinera (lata)"
+              "ref_name": "Fabada (lata)"
             }
           ],
           "workingTimeMinutes": 1,
