@@ -1110,13 +1110,6 @@
         {
           "link": "https://tienda.mercadona.es/product/8730/fideos-orientales-yakisoba-sabor-soja-hacendado-paquete",
           "itemsPerPack": 1,
-          "quantityPerItem": 90.0,
-          "unit": "grams",
-          "shelfLifeDaysClosed": 365
-        },
-        {
-          "link": "https://tienda.mercadona.es/product/8730/fideos-orientales-yakisoba-sabor-soja-hacendado-paquete",
-          "itemsPerPack": 1,
           "quantityPerItem": 1.0,
           "unit": "pieces",
           "shelfLifeDaysClosed": 365
