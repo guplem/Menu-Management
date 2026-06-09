@@ -62,6 +62,8 @@ Product(
 
 Some ingredients are used in recipes by count ("3 pieces") rather than by weight. These need an **additional** Product entry with `unit: pieces` alongside the existing grams/centiliters product.
 
+**Exception:** self-contained meal kits always bought and cooked whole (e.g. an instant yakisoba packet) only need the `pieces` product; skip the grams one.
+
 A pieces product looks like:
 ```json
 {
