@@ -1890,6 +1890,49 @@
         }
       ],
       "density": 0.95
+    },
+    {
+      "id": "dd635063-ecfa-4104-a5aa-1bf2a84b8da4",
+      "name": "Masa de pizza",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52454/masa-pizza-fresca-familiar-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": null,
+          "shelfLifeDaysClosed": null,
+          "canBeFrozen": true
+        }
+      ]
+    },
+    {
+      "id": "858ba01c-8be3-4d96-bd75-9c4c255b3223",
+      "name": "Mozzarella rallada",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/51110/queso-rallado-mozzarella-pizza-roma-vaca-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": null
+        }
+      ]
+    },
+    {
+      "id": "7200a715-474b-4c0b-bc40-34219eb1619e",
+      "name": "Orégano",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/5598/oregano-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 25.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": null,
+          "shelfLifeDaysClosed": null
+        }
+      ]
     }
   ],
   "Recipes": [
@@ -6330,6 +6373,106 @@
       "lunch": true,
       "dinner": true,
       "maxStorageDays": 5,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "2c6b3bcc-f65f-4fd8-b5f1-386fbe0a0b40",
+      "name": "Pizza casera",
+      "instructions": [
+        {
+          "id": "706a6994-fc1a-411c-91eb-d499bb98ec53",
+          "ingredientsUsed": [
+            {
+              "ingredient": "dd635063-ecfa-4104-a5aa-1bf2a84b8da4",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Masa de pizza"
+            },
+            {
+              "ingredient": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
+              "quantity": {
+                "amount": 150.0,
+                "unit": "grams"
+              },
+              "ref_name": "Salsa de tomate (bote)"
+            },
+            {
+              "ingredient": "858ba01c-8be3-4d96-bd75-9c4c255b3223",
+              "quantity": {
+                "amount": 100.0,
+                "unit": "grams"
+              },
+              "ref_name": "Mozzarella rallada"
+            },
+            {
+              "ingredient": "2939e4b0-6b1e-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 80.0,
+                "unit": "grams"
+              },
+              "ref_name": "Lonchas de pechuga de pavo"
+            },
+            {
+              "ingredient": "2b038570-6607-11ef-a13c-df814629faab",
+              "quantity": {
+                "amount": 80.0,
+                "unit": "grams"
+              },
+              "ref_name": "Champiñones"
+            },
+            {
+              "ingredient": "7200a715-474b-4c0b-bc40-34219eb1619e",
+              "quantity": {
+                "amount": 3.0,
+                "unit": "grams"
+              },
+              "ref_name": "Orégano"
+            }
+          ],
+          "workingTimeMinutes": 10,
+          "cookingTimeMinutes": 0,
+          "description": "Precalentar horno a 220. Extender la masa sobre la bandeja con papel de horno. Repartir la salsa de tomate. Cubrir con la mozzarella, las lonchas de pavo y los champiñones laminados. Espolvorear orégano.",
+          "outputs": [
+            {
+              "id": "e3c53566-627d-43e1-9369-d6069a65cabc",
+              "description": "Pizza preparada"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "661443ba-bf21-42e4-8a17-75720284ac64",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 0,
+          "cookingTimeMinutes": 15,
+          "description": "Hornear hasta que la masa esté dorada y el queso fundido.",
+          "outputs": [
+            {
+              "id": "15981c3d-fe89-4fc4-84a1-7107420aad62",
+              "description": "Pizza horneada"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "bf7f5120-78ed-4815-b1a5-9db4fb856356",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Cortar y servir.",
+          "outputs": [],
+          "inputs": []
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 2,
       "includeInMenuGeneration": true
     }
   ]
