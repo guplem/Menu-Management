@@ -6215,6 +6215,122 @@
       "dinner": true,
       "maxStorageDays": 0,
       "includeInMenuGeneration": true
+    },
+    {
+      "id": "b74d712a-a2eb-42de-833e-8c79cbe49ab2",
+      "name": "Pollo al horno con patatas",
+      "instructions": [
+        {
+          "id": "d869f7eb-80e1-4cb3-b506-e98f36f09008",
+          "ingredientsUsed": [
+            {
+              "ingredient": "2cd926e5-7a02-49b5-a16e-8ef176b009e7",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Muslos de pollo deshuesados"
+            },
+            {
+              "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Patata"
+            },
+            {
+              "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 80.0,
+                "unit": "grams"
+              },
+              "ref_name": "Cebolla"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 5.0,
+                "unit": "grams"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 3.0,
+                "unit": "grams"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "grams"
+              },
+              "ref_name": "Pimienta (especia)"
+            },
+            {
+              "ingredient": "0cf54be0-21c1-1eeb-9b52-298d2e408b19",
+              "quantity": {
+                "amount": 5.0,
+                "unit": "grams"
+              },
+              "ref_name": "Especias para el horno"
+            }
+          ],
+          "workingTimeMinutes": 10,
+          "cookingTimeMinutes": 0,
+          "description": "Precalentar horno a 200. Pelar y trocear las patatas en cubos. Trocear la cebolla. Colocar las patatas, la cebolla y los muslos en bandeja de horno. Aliñar con aceite, ajo, sal, pimienta y especias.",
+          "outputs": [
+            {
+              "id": "6e7f96d3-39a4-48fa-bcda-101c1a063449",
+              "description": "Bandeja preparada"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "c0d6e1df-ddec-4827-909c-df97ec3398a0",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 0,
+          "cookingTimeMinutes": 50,
+          "description": "Hornear hasta que las patatas estén tiernas y el pollo dorado. Dar la vuelta al pollo a mitad de cocción.",
+          "outputs": [
+            {
+              "id": "bac1cb39-60c4-40ad-9e5f-0ff100370cba",
+              "description": "Pollo y patatas horneados"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "7a0f9976-4ffb-40e8-9dd0-0e6d77aa0a09",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Servir el pollo con las patatas y la cebolla.",
+          "outputs": [],
+          "inputs": []
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 5,
+      "includeInMenuGeneration": true
     }
   ]
 }
