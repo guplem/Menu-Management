@@ -5,17 +5,34 @@ This document explains how to use the Mercadona online store API to look up prod
 ## Base URL
 
 ```
-https://tienda.mercadona.es/api/products/{product_id}/
+https://tienda.mercadona.es/api/products/{product_id}/?wh=bcn1
 ```
+
+Always append `?wh=bcn1` to target the Barcelona warehouse (the user's region: CP 08901, L'Hospitalet de Llobregat). Without it, the API defaults to a different warehouse and may return 404 for products that do exist locally.
 
 Extract the product ID from a Mercadona URL:
 ```
 https://tienda.mercadona.es/product/20559/some-slug  ->  ID = 20559
 ```
 
+An alternative versioned endpoint also works:
+```
+https://tienda.mercadona.es/api/v1_1/products/{product_id}?wh=bcn1
+```
+
 ## Region Availability
 
-The API is **region-locked**. Some products return 404 depending on the warehouse serving the user's postal code. The user is located at **CP 08901** (L'Hospitalet de Llobregat, Barcelona). No known query parameter or header reliably overrides the region from an external client. If a product returns 404, it may simply be unavailable in the region served by the API's default routing. In that case, ask the user to confirm the product details manually.
+The API is **region-locked** by warehouse. The `wh` query parameter selects the warehouse. Use `wh=bcn1` for the user's region (Barcelona). Other known values: `mad1` (Madrid), `vlc1` (Valencia), `alc1` (Alicante).
+
+If a product still returns 404 with `wh=bcn1`, it may genuinely be unavailable in the user's region. In that case, ask the user to confirm the product details manually.
+
+To look up the warehouse code for any postal code:
+```bash
+curl -X PUT -H 'content-type: application/json' \
+  --data '{"new_postal_code":"08901"}' \
+  'https://tienda.mercadona.es/api/postal-codes/actions/change-pc/'
+# Response header x-customer-wh contains the warehouse code (e.g. "bcn1")
+```
 
 ## Key Fields in the Response
 
