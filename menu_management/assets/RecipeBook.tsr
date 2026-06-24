@@ -6474,6 +6474,146 @@
       "dinner": true,
       "maxStorageDays": 2,
       "includeInMenuGeneration": true
+    },
+    {
+      "id": "532576cd-84b4-429b-9873-eb49dc8dc5fb",
+      "name": "Macarrones con tomate y verduras",
+      "instructions": [
+        {
+          "id": "8f5bacf4-242d-4077-8b72-59b76a77f6a9",
+          "ingredientsUsed": [
+            {
+              "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 80.0,
+                "unit": "grams"
+              },
+              "ref_name": "Cebolla"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "grams"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 10,
+          "description": "Calentar el aceite en una sartén a fuego medio. Pochar la cebolla troceada con una pizca de sal hasta que esté blanda y transparente.",
+          "outputs": [
+            {
+              "id": "fe091863-8c05-4b4e-99e6-4a40e2730772",
+              "description": "Cebolla pochada"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "29137cfa-2bb3-4449-adcd-4838a71fa86d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "d4e5f6a7-b8c9-0123-def0-123456789abc",
+              "quantity": {
+                "amount": 120.0,
+                "unit": "grams"
+              },
+              "ref_name": "Pimiento rojo y verde congelado"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 7,
+          "description": "Añadir el pimiento congelado troceado. Cocinar removiendo hasta que esté blando.",
+          "outputs": [
+            {
+              "id": "fe254078-69ba-42b2-8275-123aa845e767",
+              "description": "Sofrito de verduras"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "3ee2c9b4-a1bd-49da-89fb-570b5d276d0c",
+          "ingredientsUsed": [
+            {
+              "ingredient": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
+              "quantity": {
+                "amount": 200.0,
+                "unit": "grams"
+              },
+              "ref_name": "Salsa de tomate (bote)"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 20,
+          "description": "Añadir la salsa de tomate. Bajar el fuego y dejar cocer a fuego lento 20 minutos removiendo de vez en cuando.",
+          "outputs": [
+            {
+              "id": "26585cd5-91f3-43fd-bc23-1e3d5cea2f87",
+              "description": "Salsa lista"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "7a934ed1-701b-42f6-a76b-bef246b57c77",
+          "ingredientsUsed": [
+            {
+              "ingredient": "31870940-c6d4-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 160.0,
+                "unit": "grams"
+              },
+              "ref_name": "Pasta tortiglioni"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 12,
+          "description": "Mientras cuece la salsa, hervir la pasta en agua salada según el tiempo del paquete. Escurrir.",
+          "outputs": [
+            {
+              "id": "91cc1fff-5d30-4917-8394-28720e83d5b9",
+              "description": "Pasta cocida"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "88498935-a2dd-49da-83f9-884fc3449ddd",
+          "ingredientsUsed": [
+            {
+              "ingredient": "b0a1c2d3-e4f5-6789-abcd-ef0123456789",
+              "quantity": {
+                "amount": 30.0,
+                "unit": "grams"
+              },
+              "ref_name": "Queso curado"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Mezclar la pasta con la salsa. Servir con queso curado rallado por encima.",
+          "outputs": [],
+          "inputs": []
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": true,
+      "dinner": false,
+      "maxStorageDays": 4,
+      "includeInMenuGeneration": true
     }
   ]
 }
