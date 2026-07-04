@@ -1,5 +1,6 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/hub.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/menu/menu_provider.dart";
@@ -171,16 +172,7 @@ class _AppHomeState extends State<_AppHome> {
   }
 
   Future<void> _showErrorDialog(String message) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text("Error"),
-          content: Text(message),
-          actions: [TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text("OK"))],
-        );
-      },
-    );
+    return showErrorDialog(context: context, message: message);
   }
 
   @override

@@ -30,7 +30,14 @@ class MenuConfigurationPage extends StatelessWidget {
             tooltip: "Open Menu",
             icon: const Icon(Icons.file_open),
             onPressed: () async {
-              MultiWeekMenu? loadedMenu = await Persistency.loadMultiWeekMenu(recipes: RecipesProvider.instance.recipes);
+              (LoadOutcome, MultiWeekMenu?) result = await Persistency.loadMultiWeekMenu(recipes: RecipesProvider.instance.recipes);
+              if (result.$1 == LoadOutcome.failed && context.mounted) {
+                await showErrorDialog(
+                  context: context,
+                  message: "Could not load the menu. It may be corrupted or not a valid menu file (.tsm).",
+                );
+              }
+              MultiWeekMenu? loadedMenu = result.$2;
               if (loadedMenu != null && context.mounted) {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: loadedMenu)));
               }
