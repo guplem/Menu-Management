@@ -16,6 +16,9 @@ import "package:menu_management/recipes/recipes_provider.dart";
 
 const JsonEncoder _prettyEncoder = JsonEncoder.withIndent("  ");
 
+/// Outcome of a picker-based load operation.
+enum LoadOutcome { success, cancelled, failed }
+
 class Persistency {
   static final Persistency _singleton = Persistency._internal();
 
@@ -177,6 +180,13 @@ class Persistency {
   static void _parseTsrIntoProviders(String data, IngredientsProvider ingredientsProvider, RecipesProvider recipesProvider) {
     Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
 
+    if (json["Ingredients"] is! List) {
+      throw const FormatException('Invalid .tsr file: missing or invalid "Ingredients" list');
+    }
+    if (json["Recipes"] is! List) {
+      throw const FormatException('Invalid .tsr file: missing or invalid "Recipes" list');
+    }
+
     List<Ingredient> ingredients = [];
     for (Map<String, dynamic> ingredient in json["Ingredients"]) {
       ingredients.add(Ingredient.fromJson(ingredient));
@@ -333,7 +343,7 @@ class Persistency {
     }
   }
 
-  static Future<void> loadData({required IngredientsProvider ingredientsProvider, required RecipesProvider recipesProvider}) async {
+  static Future<LoadOutcome> loadData({required IngredientsProvider ingredientsProvider, required RecipesProvider recipesProvider}) async {
     // TODO: check if there is data in the providers and ask for confirmation before loading the file
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -344,16 +354,14 @@ class Persistency {
       type: FileType.custom,
     );
 
-    if (result == null) {
-      // User canceled the picker
-    } else {
-      // Prepare the file
-      File file = File(result.files.single.path!);
+    if (result == null) return LoadOutcome.cancelled;
 
-      String data = await file.readAsString();
-      _parseTsrIntoProviders(data, ingredientsProvider, recipesProvider);
-      _saveLastSession(tsrPath: result.files.single.path!, tsrAction: SessionAction.loaded);
-    }
+    bool loaded = await loadDataFromPath(
+      path: result.files.single.path!,
+      ingredientsProvider: ingredientsProvider,
+      recipesProvider: recipesProvider,
+    );
+    return loaded ? LoadOutcome.success : LoadOutcome.failed;
   }
 
   static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
@@ -375,7 +383,7 @@ class Persistency {
     }
   }
 
-  static Future<MultiWeekMenu?> loadMultiWeekMenu({required List<Recipe> recipes}) async {
+  static Future<(LoadOutcome, MultiWeekMenu?)> loadMultiWeekMenu({required List<Recipe> recipes}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: "Select the menu to load",
       allowMultiple: false,
@@ -384,16 +392,9 @@ class Persistency {
       type: FileType.custom,
     );
 
-    if (result == null) {
-      // User canceled the picker
-    } else {
-      // Prepare the file
-      File file = File(result.files.single.path!);
+    if (result == null) return (LoadOutcome.cancelled, null);
 
-      String data = await file.readAsString();
-      _saveLastSession(tsmPath: result.files.single.path!, tsmAction: SessionAction.loaded);
-      return _parseMenuFromJson(data, recipes: recipes);
-    }
-    return null;
+    MultiWeekMenu? menu = await loadMenuFromPath(result.files.single.path!, recipes: recipes);
+    return menu == null ? (LoadOutcome.failed, null) : (LoadOutcome.success, menu);
   }
 }

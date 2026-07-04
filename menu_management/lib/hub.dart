@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/widgets/ingredients_page.dart";
 import "package:menu_management/menu/widgets/menu_configuration_page.dart";
@@ -37,10 +38,18 @@ class _HubState extends State<Hub> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.drive_folder_upload_rounded),
-                    onPressed: () => Persistency.loadData(
-                      ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
-                      recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
-                    ),
+                    onPressed: () async {
+                      LoadOutcome outcome = await Persistency.loadData(
+                        ingredientsProvider: Provider.of<IngredientsProvider>(context, listen: false),
+                        recipesProvider: Provider.of<RecipesProvider>(context, listen: false),
+                      );
+                      if (outcome == LoadOutcome.failed && context.mounted) {
+                        await showErrorDialog(
+                          context: context,
+                          message: "Could not load the file. It may be corrupted or not a valid recipe book (.tsr).",
+                        );
+                      }
+                    },
                     tooltip: "Load data from file",
                   ),
                   const SizedBox(height: 10),

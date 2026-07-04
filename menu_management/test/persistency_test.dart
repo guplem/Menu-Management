@@ -152,6 +152,58 @@ void main() {
 
       expect(result, false);
     });
+
+    test("returns false when the \"Ingredients\" key is missing", () async {
+      File tsrFile = File("${tempDir.path}/no_ingredients.tsr");
+      tsrFile.writeAsStringSync(jsonEncode({"Recipes": []}));
+
+      bool result = await Persistency.loadDataFromPath(
+        path: tsrFile.path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
+
+      expect(result, false);
+    });
+
+    test("returns false when the \"Recipes\" key is missing", () async {
+      File tsrFile = File("${tempDir.path}/no_recipes.tsr");
+      tsrFile.writeAsStringSync(jsonEncode({"Ingredients": []}));
+
+      bool result = await Persistency.loadDataFromPath(
+        path: tsrFile.path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
+
+      expect(result, false);
+    });
+
+    test("returns false when a top-level key has the wrong type", () async {
+      File tsrFile = File("${tempDir.path}/wrong_types.tsr");
+      tsrFile.writeAsStringSync(jsonEncode({"Ingredients": {}, "Recipes": []}));
+
+      bool result = await Persistency.loadDataFromPath(
+        path: tsrFile.path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
+
+      expect(result, false);
+    });
+
+    test("returns false for a top-level JSON array", () async {
+      File tsrFile = File("${tempDir.path}/array.tsr");
+      tsrFile.writeAsStringSync(jsonEncode([1, 2, 3]));
+
+      bool result = await Persistency.loadDataFromPath(
+        path: tsrFile.path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
+
+      expect(result, false);
+    });
   });
 
   // ── loadMenuFromPath ──

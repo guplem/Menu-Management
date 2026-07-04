@@ -46,7 +46,7 @@ No duplication between them. If setup instructions are in README, CLAUDE.md only
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `cd menu_management && ./build_and_copy.bat` | Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 530 tests across 17 files |
+| Run all tests | `cd menu_management && flutter test test/` | 545 tests across 17 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 
