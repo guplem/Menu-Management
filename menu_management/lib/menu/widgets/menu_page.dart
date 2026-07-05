@@ -26,13 +26,24 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   String? highlightedRecipeId;
-  late MultiWeekMenu multiWeekMenu;
+  late MultiWeekMenu _multiWeekMenu;
   int currentWeekIndex = 0;
+
+  MultiWeekMenu get multiWeekMenu => _multiWeekMenu;
+
+  /// Mirrors every menu change into [MenuProvider] so other pages (e.g. recipe deletion)
+  /// can check and clean references against the current menu, even after this page closes.
+  set multiWeekMenu(MultiWeekMenu value) {
+    _multiWeekMenu = value;
+    MenuProvider.setMultiWeekMenu(value);
+  }
 
   @override
   void initState() {
     super.initState();
-    multiWeekMenu = widget.multiWeekMenu;
+    _multiWeekMenu = widget.multiWeekMenu;
+    // Post-frame because setMultiWeekMenu notifies listeners, which is not allowed mid-build.
+    WidgetsBinding.instance.addPostFrameCallback((_) => MenuProvider.setMultiWeekMenu(_multiWeekMenu));
   }
 
   List<Recipe> get _recipes => RecipesProvider.instance.recipes;

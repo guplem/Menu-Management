@@ -62,8 +62,8 @@ class RecipesProvider extends ChangeNotifier {
     instance.notifyListeners();
   }
 
+  // Reference checks and confirmation happen at the call sites (UI layer) before calling this.
   static void remove({required String recipeId}) {
-    // TODO: Ask for confirmation (generic method with all "removes")
     instance.recipes.removeWhere((element) => element.id == recipeId);
     instance.notifyListeners();
   }
@@ -84,13 +84,10 @@ class RecipesProvider extends ChangeNotifier {
     addOrUpdate(newRecipe: updatedRecipe);
   }
 
+  // Reference checks and confirmation happen at the call sites (UI layer) before calling this.
   static void removeInstruction({required String recipeId, required String instructionId}) {
-    // TODO: Ask for confirmation (generic method with all "removes")
     final Recipe recipeToUpdate = instance.recipes.firstWhere((element) => element.id == recipeId);
-    List<Instruction> instructions = [...recipeToUpdate.instructions];
-    instructions.removeWhere((element) => element.id == instructionId);
-    Recipe updatedRecipe = recipeToUpdate.copyWith(instructions: instructions);
-    addOrUpdate(newRecipe: updatedRecipe);
+    addOrUpdate(newRecipe: recipeToUpdate.copyWithRemovedInstruction(instructionId: instructionId));
   }
 
   static void reorderInstructions({required String recipeId, required int oldIndex, required int newIndex}) {

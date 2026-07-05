@@ -53,8 +53,8 @@ class IngredientsProvider extends ChangeNotifier {
     instance.notifyListeners();
   }
 
+  // Reference checks and confirmation happen at the call sites (UI layer) before calling this.
   static void remove({required String ingredientId}) {
-    // TODO: Ask for confirmation (generic method with all "removes")
     instance.ingredients.removeWhere((element) => element.id == ingredientId);
     instance.notifyListeners();
   }

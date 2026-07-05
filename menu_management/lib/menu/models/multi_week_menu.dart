@@ -81,6 +81,36 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return weeks.fold(0, (int sum, Menu week) => sum + week.totalServingsForRecipe(recipeId));
   }
 
+  /// Returns one entry per meal slot (week + meal time) where any sub-meal uses [recipeId].
+  /// Entries are ordered chronologically. Used to warn (and clean up) before deleting the recipe.
+  List<({int weekIndex, MealTime mealTime})> findReferencingMeals(String recipeId) {
+    List<({int weekIndex, MealTime mealTime})> references = [];
+    for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+      List<Meal> referencingMeals = weeks[weekIndex]
+          .meals
+          .where((Meal meal) => meal.subMeals.any((SubMeal subMeal) => subMeal.cooking?.recipeId == recipeId))
+          .sorted((Meal a, Meal b) => a.goesBefore(b) ? -1 : 1)
+          .toList();
+      references.addAll(referencingMeals.map((Meal meal) => (weekIndex: weekIndex, mealTime: meal.mealTime)));
+    }
+    return references;
+  }
+
+  /// Returns a copy with every sub-meal cooking of [recipeId] cleared across all weeks,
+  /// with yields recalculated for the remaining recipes.
+  MultiWeekMenu copyWithClearedRecipe({required String recipeId, required List<Recipe> recipes}) {
+    List<Menu> clearedWeeks = weeks.map((Menu week) {
+      List<Meal> clearedMeals = week.meals.map((Meal meal) {
+        List<SubMeal> clearedSubMeals = meal.subMeals.map((SubMeal subMeal) {
+          return subMeal.cooking?.recipeId == recipeId ? subMeal.copyWith(cooking: null) : subMeal;
+        }).toList();
+        return meal.copyWith(subMeals: clearedSubMeals);
+      }).toList();
+      return week.copyWith(meals: clearedMeals);
+    }).toList();
+    return copyWith(weeks: clearedWeeks).copyWithUpdatedYields(recipes: recipes);
+  }
+
   /// Returns the total people served by a specific cook event (yield > 0 sub-meal).
   /// The cook event at [cookWeekIndex]/[cookMealTime]/[subMealIndex] feeds itself plus all
   /// subsequent leftover occurrences (yield == 0) of the same recipe within
