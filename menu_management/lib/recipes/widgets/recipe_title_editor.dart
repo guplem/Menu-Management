@@ -21,31 +21,36 @@ class RecipeTitleEditor extends StatefulWidget {
 }
 
 class _RecipeTitleEditorState extends State<RecipeTitleEditor> {
-  late final TextEditingController outputController;
+  late final TextEditingController nameController;
 
   @override
   void initState() {
     super.initState();
-    outputController = TextEditingController(text: widget.recipe.name);
+    nameController = TextEditingController(text: widget.recipe.name);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return AlertDialog(
-      title: const Text("Select an Output from another step as Input for this"),
+      title: const Text("Rename recipe"),
       content: TextField(
-        controller: outputController,
+        controller: nameController,
         maxLines: null,
-        decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Output"),
+        decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Name"),
         onChanged: (String value) => setState(() {}),
       ),
       actions: <Widget>[
         FilledButton(
-          onPressed: outputController.text.trimAndSetNullIfEmpty == null
+          onPressed: nameController.text.trimAndSetNullIfEmpty == null
               ? null
               : () {
-                  String txt = outputController.text;
+                  String txt = nameController.text;
                   widget.onUpdate(widget.recipe.copyWith(name: txt));
                   Navigator.of(context).pop();
                 },
