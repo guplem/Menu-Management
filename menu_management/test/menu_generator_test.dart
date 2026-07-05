@@ -8,6 +8,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/recipe.dart";
@@ -389,6 +390,413 @@ void main() {
 
       expect(menu.meals.length, 1);
       expect(menu.meals.first.subMeals.isEmpty, true);
+    });
+  });
+
+  group("Recipe.fitsConfiguration", () {
+    // A lunch slot that can be cooked at the spot (requiresMeal + time available).
+    const MenuConfiguration lunchSlot = MenuConfiguration(
+      mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+      requiresMeal: true,
+      availableCookingTimeMinutes: 60,
+    );
+    // A dinner slot that can be cooked at the spot.
+    const MenuConfiguration dinnerSlot = MenuConfiguration(
+      mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner),
+      requiresMeal: true,
+      availableCookingTimeMinutes: 60,
+    );
+
+    test("rejects a non-storable recipe when it must be stored", () {
+      Recipe recipe = _meal(id: "r", name: "R", maxStorageDays: 0);
+      expect(recipe.fitsConfiguration(lunchSlot, needToBeStored: true, strictMealTime: false), false);
+    });
+
+    test("accepts a storable recipe when it must be stored (other gates passing)", () {
+      Recipe recipe = _meal(id: "r", name: "R", maxStorageDays: 3, lunch: true, dinner: false);
+      expect(recipe.fitsConfiguration(lunchSlot, needToBeStored: true, strictMealTime: false), true);
+    });
+
+    test("rejects a recipe with cooking time when the slot cannot be cooked at the spot", () {
+      const MenuConfiguration noTimeSlot = MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        requiresMeal: true,
+        availableCookingTimeMinutes: 0,
+      );
+      Recipe recipe = _meal(id: "r", name: "R", totalMinutes: 30, lunch: true, dinner: false);
+      expect(recipe.fitsConfiguration(noTimeSlot, needToBeStored: false, strictMealTime: false), false);
+    });
+
+    test("accepts a zero-time recipe when the slot cannot be cooked at the spot", () {
+      const MenuConfiguration noTimeSlot = MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        requiresMeal: true,
+        availableCookingTimeMinutes: 0,
+      );
+      Recipe recipe = _meal(id: "r", name: "R", totalMinutes: 0, lunch: true, dinner: false);
+      expect(recipe.fitsConfiguration(noTimeSlot, needToBeStored: false, strictMealTime: false), true);
+    });
+
+    test("a 120-minute recipe fits a 15-minute slot (duration is never compared)", () {
+      // NOTE: characterization -- possibly unintended, see plans/002.
+      // fitsConfiguration never compares totalTimeMinutes to availableCookingTimeMinutes.
+      // The only time gate is the binary canBeCookedAtTheSpot (time > 0), so any positive
+      // available time accepts a recipe of any duration.
+      const MenuConfiguration shortSlot = MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        requiresMeal: true,
+        availableCookingTimeMinutes: 15,
+      );
+      Recipe recipe = _meal(id: "r", name: "R", totalMinutes: 120, lunch: true, dinner: false);
+      expect(recipe.fitsConfiguration(shortSlot, needToBeStored: false, strictMealTime: false), true);
+    });
+
+    test("rejects a recipe flagged for neither lunch nor dinner in a meal slot", () {
+      Recipe recipe = _meal(id: "r", name: "R", lunch: false, dinner: false);
+      expect(recipe.fitsConfiguration(lunchSlot, needToBeStored: false, strictMealTime: false), false);
+    });
+
+    test("strict mode rejects a lunch+dinner recipe from both lunch and dinner slots", () {
+      // NOTE: characterization -- possibly unintended, see plans/002.
+      // In strict mode a recipe flagged for BOTH lunch and dinner is rejected from lunch
+      // slots (because dinner is true) and from dinner slots (because lunch is true).
+      // Dual-flagged recipes can only enter a menu through the generator's fallback paths.
+      Recipe dualRecipe = _meal(id: "r", name: "R", lunch: true, dinner: true);
+      expect(dualRecipe.fitsConfiguration(lunchSlot, needToBeStored: false, strictMealTime: true), false);
+      expect(dualRecipe.fitsConfiguration(dinnerSlot, needToBeStored: false, strictMealTime: true), false);
+
+      Recipe lunchOnly = _meal(id: "r2", name: "R2", lunch: true, dinner: false);
+      expect(lunchOnly.fitsConfiguration(lunchSlot, needToBeStored: false, strictMealTime: true), true);
+    });
+  });
+
+  group("MenuGenerator getValidRecipeForConfiguration", () {
+    // A lunch slot recipes are tested against.
+    const MenuConfiguration lunchSlot = MenuConfiguration(
+      mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+      requiresMeal: true,
+      availableCookingTimeMinutes: 60,
+    );
+
+    test("returns null for empty candidates", () {
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      Recipe? result = generator.getValidRecipeForConfiguration(
+        maxNumberOfTimesTheSameRecipeShouldBeUsed: 999,
+        configuration: lunchSlot,
+        candidates: <Recipe>{},
+        needToBeStored: false,
+        alreadySelected: [],
+        strictMealTime: true,
+      );
+      expect(result, isNull);
+    });
+
+    test("returns null when storage is required but no candidate is storable", () {
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      Recipe nonStorable = _meal(id: "ns", name: "Non Storable", maxStorageDays: 0, lunch: true, dinner: false);
+      Recipe? result = generator.getValidRecipeForConfiguration(
+        maxNumberOfTimesTheSameRecipeShouldBeUsed: 999,
+        configuration: lunchSlot,
+        candidates: {nonStorable},
+        needToBeStored: true,
+        alreadySelected: [],
+        strictMealTime: true,
+      );
+      expect(result, isNull);
+    });
+
+    test("prioritizes the least-selected nutritional type", () {
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      // Two carb recipes already selected -> carbs is the most-selected type.
+      Recipe carbA = _meal(id: "cA", name: "Carb A", carbs: true, proteins: false, vegetables: false, lunch: true, dinner: false);
+      Recipe carbB = _meal(id: "cB", name: "Carb B", carbs: true, proteins: false, vegetables: false, lunch: true, dinner: false);
+      Recipe carbCandidate = _meal(id: "cC", name: "Carb C", carbs: true, proteins: false, vegetables: false, lunch: true, dinner: false);
+      Recipe proteinCandidate = _meal(id: "pD", name: "Protein D", carbs: false, proteins: true, vegetables: false, lunch: true, dinner: false);
+
+      Recipe? result = generator.getValidRecipeForConfiguration(
+        maxNumberOfTimesTheSameRecipeShouldBeUsed: 999,
+        configuration: lunchSlot,
+        candidates: {carbCandidate, proteinCandidate},
+        needToBeStored: false,
+        alreadySelected: [carbA, carbB],
+        strictMealTime: true,
+      );
+      // Protein is the least-selected type, so the protein candidate wins.
+      expect(result?.id, "pD");
+    });
+
+    test("deprioritizes a recipe already selected up to the repetition cap", () {
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      Recipe recipeA = _meal(id: "A", name: "A", carbs: true, proteins: false, vegetables: false, lunch: true, dinner: false);
+      Recipe recipeB = _meal(id: "B", name: "B", carbs: true, proteins: false, vegetables: false, lunch: true, dinner: false);
+
+      Recipe? result = generator.getValidRecipeForConfiguration(
+        maxNumberOfTimesTheSameRecipeShouldBeUsed: 1,
+        configuration: lunchSlot,
+        candidates: {recipeA, recipeB},
+        needToBeStored: false,
+        alreadySelected: [recipeA],
+        strictMealTime: true,
+      );
+      // A hit the cap and is moved to the back, so B is returned.
+      expect(result?.id, "B");
+    });
+
+    test("a capped recipe is still returned when it is the only candidate", () {
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      Recipe recipeA = _meal(id: "A", name: "A", carbs: true, proteins: false, vegetables: false, lunch: true, dinner: false);
+
+      Recipe? result = generator.getValidRecipeForConfiguration(
+        maxNumberOfTimesTheSameRecipeShouldBeUsed: 1,
+        configuration: lunchSlot,
+        candidates: {recipeA},
+        needToBeStored: false,
+        alreadySelected: [recipeA],
+        strictMealTime: true,
+      );
+      // The cap deprioritizes but does not exclude: A is still the only option.
+      expect(result?.id, "A");
+    });
+  });
+
+  group("MenuGenerator yield logic", () {
+    test("storable recipe reused beyond its storage window cooks again", () {
+      // Saturday (day 0) and Wednesday (day 4) are 4 days apart, beyond maxStorageDays: 1.
+      Recipe storableRecipe = _meal(id: "m1", name: "Short-life Stew", maxStorageDays: 1, lunch: true, dinner: false);
+      RecipesProvider.addOrUpdate(newRecipe: storableRecipe);
+
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      // Both slots get the same recipe, but each is its own cook event (yield 1) because
+      // the second occurrence falls outside the 1-day storage window.
+      List<int> yields = menu.meals
+          .map((m) => m.subMeals.firstOrNull?.cooking?.yield)
+          .whereType<int>()
+          .toList();
+      expect(yields.length, 2);
+      expect(yields.every((y) => y == 1), true);
+    });
+
+    test("storable recipe reused across three slots within the window yields on first only", () {
+      // Saturday (0), Sunday (1), Monday (2) are all within maxStorageDays: 6.
+      Recipe storableRecipe = _meal(id: "m1", name: "Big Batch", maxStorageDays: 6, lunch: true, dinner: false);
+      RecipesProvider.addOrUpdate(newRecipe: storableRecipe);
+
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      List<int> yields = menu.meals
+          .map((m) => m.subMeals.firstOrNull?.cooking?.yield)
+          .whereType<int>()
+          .toList();
+      expect(yields.length, 3);
+      expect(yields.where((y) => y == 3).length, 1);
+      expect(yields.where((y) => y == 0).length, 2);
+    });
+
+    test("non-storable recipe in two slots is a fresh cook each time", () {
+      Recipe nonStorable = _meal(id: "m1", name: "Fresh Salad", maxStorageDays: 0, lunch: true, dinner: false);
+      RecipesProvider.addOrUpdate(newRecipe: nonStorable);
+
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      List<int> yields = menu.meals
+          .map((m) => m.subMeals.firstOrNull?.cooking?.yield)
+          .whereType<int>()
+          .toList();
+      expect(yields.length, 2);
+      expect(yields.every((y) => y == 1), true);
+    });
+  });
+
+  group("MenuGenerator multiple sub-meals", () {
+    test("a mealCount of 2 produces two sub-meals with distinct recipes", () {
+      for (int i = 0; i < 6; i++) {
+        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i", lunch: true, dinner: false));
+      }
+
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+          mealCount: 2,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      Meal meal = menu.meals.first;
+      expect(meal.subMeals.length, 2);
+      String? first = meal.subMeals[0].cooking?.recipeId;
+      String? second = meal.subMeals[1].cooking?.recipeId;
+      expect(first, isNotNull);
+      expect(second, isNotNull);
+      // The extra sub-meal draws from the remaining pool, so it gets a different recipe.
+      expect(first == second, false);
+    });
+
+    test("peoplePerSubMeal is 1 for mealCount 2 and 2 for mealCount 1", () {
+      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m0", name: "Meal 0", lunch: true, dinner: false));
+      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m1", name: "Meal 1", lunch: true, dinner: false));
+
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+          mealCount: 2,
+        ),
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+          mealCount: 1,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      Meal twoCount = menu.meals.firstWhere((m) => m.mealTime.weekDay == WeekDay.saturday);
+      Meal oneCount = menu.meals.firstWhere((m) => m.mealTime.weekDay == WeekDay.sunday);
+      expect(twoCount.subMeals.every((sm) => sm.people == 1), true);
+      expect(oneCount.subMeals.every((sm) => sm.people == 2), true);
+    });
+
+    test("a mealCount of 2 with a single recipe reuses it in the second sub-meal", () {
+      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "only", name: "Only Meal", lunch: true, dinner: false));
+
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 60,
+          mealCount: 2,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      Meal meal = menu.meals.first;
+      expect(meal.subMeals.length, 2);
+      // With no other recipe available, the extra sub-meal falls back to the same recipe.
+      expect(meal.subMeals[0].cooking?.recipeId, "only");
+      expect(meal.subMeals[1].cooking?.recipeId, "only");
+    });
+  });
+
+  group("MenuGenerator structural properties under stress", () {
+    test("generation with zero meal recipes throws an assertion in debug mode", () {
+      // NOTE: characterization -- possibly unintended, see plans/002.
+      // With no meal recipes, generate() calls Debug.logWarning(mealsRecipes.isEmpty, "No meals found")
+      // which fires an assert (asAssertion defaults to true). So the generator cannot run with an empty
+      // meal pool while assertions are enabled (debug/test). In release mode the assert is skipped and
+      // lunch/dinner slots would simply stay empty.
+      // Only the default breakfast recipe from setUp exists.
+      List<MenuConfiguration> configs = _fullWeekConfigurations();
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      expect(
+        () => generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test("no crash when every recipe needs time but no slot can cook at the spot", () {
+      for (int i = 0; i < 5; i++) {
+        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i", totalMinutes: 30, maxStorageDays: 0, lunch: true, dinner: false));
+      }
+
+      List<MenuConfiguration> configs = _fullWeekConfigurations(cookingTimeMinutes: 0);
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      // No slot can cook at the spot and non-storable recipes cannot be leftovers,
+      // so every meal slot stays empty.
+      List<Meal> mealSlots = menu.meals
+          .where((m) => m.mealTime.mealType == MealType.lunch || m.mealTime.mealType == MealType.dinner)
+          .toList();
+      expect(mealSlots.every((m) => m.subMeals.every((sm) => sm.cooking == null)), true);
+    });
+
+    test("lunch slots only get lunch recipes and dinner slots only get dinner recipes", () {
+      for (int i = 0; i < 6; i++) {
+        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "lunch$i", name: "Lunch $i", lunch: true, dinner: false));
+        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "dinner$i", name: "Dinner $i", lunch: false, dinner: true));
+      }
+
+      List<MenuConfiguration> configs = _fullWeekConfigurations();
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      Menu menu = generator.menu!;
+
+      for (Meal meal in menu.meals) {
+        for (SubMeal subMeal in meal.subMeals) {
+          if (subMeal.cooking == null) continue;
+          Recipe recipe = RecipesProvider.instance.get(subMeal.cooking!.recipeId);
+          if (meal.mealTime.mealType == MealType.lunch) {
+            expect(recipe.lunch, true, reason: "Lunch slot at ${meal.mealTime.weekDay} got a non-lunch recipe");
+          }
+          if (meal.mealTime.mealType == MealType.dinner) {
+            expect(recipe.dinner, true, reason: "Dinner slot at ${meal.mealTime.weekDay} got a non-dinner recipe");
+          }
+        }
+      }
     });
   });
 }
