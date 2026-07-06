@@ -129,21 +129,25 @@ abstract class Menu with _$Menu {
     return Menu(meals: result);
   }
 
-  Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
-    Map<String, List<Quantity>> ingredients = {};
+  /// Shared pass for [allIngredients] and [ingredientSources]: the recipes that are actively cooked in this
+  /// menu, each paired with the total people across ALL sub-meals sharing it and the resolved [Recipe].
+  ///
+  /// Selection rules (identical for both consumers):
+  /// - Skip leftover sub-meals (storable recipes reused from a previous cook): yield <= 0.
+  /// - Process each unique recipe only once. Non-storable recipes have yield=1 for every occurrence, so
+  ///   without this guard each occurrence would be counted separately despite peopleFactor already summing
+  ///   all people.
+  /// - Recipes missing from [recipes] are still registered in the dedup set (so a later occurrence is not
+  ///   reconsidered) but are excluded from the result.
+  List<({Recipe recipe, int peopleFactor})> _activeCookedRecipes({required List<Recipe> recipes}) {
+    List<({Recipe recipe, int peopleFactor})> result = [];
     Set<String> processedRecipeIds = {};
 
     for (Meal meal in meals) {
       for (SubMeal subMeal in meal.subMeals) {
         if (subMeal.cooking == null) continue;
-        int yields = subMeal.cooking!.yield;
+        if (subMeal.cooking!.yield <= 0) continue;
 
-        // Skip leftover sub-meals (storable recipes reused from a previous cook).
-        if (yields <= 0) continue;
-
-        // Process each unique recipe only once.
-        // Non-storable recipes have yield=1 for every occurrence, so without this guard
-        // each occurrence would be counted separately despite peopleFactor already summing all people.
         String recipeId = subMeal.cooking!.recipeId;
         if (processedRecipeIds.contains(recipeId)) continue;
         processedRecipeIds.add(recipeId);
@@ -161,22 +165,32 @@ abstract class Menu with _$Menu {
         Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
         if (recipe == null) continue;
 
-        for (Instruction instruction in recipe.instructions) {
-          for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-            if (ingredients[ingredientUsage.ingredient] == null) {
-              ingredients[ingredientUsage.ingredient] = [];
-            }
-            if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
-              ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
-            }
-            double amountToAdd = ingredientUsage.quantity.amount * peopleFactor;
-            Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
-              (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
-            );
-            Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
-            ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
-            ingredients[ingredientUsage.ingredient]!.add(newQuantity);
+        result.add((recipe: recipe, peopleFactor: peopleFactor));
+      }
+    }
+
+    return result;
+  }
+
+  Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
+    Map<String, List<Quantity>> ingredients = {};
+
+    for (({Recipe recipe, int peopleFactor}) entry in _activeCookedRecipes(recipes: recipes)) {
+      for (Instruction instruction in entry.recipe.instructions) {
+        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+          if (ingredients[ingredientUsage.ingredient] == null) {
+            ingredients[ingredientUsage.ingredient] = [];
           }
+          if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
+            ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
+          }
+          double amountToAdd = ingredientUsage.quantity.amount * entry.peopleFactor;
+          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
+            (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
+          );
+          Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
+          ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
+          ingredients[ingredientUsage.ingredient]!.add(newQuantity);
         }
       }
     }
@@ -188,51 +202,31 @@ abstract class Menu with _$Menu {
   /// with per-serving quantities and total servings (peopleFactor).
   Map<String, List<IngredientSource>> ingredientSources({required List<Recipe> recipes}) {
     Map<String, List<IngredientSource>> sources = {};
-    Set<String> processedRecipeIds = {};
 
-    for (Meal meal in meals) {
-      for (SubMeal subMeal in meal.subMeals) {
-        if (subMeal.cooking == null) continue;
-        if (subMeal.cooking!.yield <= 0) continue;
-        if (processedRecipeIds.contains(subMeal.cooking!.recipeId)) continue;
-        processedRecipeIds.add(subMeal.cooking!.recipeId);
+    for (({Recipe recipe, int peopleFactor}) entry in _activeCookedRecipes(recipes: recipes)) {
+      for (Instruction instruction in entry.recipe.instructions) {
+        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+          sources[ingredientUsage.ingredient] ??= [];
 
-        int peopleFactor = 0;
-        for (Meal m in meals) {
-          for (SubMeal sm in m.subMeals) {
-            if (sm.cooking?.recipeId == subMeal.cooking?.recipeId) {
-              peopleFactor += sm.people;
-            }
-          }
-        }
-
-        Recipe? recipe = recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId);
-        if (recipe == null) continue;
-
-        for (Instruction instruction in recipe.instructions) {
-          for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-            sources[ingredientUsage.ingredient] ??= [];
-
-            // Find or create the source entry for this recipe
-            int existingIndex = sources[ingredientUsage.ingredient]!.indexWhere((s) => s.recipeName == recipe.name);
-            if (existingIndex >= 0) {
-              IngredientSource existing = sources[ingredientUsage.ingredient]![existingIndex];
-              List<Quantity> updatedQuantities = [...existing.perServingQuantities];
-              Quantity? existingQty = updatedQuantities.firstWhereOrNull((q) => q.unit == ingredientUsage.quantity.unit);
-              if (existingQty != null) {
-                updatedQuantities.remove(existingQty);
-                updatedQuantities.add(existingQty.copyWith(amount: existingQty.amount + ingredientUsage.quantity.amount));
-              } else {
-                updatedQuantities.add(ingredientUsage.quantity);
-              }
-              sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
+          // Find or create the source entry for this recipe
+          int existingIndex = sources[ingredientUsage.ingredient]!.indexWhere((s) => s.recipeName == entry.recipe.name);
+          if (existingIndex >= 0) {
+            IngredientSource existing = sources[ingredientUsage.ingredient]![existingIndex];
+            List<Quantity> updatedQuantities = [...existing.perServingQuantities];
+            Quantity? existingQty = updatedQuantities.firstWhereOrNull((q) => q.unit == ingredientUsage.quantity.unit);
+            if (existingQty != null) {
+              updatedQuantities.remove(existingQty);
+              updatedQuantities.add(existingQty.copyWith(amount: existingQty.amount + ingredientUsage.quantity.amount));
             } else {
-              sources[ingredientUsage.ingredient]!.add(IngredientSource(
-                recipeName: recipe.name,
-                perServingQuantities: [ingredientUsage.quantity],
-                servings: peopleFactor,
-              ));
+              updatedQuantities.add(ingredientUsage.quantity);
             }
+            sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
+          } else {
+            sources[ingredientUsage.ingredient]!.add(IngredientSource(
+              recipeName: entry.recipe.name,
+              perServingQuantities: [ingredientUsage.quantity],
+              servings: entry.peopleFactor,
+            ));
           }
         }
       }
