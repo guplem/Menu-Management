@@ -908,6 +908,87 @@ void main() {
       });
     });
 
+    // Parity tests pinning the shared selection/dedup/people-summing behavior of allIngredients and
+    // ingredientSources on a single mixed menu, so both methods stay in lock-step (Plan 005).
+    group("allIngredients / ingredientSources parity", () {
+      // Recipe A: storable, used in 3 sub-meals (first yield 3, then two leftovers yield 0).
+      // Recipe B: non-storable, used in 2 sub-meals (both yield 1).
+      // Plus one sub-meal with cooking == null and one referencing a recipe missing from the list.
+      Recipe recipeA = _recipe(
+        id: "A",
+        name: "RecipeA",
+        maxStorageDays: 6,
+        instructions: [
+          Instruction(
+            id: "iA",
+            description: "step",
+            ingredientsUsed: [
+              IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+            ],
+          ),
+        ],
+      );
+      Recipe recipeB = _recipe(
+        id: "B",
+        name: "RecipeB",
+        maxStorageDays: 0,
+        instructions: [
+          Instruction(
+            id: "iB",
+            description: "step",
+            ingredientsUsed: [
+              IngredientUsage(ingredient: "bread", quantity: const Quantity(amount: 3, unit: Unit.pieces)),
+            ],
+          ),
+        ],
+      );
+      List<Recipe> recipes = [recipeA, recipeB];
+      Menu menu = Menu(
+        meals: [
+          // Recipe A: cook event + two leftovers. peopleFactor A = 2 + 4 + 1 = 7.
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipeA, yield: 3, people: 2),
+          _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipeA, yield: 0, people: 4),
+          _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipeA, yield: 0, people: 1),
+          // Recipe B: non-storable in two slots. peopleFactor B = 5 + 6 = 11.
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.dinner, recipe: recipeB, yield: 1, people: 5),
+          _meal(weekDay: WeekDay.sunday, mealType: MealType.dinner, recipe: recipeB, yield: 1, people: 6),
+          // Empty sub-meal (no cooking).
+          _meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipe: null, people: 2),
+          // Sub-meal referencing a recipe absent from the list.
+          Meal(
+            mealTime: const MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch),
+            subMeals: const [SubMeal(cooking: Cooking(recipeId: "MISSING", yield: 1), people: 3)],
+          ),
+        ],
+      );
+
+      test("allIngredients uses the people sum over all of each recipe's sub-meals", () {
+        Map<String, List<Quantity>> ingredients = menu.allIngredients(recipes: recipes);
+        // Recipe A counted once: 100 * (2 + 4 + 1) = 700.
+        expect(ingredients["flour"]!.first.amount, 700.0);
+        // Recipe B counted once: 3 * (5 + 6) = 33.
+        expect(ingredients["bread"]!.first.amount, 33.0);
+        // The missing recipe contributes nothing and does not crash.
+        expect(ingredients.keys.toSet(), {"flour", "bread"});
+      });
+
+      test("ingredientSources yields one entry per recipe with matching servings", () {
+        Map<String, List<IngredientSource>> sources = menu.ingredientSources(recipes: recipes);
+        expect(sources["flour"], hasLength(1));
+        expect(sources["flour"]!.first.recipeName, "RecipeA");
+        expect(sources["flour"]!.first.servings, 7);
+        expect(sources["bread"], hasLength(1));
+        expect(sources["bread"]!.first.recipeName, "RecipeB");
+        expect(sources["bread"]!.first.servings, 11);
+      });
+
+      test("both methods expose the same set of ingredient IDs", () {
+        Set<String> fromAll = menu.allIngredients(recipes: recipes).keys.toSet();
+        Set<String> fromSources = menu.ingredientSources(recipes: recipes).keys.toSet();
+        expect(fromAll, fromSources);
+      });
+    });
+
     group("toStringBeautified", () {
       test("contains all weekday names", () {
         Recipe recipe = _recipe(name: "Pasta");
