@@ -1,5 +1,8 @@
 import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/menu_provider.dart";
+import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/widgets/export_recipe_to_markdown.dart";
@@ -26,6 +29,47 @@ class _RecipesPageState extends State<RecipesPage> {
       return;
     }
     PlayRecipePage.show(context: context, recipe: recipe);
+  }
+
+  String _mealSlotLabel(({int weekIndex, MealTime mealTime}) reference) {
+    String weekDay = reference.mealTime.weekDay.name.capitalizeFirstLetter() ?? reference.mealTime.weekDay.name;
+    return "Week ${reference.weekIndex + 1} - $weekDay ${reference.mealTime.mealType.name}";
+  }
+
+  Future<void> _deleteSelectedRecipe() async {
+    final Recipe toRemove = RecipesProvider.instance.get(selectedRecipeId!);
+    final MultiWeekMenu? menu = MenuProvider.instance.multiWeekMenu;
+    final List<({int weekIndex, MealTime mealTime})> referencingMeals = menu?.findReferencingMeals(toRemove.id) ?? [];
+    if (referencingMeals.isNotEmpty) {
+      bool confirmed = await showDeleteConfirmationDialog(
+        context: context,
+        title: 'Delete recipe "${toRemove.name}"?',
+        message: "It is planned in the current menu. Deleting it will clear these meal slots:",
+        affectedItems: referencingMeals.map(_mealSlotLabel).toList(),
+      );
+      if (!confirmed || !context.mounted) return;
+    }
+    if (referencingMeals.isNotEmpty && menu != null) {
+      MenuProvider.setMultiWeekMenu(menu.copyWithClearedRecipe(recipeId: toRemove.id, recipes: RecipesProvider.instance.recipes));
+    }
+    RecipesProvider.remove(recipeId: toRemove.id);
+    selectedRecipeId = null;
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Recipe "${toRemove.name}" removed'),
+        persist: false,
+        action: SnackBarAction(
+          label: "Undo",
+          onPressed: () {
+            RecipesProvider.addOrUpdate(newRecipe: toRemove);
+            if (referencingMeals.isNotEmpty && menu != null) {
+              MenuProvider.setMultiWeekMenu(menu);
+            }
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -62,24 +106,7 @@ class _RecipesPageState extends State<RecipesPage> {
             TextButton.icon(
               icon: const Icon(Icons.delete_rounded),
               label: const Text("Delete"),
-              onPressed: () {
-                final Recipe toRemove = RecipesProvider.instance.get(selectedRecipeId!);
-                RecipesProvider.remove(recipeId: toRemove.id);
-                selectedRecipeId = null;
-                setState(() {});
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Recipe "${toRemove.name}" removed'),
-                    persist: false,
-                    action: SnackBarAction(
-                      label: "Undo",
-                      onPressed: () {
-                        RecipesProvider.addOrUpdate(newRecipe: toRemove);
-                      },
-                    ),
-                  ),
-                );
-              },
+              onPressed: _deleteSelectedRecipe,
             ),
             Gap.horizontal(),
             ElevatedButton.icon(

@@ -46,7 +46,7 @@ No duplication between them. If setup instructions are in README, CLAUDE.md only
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `cd menu_management && ./build_and_copy.bat` | Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 549 tests across 18 files |
+| Run all tests | `cd menu_management && flutter test test/` | 597 tests across 20 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 
@@ -114,7 +114,7 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 - Provider responsibilities:
   - `IngredientsProvider`: CRUD for ingredients, search history
   - `RecipesProvider`: CRUD for recipes/instructions, filtering by type/nutrition, result/input tracking
-  - `MenuProvider`: Holds 21 MenuConfigurations (7 days x 3 meals), triggers menu generation
+  - `MenuProvider`: Holds 21 MenuConfigurations (7 days x 3 meals), triggers menu generation; also mirrors the active `MultiWeekMenu` from `MenuPage` (see ADR 0016) so other pages can check recipe references before deleting
 - Data flow: Widget -> static provider method -> provider updates state -> `notifyListeners()` -> listening widgets rebuild
 
 ### Freezed Models
@@ -181,6 +181,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0013](adr/0013-multiple-sub-meals-per-time-slot.md) | Multiple sub-meals per time slot: SubMeal model, per-person meal assignment |
 | [0014](adr/0014-multi-trip-shopping-planner.md) | Multi-trip shopping planner: optional toggle that splits the copy output by trip, greedy interval point cover for minimum trips |
 | [0015](adr/0015-freezable-products-and-freezer-aware-trips.md) | Product.canBeFrozen flag: blue freeze-required severity on the menu warning, freezer-aware single-trip mode in the shopping list |
+| [0016](adr/0016-reference-guarded-deletion.md) | Reference-guarded deletion with cascade cleanup: warn-confirm-clean-undo pattern for ingredients, recipes, and instructions; MenuProvider mirrors the active menu |
 
 **Create a new ADR** when making an architectural decision with trade-offs worth preserving. Use the next sequential number.
 

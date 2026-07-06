@@ -1,7 +1,10 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 
 part "ingredient.freezed.dart";
 part "ingredient.g.dart";
@@ -42,5 +45,14 @@ abstract class Ingredient with _$Ingredient {
       Unit.teaspoons => density != null ? grams / (5 * density!) : null,
       Unit.pieces => gramsPerPiece != null && gramsPerPiece! > 0 ? grams / gramsPerPiece! : null,
     };
+  }
+
+  /// Returns the recipes that use this ingredient in any of their instructions.
+  /// Used to warn (and clean up) before deleting the ingredient.
+  List<Recipe> findReferencingRecipes({required List<Recipe> recipes}) {
+    return recipes
+        .where((Recipe recipe) => recipe.instructions
+            .any((Instruction instruction) => instruction.ingredientsUsed.any((IngredientUsage usage) => usage.ingredient == id)))
+        .toList();
   }
 }

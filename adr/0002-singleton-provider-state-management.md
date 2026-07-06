@@ -13,6 +13,7 @@ Two patterns exist depending on whether the provider manages a dynamic collectio
 - **Dynamic-collection providers** (`IngredientsProvider`, `RecipesProvider`): Items are identified by a string ID. Expose static `addOrUpdate` and `remove` methods. `listenableOf(context, id)` enables fine-grained widget rebuilds for individual items.
 
 - **Fixed-grid provider** (`MenuProvider`): Manages a fixed set of 21 `MenuConfiguration` slots (7 days x 3 meals). Configurations are never added or removed -- they are always present. Exposes a static `update` method that replaces a configuration matched by its composite key `(WeekDay, MealType)`. `listenableOf(context, {weekDay, mealType})` uses named parameters instead of a single ID.
+  - `MenuProvider` also mirrors the currently open `MultiWeekMenu` (`multiWeekMenu` getter, `setMultiWeekMenu()` static) so pages other than `MenuPage` can read the active menu -- see ADR 0016. This is a second, unrelated responsibility bolted onto the same singleton because it is the only object every page can already reach; it is not part of the fixed-grid pattern described above.
 
 ## Consequences
 

@@ -3,7 +3,9 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/result.dart";
 
 part "recipe.freezed.dart";
 part "recipe.g.dart";
@@ -72,5 +74,42 @@ abstract class Recipe with _$Recipe {
       }
     }
     return true;
+  }
+
+  /// Returns a copy of this recipe with every usage of [ingredientId] removed from all instructions.
+  /// Used to clean up dangling references when the ingredient is deleted.
+  Recipe copyWithRemovedIngredientUsages({required String ingredientId}) {
+    List<Instruction> updatedInstructions = instructions.map((Instruction instruction) {
+      return instruction.copyWith(
+        ingredientsUsed: instruction.ingredientsUsed.where((IngredientUsage usage) => usage.ingredient != ingredientId).toList(),
+      );
+    }).toList();
+    return copyWith(instructions: updatedInstructions);
+  }
+
+  /// Returns the instructions of this recipe that consume any output of [instructionId] as input.
+  /// Used to warn (and clean up) before deleting the instruction.
+  List<Instruction> findDependentInstructions(String instructionId) {
+    Instruction? target = instructions.firstWhereOrNull((Instruction instruction) => instruction.id == instructionId);
+    if (target == null) return [];
+    List<String> outputIds = target.outputs.map((Result output) => output.id).toList();
+    if (outputIds.isEmpty) return [];
+    return instructions
+        .where((Instruction instruction) => instruction.id != instructionId && instruction.inputs.any((String input) => outputIds.contains(input)))
+        .toList();
+  }
+
+  /// Returns a copy of this recipe without [instructionId]. Input references to the removed
+  /// instruction's outputs are stripped from the remaining instructions so no dangling ids are left.
+  Recipe copyWithRemovedInstruction({required String instructionId}) {
+    Instruction? toRemove = instructions.firstWhereOrNull((Instruction instruction) => instruction.id == instructionId);
+    if (toRemove == null) return this;
+    List<String> removedOutputIds = toRemove.outputs.map((Result output) => output.id).toList();
+    List<Instruction> updatedInstructions = instructions.where((Instruction instruction) => instruction.id != instructionId).map(
+      (Instruction instruction) {
+        return instruction.copyWith(inputs: instruction.inputs.where((String input) => !removedOutputIds.contains(input)).toList());
+      },
+    ).toList();
+    return copyWith(instructions: updatedInstructions);
   }
 }

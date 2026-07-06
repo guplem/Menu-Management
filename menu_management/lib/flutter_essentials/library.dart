@@ -32,6 +32,7 @@ export "package:menu_management/flutter_essentials/widgets/cards/filled_card.dar
 export "package:menu_management/flutter_essentials/widgets/cards/outlined_card.dart";
 export "package:menu_management/flutter_essentials/widgets/center_column_dynamic_padding.dart";
 export "package:menu_management/flutter_essentials/widgets/clickable_surface.dart";
+export "package:menu_management/flutter_essentials/widgets/delete_confirmation_dialog.dart";
 export "package:menu_management/flutter_essentials/widgets/error_dialog.dart";
 export "package:menu_management/flutter_essentials/widgets/floating_button_visibility.dart";
 export "package:menu_management/flutter_essentials/widgets/gap.dart";

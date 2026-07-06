@@ -138,6 +138,11 @@ class MenuProvider extends ChangeNotifier {
 
   List<MenuConfiguration> get configurations => _configurations;
 
+  /// The menu currently (or last) shown in MenuPage. Kept after the page closes so delete
+  /// flows can check and clean recipe references. Null until a menu is generated or loaded.
+  MultiWeekMenu? _multiWeekMenu;
+  MultiWeekMenu? get multiWeekMenu => _multiWeekMenu;
+
   static MenuConfiguration listenableOf(BuildContext context, {required WeekDay weekDay, required MealType mealType}) =>
       getProvider<MenuProvider>(context, listen: true).get(mealType: mealType, weekDay: weekDay);
 
@@ -163,6 +168,11 @@ class MenuProvider extends ChangeNotifier {
       Debug.logError("No configuration found for $weekDay $mealType");
     }
     return config!;
+  }
+
+  static void setMultiWeekMenu(MultiWeekMenu? multiWeekMenu) {
+    instance._multiWeekMenu = multiWeekMenu;
+    instance.notifyListeners();
   }
 
   static void update({required MenuConfiguration newConfiguration}) {

@@ -5,6 +5,8 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/widgets/ingredient_addition.dart";
 import "package:menu_management/ingredients/widgets/ingredient_name_editor.dart";
 import "package:menu_management/ingredients/widgets/product_editor.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
 
 class IngredientsPage extends StatefulWidget {
   const IngredientsPage({super.key});
@@ -66,8 +68,22 @@ class _IngredientsPageState extends State<IngredientsPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete),
-                      onPressed: () {
+                      onPressed: () async {
                         Ingredient toRemove = filtered[index];
+                        List<Recipe> referencingRecipes = toRemove.findReferencingRecipes(recipes: RecipesProvider.instance.recipes);
+                        if (referencingRecipes.isNotEmpty) {
+                          bool confirmed = await showDeleteConfirmationDialog(
+                            context: context,
+                            title: 'Delete ingredient "${toRemove.name}"?',
+                            message: "It is used by ${referencingRecipes.length} recipe${referencingRecipes.length == 1 ? "" : "s"}. "
+                                "Deleting it will also remove it from:",
+                            affectedItems: referencingRecipes.map((Recipe recipe) => recipe.name).toList(),
+                          );
+                          if (!confirmed || !context.mounted) return;
+                        }
+                        for (Recipe recipe in referencingRecipes) {
+                          RecipesProvider.addOrUpdate(newRecipe: recipe.copyWithRemovedIngredientUsages(ingredientId: toRemove.id));
+                        }
                         IngredientsProvider.remove(ingredientId: toRemove.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -77,6 +93,9 @@ class _IngredientsPageState extends State<IngredientsPage> {
                               label: "Undo",
                               onPressed: () {
                                 IngredientsProvider.addOrUpdate(newIngredient: toRemove);
+                                for (Recipe recipe in referencingRecipes) {
+                                  RecipesProvider.addOrUpdate(newRecipe: recipe);
+                                }
                               },
                             ),
                           ),

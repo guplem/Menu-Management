@@ -38,8 +38,31 @@ class RecipePage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 10.0),
             child: IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () {
+              onPressed: () async {
+                final Recipe originalRecipe = recipe;
+                List<Instruction> dependents = recipe.findDependentInstructions(instruction.id);
+                if (dependents.isNotEmpty) {
+                  bool confirmed = await showDeleteConfirmationDialog(
+                    context: context,
+                    title: "Delete this step?",
+                    message: "Other steps use its outputs as inputs. Deleting it will remove those inputs from:",
+                    affectedItems: dependents.map((Instruction dependent) => dependent.description).toList(),
+                  );
+                  if (!confirmed || !context.mounted) return;
+                }
                 RecipesProvider.removeInstruction(recipeId: recipeId, instructionId: instruction.id);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text("Step removed"),
+                    persist: false,
+                    action: SnackBarAction(
+                      label: "Undo",
+                      onPressed: () {
+                        RecipesProvider.addOrUpdate(newRecipe: originalRecipe);
+                      },
+                    ),
+                  ),
+                );
               },
             ),
           ),
