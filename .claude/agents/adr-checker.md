@@ -77,7 +77,7 @@ When called after implementation:
    - File paths that exist and are correct
    - Method/function names that match the code exactly
    - Flow descriptions that match the actual code flow
-6. **Update the CLAUDE.md ADR index.** If a new ADR was created, add it to the ADR table in `CLAUDE.md`.
+6. **Update the AGENTS.md ADR index.** If a new ADR was created, add it as a one-line row to the ADR table in `AGENTS.md`.
 7. **Verify accuracy.** Re-read every factual claim you wrote and verify it against the source code. Fix any discrepancies before finishing.
 
 ### Output Format (Maintain)
