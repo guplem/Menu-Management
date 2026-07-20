@@ -232,7 +232,7 @@ If the repository does not have a `waiting-for-human-check` label, create it fir
 gh label create "waiting-for-human-check" --description "No human has verified this yet -- direct AI output" --color "D93F0B"
 ```
 
-Whenever you create a GitHub issue, use the `create-issue` skill. Whenever you implement one, use the `implement-issue` skill.
+Whenever you create a GitHub issue, use the `create-issue` skill. Whenever you implement one, use the `implement-issue` skill. Whenever you review a PR, use the `review-pr` skill.
 
 ## Self-Updating Rules
 

@@ -107,10 +107,7 @@ Before starting any work:
    ```bash
    git checkout $WORK_BRANCH && git pull origin $WORK_BRANCH
    ```
-2. Run `flutter analyze` to ensure a clean starting state:
-   ```bash
-   cd menu_management && flutter analyze
-   ```
+2. Spawn the **validate** agent to confirm the repo's checks pass before you start. Do not build on a broken baseline; report it to the user instead.
 
 ## 7. Execute Implementation
 
@@ -193,72 +190,19 @@ PREOF
 3. **Create a PR** targeting `$PR_TARGET_BRANCH`.
 4. **Run the automated review cycle** (section 8).
 
-## 8. Automated Review Cycle
+## 8. Review Cycle (uses the review-pr skill)
 
-For each PR, run a review cycle using a **local file** to keep the feedback loop fast.
+Use the **review-pr** skill in `--no-verdict` mode. That mode runs unattended (it never asks the user anything), posts a COMMENT-only review to the PR, and writes a local findings file `.reviews/<PR_NUMBER>-review.md` with a clear verdict: `APPROVED` or `CHANGES_REQUESTED`. Invoke it with the Skill tool: `skill: "invoke", args: "review-pr <PR_NUMBER> --no-verdict"`.
 
-The review file path is: `.reviews/<issue-number>-review.md`
-
-### 8a. Spawn a review agent
-
-Spawn a **new agent without prior context** to review the PR:
-
-> You are reviewing a pull request for the Menu Management Flutter app.
->
-> ## PR Details
-> - PR number: <PR_NUMBER>
-> - Branch: <BRANCH_NAME>
->
-> ## Instructions
-> 1. Fetch the PR details: `gh pr view <PR_NUMBER> --json title,body,url,headRefName,baseRefName`
-> 2. Fetch the full diff: `gh pr diff <PR_NUMBER>`
-> 3. Read the project's `AGENTS.md` for conventions.
-> 4. Review the code changes for:
->    - Correctness: Does the code do what the issue asks?
->    - Patterns: Does it follow existing codebase patterns (Provider, Freezed, etc.)?
->    - Types: Are all types explicit? Does it match analysis_options.yaml rules?
->    - Scope: Are changes limited to what the issue requires? No over-engineering?
->    - Style: Double quotes, package imports, 150-char line width?
-> 5. Write your review to `.reviews/<PR_NUMBER>-review.md`:
->    ```markdown
->    # Review: PR #<PR_NUMBER> -- <PR title>
->
->    ## Verdict: APPROVED | CHANGES_REQUESTED
->
->    ## Summary
->    <1-3 sentence assessment>
->
->    ## Issues
->    <!-- Leave empty if APPROVED -->
->
->    ### Issue 1: <short title>
->    - **File:** `<file-path>`
->    - **Line(s):** <line number or range>
->    - **Severity:** critical | high | medium | low
->    - **Description:** <what's wrong and why>
->    - **Suggestion:** <how to fix it>
->    ```
->    Create `.reviews/` if it doesn't exist: `mkdir -p .reviews`
-
-### 8b. If changes are requested, iterate
-
-Read the review file. If verdict is `CHANGES_REQUESTED`:
-
-1. Spawn an implementation agent on the same branch to address every issue.
-2. Delete the old review file.
-3. Spawn a **new review agent** (fresh context) to review again.
-4. **Repeat** until `APPROVED` (max 3 iterations).
-
-### 8c. Clean up
-
-Once approved:
-
-```bash
-rm -f .reviews/<PR_NUMBER>-review.md
-rmdir .reviews 2>/dev/null || true
-```
-
-Notify the user that the review passed.
+1. Run `review-pr <PR_NUMBER> --no-verdict`, then read the verdict from `.reviews/<PR_NUMBER>-review.md`.
+2. **If `CHANGES_REQUESTED`:** spawn an implementation agent on the same branch to fix every Required item, then run `review-pr <PR_NUMBER> --no-verdict` again (it re-reviews the whole current state and does not re-raise findings it already made). Repeat until `APPROVED`, **at most 3 rounds**; then stop and report to the user.
+3. **On approval, reply on every inline comment thread the cycle posted**, so a human scanning the "Files changed" tab sees each comment's status without reading commits. Do **not** resolve threads (that is the human's call). List the comment `id`s with `gh api repos/<owner>/<repo>/pulls/<PR_NUMBER>/comments --jq '.[] | {id, path, line}'`, then reply to each via the replies endpoint:
+   ```bash
+   gh api repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/<PR_NUMBER>/comments/<COMMENT_ID>/replies -f body="<reply>"
+   ```
+   - **Addressed by a fix round:** `**Applied** in <short-sha> - <one sentence on the change>.`
+   - **Left unapplied on purpose** (optional suggestion, out of scope): `**Not applied** - <one-sentence reason>.`
+4. **Then finish:** delete the review file (and `.reviews/` if it is now empty) and tell the user.
 
 **Do not merge the PR.** Wait for the user to review, approve, and merge manually.
 
@@ -278,7 +222,7 @@ If there are remaining steps, report:
 - **Never push to `main` directly.** All work goes through branches and PRs.
 - **Never merge PRs automatically.** Always wait for human approval.
 - **Scope discipline.** Each agent works only on its assigned step. No cross-step changes.
-- **Verification is mandatory.** Every agent must run `flutter analyze` before pushing.
-- **Fresh reviewers.** Review agents must have no context from the implementation.
+- **Verification is mandatory.** The implementation agent runs the repo's checks before pushing, and the orchestrator confirms a clean state with the **validate** agent.
+- **Fresh reviewers.** The review agent has no context from the implementation (the `review-pr` skill already spawns fresh agents).
 - **Max 3 review iterations.** If after 3 rounds the review still has issues, notify the user and move on.
 - **Interactive first.** Always use `AskUserQuestion` to gather configuration. Never assume defaults silently.
