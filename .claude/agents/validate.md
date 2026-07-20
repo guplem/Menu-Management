@@ -1,5 +1,5 @@
 ---
-name: test-runner
+name: validate
 description: Runs the format check, flutter analyze, and flutter test for the Menu Management app after code changes, the same checks CI runs, regenerating Freezed models when their sources changed
 tools: Read, Grep, Glob, Bash
 model: sonnet

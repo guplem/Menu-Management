@@ -6,7 +6,7 @@ Before implementing any non-trivial feature, delegate to the **pattern-scout** a
 
 Before implementing features that touch state management, data models, persistence, menu generation, or app architecture, delegate to the **adr-checker** agent in **consult mode**. After such changes, delegate in **maintain mode**.
 
-After writing or modifying code, delegate to the **test-runner** agent.
+After writing or modifying code, delegate to the **validate** agent.
 
 After completing changes that affect documented content, delegate to the **docs-checker** agent.
 
