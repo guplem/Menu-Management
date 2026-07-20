@@ -238,10 +238,7 @@ class _ProductEditorState extends State<ProductEditor> {
               children: [
                 const Text("Can be frozen"),
                 const SizedBox(width: 8),
-                Switch(
-                  value: _canBeFrozen,
-                  onChanged: (bool value) => setState(() => _canBeFrozen = value),
-                ),
+                Switch(value: _canBeFrozen, onChanged: (bool value) => setState(() => _canBeFrozen = value)),
               ],
             ),
             const SizedBox(height: 12),

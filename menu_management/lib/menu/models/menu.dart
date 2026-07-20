@@ -118,10 +118,12 @@ abstract class Menu with _$Menu {
           continue;
         }
         int yieldValue = yieldMap[(meal.mealTime, si)] ?? 1;
-        updatedSubMeals.add(SubMeal(
-          cooking: Cooking(recipeId: subMeal.cooking!.recipeId, yield: yieldValue),
-          people: subMeal.people,
-        ));
+        updatedSubMeals.add(
+          SubMeal(
+            cooking: Cooking(recipeId: subMeal.cooking!.recipeId, yield: yieldValue),
+            people: subMeal.people,
+          ),
+        );
       }
       return Meal(mealTime: meal.mealTime, subMeals: updatedSubMeals);
     }).toList();
@@ -222,11 +224,9 @@ abstract class Menu with _$Menu {
             }
             sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
           } else {
-            sources[ingredientUsage.ingredient]!.add(IngredientSource(
-              recipeName: entry.recipe.name,
-              perServingQuantities: [ingredientUsage.quantity],
-              servings: entry.peopleFactor,
-            ));
+            sources[ingredientUsage.ingredient]!.add(
+              IngredientSource(recipeName: entry.recipe.name, perServingQuantities: [ingredientUsage.quantity], servings: entry.peopleFactor),
+            );
           }
         }
       }

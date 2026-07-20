@@ -25,7 +25,12 @@ Recipe _testRecipe({required String id, required String name, List<Instruction> 
 Meal _testMeal({required WeekDay weekDay, required MealType mealType, Recipe? recipe, int yield = 1, int people = 2}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    subMeals: [SubMeal(cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null, people: people)],
+    subMeals: [
+      SubMeal(
+        cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null,
+        people: people,
+      ),
+    ],
   );
 }
 
@@ -163,14 +168,23 @@ void main() {
       Instruction flourInstruction = Instruction(
         id: "i1",
         description: "step",
-        ingredientsUsed: [IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 200, unit: Unit.grams))],
+        ingredientsUsed: [
+          IngredientUsage(
+            ingredient: "flour",
+            quantity: const Quantity(amount: 200, unit: Unit.grams),
+          ),
+        ],
       );
       Recipe pastaRecipe = _testRecipe(id: "r1", name: "Pasta", instructions: [flourInstruction]);
       Recipe breadRecipe = _testRecipe(id: "r2", name: "Bread", instructions: [flourInstruction]);
       List<Recipe> recipes = [pastaRecipe, breadRecipe];
 
-      Menu week1 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pastaRecipe)]);
-      Menu week2 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: breadRecipe)]);
+      Menu week1 = Menu(
+        meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pastaRecipe)],
+      );
+      Menu week2 = Menu(
+        meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: breadRecipe)],
+      );
 
       MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
       Map<String, List<IngredientSource>> sources = multiWeek.ingredientSources(recipes: recipes);
@@ -184,14 +198,23 @@ void main() {
       Instruction flourInstruction = Instruction(
         id: "i1",
         description: "step",
-        ingredientsUsed: [IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams))],
+        ingredientsUsed: [
+          IngredientUsage(
+            ingredient: "flour",
+            quantity: const Quantity(amount: 100, unit: Unit.grams),
+          ),
+        ],
       );
       Recipe recipe = _testRecipe(id: "r1", name: "Pasta", instructions: [flourInstruction]);
       List<Recipe> recipes = [recipe];
 
       // Default people = 2 per meal
-      Menu week1 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)]);
-      Menu week2 = Menu(meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)]);
+      Menu week1 = Menu(
+        meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
+      );
+      Menu week2 = Menu(
+        meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
+      );
 
       MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week1, week2]);
       Map<String, List<IngredientSource>> sources = multiWeek.ingredientSources(recipes: recipes);
@@ -319,18 +342,22 @@ void main() {
     });
 
     test("totalServingsForRecipe sums across all weeks", () {
-      Menu week1 = Menu(meals: [
-        Meal(
-          mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-          subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2)],
-        ),
-      ]);
-      Menu week2 = Menu(meals: [
-        Meal(
-          mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-          subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 0), people: 3)],
-        ),
-      ]);
+      Menu week1 = Menu(
+        meals: [
+          Meal(
+            mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2)],
+          ),
+        ],
+      );
+      Menu week2 = Menu(
+        meals: [
+          Meal(
+            mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 0), people: 3)],
+          ),
+        ],
+      );
       MultiWeekMenu multi = MultiWeekMenu(weeks: [week1, week2]);
 
       expect(multi.totalServingsForRecipe("r1"), 5); // 2 + 3
@@ -342,22 +369,26 @@ void main() {
 
       // Week 0: Saturday cook (day 0), Wednesday leftovers (day 4)
       // Week 1: Monday (day 9) - outside storage window, new cook event
-      Menu week0 = Menu(meals: [
-        Meal(
-          mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
-          subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 2), people: 2)],
-        ),
-        Meal(
-          mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
-          subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 3)],
-        ),
-      ]);
-      Menu week1 = Menu(meals: [
-        Meal(
-          mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-          subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 1), people: 4)],
-        ),
-      ]);
+      Menu week0 = Menu(
+        meals: [
+          Meal(
+            mealTime: const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 2), people: 2)],
+          ),
+          Meal(
+            mealTime: const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 3)],
+          ),
+        ],
+      );
+      Menu week1 = Menu(
+        meals: [
+          Meal(
+            mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 1), people: 4)],
+          ),
+        ],
+      );
       MultiWeekMenu multi = MultiWeekMenu(weeks: [week0, week1]);
 
       // Saturday cook feeds Saturday (2) + Wednesday (3) = 5, NOT Monday

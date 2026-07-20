@@ -20,12 +20,20 @@ import "package:menu_management/recipes/recipes_provider.dart";
 
 // ── Test helpers ──
 
-IngredientUsage _usage(String ingredientId) => IngredientUsage(ingredient: ingredientId, quantity: const Quantity(amount: 100, unit: Unit.grams));
+IngredientUsage _usage(String ingredientId) => IngredientUsage(
+  ingredient: ingredientId,
+  quantity: const Quantity(amount: 100, unit: Unit.grams),
+);
 
 Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch, String? recipeId, int yield = 1, int people = 2}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    subMeals: [SubMeal(cooking: recipeId != null ? Cooking(recipeId: recipeId, yield: yield) : null, people: people)],
+    subMeals: [
+      SubMeal(
+        cooking: recipeId != null ? Cooking(recipeId: recipeId, yield: yield) : null,
+        people: people,
+      ),
+    ],
   );
 }
 
@@ -39,7 +47,9 @@ void main() {
       Recipe salad = Recipe(
         id: "r-salad",
         name: "Salad",
-        instructions: [Instruction(id: "i1", description: "Chop", ingredientsUsed: [_usage("ing-tomato")])],
+        instructions: [
+          Instruction(id: "i1", description: "Chop", ingredientsUsed: [_usage("ing-tomato")]),
+        ],
       );
       Recipe soup = Recipe(
         id: "r-soup",
@@ -52,7 +62,9 @@ void main() {
       Recipe cake = Recipe(
         id: "r-cake",
         name: "Cake",
-        instructions: [Instruction(id: "i1", description: "Mix", ingredientsUsed: [_usage("ing-flour")])],
+        instructions: [
+          Instruction(id: "i1", description: "Mix", ingredientsUsed: [_usage("ing-flour")]),
+        ],
       );
 
       List<Recipe> referencing = tomato.findReferencingRecipes(recipes: [salad, soup, cake]);
@@ -77,7 +89,9 @@ void main() {
       Recipe cake = Recipe(
         id: "r-cake",
         name: "Cake",
-        instructions: [Instruction(id: "i1", description: "Mix", ingredientsUsed: [_usage("ing-flour")])],
+        instructions: [
+          Instruction(id: "i1", description: "Mix", ingredientsUsed: [_usage("ing-flour")]),
+        ],
       );
 
       expect(tomato.findReferencingRecipes(recipes: [cake]), isEmpty);
@@ -122,7 +136,9 @@ void main() {
       Recipe recipe = Recipe(
         id: "r1",
         name: "Cake",
-        instructions: [Instruction(id: "i1", description: "Mix", ingredientsUsed: [_usage("ing-flour")])],
+        instructions: [
+          Instruction(id: "i1", description: "Mix", ingredientsUsed: [_usage("ing-flour")]),
+        ],
       );
 
       expect(recipe.copyWithRemovedIngredientUsages(ingredientId: "ing-tomato"), recipe);
@@ -137,8 +153,17 @@ void main() {
         id: "r1",
         name: "Multi-step",
         instructions: [
-          Instruction(id: "i1", description: "Prep", outputs: [Result(id: "o1", description: "prepped")]),
-          Instruction(id: "i2", description: "Cook", inputs: ["o1"], outputs: [Result(id: "o2", description: "cooked")]),
+          Instruction(
+            id: "i1",
+            description: "Prep",
+            outputs: [Result(id: "o1", description: "prepped")],
+          ),
+          Instruction(
+            id: "i2",
+            description: "Cook",
+            inputs: ["o1"],
+            outputs: [Result(id: "o2", description: "cooked")],
+          ),
           Instruction(id: "i3", description: "Serve", inputs: ["o2"]),
         ],
       );
@@ -153,7 +178,14 @@ void main() {
         id: "r1",
         name: "Multi-step",
         instructions: [
-          Instruction(id: "i1", description: "Prep", outputs: [Result(id: "o1", description: "a"), Result(id: "o2", description: "b")]),
+          Instruction(
+            id: "i1",
+            description: "Prep",
+            outputs: [
+              Result(id: "o1", description: "a"),
+              Result(id: "o2", description: "b"),
+            ],
+          ),
           Instruction(id: "i2", description: "Cook", inputs: ["o1"]),
           Instruction(id: "i3", description: "Serve", inputs: ["o2"]),
         ],
@@ -180,7 +212,11 @@ void main() {
         id: "r1",
         name: "Multi-step",
         instructions: [
-          Instruction(id: "i1", description: "Prep", outputs: [Result(id: "o1", description: "prepped")]),
+          Instruction(
+            id: "i1",
+            description: "Prep",
+            outputs: [Result(id: "o1", description: "prepped")],
+          ),
           Instruction(id: "i2", description: "Cook"),
         ],
       );
@@ -218,8 +254,17 @@ void main() {
         id: "r1",
         name: "Multi-step",
         instructions: [
-          Instruction(id: "i1", description: "Prep", outputs: [Result(id: "o1", description: "prepped")]),
-          Instruction(id: "i2", description: "Cook", inputs: ["o1"], outputs: [Result(id: "o2", description: "cooked")]),
+          Instruction(
+            id: "i1",
+            description: "Prep",
+            outputs: [Result(id: "o1", description: "prepped")],
+          ),
+          Instruction(
+            id: "i2",
+            description: "Cook",
+            inputs: ["o1"],
+            outputs: [Result(id: "o2", description: "cooked")],
+          ),
           Instruction(id: "i3", description: "Serve", inputs: ["o2"]),
         ],
       );
@@ -246,11 +291,15 @@ void main() {
 
   group("MultiWeekMenu.findReferencingMeals", () {
     test("returns week index and meal time for every slot using the recipe", () {
-      Menu week0 = Menu(meals: [
-        _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella"),
-        _meal(weekDay: WeekDay.sunday, mealType: MealType.dinner, recipeId: "r-salad"),
-      ]);
-      Menu week1 = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipeId: "r-paella")]);
+      Menu week0 = Menu(
+        meals: [
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella"),
+          _meal(weekDay: WeekDay.sunday, mealType: MealType.dinner, recipeId: "r-salad"),
+        ],
+      );
+      Menu week1 = Menu(
+        meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipeId: "r-paella")],
+      );
       MultiWeekMenu menu = MultiWeekMenu(weeks: [week0, week1]);
 
       List<({int weekIndex, MealTime mealTime})> references = menu.findReferencingMeals("r-paella");
@@ -269,18 +318,22 @@ void main() {
           SubMeal(cooking: Cooking(recipeId: "r-paella", yield: 0), people: 1),
         ],
       );
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [meal]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(meals: [meal]),
+        ],
+      );
 
       expect(menu.findReferencingMeals("r-paella").length, 1);
     });
 
     test("orders entries chronologically within a week", () {
-      Menu week = Menu(meals: [
-        _meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipeId: "r-paella"),
-        _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella"),
-      ]);
+      Menu week = Menu(
+        meals: [
+          _meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipeId: "r-paella"),
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella"),
+        ],
+      );
 
       List<({int weekIndex, MealTime mealTime})> references = MultiWeekMenu(weeks: [week]).findReferencingMeals("r-paella");
 
@@ -289,9 +342,16 @@ void main() {
     });
 
     test("returns empty when the recipe is not used", () {
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [_meal(recipeId: "r-salad"), _meal(weekDay: WeekDay.sunday)]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _meal(recipeId: "r-salad"),
+              _meal(weekDay: WeekDay.sunday),
+            ],
+          ),
+        ],
+      );
 
       expect(menu.findReferencingMeals("r-paella"), isEmpty);
     });
@@ -303,12 +363,16 @@ void main() {
     test("clears the cooking of every sub-meal using the recipe across weeks", () {
       const Recipe paella = Recipe(id: "r-paella", name: "Paella");
       const Recipe salad = Recipe(id: "r-salad", name: "Salad");
-      Menu week0 = Menu(meals: [
-        _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella", yield: 2),
-        _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipeId: "r-paella", yield: 0),
-        _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipeId: "r-salad"),
-      ]);
-      Menu week1 = Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella")]);
+      Menu week0 = Menu(
+        meals: [
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella", yield: 2),
+          _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipeId: "r-paella", yield: 0),
+          _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipeId: "r-salad"),
+        ],
+      );
+      Menu week1 = Menu(
+        meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella")],
+      );
       MultiWeekMenu menu = MultiWeekMenu(weeks: [week0, week1]);
 
       MultiWeekMenu cleared = menu.copyWithClearedRecipe(recipeId: "r-paella", recipes: [paella, salad]);
@@ -328,12 +392,14 @@ void main() {
     test("keeps other recipes' cookings and recalculates their yields", () {
       const Recipe paella = Recipe(id: "r-paella", name: "Paella");
       const Recipe salad = Recipe(id: "r-salad", name: "Salad", maxStorageDays: 6);
-      Menu week = Menu(meals: [
-        _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella"),
-        // Yields intentionally wrong so the recalculation is observable.
-        _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipeId: "r-salad", yield: 0),
-        _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipeId: "r-salad", yield: 0),
-      ]);
+      Menu week = Menu(
+        meals: [
+          _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r-paella"),
+          // Yields intentionally wrong so the recalculation is observable.
+          _meal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipeId: "r-salad", yield: 0),
+          _meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipeId: "r-salad", yield: 0),
+        ],
+      );
 
       MultiWeekMenu cleared = MultiWeekMenu(weeks: [week]).copyWithClearedRecipe(recipeId: "r-paella", recipes: [paella, salad]);
 
@@ -360,8 +426,17 @@ void main() {
           id: "r1",
           name: "Multi-step",
           instructions: [
-            Instruction(id: "i1", description: "Prep", outputs: [Result(id: "o1", description: "prepped")]),
-            Instruction(id: "i2", description: "Cook", inputs: ["o1"], outputs: [Result(id: "o2", description: "cooked")]),
+            Instruction(
+              id: "i1",
+              description: "Prep",
+              outputs: [Result(id: "o1", description: "prepped")],
+            ),
+            Instruction(
+              id: "i2",
+              description: "Cook",
+              inputs: ["o1"],
+              outputs: [Result(id: "o2", description: "cooked")],
+            ),
             Instruction(id: "i3", description: "Serve", inputs: ["o2"]),
           ],
         ),
@@ -384,9 +459,11 @@ void main() {
     });
 
     test("stores the active menu so delete flows can check references against it", () {
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [_meal(recipeId: "r-paella")]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(meals: [_meal(recipeId: "r-paella")]),
+        ],
+      );
 
       MenuProvider.setMultiWeekMenu(menu);
 
@@ -394,9 +471,13 @@ void main() {
     });
 
     test("clears the active menu when set to null", () {
-      MenuProvider.setMultiWeekMenu(MultiWeekMenu(weeks: [
-        Menu(meals: [_meal()]),
-      ]));
+      MenuProvider.setMultiWeekMenu(
+        MultiWeekMenu(
+          weeks: [
+            Menu(meals: [_meal()]),
+          ],
+        ),
+      );
 
       MenuProvider.setMultiWeekMenu(null);
 

@@ -7,13 +7,7 @@ import "package:menu_management/shopping/waste_optimizer.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
 class ShoppingProductRow extends StatelessWidget {
-  const ShoppingProductRow({
-    super.key,
-    required this.product,
-    required this.recommendation,
-    required this.isBestOption,
-    required this.packsToBuy,
-  });
+  const ShoppingProductRow({super.key, required this.product, required this.recommendation, required this.isBestOption, required this.packsToBuy});
 
   final Product product;
   final ProductRecommendation recommendation;
@@ -74,7 +68,10 @@ class ShoppingProductRow extends StatelessWidget {
       child: Chip(
         label: Text(wasteLabel),
         backgroundColor: ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness).primaryContainer,
-        labelStyle: TextStyle(color: ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness).onPrimaryContainer, fontSize: 12),
+        labelStyle: TextStyle(
+          color: ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness).onPrimaryContainer,
+          fontSize: 12,
+        ),
         visualDensity: VisualDensity.compact,
         padding: EdgeInsets.zero,
       ),
@@ -103,17 +100,20 @@ class ShoppingProductRow extends StatelessWidget {
                 children: [
                   if (packLabel != null) Text(packLabel, style: Theme.of(context).textTheme.bodyLarge),
                   // Only show totalLabel as subtitle when it adds info (e.g. "6x125grams" + "750 grams/pack")
-                  if (packLabel == null || packLabel != totalLabel) Text(totalLabel, style: packLabel != null ? Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor) : Theme.of(context).textTheme.bodyLarge),
+                  if (packLabel == null || packLabel != totalLabel)
+                    Text(
+                      totalLabel,
+                      style: packLabel != null
+                          ? Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)
+                          : Theme.of(context).textTheme.bodyLarge,
+                    ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
 
             // Waste status chip (shown for all products)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _buildChip(context),
-            ),
+            Padding(padding: const EdgeInsets.only(right: 8), child: _buildChip(context)),
 
             // Product link button
             IconButton(
@@ -130,9 +130,17 @@ class ShoppingProductRow extends StatelessWidget {
               child: covered
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Icon(Icons.check_rounded, color: Theme.of(context).hintColor, size: 18), const SizedBox(width: 4), Text("Covered", style: TextStyle(color: Theme.of(context).hintColor))],
+                      children: [
+                        Icon(Icons.check_rounded, color: Theme.of(context).hintColor, size: 18),
+                        const SizedBox(width: 4),
+                        Text("Covered", style: TextStyle(color: Theme.of(context).hintColor)),
+                      ],
                     )
-                  : Text("Buy $packsToBuy ${product.itemsPerPack == 1 ? (packsToBuy == 1 ? "piece" : "pieces") : (packsToBuy == 1 ? "pack" : "packs")}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right),
+                  : Text(
+                      "Buy $packsToBuy ${product.itemsPerPack == 1 ? (packsToBuy == 1 ? "piece" : "pieces") : (packsToBuy == 1 ? "pack" : "packs")}",
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.right,
+                    ),
             ),
           ],
         ),

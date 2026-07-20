@@ -6,12 +6,7 @@ import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
-Product _product({
-  double quantityPerItem = 250,
-  int itemsPerPack = 1,
-  Unit unit = Unit.grams,
-  int? shelfLifeDays,
-}) {
+Product _product({double quantityPerItem = 250, int itemsPerPack = 1, Unit unit = Unit.grams, int? shelfLifeDays}) {
   return Product(
     link: "https://example.com",
     quantityPerItem: quantityPerItem,
@@ -27,7 +22,10 @@ Ingredient _ingredient({double? density}) {
 
 /// Creates a single cooking event on the given day with the given amount.
 CookingEvent _event({int day = 0, double amount = 100, Unit unit = Unit.grams}) {
-  return CookingEvent(dayIndex: day, quantities: [Quantity(amount: amount, unit: unit)]);
+  return CookingEvent(
+    dayIndex: day,
+    quantities: [Quantity(amount: amount, unit: unit)],
+  );
 }
 
 void main() {
@@ -269,7 +267,9 @@ void main() {
 
         List<ProductRecommendation> result = rankProducts(
           totalNeeded: 24.075,
-          events: [CookingEvent(dayIndex: 0, quantities: [const Quantity(amount: 2.25, unit: Unit.centiliters)])],
+          events: [
+            CookingEvent(dayIndex: 0, quantities: [const Quantity(amount: 2.25, unit: Unit.centiliters)]),
+          ],
           ingredient: ingredient,
           products: [product],
         );
@@ -287,7 +287,9 @@ void main() {
 
         List<ProductRecommendation> result = rankProducts(
           totalNeeded: 100,
-          events: [CookingEvent(dayIndex: 0, quantities: [const Quantity(amount: 5, unit: Unit.pieces)])],
+          events: [
+            CookingEvent(dayIndex: 0, quantities: [const Quantity(amount: 5, unit: Unit.pieces)]),
+          ],
           ingredient: ingredient,
           products: [product],
         );
@@ -327,7 +329,12 @@ void main() {
       test("single product returns that product", () {
         Product only = _product(quantityPerItem: 300);
 
-        List<ProductRecommendation> result = rankProducts(totalNeeded: 500, events: [_event(amount: 500)], ingredient: _ingredient(), products: [only]);
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 500,
+          events: [_event(amount: 500)],
+          ingredient: _ingredient(),
+          products: [only],
+        );
 
         expect(result.length, 1);
         expect(result.first.product, only);

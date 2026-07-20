@@ -103,11 +103,7 @@ class _RecipesPageState extends State<RecipesPage> {
         ),
         actions: [
           if (selectedRecipeId != null) ...[
-            TextButton.icon(
-              icon: const Icon(Icons.delete_rounded),
-              label: const Text("Delete"),
-              onPressed: _deleteSelectedRecipe,
-            ),
+            TextButton.icon(icon: const Icon(Icons.delete_rounded), label: const Text("Delete"), onPressed: _deleteSelectedRecipe),
             Gap.horizontal(),
             ElevatedButton.icon(
               icon: const Icon(Icons.copy_rounded),
@@ -132,11 +128,12 @@ class _RecipesPageState extends State<RecipesPage> {
           }
 
           final normalizedSearch = _search.normalizeForSearch(removeSpaces: true);
-          final filtered = (normalizedSearch.isEmpty
-                  ? recipesProvider.recipes
-                  : recipesProvider.recipes.where((r) => r.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)))
-              .sorted((Recipe a, Recipe b) => a.name.normalizeForSearch().compareTo(b.name.normalizeForSearch()))
-              .toList();
+          final filtered =
+              (normalizedSearch.isEmpty
+                      ? recipesProvider.recipes
+                      : recipesProvider.recipes.where((r) => r.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)))
+                  .sorted((Recipe a, Recipe b) => a.name.normalizeForSearch().compareTo(b.name.normalizeForSearch()))
+                  .toList();
 
           return ListView.builder(
             itemCount: filtered.length + 1,

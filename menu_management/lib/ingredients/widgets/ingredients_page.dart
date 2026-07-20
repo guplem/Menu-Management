@@ -26,11 +26,12 @@ class _IngredientsPageState extends State<IngredientsPage> {
         builder: (context) {
           IngredientsProvider ingredientsProvider = getProvider<IngredientsProvider>(context, listen: true);
           final normalizedSearch = _search.normalizeForSearch(removeSpaces: true);
-          final filtered = (normalizedSearch.isEmpty
-                  ? ingredientsProvider.ingredients
-                  : ingredientsProvider.ingredients.where((i) => i.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)))
-              .sorted((Ingredient a, Ingredient b) => a.name.normalizeForSearch().compareTo(b.name.normalizeForSearch()))
-              .toList();
+          final filtered =
+              (normalizedSearch.isEmpty
+                      ? ingredientsProvider.ingredients
+                      : ingredientsProvider.ingredients.where((i) => i.name.normalizeForSearch(removeSpaces: true).contains(normalizedSearch)))
+                  .sorted((Ingredient a, Ingredient b) => a.name.normalizeForSearch().compareTo(b.name.normalizeForSearch()))
+                  .toList();
           return ListView.builder(
             itemCount: filtered.length + 1,
             itemBuilder: (context, index) {
@@ -75,7 +76,8 @@ class _IngredientsPageState extends State<IngredientsPage> {
                           bool confirmed = await showDeleteConfirmationDialog(
                             context: context,
                             title: 'Delete ingredient "${toRemove.name}"?',
-                            message: "It is used by ${referencingRecipes.length} recipe${referencingRecipes.length == 1 ? "" : "s"}. "
+                            message:
+                                "It is used by ${referencingRecipes.length} recipe${referencingRecipes.length == 1 ? "" : "s"}. "
                                 "Deleting it will also remove it from:",
                             affectedItems: referencingRecipes.map((Recipe recipe) => recipe.name).toList(),
                           );

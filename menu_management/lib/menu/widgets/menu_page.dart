@@ -148,9 +148,7 @@ class _MenuPageState extends State<MenuPage> {
                           ...currentWeek.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((Meal? meal) {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: meal == null
-                                  ? const OutlinedCard(child: SizedBox(height: 50, width: 140))
-                                  : _buildMealCard(meal),
+                              child: meal == null ? const OutlinedCard(child: SizedBox(height: 50, width: 140)) : _buildMealCard(meal),
                             );
                           }),
                         ],
@@ -234,7 +232,12 @@ class _MenuPageState extends State<MenuPage> {
               child: SizedBox(
                 width: 140,
                 child: subMeal.cooking == null
-                    ? const SizedBox(height: 30, child: Center(child: Text("-", style: TextStyle(color: Colors.grey))))
+                    ? const SizedBox(
+                        height: 30,
+                        child: Center(
+                          child: Text("-", style: TextStyle(color: Colors.grey)),
+                        ),
+                      )
                     : Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -244,12 +247,7 @@ class _MenuPageState extends State<MenuPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Flexible(
-                                child: Text(
-                                  recipe?.name ?? "?",
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                ),
+                                child: Text(recipe?.name ?? "?", textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, maxLines: 2),
                               ),
                               ..._buildExpiryIndicator(warnings),
                             ],
@@ -258,42 +256,36 @@ class _MenuPageState extends State<MenuPage> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 4),
                             child: subMeal.cooking!.yield == 0
-                              ? Chip(
-                                  label: const Text("Leftovers"),
-                                  backgroundColor: ThemeCustom.colorScheme(context).primaryContainer,
-                                  labelStyle: TextStyle(
-                                    color: ThemeCustom.colorScheme(context).onPrimaryContainer,
-                                    fontSize: 12,
+                                ? Chip(
+                                    label: const Text("Leftovers"),
+                                    backgroundColor: ThemeCustom.colorScheme(context).primaryContainer,
+                                    labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onPrimaryContainer, fontSize: 12),
+                                    visualDensity: VisualDensity.compact,
+                                    padding: EdgeInsets.zero,
+                                  )
+                                : ActionChip(
+                                    label: Text(
+                                      "Cook ${multiWeekMenu.servingsForCookEvent(cookWeekIndex: currentWeekIndex, cookMealTime: meal.mealTime, subMealIndex: subMealIndex, recipes: _recipes)} servings",
+                                    ),
+                                    backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
+                                    labelStyle: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer, fontSize: 12),
+                                    visualDensity: VisualDensity.compact,
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      if (recipe != null) {
+                                        PlayRecipePage.show(
+                                          context: context,
+                                          recipe: recipe,
+                                          initialServings: multiWeekMenu.servingsForCookEvent(
+                                            cookWeekIndex: currentWeekIndex,
+                                            cookMealTime: meal.mealTime,
+                                            subMealIndex: subMealIndex,
+                                            recipes: _recipes,
+                                          ),
+                                        );
+                                      }
+                                    },
                                   ),
-                                  visualDensity: VisualDensity.compact,
-                                  padding: EdgeInsets.zero,
-                                )
-                              : ActionChip(
-                                  label: Text(
-                                    "Cook ${multiWeekMenu.servingsForCookEvent(cookWeekIndex: currentWeekIndex, cookMealTime: meal.mealTime, subMealIndex: subMealIndex, recipes: _recipes)} servings",
-                                  ),
-                                  backgroundColor: ThemeCustom.colorScheme(context).tertiaryContainer,
-                                  labelStyle: TextStyle(
-                                    color: ThemeCustom.colorScheme(context).onTertiaryContainer,
-                                    fontSize: 12,
-                                  ),
-                                  visualDensity: VisualDensity.compact,
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    if (recipe != null) {
-                                      PlayRecipePage.show(
-                                        context: context,
-                                        recipe: recipe,
-                                        initialServings: multiWeekMenu.servingsForCookEvent(
-                                          cookWeekIndex: currentWeekIndex,
-                                          cookMealTime: meal.mealTime,
-                                          subMealIndex: subMealIndex,
-                                          recipes: _recipes,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
                           ),
                         ],
                       ),
@@ -325,8 +317,8 @@ class _MenuPageState extends State<MenuPage> {
                   subMeal.people <= 0
                       ? Icons.person_outline_rounded
                       : subMeal.people <= 1
-                          ? Icons.person_rounded
-                          : Icons.people_alt_rounded,
+                      ? Icons.person_rounded
+                      : Icons.people_alt_rounded,
                   size: 18,
                 ),
                 IconButton(
@@ -334,15 +326,17 @@ class _MenuPageState extends State<MenuPage> {
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                  onPressed: !isHighlighted ? null : () => setState(() {
-                    Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
-                      mealTime: meal.mealTime,
-                      subMealIndex: subMealIndex,
-                      people: subMeal.people + 1,
-                      recipes: _recipes,
-                    );
-                    multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
-                  }),
+                  onPressed: !isHighlighted
+                      ? null
+                      : () => setState(() {
+                          Menu updatedWeek = currentWeek.copyWithUpdatedPeople(
+                            mealTime: meal.mealTime,
+                            subMealIndex: subMealIndex,
+                            people: subMeal.people + 1,
+                            recipes: _recipes,
+                          );
+                          multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
+                        }),
                 ),
               ],
             ),
@@ -377,10 +371,7 @@ class _MenuPageState extends State<MenuPage> {
     ];
   }
 
-  String _buildImpossibleTooltipMessage({
-    required List<MealExpiryWarning> impossible,
-    required List<MealExpiryWarning> freezeRequired,
-  }) {
+  String _buildImpossibleTooltipMessage({required List<MealExpiryWarning> impossible, required List<MealExpiryWarning> freezeRequired}) {
     StringBuffer buffer = StringBuffer();
     if (impossible.length == 1) {
       buffer.write("${impossible.first.ingredient.name} may have expired before this meal.");
@@ -444,16 +435,8 @@ class _MenuPageState extends State<MenuPage> {
               onPressed: () {
                 setState(() {
                   Menu updatedWeek = meal.subMeals.length > 1
-                      ? currentWeek.copyWithRemovedSubMeal(
-                          mealTime: meal.mealTime,
-                          subMealIndex: subMealIndex,
-                          recipes: _recipes,
-                        )
-                      : currentWeek.copyWithClearedSubMeal(
-                          mealTime: meal.mealTime,
-                          subMealIndex: subMealIndex,
-                          recipes: _recipes,
-                        );
+                      ? currentWeek.copyWithRemovedSubMeal(mealTime: meal.mealTime, subMealIndex: subMealIndex, recipes: _recipes)
+                      : currentWeek.copyWithClearedSubMeal(mealTime: meal.mealTime, subMealIndex: subMealIndex, recipes: _recipes);
                   multiWeekMenu = multiWeekMenu.updateWeekAt(currentWeekIndex, updatedWeek).copyWithUpdatedYields(recipes: _recipes);
                 });
                 Navigator.of(context).pop();

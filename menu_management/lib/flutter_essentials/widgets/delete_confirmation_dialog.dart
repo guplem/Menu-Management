@@ -21,11 +21,7 @@ Future<bool> showDeleteConfirmationDialog({
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(message),
-                const SizedBox(height: 10),
-                ...affectedItems.map((String item) => Text("- $item")),
-              ],
+              children: [Text(message), const SizedBox(height: 10), ...affectedItems.map((String item) => Text("- $item"))],
             ),
           ),
         ),

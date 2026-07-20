@@ -58,14 +58,22 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
           const SizedBox(height: 12),
           TextField(
             controller: _densityController,
-            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Density (g/ml)", hintText: "e.g. 1.05 for yogurt, 0.91 for oil"),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Density (g/ml)",
+              hintText: "e.g. 1.05 for yogurt, 0.91 for oil",
+            ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (String value) => setState(() {}),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _gramsPerPieceController,
-            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Grams per piece", hintText: "e.g. 5 for garlic, 80 for carrot"),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Grams per piece",
+              hintText: "e.g. 5 for garlic, 80 for carrot",
+            ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (String value) => setState(() {}),
           ),
@@ -84,7 +92,11 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
               : () {
                   double? density = double.tryParse(_densityController.text);
                   double? gramsPerPiece = double.tryParse(_gramsPerPieceController.text);
-                  final Ingredient updatedIngredient = widget.ingredient.copyWith(name: _controller.text, density: density, gramsPerPiece: gramsPerPiece);
+                  final Ingredient updatedIngredient = widget.ingredient.copyWith(
+                    name: _controller.text,
+                    density: density,
+                    gramsPerPiece: gramsPerPiece,
+                  );
                   widget.onUpdate(updatedIngredient);
                   IngredientsProvider.addOrUpdate(newIngredient: updatedIngredient);
                   Navigator.of(context).pop();

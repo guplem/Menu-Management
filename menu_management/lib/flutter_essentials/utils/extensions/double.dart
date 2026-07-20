@@ -19,7 +19,6 @@ extension DoubleExtensions on double {
     return String.fromCharCodes(result.toString().codeUnits.reversed.toList());
   }
 
-
   /// Formats the double as a string, omitting decimal places if the value is an integer.
   ///
   /// If the value has meaningful decimals, it will be formatted to [desiredDecimals] places.

@@ -86,8 +86,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   List<({int weekIndex, MealTime mealTime})> findReferencingMeals(String recipeId) {
     List<({int weekIndex, MealTime mealTime})> references = [];
     for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
-      List<Meal> referencingMeals = weeks[weekIndex]
-          .meals
+      List<Meal> referencingMeals = weeks[weekIndex].meals
           .where((Meal meal) => meal.subMeals.any((SubMeal subMeal) => subMeal.cooking?.recipeId == recipeId))
           .sorted((Meal a, Meal b) => a.goesBefore(b) ? -1 : 1)
           .toList();
@@ -115,12 +114,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   /// The cook event at [cookWeekIndex]/[cookMealTime]/[subMealIndex] feeds itself plus all
   /// subsequent leftover occurrences (yield == 0) of the same recipe within
   /// the recipe's maxStorageDays window.
-  int servingsForCookEvent({
-    required int cookWeekIndex,
-    required MealTime cookMealTime,
-    required int subMealIndex,
-    required List<Recipe> recipes,
-  }) {
+  int servingsForCookEvent({required int cookWeekIndex, required MealTime cookMealTime, required int subMealIndex, required List<Recipe> recipes}) {
     // Find the cook meal
     Meal? cookMeal = weeks[cookWeekIndex].meals.firstWhereOrNull((Meal m) => m.mealTime.isSameTime(cookMealTime));
     if (cookMeal == null || subMealIndex >= cookMeal.subMeals.length) return 0;

@@ -15,13 +15,7 @@ import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
 Product _product({String link = "https://example.com/p", int? shelfLifeDaysClosed, bool canBeFrozen = false}) {
-  return Product(
-    link: link,
-    quantityPerItem: 250,
-    unit: Unit.grams,
-    shelfLifeDaysClosed: shelfLifeDaysClosed,
-    canBeFrozen: canBeFrozen,
-  );
+  return Product(link: link, quantityPerItem: 250, unit: Unit.grams, shelfLifeDaysClosed: shelfLifeDaysClosed, canBeFrozen: canBeFrozen);
 }
 
 Ingredient _ingredient({required String id, String? name, List<Product> products = const []}) {
@@ -37,7 +31,12 @@ Recipe _recipe({required String id, required List<String> ingredientIds}) {
         id: "$id-step",
         description: "step",
         ingredientsUsed: ingredientIds
-            .map((iid) => IngredientUsage(ingredient: iid, quantity: const Quantity(amount: 100, unit: Unit.grams)))
+            .map(
+              (iid) => IngredientUsage(
+                ingredient: iid,
+                quantity: const Quantity(amount: 100, unit: Unit.grams),
+              ),
+            )
             .toList(),
       ),
     ],
@@ -47,21 +46,14 @@ Recipe _recipe({required String id, required List<String> ingredientIds}) {
 Meal _meal({String? recipeId}) {
   return Meal(
     mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-    subMeals: [
-      SubMeal(cooking: recipeId == null ? null : Cooking(recipeId: recipeId, yield: 1)),
-    ],
+    subMeals: [SubMeal(cooking: recipeId == null ? null : Cooking(recipeId: recipeId, yield: 1))],
   );
 }
 
 void main() {
   group("expiryWarningsForMeal", () {
     test("returns empty when meal has no sub-meals with cooking", () {
-      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
-        meal: _meal(),
-        absoluteDayIndex: 5,
-        recipes: const [],
-        ingredients: const [],
-      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(meal: _meal(), absoluteDayIndex: 5, recipes: const [], ingredients: const []);
       expect(warnings, isEmpty);
     });
 
@@ -190,12 +182,22 @@ void main() {
           Instruction(
             id: "s1",
             description: "first",
-            ingredientsUsed: [IngredientUsage(ingredient: "i1", quantity: const Quantity(amount: 100, unit: Unit.grams))],
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "i1",
+                quantity: const Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
           ),
           Instruction(
             id: "s2",
             description: "second",
-            ingredientsUsed: [IngredientUsage(ingredient: "i1", quantity: const Quantity(amount: 50, unit: Unit.grams))],
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "i1",
+                quantity: const Quantity(amount: 50, unit: Unit.grams),
+              ),
+            ],
           ),
         ],
       );
@@ -221,12 +223,7 @@ void main() {
           SubMeal(cooking: const Cooking(recipeId: "r2", yield: 1)),
         ],
       );
-      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
-        meal: meal,
-        absoluteDayIndex: 10,
-        recipes: [r1, r2],
-        ingredients: [i1, i2],
-      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(meal: meal, absoluteDayIndex: 10, recipes: [r1, r2], ingredients: [i1, i2]);
       expect(warnings.map((w) => w.ingredient.id).toSet(), {"i1", "i2"});
     });
 
@@ -235,16 +232,9 @@ void main() {
       Ingredient ingredient = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 1)]);
       Meal leftoverOnly = Meal(
         mealTime: const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
-        subMeals: [
-          SubMeal(cooking: const Cooking(recipeId: "r1", yield: 0)),
-        ],
+        subMeals: [SubMeal(cooking: const Cooking(recipeId: "r1", yield: 0))],
       );
-      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
-        meal: leftoverOnly,
-        absoluteDayIndex: 5,
-        recipes: [recipe],
-        ingredients: [ingredient],
-      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(meal: leftoverOnly, absoluteDayIndex: 5, recipes: [recipe], ingredients: [ingredient]);
       expect(warnings, isEmpty);
     });
 
@@ -260,12 +250,7 @@ void main() {
           SubMeal(cooking: const Cooking(recipeId: "r2", yield: 1)),
         ],
       );
-      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
-        meal: meal,
-        absoluteDayIndex: 10,
-        recipes: [r1, r2],
-        ingredients: [i1, i2],
-      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(meal: meal, absoluteDayIndex: 10, recipes: [r1, r2], ingredients: [i1, i2]);
       expect(warnings.map((w) => w.ingredient.id).toSet(), {"i2"});
     });
   });
@@ -337,12 +322,22 @@ void main() {
           Instruction(
             id: "s1",
             description: "first",
-            ingredientsUsed: [IngredientUsage(ingredient: "i1", quantity: const Quantity(amount: 100, unit: Unit.grams))],
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "i1",
+                quantity: const Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
           ),
           Instruction(
             id: "s2",
             description: "second",
-            ingredientsUsed: [IngredientUsage(ingredient: "i1", quantity: const Quantity(amount: 50, unit: Unit.grams))],
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "i1",
+                quantity: const Quantity(amount: 50, unit: Unit.grams),
+              ),
+            ],
           ),
         ],
       );
@@ -455,12 +450,7 @@ void main() {
           SubMeal(cooking: const Cooking(recipeId: "r2", yield: 1)),
         ],
       );
-      List<MealExpiryWarning> warnings = expiryWarningsForMeal(
-        meal: meal,
-        absoluteDayIndex: 10,
-        recipes: [r1, r2],
-        ingredients: [i1, i2],
-      );
+      List<MealExpiryWarning> warnings = expiryWarningsForMeal(meal: meal, absoluteDayIndex: 10, recipes: [r1, r2], ingredients: [i1, i2]);
       Map<String, MealExpirySeverity> bySeverity = {for (MealExpiryWarning w in warnings) w.ingredient.id: w.severity};
       expect(bySeverity["i1"], MealExpirySeverity.impossible);
       expect(bySeverity["i2"], MealExpirySeverity.freezeRequired);

@@ -32,10 +32,7 @@ class MenuConfigurationPage extends StatelessWidget {
             onPressed: () async {
               (LoadOutcome, MultiWeekMenu?) result = await Persistency.loadMultiWeekMenu(recipes: RecipesProvider.instance.recipes);
               if (result.$1 == LoadOutcome.failed && context.mounted) {
-                await showErrorDialog(
-                  context: context,
-                  message: "Could not load the menu. It may be corrupted or not a valid menu file (.tsm).",
-                );
+                await showErrorDialog(context: context, message: "Could not load the menu. It may be corrupted or not a valid menu file (.tsm).");
               }
               MultiWeekMenu? loadedMenu = result.$2;
               if (loadedMenu != null && context.mounted) {
@@ -136,9 +133,7 @@ class MenuConfigurationPage extends StatelessWidget {
                                 onPressed: menuConfiguration.mealCount <= 1 || !menuConfiguration.requiresMeal
                                     ? null
                                     : () {
-                                        MenuProvider.update(
-                                          newConfiguration: menuConfiguration.copyWith(mealCount: menuConfiguration.mealCount - 1),
-                                        );
+                                        MenuProvider.update(newConfiguration: menuConfiguration.copyWith(mealCount: menuConfiguration.mealCount - 1));
                                       },
                               ),
                               IconButton(
@@ -147,9 +142,7 @@ class MenuConfigurationPage extends StatelessWidget {
                                 onPressed: !menuConfiguration.requiresMeal
                                     ? null
                                     : () {
-                                        MenuProvider.update(
-                                          newConfiguration: menuConfiguration.copyWith(mealCount: menuConfiguration.mealCount + 1),
-                                        );
+                                        MenuProvider.update(newConfiguration: menuConfiguration.copyWith(mealCount: menuConfiguration.mealCount + 1));
                                       },
                               ),
                             ],

@@ -356,11 +356,7 @@ class Persistency {
 
     if (result == null) return LoadOutcome.cancelled;
 
-    bool loaded = await loadDataFromPath(
-      path: result.files.single.path!,
-      ingredientsProvider: ingredientsProvider,
-      recipesProvider: recipesProvider,
-    );
+    bool loaded = await loadDataFromPath(path: result.files.single.path!, ingredientsProvider: ingredientsProvider, recipesProvider: recipesProvider);
     return loaded ? LoadOutcome.success : LoadOutcome.failed;
   }
 

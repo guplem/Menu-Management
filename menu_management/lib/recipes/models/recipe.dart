@@ -105,11 +105,11 @@ abstract class Recipe with _$Recipe {
     Instruction? toRemove = instructions.firstWhereOrNull((Instruction instruction) => instruction.id == instructionId);
     if (toRemove == null) return this;
     List<String> removedOutputIds = toRemove.outputs.map((Result output) => output.id).toList();
-    List<Instruction> updatedInstructions = instructions.where((Instruction instruction) => instruction.id != instructionId).map(
-      (Instruction instruction) {
-        return instruction.copyWith(inputs: instruction.inputs.where((String input) => !removedOutputIds.contains(input)).toList());
-      },
-    ).toList();
+    List<Instruction> updatedInstructions = instructions.where((Instruction instruction) => instruction.id != instructionId).map((
+      Instruction instruction,
+    ) {
+      return instruction.copyWith(inputs: instruction.inputs.where((String input) => !removedOutputIds.contains(input)).toList());
+    }).toList();
     return copyWith(instructions: updatedInstructions);
   }
 }
