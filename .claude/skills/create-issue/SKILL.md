@@ -87,7 +87,7 @@ Before structuring the issue, investigate the relevant code:
 4. **For features/improvements**: Identify the existing code that would need to change, and any patterns already in place. Run the **pattern-scout** agent if a new pattern is being introduced.
 5. **Check relevant ADRs**: Run the **adr-checker** agent in consult mode to find ADRs that affect the planned work.
 
-Store findings as `CODE_CONTEXT`.
+Store findings as `CODE_CONTEXT`. This context feeds the issue's Context section and the label detection; it is **not** a proposed solution (see Step 7).
 
 ## 5. Search for Duplicates and Related Issues
 
@@ -150,11 +150,9 @@ Map affected code paths to labels:
 | `theme/` | `theme` |
 | `persistency` | `persistence` |
 
-### 6b. Priority label (infer one)
+### 6b. Never assign priority labels
 
-- **P: High** - App crashes, data loss, core feature broken
-- **P: Medium** - Degraded functionality, workaround exists
-- **P: Low** - Cosmetic, minor inconvenience, nice-to-have
+Priority is a human decision made when triaging, not something the agent infers. Never assign a priority label (`P: High` / `P: Medium` / `P: Low`).
 
 ### 6c. Store labels for combined review
 
@@ -162,14 +160,40 @@ Do not ask the user to confirm labels separately. Store the proposed labels as `
 
 ## 7. Draft the Issue
 
-Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **aggressively eliminate redundancy**.
+Compose the issue body based on `ISSUE_TYPE`, then apply the TL;DR rule, the Proposed Solution rule, and the anti-redundancy rules below. Use the templates, but **aggressively eliminate redundancy**.
+
+### TL;DR rule (mandatory, all templates)
+
+Every issue body must start with a **TL;DR** line before any section header:
+
+```markdown
+**TL;DR:** <one sentence summarizing what this issue achieves or fixes>
+```
+
+The TL;DR is one sentence (two only if genuinely necessary) that tells a reader what the issue is about without reading anything else. The title alone is rarely enough. It describes the **outcome**, not the process. A TL;DR names what this issue makes true (the "after") plus what it replaces (the "before"). For brand-new capabilities, the "before" is empty: state the new capability and why it matters.
+
+Examples:
+
+- Good (change): "Currently the recipe editor silently drops an ingredient with no quantity; this issue makes the editor block save until every ingredient has a quantity."
+- Good (new capability): "Add a panel that surfaces per-week ingredient waste, so menus can be tuned without exporting data."
+- Bad (after only): "Validate ingredient quantities before save." The reader cannot tell what is broken today.
+- Bad (before only): "Deleted recipes still appear in the menu." States the gap but not what this issue makes true.
+
+### Proposed Solution rule (mandatory)
+
+**Never include a "Proposed Solution" section unless the user proposed a solution during issue creation.** A solution counts as user-proposed when it came from the user directly, or from source material the user brought (a linked discussion, a decision they quoted). Your own code investigation (Step 4) is **not** a user-proposed solution.
+
+- If the user proposed a solution, include the section and write it from what they said. You may add file/function references from `CODE_CONTEXT` to make their idea concrete, but the approach must be theirs.
+- If the user did **not** propose a solution, **omit the section entirely.** The investigation still feeds Context and verifies bugs; it does not produce a solution the user never asked for.
 
 ### Bug template
 
 ```markdown
+**TL;DR:** <one sentence with the after and the before. "Currently X; this issue makes Y." or "Y instead of X.">
+
 ## Context
 
-<What is broken, who is affected, and why it matters. Do NOT state root causes as fact -- use hedging language like "most likely caused by" or "may be related to".>
+<What is broken, who is affected, and why it matters. Combine the problem description and current behavior into one cohesive narrative. Do NOT state root causes as fact -- use hedging language like "most likely caused by" or "may be related to".>
 
 ## Steps to Reproduce
 
@@ -183,7 +207,7 @@ Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **agg
 
 ## Proposed Solution
 
-<High-level approach based on code investigation. Reference specific files/functions.>
+<ONLY if the user proposed one; otherwise omit this entire section.>
 
 ## Acceptance Criteria
 
@@ -198,13 +222,15 @@ Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **agg
 ### Feature template
 
 ```markdown
+**TL;DR:** <one sentence: what new capability this adds and why it matters>
+
 ## Context
 
-<Why this feature is needed -- what user need does it serve.>
+<Why this feature is needed AND what it should do at a high level.>
 
 ## Proposed Solution
 
-<What the feature should do AND how to implement it. Reference existing patterns or code paths.>
+<ONLY if the user proposed one; otherwise omit this entire section.>
 
 ## Acceptance Criteria
 
@@ -219,13 +245,15 @@ Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **agg
 ### Improvement template
 
 ```markdown
+**TL;DR:** <one sentence with the after and the before>
+
 ## Context
 
 <What exists today, its limitations, and why improvement is needed.>
 
 ## Proposed Solution
 
-<How it should work after the improvement AND the technical approach. Reference specific files/functions.>
+<ONLY if the user proposed one; otherwise omit this entire section.>
 
 ## Acceptance Criteria
 
@@ -246,7 +274,7 @@ Before finalizing the draft, re-read it and apply these rules:
 3. **Acceptance Criteria must not restate Expected Behavior.** Each checkbox should tell the implementer something new.
 4. **No generic AC items.** Do not include "lint passes", "no regressions", "tests pass". Every AC item must be specific to THIS issue.
 5. **Omit empty or boilerplate sections.**
-6. **Proposed Solution must add implementation detail.** Name specific files, functions, patterns, or ADRs.
+6. **A kept Proposed Solution must add implementation detail** (specific files, functions, patterns, or ADRs), never a restatement of Expected Behavior.
 7. **Redundancy self-check.** After writing, read each section and ask: "If I deleted this, would the reader lose any information?" If no, delete it.
 
 ### 7b. Generate Title Options and Get User Choice
@@ -316,7 +344,7 @@ Present to the user:
 
 - **Never create without confirmation.** Always show the draft and get user approval before creating.
 - **Clarify before structuring.** Step 2 (Deep Understanding) is mandatory. Never skip it.
-- **Auto-infer, then confirm.** For type, labels, and priority: propose values and let the user adjust.
+- **Auto-infer, then confirm.** Propose type and labels; let the user adjust in one combined review.
 - **Code verification is mandatory for bugs.** Always check if the bug exists in the current code before creating.
 - **Duplicate check is mandatory.** Always search open and closed issues before creating.
 - **Respect the user's time.** Only ask questions when you genuinely can't infer the answer. Batch confirmations where possible.
