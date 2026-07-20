@@ -82,7 +82,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
             child: Row(
               children: [
                 Tooltip(
-                  message: "Off: shop multiple times so nothing expires before cooking.\n"
+                  message:
+                      "Off: shop multiple times so nothing expires before cooking.\n"
                       "On: shop once and freeze items that would otherwise expire.",
                   child: const Text("Try to make one trip"),
                 ),
@@ -103,18 +104,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
             width: double.infinity,
             color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Text(
-              _buildBannerText(plannedTrips),
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
-            ),
+            child: Text(_buildBannerText(plannedTrips), style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: "Copy to clipboard",
-        onPressed: _copyToClipboard,
-        child: const Icon(Icons.copy_rounded),
-      ),
+      floatingActionButton: FloatingActionButton(tooltip: "Copy to clipboard", onPressed: _copyToClipboard, child: const Icon(Icons.copy_rounded)),
       body: ListView.builder(
         itemCount: ingredientsRequired.length,
         itemBuilder: (context, index) {
@@ -130,7 +124,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
             for (Quantity quantity in desired) {
               List<Product> matchingProducts = ingredient.products.where((p) => p.unit == quantity.unit).toList();
               if (matchingProducts.isNotEmpty) {
-                recommendations.addAll(rankProducts(totalNeeded: quantity.amount, events: events, ingredient: ingredient, products: matchingProducts));
+                recommendations.addAll(
+                  rankProducts(totalNeeded: quantity.amount, events: events, ingredient: ingredient, products: matchingProducts),
+                );
               }
             }
           }
@@ -242,12 +238,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
         Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
         List<Quantity> tripQuantities = entry.value.map((TripItem i) => Quantity(amount: i.amount, unit: i.unit)).toList();
         bool freezeOnArrival = entry.value.any((TripItem i) => i.freezeOnArrival);
-        _appendIngredientLines(
-          buffer: buffer,
-          ingredient: ingredient,
-          remaining: tripQuantities,
-          freezeOnArrival: freezeOnArrival,
-        );
+        _appendIngredientLines(buffer: buffer, ingredient: ingredient, remaining: tripQuantities, freezeOnArrival: freezeOnArrival);
       }
     }
 

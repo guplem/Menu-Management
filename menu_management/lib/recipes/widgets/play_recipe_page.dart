@@ -21,7 +21,11 @@ class PlayRecipePage extends StatefulWidget {
   final int initialServings;
 
   static void show({required BuildContext context, required Recipe recipe, int initialServings = 1}) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => PlayRecipePage(recipe: recipe, initialServings: initialServings)));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => PlayRecipePage(recipe: recipe, initialServings: initialServings),
+      ),
+    );
   }
 
   @override

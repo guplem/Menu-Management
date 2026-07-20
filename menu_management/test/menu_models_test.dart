@@ -25,7 +25,12 @@ Recipe _recipe({String id = "r1", String name = "Test Recipe", List<Instruction>
 Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lunch, Recipe? recipe, int yield = 1, int people = 2}) {
   return Meal(
     mealTime: MealTime(weekDay: weekDay, mealType: mealType),
-    subMeals: [SubMeal(cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null, people: people)],
+    subMeals: [
+      SubMeal(
+        cooking: recipe != null ? Cooking(recipeId: recipe.id, yield: yield) : null,
+        people: people,
+      ),
+    ],
   );
 }
 
@@ -102,7 +107,9 @@ void main() {
 
   group("Meal", () {
     test("subMeals default to empty list", () {
-      const Meal meal = Meal(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch));
+      const Meal meal = Meal(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+      );
       expect(meal.subMeals, isEmpty);
     });
 
@@ -373,7 +380,9 @@ void main() {
       });
 
       test("returns 0 for unknown recipe id", () {
-        Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: _recipe(), people: 2)]);
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: _recipe(), people: 2)],
+        );
         expect(menu.totalServingsForRecipe("unknown"), 0);
       });
     });
@@ -433,7 +442,9 @@ void main() {
         Recipe recipe = _recipe();
         List<Recipe> recipes = [recipe];
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
-        Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)]);
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)],
+        );
 
         Menu updated = menu.copyWithAddedSubMeal(mealTime: time, recipes: recipes);
         expect(updated.meals.first.subMeals.length, 2);
@@ -467,10 +478,13 @@ void main() {
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
         Menu menu = Menu(
           meals: [
-            Meal(mealTime: time, subMeals: [
-              SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 1),
-              SubMeal(cooking: Cooking(recipeId: "r2", yield: 1), people: 1),
-            ]),
+            Meal(
+              mealTime: time,
+              subMeals: [
+                SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 1),
+                SubMeal(cooking: Cooking(recipeId: "r2", yield: 1), people: 1),
+              ],
+            ),
           ],
         );
 
@@ -483,7 +497,9 @@ void main() {
         Recipe recipe = _recipe();
         List<Recipe> recipes = [recipe];
         MealTime time = const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
-        Menu menu = Menu(meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)]);
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)],
+        );
 
         Menu updated = menu.copyWithRemovedSubMeal(mealTime: time, subMealIndex: 5, recipes: recipes);
         expect(updated.meals.first.subMeals.length, 1);
@@ -753,7 +769,10 @@ void main() {
               id: "i1",
               description: "step",
               ingredientsUsed: [
-                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+                IngredientUsage(
+                  ingredient: "flour",
+                  quantity: const Quantity(amount: 100, unit: Unit.grams),
+                ),
               ],
             ),
           ],
@@ -780,7 +799,10 @@ void main() {
               id: "i1",
               description: "step",
               ingredientsUsed: [
-                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+                IngredientUsage(
+                  ingredient: "flour",
+                  quantity: const Quantity(amount: 100, unit: Unit.grams),
+                ),
               ],
             ),
           ],
@@ -793,7 +815,10 @@ void main() {
               id: "i2",
               description: "step",
               ingredientsUsed: [
-                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 200, unit: Unit.grams)),
+                IngredientUsage(
+                  ingredient: "flour",
+                  quantity: const Quantity(amount: 200, unit: Unit.grams),
+                ),
               ],
             ),
           ],
@@ -827,7 +852,10 @@ void main() {
               id: "i1",
               description: "step",
               ingredientsUsed: [
-                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+                IngredientUsage(
+                  ingredient: "flour",
+                  quantity: const Quantity(amount: 100, unit: Unit.grams),
+                ),
               ],
             ),
           ],
@@ -850,7 +878,10 @@ void main() {
               id: "i1",
               description: "step",
               ingredientsUsed: [
-                IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+                IngredientUsage(
+                  ingredient: "flour",
+                  quantity: const Quantity(amount: 100, unit: Unit.grams),
+                ),
               ],
             ),
           ],
@@ -880,7 +911,10 @@ void main() {
               id: "i1",
               description: "step",
               ingredientsUsed: [
-                IngredientUsage(ingredient: "bread", quantity: const Quantity(amount: 3, unit: Unit.pieces)),
+                IngredientUsage(
+                  ingredient: "bread",
+                  quantity: const Quantity(amount: 3, unit: Unit.pieces),
+                ),
               ],
             ),
           ],
@@ -923,7 +957,10 @@ void main() {
             id: "iA",
             description: "step",
             ingredientsUsed: [
-              IngredientUsage(ingredient: "flour", quantity: const Quantity(amount: 100, unit: Unit.grams)),
+              IngredientUsage(
+                ingredient: "flour",
+                quantity: const Quantity(amount: 100, unit: Unit.grams),
+              ),
             ],
           ),
         ],
@@ -937,7 +974,10 @@ void main() {
             id: "iB",
             description: "step",
             ingredientsUsed: [
-              IngredientUsage(ingredient: "bread", quantity: const Quantity(amount: 3, unit: Unit.pieces)),
+              IngredientUsage(
+                ingredient: "bread",
+                quantity: const Quantity(amount: 3, unit: Unit.pieces),
+              ),
             ],
           ),
         ],

@@ -119,7 +119,11 @@ void main() {
 
       for (int w = 0; w < menu.weekCount; w++) {
         for (var meal in menu.weeks[w].meals) {
-          expect(meal.subMeals.first.cooking, isNotNull, reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a recipe");
+          expect(
+            meal.subMeals.first.cooking,
+            isNotNull,
+            reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} should have a recipe",
+          );
         }
       }
     });
@@ -199,7 +203,8 @@ void main() {
             expect(
               recipeIds.contains(meal.subMeals.first.cooking!.recipeId),
               true,
-              reason: "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} references missing recipe ID '${meal.subMeals.first.cooking!.recipeId}'",
+              reason:
+                  "Week ${w + 1} ${meal.mealTime.weekDay} ${meal.mealTime.mealType} references missing recipe ID '${meal.subMeals.first.cooking!.recipeId}'",
             );
           }
         }
@@ -238,5 +243,4 @@ void main() {
       }
     });
   });
-
 }

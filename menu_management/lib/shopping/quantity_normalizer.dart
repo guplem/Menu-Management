@@ -5,11 +5,7 @@ import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 
 /// Milliliters per unit for volume conversions (universal, no density needed).
-const Map<Unit, double> _mlPerUnit = {
-  Unit.centiliters: 10,
-  Unit.tablespoons: 15,
-  Unit.teaspoons: 5,
-};
+const Map<Unit, double> _mlPerUnit = {Unit.centiliters: 10, Unit.tablespoons: 15, Unit.teaspoons: 5};
 
 bool _isVolumeUnit(Unit unit) => _mlPerUnit.containsKey(unit);
 
@@ -125,10 +121,7 @@ Unit _determineTargetUnit({required Ingredient ingredient, required bool hasGram
 }
 
 /// Normalizes an entire ingredients map by merging compatible units per ingredient.
-Map<String, List<Quantity>> normalizeAllIngredients({
-  required Map<String, List<Quantity>> rawQuantities,
-  required List<Ingredient> ingredients,
-}) {
+Map<String, List<Quantity>> normalizeAllIngredients({required Map<String, List<Quantity>> rawQuantities, required List<Ingredient> ingredients}) {
   return rawQuantities.map((String ingredientId, List<Quantity> quantities) {
     Ingredient? ingredient = ingredients.firstWhereOrNull((i) => i.id == ingredientId);
     if (ingredient == null) return MapEntry(ingredientId, quantities);

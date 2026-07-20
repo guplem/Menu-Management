@@ -31,10 +31,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ChangeNotifierProvider<IngredientsProvider>.value(
-            value: IngredientsProvider.instance,
-            child: const IngredientsPage(),
-          ),
+          home: ChangeNotifierProvider<IngredientsProvider>.value(value: IngredientsProvider.instance, child: const IngredientsPage()),
         ),
       );
 
@@ -50,14 +47,13 @@ void main() {
 
       // Simulate delete + undo: remove Banana then add it back
       IngredientsProvider.remove(ingredientId: "2");
-      IngredientsProvider.addOrUpdate(newIngredient: const Ingredient(id: "2", name: "Banana"));
+      IngredientsProvider.addOrUpdate(
+        newIngredient: const Ingredient(id: "2", name: "Banana"),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ChangeNotifierProvider<IngredientsProvider>.value(
-            value: IngredientsProvider.instance,
-            child: const IngredientsPage(),
-          ),
+          home: ChangeNotifierProvider<IngredientsProvider>.value(value: IngredientsProvider.instance, child: const IngredientsPage()),
         ),
       );
 
@@ -73,10 +69,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ChangeNotifierProvider<IngredientsProvider>.value(
-            value: IngredientsProvider.instance,
-            child: const IngredientsPage(),
-          ),
+          home: ChangeNotifierProvider<IngredientsProvider>.value(value: IngredientsProvider.instance, child: const IngredientsPage()),
         ),
       );
 
@@ -107,10 +100,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ChangeNotifierProvider<RecipesProvider>.value(
-            value: RecipesProvider.instance,
-            child: const RecipesPage(),
-          ),
+          home: ChangeNotifierProvider<RecipesProvider>.value(value: RecipesProvider.instance, child: const RecipesPage()),
         ),
       );
 
@@ -126,14 +116,13 @@ void main() {
 
       // Simulate delete + undo
       RecipesProvider.remove(recipeId: "2");
-      RecipesProvider.addOrUpdate(newRecipe: const Recipe(id: "2", name: "Banana Bread"));
+      RecipesProvider.addOrUpdate(
+        newRecipe: const Recipe(id: "2", name: "Banana Bread"),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ChangeNotifierProvider<RecipesProvider>.value(
-            value: RecipesProvider.instance,
-            child: const RecipesPage(),
-          ),
+          home: ChangeNotifierProvider<RecipesProvider>.value(value: RecipesProvider.instance, child: const RecipesPage()),
         ),
       );
 

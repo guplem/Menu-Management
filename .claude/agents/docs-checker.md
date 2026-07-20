@@ -29,16 +29,16 @@ Find documentation that has drifted from the implementation and fix it. The sour
 
 | What changed | Documentation areas to check |
 |---|---|
-| `menu_management/lib/ingredients/` | Root CLAUDE.md feature domains table |
-| `menu_management/lib/recipes/` | Root CLAUDE.md feature domains table, recipe-related patterns |
-| `menu_management/lib/menu/` | Root CLAUDE.md feature domains table, menu generation docs |
-| `menu_management/lib/persistency.dart` | Root CLAUDE.md persistence section |
-| `menu_management/lib/flutter_essentials/` | Root CLAUDE.md utility library section |
+| `menu_management/lib/ingredients/` | Root AGENTS.md feature domains table |
+| `menu_management/lib/recipes/` | Root AGENTS.md feature domains table, recipe-related patterns |
+| `menu_management/lib/menu/` | Root AGENTS.md feature domains table, menu generation docs |
+| `menu_management/lib/persistency.dart` | Root AGENTS.md persistence section |
+| `menu_management/lib/flutter_essentials/` | Root AGENTS.md utility library section |
 | `menu_management/pubspec.yaml` | Root README.md setup instructions |
-| `menu_management/analysis_options.yaml` | Root CLAUDE.md code standards section |
-| `adr/*.md` (new/updated/removed) | Root CLAUDE.md ADR index table |
-| `.claude/agents/*.md` (new/updated) | Root CLAUDE.md agent references |
-| `menu_management/test/` | Root CLAUDE.md commands table (test count) |
+| `menu_management/analysis_options.yaml` | Root AGENTS.md code standards section |
+| `adr/*.md` (new/updated/removed) | Root AGENTS.md ADR index table |
+| `.claude/agents/*.md` (new/updated) | Root AGENTS.md agent references |
+| `menu_management/test/` | Root AGENTS.md commands table (test count) |
 
 ## Output Format
 

@@ -42,10 +42,7 @@ class CookingEvent {
 ///
 /// Returns a map from ingredient ID to a sorted list of [CookingEvent]s.
 /// Events on the same day for the same ingredient are merged (quantities summed by unit).
-Map<String, List<CookingEvent>> buildCookingTimeline({
-  required MultiWeekMenu multiWeekMenu,
-  required List<Recipe> recipes,
-}) {
+Map<String, List<CookingEvent>> buildCookingTimeline({required MultiWeekMenu multiWeekMenu, required List<Recipe> recipes}) {
   // Intermediate: ingredientId -> dayIndex -> unit -> amount
   Map<String, Map<int, Map<Unit, double>>> raw = {};
 
@@ -94,7 +91,9 @@ Map<String, List<CookingEvent>> buildCookingTimeline({
   Map<String, List<CookingEvent>> result = {};
   for (MapEntry<String, Map<int, Map<Unit, double>>> ingredientEntry in raw.entries) {
     List<CookingEvent> events = ingredientEntry.value.entries.map((MapEntry<int, Map<Unit, double>> dayEntry) {
-      List<Quantity> quantities = dayEntry.value.entries.map((MapEntry<Unit, double> unitEntry) => Quantity(amount: unitEntry.value, unit: unitEntry.key)).toList();
+      List<Quantity> quantities = dayEntry.value.entries
+          .map((MapEntry<Unit, double> unitEntry) => Quantity(amount: unitEntry.value, unit: unitEntry.key))
+          .toList();
       return CookingEvent(dayIndex: dayEntry.key, quantities: quantities);
     }).toList();
     events.sort((CookingEvent a, CookingEvent b) => a.dayIndex.compareTo(b.dayIndex));

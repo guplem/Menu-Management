@@ -51,8 +51,11 @@ abstract class Ingredient with _$Ingredient {
   /// Used to warn (and clean up) before deleting the ingredient.
   List<Recipe> findReferencingRecipes({required List<Recipe> recipes}) {
     return recipes
-        .where((Recipe recipe) => recipe.instructions
-            .any((Instruction instruction) => instruction.ingredientsUsed.any((IngredientUsage usage) => usage.ingredient == id)))
+        .where(
+          (Recipe recipe) => recipe.instructions.any(
+            (Instruction instruction) => instruction.ingredientsUsed.any((IngredientUsage usage) => usage.ingredient == id),
+          ),
+        )
         .toList();
   }
 }

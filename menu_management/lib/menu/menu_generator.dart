@@ -47,7 +47,10 @@ class MenuGenerator {
         .toList();
     Set<Recipe> mealsRecipes = mealRecipesList.shuffled(Random(seed)).toSet();
     Debug.logWarning(mealsRecipes.isEmpty, "No meals found");
-    Map<MealTime, List<Recipe?>> mealsRecipesMap = getRecipesFor(recipesToConsider: mealsRecipes, configurationsToFindRecipesFor: mealsConfigurations);
+    Map<MealTime, List<Recipe?>> mealsRecipesMap = getRecipesFor(
+      recipesToConsider: mealsRecipes,
+      configurationsToFindRecipesFor: mealsConfigurations,
+    );
 
     Map<MealTime, List<Recipe?>> allSelected = {...breakfastRecipes, ...mealsRecipesMap};
 
@@ -60,10 +63,12 @@ class MenuGenerator {
       List<SubMeal> subMeals = [];
       for (int i = 0; i < config.mealCount; i++) {
         Recipe? recipe = i < recipesForSlot.length ? recipesForSlot[i] : null;
-        subMeals.add(SubMeal(
-          cooking: recipe == null ? null : Cooking(recipeId: recipe.id, yield: -1),
-          people: peoplePerSubMeal,
-        ));
+        subMeals.add(
+          SubMeal(
+            cooking: recipe == null ? null : Cooking(recipeId: recipe.id, yield: -1),
+            people: peoplePerSubMeal,
+          ),
+        );
       }
       return Meal(mealTime: config.mealTime, subMeals: subMeals);
     }).toList();

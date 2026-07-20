@@ -8,12 +8,7 @@ import "package:menu_management/shopping/cooking_timeline.dart";
 
 /// A grouped item to buy on a specific [ShoppingTrip].
 class TripItem {
-  const TripItem({
-    required this.ingredientId,
-    required this.amount,
-    required this.unit,
-    this.freezeOnArrival = false,
-  });
+  const TripItem({required this.ingredientId, required this.amount, required this.unit, this.freezeOnArrival = false});
 
   final String ingredientId;
   final double amount;
@@ -211,14 +206,16 @@ List<_PlanEvent> _buildPlanEvents({
           effectiveShelfLife = null;
         }
 
-        result.add(_PlanEvent(
-          ingredientId: ingredientId,
-          unit: quantity.unit,
-          dayIndex: event.dayIndex,
-          amount: remainingNeed,
-          shelfLifeDaysClosed: effectiveShelfLife,
-          requiresFreezing: requiresFreezing,
-        ));
+        result.add(
+          _PlanEvent(
+            ingredientId: ingredientId,
+            unit: quantity.unit,
+            dayIndex: event.dayIndex,
+            amount: remainingNeed,
+            shelfLifeDaysClosed: effectiveShelfLife,
+            requiresFreezing: requiresFreezing,
+          ),
+        );
       }
     }
   }
@@ -259,10 +256,7 @@ int _compareForGreedy(_PlanEvent a, _PlanEvent b) {
   return a.earliestWeek.compareTo(b.earliestWeek);
 }
 
-List<ShoppingTrip> _aggregate({
-  required List<_PlanEvent> events,
-  required Map<String, Ingredient> ingredientsById,
-}) {
+List<ShoppingTrip> _aggregate({required List<_PlanEvent> events, required Map<String, Ingredient> ingredientsById}) {
   Map<int, Map<String, Map<Unit, _AggregatedAmount>>> byTrip = {};
   for (_PlanEvent event in events) {
     int trip = event.assignedTrip!;
@@ -282,12 +276,7 @@ List<ShoppingTrip> _aggregate({
     List<TripItem> items = [];
     for (MapEntry<String, Map<Unit, _AggregatedAmount>> ie in ingredientMap.entries) {
       for (MapEntry<Unit, _AggregatedAmount> ue in ie.value.entries) {
-        items.add(TripItem(
-          ingredientId: ie.key,
-          amount: ue.value.amount,
-          unit: ue.key,
-          freezeOnArrival: ue.value.requiresFreezing,
-        ));
+        items.add(TripItem(ingredientId: ie.key, amount: ue.value.amount, unit: ue.key, freezeOnArrival: ue.value.requiresFreezing));
       }
     }
     items.sort((TripItem a, TripItem b) {

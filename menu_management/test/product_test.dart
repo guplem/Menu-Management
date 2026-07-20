@@ -484,23 +484,14 @@ void main() {
 
   group("Product backward compatibility for shelfLifeDays", () {
     test("legacy shelfLifeDays JSON key maps to shelfLifeDaysOpened", () {
-      Map<String, dynamic> legacyJson = {
-        "link": "https://example.com",
-        "quantityPerItem": 250.0,
-        "unit": "grams",
-        "shelfLifeDays": 4,
-      };
+      Map<String, dynamic> legacyJson = {"link": "https://example.com", "quantityPerItem": 250.0, "unit": "grams", "shelfLifeDays": 4};
       Product restored = Product.fromJson(legacyJson);
       expect(restored.shelfLifeDaysOpened, 4);
       expect(restored.shelfLifeDaysClosed, isNull);
     });
 
     test("missing both shelf life keys yields both null", () {
-      Map<String, dynamic> oldJson = {
-        "link": "https://example.com",
-        "quantityPerItem": 250.0,
-        "unit": "grams",
-      };
+      Map<String, dynamic> oldJson = {"link": "https://example.com", "quantityPerItem": 250.0, "unit": "grams"};
       Product restored = Product.fromJson(oldJson);
       expect(restored.shelfLifeDaysOpened, isNull);
       expect(restored.shelfLifeDaysClosed, isNull);
@@ -595,12 +586,7 @@ void main() {
     });
 
     test("old JSON without canBeFrozen key restores to false", () {
-      Map<String, dynamic> oldJson = {
-        "link": "https://example.com",
-        "quantityPerItem": 250.0,
-        "unit": "grams",
-        "shelfLifeDaysClosed": 3,
-      };
+      Map<String, dynamic> oldJson = {"link": "https://example.com", "quantityPerItem": 250.0, "unit": "grams", "shelfLifeDaysClosed": 3};
       Product restored = Product.fromJson(oldJson);
       expect(restored.canBeFrozen, isFalse);
     });

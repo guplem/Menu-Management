@@ -1,0 +1,52 @@
+name: Pull request checks
+
+# Runs the format check, static analysis, and the test suite on every pull
+# request targeting main and on pushes to main. The repo ruleset
+# "Requirements for merge" requires the analyze-and-test check, so a PR
+# cannot merge unless this passes. Generated *.freezed.dart / *.g.dart files
+# are committed, so no build_runner step is needed here.
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+# If new commits are pushed to a PR, cancel the still-running check for the
+# previous commit so CI does not pile up.
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository to the runner machine
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./menu_management
+
+      - name: Check formatting (excludes generated files)
+        run: |
+          find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 | xargs -0 dart format --set-exit-if-changed
+        working-directory: ./menu_management
+
+      - name: Analyze code
+        run: flutter analyze
+        working-directory: ./menu_management
+
+      - name: Run tests
+        run: flutter test test/
+        working-directory: ./menu_management

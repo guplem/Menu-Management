@@ -66,13 +66,7 @@ ProductRecommendation _simulateProduct({
   if (normalizedEvents.isEmpty || shelfLife == null) {
     int packs = product.packsNeeded(totalNeeded);
     double bought = packs * product.totalQuantityPerPack;
-    return ProductRecommendation(
-      product: product,
-      packsNeeded: packs,
-      overBuyWaste: bought - totalNeeded,
-      expiryWaste: 0,
-      isViable: true,
-    );
+    return ProductRecommendation(product: product, packsNeeded: packs, overBuyWaste: bought - totalNeeded, expiryWaste: 0, isViable: true);
   }
 
   // Simulate sequential consumption
@@ -138,11 +132,7 @@ class _NormalizedEvent {
 }
 
 /// Converts cooking events to the product's unit, merging same-day events.
-List<_NormalizedEvent> _normalizeEvents({
-  required List<CookingEvent> events,
-  required Product product,
-  required Ingredient ingredient,
-}) {
+List<_NormalizedEvent> _normalizeEvents({required List<CookingEvent> events, required Product product, required Ingredient ingredient}) {
   Map<int, double> byDay = {};
 
   for (CookingEvent event in events) {

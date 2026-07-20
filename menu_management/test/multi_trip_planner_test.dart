@@ -6,13 +6,7 @@ import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
 
-Product _product({
-  Unit unit = Unit.grams,
-  int? shelfLifeDaysClosed,
-  double quantityPerItem = 100,
-  int itemsPerPack = 1,
-  bool canBeFrozen = false,
-}) {
+Product _product({Unit unit = Unit.grams, int? shelfLifeDaysClosed, double quantityPerItem = 100, int itemsPerPack = 1, bool canBeFrozen = false}) {
   return Product(
     link: "https://example.com/p",
     unit: unit,
@@ -28,16 +22,16 @@ Ingredient _ingredient({required String id, String? name, List<Product> products
 }
 
 CookingEvent _event({required int day, double amount = 100, Unit unit = Unit.grams}) {
-  return CookingEvent(dayIndex: day, quantities: [Quantity(amount: amount, unit: unit)]);
+  return CookingEvent(
+    dayIndex: day,
+    quantities: [Quantity(amount: amount, unit: unit)],
+  );
 }
 
 void main() {
   group("planShoppingTrips", () {
     test("returns no trips when timeline is empty", () {
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: const {},
-        ingredients: const [],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: const {}, ingredients: const []);
 
       expect(trips, isEmpty);
     });
@@ -48,10 +42,7 @@ void main() {
         "banana": [_event(day: 2, amount: 200)], // monday week 1
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -68,10 +59,7 @@ void main() {
         "salt": [_event(day: 14, amount: 50)], // week 3
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [salt],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [salt]);
 
       expect(trips.length, 1);
       // Single non-perishable, no perishables to anchor to → trip 0
@@ -87,10 +75,7 @@ void main() {
         "banana": [_event(day: 7, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 1);
@@ -106,10 +91,7 @@ void main() {
         "banana": [_event(day: 7, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [salt, banana],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [salt, banana]);
 
       expect(trips.length, 2);
       expect(trips[0].weekIndex, 0);
@@ -124,13 +106,10 @@ void main() {
       Ingredient salt = _ingredient(id: "salt");
       Map<String, List<CookingEvent>> timeline = {
         "banana": [_event(day: 7, amount: 200)], // forces trip 1
-        "salt": [_event(day: 14, amount: 30)],   // non-perishable, week 3
+        "salt": [_event(day: 14, amount: 30)], // non-perishable, week 3
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana, salt],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana, salt]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 1);
@@ -146,10 +125,7 @@ void main() {
         "banana": [_event(day: 2, amount: 100), _event(day: 9, amount: 150)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana]);
 
       expect(trips.length, 2);
       ShoppingTrip trip0 = trips.firstWhere((t) => t.weekIndex == 0);
@@ -170,10 +146,7 @@ void main() {
         "bread": [_event(day: 8, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [lettuce, bread],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [lettuce, bread]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 1);
@@ -186,10 +159,7 @@ void main() {
         "flour": [_event(day: 1, amount: 100), _event(day: 4, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [flour],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [flour]);
 
       expect(trips.length, 1);
       expect(trips.first.items.length, 1);
@@ -264,10 +234,7 @@ void main() {
         "mushroom": [_event(day: 10, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [mushroom],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [mushroom]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 1);
@@ -287,10 +254,7 @@ void main() {
         "banana": [_event(day: 14, amount: 3, unit: Unit.pieces)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -307,10 +271,7 @@ void main() {
         "m": [_event(day: 0, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [zucchini, apple, mango],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [zucchini, apple, mango]);
 
       expect(trips.length, 1);
       expect(trips.first.items.map((i) => i.ingredientId).toList(), ["a", "m", "z"]);
@@ -327,10 +288,7 @@ void main() {
         "herb": [_event(day: 20, amount: 50)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [herb],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [herb]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, lessThanOrEqualTo(2));
@@ -343,10 +301,7 @@ void main() {
         "meat": [_event(day: 0, amount: 100), _event(day: 7, amount: 100), _event(day: 14, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [meat],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat]);
 
       expect(trips.length, 3);
       expect(trips[0].weekIndex, 0);
@@ -360,10 +315,7 @@ void main() {
         "banana": [_event(day: 2, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana]);
 
       expect(trips.first.items.first.freezeOnArrival, isFalse);
     });
@@ -378,11 +330,7 @@ void main() {
         "chicken": [_event(day: 14, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [chicken],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [chicken], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -396,11 +344,7 @@ void main() {
         "banana": [_event(day: 14, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [banana],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [banana], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 2);
@@ -415,11 +359,7 @@ void main() {
         "banana": [_event(day: 14, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [chicken, banana],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [chicken, banana], assumeFreezerForFreezable: true);
 
       expect(trips.length, 2);
       ShoppingTrip trip0 = trips.firstWhere((t) => t.weekIndex == 0);
@@ -440,11 +380,7 @@ void main() {
         "chicken": [_event(day: 1, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [chicken],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [chicken], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -459,11 +395,7 @@ void main() {
         "pasta": [_event(day: 14, amount: 500)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [pasta],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [pasta], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -479,11 +411,7 @@ void main() {
         "chicken": [_event(day: 2, amount: 100), _event(day: 14, amount: 200)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [chicken],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [chicken], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -536,21 +464,12 @@ void main() {
       // Two grams variants: 2-day and 30-day. Two events on day 0 and day 14.
       // First-match (2-day) would force two separate trips (one per event window).
       // Any-match (30-day) lets a single trip cover both events.
-      Ingredient ingredient = _ingredient(
-        id: "i1",
-        products: [
-          _product(shelfLifeDaysClosed: 2),
-          _product(shelfLifeDaysClosed: 30),
-        ],
-      );
+      Ingredient ingredient = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 2), _product(shelfLifeDaysClosed: 30)]);
       Map<String, List<CookingEvent>> timeline = {
         "i1": [_event(day: 0, amount: 100), _event(day: 14, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [ingredient],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [ingredient]);
 
       expect(trips.length, 1);
     });
@@ -558,21 +477,12 @@ void main() {
     test("treats ingredient as non-perishable when any same-unit variant has null shelf life", () {
       // One grams variant has shelfLifeDaysClosed=2, another has null (indefinite when sealed).
       // Planner should treat as non-perishable and ride trip 0 for any event day.
-      Ingredient ingredient = _ingredient(
-        id: "i1",
-        products: [
-          _product(shelfLifeDaysClosed: 2),
-          _product(),
-        ],
-      );
+      Ingredient ingredient = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 2), _product()]);
       Map<String, List<CookingEvent>> timeline = {
         "i1": [_event(day: 14, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [ingredient],
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [ingredient]);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -583,20 +493,13 @@ void main() {
       // on day 14 should ride trip 0 with freezeOnArrival=true.
       Ingredient ingredient = _ingredient(
         id: "i1",
-        products: [
-          _product(shelfLifeDaysClosed: 3),
-          _product(shelfLifeDaysClosed: 3, canBeFrozen: true),
-        ],
+        products: [_product(shelfLifeDaysClosed: 3), _product(shelfLifeDaysClosed: 3, canBeFrozen: true)],
       );
       Map<String, List<CookingEvent>> timeline = {
         "i1": [_event(day: 14, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [ingredient],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [ingredient], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, 0);
@@ -605,22 +508,12 @@ void main() {
 
     test("not freezable when no same-unit variant has canBeFrozen", () {
       // Both variants have canBeFrozen=false. Even with freezer mode on, planner forces a later trip.
-      Ingredient ingredient = _ingredient(
-        id: "i1",
-        products: [
-          _product(shelfLifeDaysClosed: 3),
-          _product(shelfLifeDaysClosed: 5),
-        ],
-      );
+      Ingredient ingredient = _ingredient(id: "i1", products: [_product(shelfLifeDaysClosed: 3), _product(shelfLifeDaysClosed: 5)]);
       Map<String, List<CookingEvent>> timeline = {
         "i1": [_event(day: 14, amount: 100)],
       };
 
-      List<ShoppingTrip> trips = planShoppingTrips(
-        cookingTimeline: timeline,
-        ingredients: [ingredient],
-        assumeFreezerForFreezable: true,
-      );
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [ingredient], assumeFreezerForFreezable: true);
 
       expect(trips.length, 1);
       expect(trips.first.weekIndex, greaterThan(0));

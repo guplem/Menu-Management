@@ -134,26 +134,37 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Table(
-                  columnWidths: const {
-                    0: FlexColumnWidth(3),
-                    1: FlexColumnWidth(2),
-                    2: FlexColumnWidth(1.5),
-                    3: FlexColumnWidth(2),
-                  },
+                  columnWidths: const {0: FlexColumnWidth(3), 1: FlexColumnWidth(2), 2: FlexColumnWidth(1.5), 3: FlexColumnWidth(2)},
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   children: [
                     TableRow(
-                      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor))),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+                      ),
                       children: [
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Recipe", style: Theme.of(context).textTheme.titleSmall)),
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Per serving", style: Theme.of(context).textTheme.titleSmall)),
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Servings", style: Theme.of(context).textTheme.titleSmall)),
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text("Total", style: Theme.of(context).textTheme.titleSmall)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text("Recipe", style: Theme.of(context).textTheme.titleSmall),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text("Per serving", style: Theme.of(context).textTheme.titleSmall),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text("Servings", style: Theme.of(context).textTheme.titleSmall),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text("Total", style: Theme.of(context).textTheme.titleSmall),
+                        ),
                       ],
                     ),
                     ...widget.sources.map((IngredientSource source) {
                       String perServing = source.perServingQuantities.map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-                      String total = source.perServingQuantities.map((q) => "${(q.amount * source.servings).toFormattedAmount()} ${q.unit.name}").join(" + ");
+                      String total = source.perServingQuantities
+                          .map((q) => "${(q.amount * source.servings).toFormattedAmount()} ${q.unit.name}")
+                          .join(" + ");
                       return TableRow(
                         children: [
                           Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(source.recipeName)),
@@ -252,10 +263,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   ),
                   const SizedBox(width: 4),
                   if (availableUnits.length == 1)
-                    SizedBox(
-                      width: 80,
-                      child: Text(availableUnits.first.label, style: Theme.of(context).textTheme.bodyLarge),
-                    )
+                    SizedBox(width: 80, child: Text(availableUnits.first.label, style: Theme.of(context).textTheme.bodyLarge))
                   else
                     SizedBox(
                       width: 120,
@@ -281,13 +289,20 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       padding: const EdgeInsets.only(left: 8),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: [Icon(Icons.check_rounded, color: Theme.of(context).hintColor, size: 18), const SizedBox(width: 4), Text("All set", style: TextStyle(color: Theme.of(context).hintColor))],
+                        children: [
+                          Icon(Icons.check_rounded, color: Theme.of(context).hintColor, size: 18),
+                          const SizedBox(width: 4),
+                          Text("All set", style: TextStyle(color: Theme.of(context).hintColor)),
+                        ],
                       ),
                     );
                   }
                   return Padding(
                     padding: const EdgeInsets.only(left: 8),
-                    child: Text("Need: ${q.amount.toFormattedAmount()} ${q.unit.name}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                    child: Text(
+                      "Need: ${q.amount.toFormattedAmount()} ${q.unit.name}",
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                    ),
                   );
                 }),
 
@@ -308,7 +323,11 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             // Product rows (only for products whose unit matches a required quantity)
             if (widget.ingredient.products.isNotEmpty)
               ...() {
-                List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products.asMap().entries.where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit)).toList();
+                List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products
+                    .asMap()
+                    .entries
+                    .where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit))
+                    .toList();
                 List<Widget> rows = [];
                 for (int i = 0; i < matchingProducts.length; i++) {
                   Product product = matchingProducts[i].value;

@@ -135,7 +135,7 @@ For **each step**, one at a time:
    > <Paste the specific step details>
    >
    > ## Instructions
-   > 1. Read the project's `CLAUDE.md` for conventions and verification commands.
+   > 1. Read the project's `AGENTS.md` for conventions and verification commands.
    > 2. Run the **pattern-scout** agent before writing any code to find existing patterns.
    > 3. **Diagnose first**: Search the codebase for relevant files. Identify the exact locations that need changing. Explain the reasoning before writing any code.
    > 4. **Plan if complex**: If the fix involves more than 2 files, create a checklist of all required changes before starting.
@@ -212,7 +212,7 @@ Spawn a **new agent without prior context** to review the PR:
 > ## Instructions
 > 1. Fetch the PR details: `gh pr view <PR_NUMBER> --json title,body,url,headRefName,baseRefName`
 > 2. Fetch the full diff: `gh pr diff <PR_NUMBER>`
-> 3. Read the project's `CLAUDE.md` for conventions.
+> 3. Read the project's `AGENTS.md` for conventions.
 > 4. Review the code changes for:
 >    - Correctness: Does the code do what the issue asks?
 >    - Patterns: Does it follow existing codebase patterns (Provider, Freezed, etc.)?

@@ -335,14 +335,29 @@ void main() {
         Recipe(
           id: "r1",
           name: "Salad",
-          instructions: [Instruction(id: "i1", description: "Chop", ingredientsUsed: [IngredientUsage(ingredient: "ing2", quantity: Quantity(amount: 200, unit: Unit.grams))])],
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "Chop",
+              ingredientsUsed: [
+                IngredientUsage(
+                  ingredient: "ing2",
+                  quantity: Quantity(amount: 200, unit: Unit.grams),
+                ),
+              ],
+            ),
+          ],
         ),
       ];
 
       String path = "${tempDir.path}/save_test.tsr";
       await Persistency.saveDataToPath(path: path, ingredients: ingredients, recipes: recipes);
 
-      bool loaded = await Persistency.loadDataFromPath(path: path, ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+      bool loaded = await Persistency.loadDataFromPath(
+        path: path,
+        ingredientsProvider: IngredientsProvider.instance,
+        recipesProvider: RecipesProvider.instance,
+      );
 
       expect(loaded, true);
       expect(IngredientsProvider.instance.ingredients.length, 2);
@@ -370,7 +385,18 @@ void main() {
         Recipe(
           id: "r1",
           name: "Test",
-          instructions: [Instruction(id: "i1", description: "Step", ingredientsUsed: [IngredientUsage(ingredient: "ing1", quantity: Quantity(amount: 10, unit: Unit.grams))])],
+          instructions: [
+            Instruction(
+              id: "i1",
+              description: "Step",
+              ingredientsUsed: [
+                IngredientUsage(
+                  ingredient: "ing1",
+                  quantity: Quantity(amount: 10, unit: Unit.grams),
+                ),
+              ],
+            ),
+          ],
         ),
       ];
 
@@ -389,9 +415,13 @@ void main() {
     test("saves and reloads a multi-week menu", () async {
       Recipe r1 = _recipe(id: "r1", name: "Lunch Recipe");
       List<Recipe> recipes = [r1];
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)],
+          ),
+        ],
+      );
 
       String path = "${tempDir.path}/save_menu_test.tsm";
       await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
@@ -406,9 +436,13 @@ void main() {
     test("saved menu file is pretty-printed with tab indentation", () async {
       Recipe r1 = _recipe(id: "r1", name: "Test");
       List<Recipe> recipes = [r1];
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)],
+          ),
+        ],
+      );
 
       String path = "${tempDir.path}/format_menu_test.tsm";
       await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
@@ -420,9 +454,13 @@ void main() {
     test("saved menu file contains ref_name for cooking entries", () async {
       Recipe r1 = _recipe(id: "r1", name: "Pizza");
       List<Recipe> recipes = [r1];
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.dinner, recipe: r1)]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.dinner, recipe: r1)],
+          ),
+        ],
+      );
 
       String path = "${tempDir.path}/ref_name_menu_test.tsm";
       await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
@@ -440,7 +478,18 @@ void main() {
       Recipe recipe = Recipe(
         id: "r1",
         name: "Test",
-        instructions: [Instruction(id: "i1", description: "Step 1", ingredientsUsed: [IngredientUsage(ingredient: "ing1", quantity: Quantity(amount: 100, unit: Unit.grams))])],
+        instructions: [
+          Instruction(
+            id: "i1",
+            description: "Step 1",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "ing1",
+                quantity: Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
+          ),
+        ],
       );
       Map<String, dynamic> json = recipe.toJson();
       expect(json["instructions"], isA<List>());
@@ -459,9 +508,13 @@ void main() {
     });
 
     test("MultiWeekMenu.toJson() converts nested Meals to maps", () {
-      MultiWeekMenu menu = MultiWeekMenu(weeks: [
-        Menu(meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe())]),
-      ]);
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: _recipe())],
+          ),
+        ],
+      );
       Map<String, dynamic> json = menu.toJson();
       expect(json["weeks"][0], isA<Map<String, dynamic>>(), reason: "Nested Menu should be a Map");
       expect(json["weeks"][0]["meals"][0], isA<Map<String, dynamic>>(), reason: "Nested Meal should be a Map");
@@ -483,7 +536,18 @@ void main() {
       Recipe original = Recipe(
         id: "r1",
         name: "Test",
-        instructions: [Instruction(id: "i1", description: "Step", ingredientsUsed: [IngredientUsage(ingredient: "ing1", quantity: Quantity(amount: 100, unit: Unit.grams))])],
+        instructions: [
+          Instruction(
+            id: "i1",
+            description: "Step",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "ing1",
+                quantity: Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
+          ),
+        ],
       );
       String encoded = jsonEncode(original.toJson());
       Recipe decoded = Recipe.fromJson(jsonDecode(encoded));
@@ -550,7 +614,13 @@ void main() {
       File tsmFile = File("${tempDir.path}/test.tsm");
       tsmFile.writeAsStringSync(_validTsmContent());
 
-      await Persistency.loadMenuFromPath(tsmFile.path, recipes: [_recipe(), _recipe(id: "r2", name: "Dinner Recipe")]);
+      await Persistency.loadMenuFromPath(
+        tsmFile.path,
+        recipes: [
+          _recipe(),
+          _recipe(id: "r2", name: "Dinner Recipe"),
+        ],
+      );
 
       expect(Persistency.lastTsmPath, tsmFile.path);
       expect(Persistency.lastTsmAction, SessionAction.loaded);
@@ -588,14 +658,14 @@ void main() {
 
     test("loading after saving updates action from saved to loaded", () async {
       String path = "${tempDir.path}/test.tsr";
-      await Persistency.saveDataToPath(path: path, ingredients: [const Ingredient(id: "ing1", name: "Salt")], recipes: []);
+      await Persistency.saveDataToPath(
+        path: path,
+        ingredients: [const Ingredient(id: "ing1", name: "Salt")],
+        recipes: [],
+      );
       expect(Persistency.lastTsrAction, SessionAction.saved);
 
-      await Persistency.loadDataFromPath(
-        path: path,
-        ingredientsProvider: IngredientsProvider.instance,
-        recipesProvider: RecipesProvider.instance,
-      );
+      await Persistency.loadDataFromPath(path: path, ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
       expect(Persistency.lastTsrAction, SessionAction.loaded);
     });
   });

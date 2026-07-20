@@ -175,7 +175,8 @@ void main() {
             reason: "Breakfast slot at ${meal.mealTime.weekDay} should have a breakfast recipe",
           );
         }
-        if ((meal.mealTime.mealType == MealType.lunch || meal.mealTime.mealType == MealType.dinner) && meal.subMeals.any((sm) => sm.cooking != null)) {
+        if ((meal.mealTime.mealType == MealType.lunch || meal.mealTime.mealType == MealType.dinner) &&
+            meal.subMeals.any((sm) => sm.cooking != null)) {
           expect(
             RecipesProvider.instance.get(meal.subMeals.first.cooking!.recipeId).type,
             RecipeType.meal,
@@ -584,10 +585,7 @@ void main() {
 
       // Both slots get the same recipe, but each is its own cook event (yield 1) because
       // the second occurrence falls outside the 1-day storage window.
-      List<int> yields = menu.meals
-          .map((m) => m.subMeals.firstOrNull?.cooking?.yield)
-          .whereType<int>()
-          .toList();
+      List<int> yields = menu.meals.map((m) => m.subMeals.firstOrNull?.cooking?.yield).whereType<int>().toList();
       expect(yields.length, 2);
       expect(yields.every((y) => y == 1), true);
     });
@@ -619,10 +617,7 @@ void main() {
       generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
-      List<int> yields = menu.meals
-          .map((m) => m.subMeals.firstOrNull?.cooking?.yield)
-          .whereType<int>()
-          .toList();
+      List<int> yields = menu.meals.map((m) => m.subMeals.firstOrNull?.cooking?.yield).whereType<int>().toList();
       expect(yields.length, 3);
       expect(yields.where((y) => y == 3).length, 1);
       expect(yields.where((y) => y == 0).length, 2);
@@ -649,10 +644,7 @@ void main() {
       generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
       Menu menu = generator.menu!;
 
-      List<int> yields = menu.meals
-          .map((m) => m.subMeals.firstOrNull?.cooking?.yield)
-          .whereType<int>()
-          .toList();
+      List<int> yields = menu.meals.map((m) => m.subMeals.firstOrNull?.cooking?.yield).whereType<int>().toList();
       expect(yields.length, 2);
       expect(yields.every((y) => y == 1), true);
     });
@@ -661,7 +653,9 @@ void main() {
   group("MenuGenerator multiple sub-meals", () {
     test("a mealCount of 2 produces two sub-meals with distinct recipes", () {
       for (int i = 0; i < 6; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i", lunch: true, dinner: false));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "m$i", name: "Meal $i", lunch: true, dinner: false),
+        );
       }
 
       List<MenuConfiguration> configs = [
@@ -688,8 +682,12 @@ void main() {
     });
 
     test("peoplePerSubMeal is 1 for mealCount 2 and 2 for mealCount 1", () {
-      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m0", name: "Meal 0", lunch: true, dinner: false));
-      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m1", name: "Meal 1", lunch: true, dinner: false));
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "m0", name: "Meal 0", lunch: true, dinner: false),
+      );
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "m1", name: "Meal 1", lunch: true, dinner: false),
+      );
 
       List<MenuConfiguration> configs = [
         const MenuConfiguration(
@@ -717,7 +715,9 @@ void main() {
     });
 
     test("a mealCount of 2 with a single recipe reuses it in the second sub-meal", () {
-      RecipesProvider.addOrUpdate(newRecipe: _meal(id: "only", name: "Only Meal", lunch: true, dinner: false));
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "only", name: "Only Meal", lunch: true, dinner: false),
+      );
 
       List<MenuConfiguration> configs = [
         const MenuConfiguration(
@@ -750,15 +750,14 @@ void main() {
       // Only the default breakfast recipe from setUp exists.
       List<MenuConfiguration> configs = _fullWeekConfigurations();
       MenuGenerator generator = MenuGenerator(baseSeed: 42);
-      expect(
-        () => generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes),
-        throwsA(isA<AssertionError>()),
-      );
+      expect(() => generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes), throwsA(isA<AssertionError>()));
     });
 
     test("no crash when every recipe needs time but no slot can cook at the spot", () {
       for (int i = 0; i < 5; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "m$i", name: "Meal $i", totalMinutes: 30, maxStorageDays: 0, lunch: true, dinner: false));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "m$i", name: "Meal $i", totalMinutes: 30, maxStorageDays: 0, lunch: true, dinner: false),
+        );
       }
 
       List<MenuConfiguration> configs = _fullWeekConfigurations(cookingTimeMinutes: 0);
@@ -768,16 +767,18 @@ void main() {
 
       // No slot can cook at the spot and non-storable recipes cannot be leftovers,
       // so every meal slot stays empty.
-      List<Meal> mealSlots = menu.meals
-          .where((m) => m.mealTime.mealType == MealType.lunch || m.mealTime.mealType == MealType.dinner)
-          .toList();
+      List<Meal> mealSlots = menu.meals.where((m) => m.mealTime.mealType == MealType.lunch || m.mealTime.mealType == MealType.dinner).toList();
       expect(mealSlots.every((m) => m.subMeals.every((sm) => sm.cooking == null)), true);
     });
 
     test("lunch slots only get lunch recipes and dinner slots only get dinner recipes", () {
       for (int i = 0; i < 6; i++) {
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "lunch$i", name: "Lunch $i", lunch: true, dinner: false));
-        RecipesProvider.addOrUpdate(newRecipe: _meal(id: "dinner$i", name: "Dinner $i", lunch: false, dinner: true));
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "lunch$i", name: "Lunch $i", lunch: true, dinner: false),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(id: "dinner$i", name: "Dinner $i", lunch: false, dinner: true),
+        );
       }
 
       List<MenuConfiguration> configs = _fullWeekConfigurations();
