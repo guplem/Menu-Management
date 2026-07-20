@@ -18,6 +18,9 @@
 # Visual Studio Code related
 .vscode/
 
+# Claude Code personal/local settings (machine-specific, never shared)
+.claude/settings.local.json
+
 # Flutter/Dart/Pub related
 **/doc/api/
 .dart_tool/

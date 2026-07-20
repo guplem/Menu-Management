@@ -1,0 +1,27 @@
+# Git hooks managed by lefthook (a small tool that runs scripts on git events:
+# https://github.com/evilmartians/lefthook). Install once per clone with
+# `lefthook install` (needs the lefthook binary on PATH). These hooks run for
+# every commit, agent or human, so a problem is caught before CI. The commands
+# mirror the CI checks in .github/workflows/pull-request-checks.yml, so local
+# and CI results cannot drift apart.
+#
+# No post-merge codegen hook: the generated *.freezed.dart / *.g.dart files are
+# committed to the repo, so a fresh pull already has up-to-date generated code.
+
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      # `root` runs the command inside menu_management/ so dart format reads
+      # page_width: 150 from analysis_options.yaml. Generated files use a
+      # different width and are excluded so they never flip-flop.
+      root: "menu_management/"
+      glob: "*.dart"
+      exclude:
+        - "*.freezed.dart"
+        - "*.g.dart"
+      run: dart format --set-exit-if-changed {staged_files}
+    analyze:
+      root: "menu_management/"
+      glob: "*.dart"
+      run: flutter analyze
