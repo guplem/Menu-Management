@@ -132,7 +132,7 @@ Do not ask the user to confirm labels separately. Store the proposed labels as `
 
 ## 7. Draft the Issue
 
-Compose the issue body based on `ISSUE_TYPE`, then apply the TL;DR rule, the Proposed Solution rule, and the anti-redundancy rules below. Use the templates, but **aggressively eliminate redundancy**.
+Compose the issue body based on `ISSUE_TYPE`, then apply the TL;DR rule, the Proposed Solution rule, the anti-redundancy rules, and the communication style below. Use the templates, but **aggressively eliminate redundancy**.
 
 ### TL;DR rule (mandatory, all templates)
 
@@ -248,6 +248,10 @@ Before finalizing the draft, re-read it and apply these rules:
 5. **Omit empty or boilerplate sections.**
 6. **A kept Proposed Solution must add implementation detail** (specific files, functions, patterns, or ADRs), never a restatement of Expected Behavior.
 7. **Redundancy self-check.** After writing, read each section and ask: "If I deleted this, would the reader lose any information?" If no, delete it.
+
+### Communication style (critical for triage)
+
+The issue is read to be **chosen, not studied**: whoever triages skims it among many, with little context and little time, so if it is not instantly clear it gets skipped or misjudged. Write it in the repo's **Communicating with users** style (`AGENTS.md`) -- lead with the point (the TL;DR), assume a short attention span, one idea per sentence, define jargon, keep it skimmable.
 
 ### 7b. Generate Title Options and Get User Choice
 
