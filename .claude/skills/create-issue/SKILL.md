@@ -91,46 +91,18 @@ Store findings as `CODE_CONTEXT`. This context feeds the issue's Context section
 
 ## 5. Search for Duplicates and Related Issues
 
-### 5a. Search open issues
+Do **not** fetch "the newest N issues": `gh issue list --limit N` returns only the most recently created, so an older duplicate is never seen. Search by **relevance across the whole repo**, both states. Scope every `gh search issues` to this repo with `--repo guplem/Menu-Management` (without it, `gh search` queries all of GitHub).
 
-```bash
-gh issue list --state open --limit 100 --json number,title,labels,body
-```
-
-### 5b. Search recently closed issues
-
-```bash
-gh issue list --state closed --limit 50 --json number,title,labels,body
-```
-
-### 5c. Analyze matches
-
-Compare the new issue's intent against fetched issues. Look for:
-- **Exact duplicates**: Same problem described differently.
-- **Related issues**: Issues that touch the same area or feature.
-- **Closed duplicates**: Issues that were already resolved.
-
-### 5d. Report findings
-
-**If likely duplicates are found:**
-
-Ask using `AskUserQuestion`:
-> "I found an existing issue that looks like it covers the same problem:
-> - #<NUMBER> - <TITLE> (<STATE>)
->
-> What would you like to do?"
-
-Options:
-1. **It's a duplicate, stop** - Do not create the issue.
-2. **It's related but different, link it** - Create the new issue and reference the existing one.
-3. **Ignore, create anyway** - Proceed without linking.
-
-**If related (but not duplicate) issues are found:**
-
-Present them:
-> "I found some related issues: #X, #Y. I'll reference them in the new issue."
-
-Store related issue numbers as `RELATED_ISSUES`.
+1. **Derive 2-4 keyword sets** from the issue intent (Step 3) and `CODE_CONTEXT`, each a few words, varied so together they cover how a duplicate might be worded: the feature or component name; the symptom or user-facing effect; the specific entity or code path. Each set must include the exact noun a person would put in the **title** -- the title is the strongest duplicate signal.
+2. **Search each set, relevance-ranked** (put the keywords BEFORE any qualifier, or `gh search` returns an empty list):
+   ```bash
+   gh search issues --repo guplem/Menu-Management "<keywords> in:title" --limit 20 --json number,title,state,stateReason,url   # title-scoped: strongest signal
+   gh search issues --repo guplem/Menu-Management "<keywords>" --limit 30 --json number,title,state,stateReason,url            # title + body: differently worded duplicates
+   ```
+3. **Recency backup, once**: `gh issue list --state all --limit 40 --json number,title,state,stateReason,labels`. It catches duplicates that use none of your keywords and brand-new issues the search index has not picked up yet (`gh search` is eventually consistent).
+4. **Compare intent, not wording.** `stateReason` separates `COMPLETED` from `NOT_PLANNED`; treat any `NOT_PLANNED` match as a **reopen candidate**, not a reason to create a duplicate (backlog issues are often closed as not-planned to reopen later).
+5. **If a likely duplicate exists**, ask via `AskUserQuestion`: stop (duplicate) / link it (related but different) / create anyway. **Prefer reopening a matching not-planned issue over creating a duplicate.**
+6. Store related issue numbers as `RELATED_ISSUES`.
 
 ## 6. Auto-Detect Labels
 
