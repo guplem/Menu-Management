@@ -6,7 +6,7 @@ Before implementing any non-trivial feature, delegate to the **pattern-scout** a
 
 Before implementing features that touch state management, data models, persistence, menu generation, or app architecture, delegate to the **adr-checker** agent in **consult mode**. After such changes, delegate in **maintain mode**.
 
-After writing or modifying code, delegate to the **test-runner** agent.
+After writing or modifying code, delegate to the **validate** agent.
 
 After completing changes that affect documented content, delegate to the **docs-checker** agent.
 
@@ -18,6 +18,7 @@ The people who read your output may read English as a second language and may be
 
 - **Short sentences, one idea each.** Use common words. Avoid idioms, slang, and cultural references.
 - **Lead with the answer**, then only the detail that changes what the reader does. Cut filler and hedging. Do not use em dashes.
+- **Assume a short attention span.** The reader usually skims to make a quick decision (which PR to review, which issue to pick), with little context and little time; put the single most important thing first, and make each part land even if they stop after the first line.
 - **Gloss each jargon term, acronym, or tool/library name on first use** in one short clause, or pick a simpler word.
 - **Explain a concept briefly before going deeper.** Do not assume a flow, tool, or pattern is already known.
 
@@ -232,7 +233,7 @@ If the repository does not have a `waiting-for-human-check` label, create it fir
 gh label create "waiting-for-human-check" --description "No human has verified this yet -- direct AI output" --color "D93F0B"
 ```
 
-Whenever you create a GitHub issue, use the `create-issue` skill. Whenever you implement one, use the `implement-issue` skill.
+Whenever you create a GitHub issue, use the `create-issue` skill. Whenever you implement one, use the `implement-issue` skill. Whenever you review a PR, use the `review-pr` skill.
 
 ## Self-Updating Rules
 

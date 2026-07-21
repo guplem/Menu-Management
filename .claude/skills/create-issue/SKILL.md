@@ -87,50 +87,22 @@ Before structuring the issue, investigate the relevant code:
 4. **For features/improvements**: Identify the existing code that would need to change, and any patterns already in place. Run the **pattern-scout** agent if a new pattern is being introduced.
 5. **Check relevant ADRs**: Run the **adr-checker** agent in consult mode to find ADRs that affect the planned work.
 
-Store findings as `CODE_CONTEXT`.
+Store findings as `CODE_CONTEXT`. This context feeds the issue's Context section and the label detection; it is **not** a proposed solution (see Step 7).
 
 ## 5. Search for Duplicates and Related Issues
 
-### 5a. Search open issues
+Do **not** fetch "the newest N issues": `gh issue list --limit N` returns only the most recently created, so an older duplicate is never seen. Search by **relevance across the whole repo**, both states. Scope every `gh search issues` to this repo with `--repo guplem/Menu-Management` (without it, `gh search` queries all of GitHub).
 
-```bash
-gh issue list --state open --limit 100 --json number,title,labels,body
-```
-
-### 5b. Search recently closed issues
-
-```bash
-gh issue list --state closed --limit 50 --json number,title,labels,body
-```
-
-### 5c. Analyze matches
-
-Compare the new issue's intent against fetched issues. Look for:
-- **Exact duplicates**: Same problem described differently.
-- **Related issues**: Issues that touch the same area or feature.
-- **Closed duplicates**: Issues that were already resolved.
-
-### 5d. Report findings
-
-**If likely duplicates are found:**
-
-Ask using `AskUserQuestion`:
-> "I found an existing issue that looks like it covers the same problem:
-> - #<NUMBER> - <TITLE> (<STATE>)
->
-> What would you like to do?"
-
-Options:
-1. **It's a duplicate, stop** - Do not create the issue.
-2. **It's related but different, link it** - Create the new issue and reference the existing one.
-3. **Ignore, create anyway** - Proceed without linking.
-
-**If related (but not duplicate) issues are found:**
-
-Present them:
-> "I found some related issues: #X, #Y. I'll reference them in the new issue."
-
-Store related issue numbers as `RELATED_ISSUES`.
+1. **Derive 2-4 keyword sets** from the issue intent (Step 3) and `CODE_CONTEXT`, each a few words, varied so together they cover how a duplicate might be worded: the feature or component name; the symptom or user-facing effect; the specific entity or code path. Each set must include the exact noun a person would put in the **title** -- the title is the strongest duplicate signal.
+2. **Search each set, relevance-ranked** (put the keywords BEFORE any qualifier, or `gh search` returns an empty list):
+   ```bash
+   gh search issues --repo guplem/Menu-Management "<keywords> in:title" --limit 20 --json number,title,state,stateReason,url   # title-scoped: strongest signal
+   gh search issues --repo guplem/Menu-Management "<keywords>" --limit 30 --json number,title,state,stateReason,url            # title + body: differently worded duplicates
+   ```
+3. **Recency backup, once**: `gh issue list --state all --limit 40 --json number,title,state,stateReason,labels`. It catches duplicates that use none of your keywords and brand-new issues the search index has not picked up yet (`gh search` is eventually consistent).
+4. **Compare intent, not wording.** `stateReason` separates `COMPLETED` from `NOT_PLANNED`; treat any `NOT_PLANNED` match as a **reopen candidate**, not a reason to create a duplicate (backlog issues are often closed as not-planned to reopen later).
+5. **If a likely duplicate exists**, ask via `AskUserQuestion`: stop (duplicate) / link it (related but different) / create anyway. **Prefer reopening a matching not-planned issue over creating a duplicate.**
+6. Store related issue numbers as `RELATED_ISSUES`.
 
 ## 6. Auto-Detect Labels
 
@@ -150,11 +122,9 @@ Map affected code paths to labels:
 | `theme/` | `theme` |
 | `persistency` | `persistence` |
 
-### 6b. Priority label (infer one)
+### 6b. Never assign priority labels
 
-- **P: High** - App crashes, data loss, core feature broken
-- **P: Medium** - Degraded functionality, workaround exists
-- **P: Low** - Cosmetic, minor inconvenience, nice-to-have
+Priority is a human decision made when triaging, not something the agent infers. Never assign a priority label (`P: High` / `P: Medium` / `P: Low`).
 
 ### 6c. Store labels for combined review
 
@@ -162,14 +132,40 @@ Do not ask the user to confirm labels separately. Store the proposed labels as `
 
 ## 7. Draft the Issue
 
-Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **aggressively eliminate redundancy**.
+Compose the issue body based on `ISSUE_TYPE`, then apply the TL;DR rule, the Proposed Solution rule, the anti-redundancy rules, and the communication style below. Use the templates, but **aggressively eliminate redundancy**.
+
+### TL;DR rule (mandatory, all templates)
+
+Every issue body must start with a **TL;DR** line before any section header:
+
+```markdown
+**TL;DR:** <one sentence summarizing what this issue achieves or fixes>
+```
+
+The TL;DR is one sentence (two only if genuinely necessary) that tells a reader what the issue is about without reading anything else. The title alone is rarely enough. It describes the **outcome**, not the process. A TL;DR names what this issue makes true (the "after") plus what it replaces (the "before"). For brand-new capabilities, the "before" is empty: state the new capability and why it matters.
+
+Examples:
+
+- Good (change): "Currently the recipe editor silently drops an ingredient with no quantity; this issue makes the editor block save until every ingredient has a quantity."
+- Good (new capability): "Add a panel that surfaces per-week ingredient waste, so menus can be tuned without exporting data."
+- Bad (after only): "Validate ingredient quantities before save." The reader cannot tell what is broken today.
+- Bad (before only): "Deleted recipes still appear in the menu." States the gap but not what this issue makes true.
+
+### Proposed Solution rule (mandatory)
+
+**Never include a "Proposed Solution" section unless the user proposed a solution during issue creation.** A solution counts as user-proposed when it came from the user directly, or from source material the user brought (a linked discussion, a decision they quoted). Your own code investigation (Step 4) is **not** a user-proposed solution.
+
+- If the user proposed a solution, include the section and write it from what they said. You may add file/function references from `CODE_CONTEXT` to make their idea concrete, but the approach must be theirs.
+- If the user did **not** propose a solution, **omit the section entirely.** The investigation still feeds Context and verifies bugs; it does not produce a solution the user never asked for.
 
 ### Bug template
 
 ```markdown
+**TL;DR:** <one sentence with the after and the before. "Currently X; this issue makes Y." or "Y instead of X.">
+
 ## Context
 
-<What is broken, who is affected, and why it matters. Do NOT state root causes as fact -- use hedging language like "most likely caused by" or "may be related to".>
+<What is broken, who is affected, and why it matters. Combine the problem description and current behavior into one cohesive narrative. Do NOT state root causes as fact -- use hedging language like "most likely caused by" or "may be related to".>
 
 ## Steps to Reproduce
 
@@ -183,7 +179,7 @@ Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **agg
 
 ## Proposed Solution
 
-<High-level approach based on code investigation. Reference specific files/functions.>
+<ONLY if the user proposed one; otherwise omit this entire section.>
 
 ## Acceptance Criteria
 
@@ -198,13 +194,15 @@ Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **agg
 ### Feature template
 
 ```markdown
+**TL;DR:** <one sentence: what new capability this adds and why it matters>
+
 ## Context
 
-<Why this feature is needed -- what user need does it serve.>
+<Why this feature is needed AND what it should do at a high level.>
 
 ## Proposed Solution
 
-<What the feature should do AND how to implement it. Reference existing patterns or code paths.>
+<ONLY if the user proposed one; otherwise omit this entire section.>
 
 ## Acceptance Criteria
 
@@ -219,13 +217,15 @@ Compose the issue body based on `ISSUE_TYPE`. Use the templates below, but **agg
 ### Improvement template
 
 ```markdown
+**TL;DR:** <one sentence with the after and the before>
+
 ## Context
 
 <What exists today, its limitations, and why improvement is needed.>
 
 ## Proposed Solution
 
-<How it should work after the improvement AND the technical approach. Reference specific files/functions.>
+<ONLY if the user proposed one; otherwise omit this entire section.>
 
 ## Acceptance Criteria
 
@@ -246,8 +246,12 @@ Before finalizing the draft, re-read it and apply these rules:
 3. **Acceptance Criteria must not restate Expected Behavior.** Each checkbox should tell the implementer something new.
 4. **No generic AC items.** Do not include "lint passes", "no regressions", "tests pass". Every AC item must be specific to THIS issue.
 5. **Omit empty or boilerplate sections.**
-6. **Proposed Solution must add implementation detail.** Name specific files, functions, patterns, or ADRs.
+6. **A kept Proposed Solution must add implementation detail** (specific files, functions, patterns, or ADRs), never a restatement of Expected Behavior.
 7. **Redundancy self-check.** After writing, read each section and ask: "If I deleted this, would the reader lose any information?" If no, delete it.
+
+### Communication style (critical for triage)
+
+The issue is read to be **chosen, not studied**: whoever triages skims it among many, with little context and little time, so if it is not instantly clear it gets skipped or misjudged. Write it in the repo's **Communicating with users** style (`AGENTS.md`) -- lead with the point (the TL;DR), assume a short attention span, one idea per sentence, define jargon, keep it skimmable.
 
 ### 7b. Generate Title Options and Get User Choice
 
@@ -316,7 +320,7 @@ Present to the user:
 
 - **Never create without confirmation.** Always show the draft and get user approval before creating.
 - **Clarify before structuring.** Step 2 (Deep Understanding) is mandatory. Never skip it.
-- **Auto-infer, then confirm.** For type, labels, and priority: propose values and let the user adjust.
+- **Auto-infer, then confirm.** Propose type and labels; let the user adjust in one combined review.
 - **Code verification is mandatory for bugs.** Always check if the bug exists in the current code before creating.
 - **Duplicate check is mandatory.** Always search open and closed issues before creating.
 - **Respect the user's time.** Only ask questions when you genuinely can't infer the answer. Batch confirmations where possible.
