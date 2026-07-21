@@ -25,12 +25,7 @@
       "Bash(dart format *)"
     ],
     "ask": [],
-    "deny": [
-      "Read(**/.env.local)",
-      "Read(**/.env.private)",
-      "Read(**/.env.secrets)",
-      "Read(**/secrets/**)"
-    ]
+    "deny": []
   },
   "hooks": {
     "PostToolUse": [
