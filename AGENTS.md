@@ -237,7 +237,7 @@ Whenever you create a GitHub issue, use the `create-issue` skill. Whenever you i
 
 ## Self-Updating Rules
 
-Whenever you discover something **extremely hard to find, deeply non-obvious, and time-saving for future sessions**, hit a pattern that **diverges from what an AI would write by default**, or the user says **"every time" / "always" / "never"**, persist it immediately (narrowest scope that fits) instead of applying it only this session. For where to write it, use the `write-ai-instructions` skill.
+Whenever you discover something **extremely hard to find, deeply non-obvious, and time-saving for future sessions**, hit a pattern that **diverges from what an AI would write by default**, the user says **"every time" / "always" / "never"**, or **feedback on your own work reveals a standard you should have followed** (a PR review comment, a user correction), persist it immediately (narrowest scope that fits) instead of applying it only this session. Persist it in these shared, committed files, never in personal memory or the global config, so the whole team gets the lesson. For where to write it, use the `write-ai-instructions` skill.
 
 ## Deployment
 

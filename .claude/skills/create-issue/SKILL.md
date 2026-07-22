@@ -1,12 +1,19 @@
 ---
 name: create-issue
 description: Create a well-structured GitHub issue with duplicate detection, code verification, and auto-labeling
-argument-hint: [brief description]
+argument-hint: "[brief description] [--autonomous]"
 ---
 
 # Interactive Issue Creation
 
 Create a GitHub issue with a standardized structure, duplicate detection, code verification, and auto-labeling.
+
+## Modes
+
+Work out the mode from `$ARGUMENTS` before anything else. If `--autonomous` is present, set `MODE=autonomous`; the rest of `$ARGUMENTS` is the description. Otherwise set `MODE=interactive`.
+
+- **`interactive` (default):** a user runs `/create-issue`. Ask, clarify, and confirm as each step describes.
+- **`autonomous`:** another skill (e.g. `implement-issue`) needs an issue filed with no user present. **Never call `AskUserQuestion` for any reason.** The description in `$ARGUMENTS` is the whole input; infer the type, pick the title, draft the body, and create the issue on your own, still applying every house-style rule below. The steps mark where autonomous mode replaces a question with a decision.
 
 ## 1. Gather Initial Context
 
@@ -25,6 +32,8 @@ Ask using `AskUserQuestion`:
 Options:
 1. **Yes, here's a link** - The user will paste a URL.
 2. **No, let's continue with what I described** - Proceed without external context.
+
+**Autonomous mode:** the description is required (a missing one is a hard stop; do not ask). Skip the links question, but fetch any URL already present in the description.
 
 ## 2. Deep Understanding -- Clarify Until Crystal Clear
 
@@ -60,6 +69,8 @@ If **any** gap or ambiguity exists, ask clarifying questions. **Ask one question
 - **Iterate.** If the user's answer raises new questions, ask those too.
 - **Don't interrogate unnecessarily.** If the description is genuinely clear, a brief confirmation is enough.
 
+**Autonomous mode:** ask nothing. Build the best understanding you can from the description and the codebase, resolve each ambiguity with the most reasonable reading, and note any assumption you made in the issue's Context so a human can correct it.
+
 Once you are confident you understand the issue completely, proceed to Step 3.
 
 ## 3. Determine Issue Type
@@ -71,7 +82,7 @@ Analyze the combined context and infer the issue type:
 - **Improvement** - Enhancement to an existing feature
 - **Task** - Refactors, chores, and other specific pieces of work
 
-Only ask using `AskUserQuestion` if the type is truly ambiguous. Otherwise, infer silently and confirm later in the combined review (Step 8).
+Only ask using `AskUserQuestion` if the type is truly ambiguous. Otherwise, infer silently and confirm later in the combined review (Step 8). **Autonomous mode:** always infer, never ask.
 
 Store the selected type as `ISSUE_TYPE`.
 
@@ -103,6 +114,8 @@ Do **not** fetch "the newest N issues": `gh issue list --limit N` returns only t
 4. **Compare intent, not wording.** `gh search issues` returns `state` but **not** the close reason (`stateReason` is not a valid `--json` field for it, only for `gh issue list`/`gh issue view`). For a closed candidate that looks like a duplicate, resolve its reason with `gh issue view <n> --json stateReason` (the recency backup already returns it). A `NOT_PLANNED` reason means a **reopen candidate**, not a reason to create a duplicate (backlog issues are often closed as not-planned to reopen later).
 5. **If a likely duplicate exists**, ask via `AskUserQuestion`: stop (duplicate) / link it (related but different) / create anyway. **Prefer reopening a matching not-planned issue over creating a duplicate.**
 6. Store related issue numbers as `RELATED_ISSUES`.
+
+**Autonomous mode:** never ask. If a near-certain open duplicate exists, do not create a new issue: return that issue's number as the result (the caller works on it). If a matching not-planned issue exists, reopen it (`gh issue reopen <n>`) and return its number. Otherwise create the new issue and link any merely-related ones.
 
 ## 6. Auto-Detect Labels
 
@@ -268,7 +281,7 @@ Vary the titles by focus:
 
 Present options using `AskUserQuestion`. The user picks one or provides a custom title.
 
-Store the selected title as `SELECTED_TITLE`.
+Store the selected title as `SELECTED_TITLE`. **Autonomous mode:** pick the strongest candidate yourself and store it; do not ask.
 
 ## 8. Draft Review with User
 
@@ -289,6 +302,8 @@ Options:
 2. **Make changes first** - The user will describe what to adjust.
 
 If changes requested, apply them and re-present.
+
+**Autonomous mode:** skip this step and create the issue directly (Step 9); the caller's own review cycle is the safety net.
 
 ## 9. Create the Issue
 
@@ -316,10 +331,12 @@ Present to the user:
 - The assigned labels
 - Any linked issues
 
+**Autonomous mode:** the result the caller needs is the issue number, so state it plainly (new, reused-duplicate, or reopened).
+
 ## Important Rules
 
-- **Never create without confirmation.** Always show the draft and get user approval before creating.
-- **Clarify before structuring.** Step 2 (Deep Understanding) is mandatory. Never skip it.
+- **Never create without confirmation** in interactive mode. Always show the draft and get user approval before creating. Autonomous mode creates directly, as its Modes section defines.
+- **Clarify before structuring.** Step 2 (Deep Understanding) is mandatory in interactive mode; autonomous mode infers instead of asking.
 - **Auto-infer, then confirm.** Propose type and labels; let the user adjust in one combined review.
 - **Code verification is mandatory for bugs.** Always check if the bug exists in the current code before creating.
 - **Duplicate check is mandatory.** Always search open and closed issues before creating.

@@ -1,20 +1,22 @@
 ---
 name: implement-issue
-description: Implement a GitHub issue interactively - asks about branch, PR target, and phases/steps before starting work
-argument-hint: [issue-number]
+description: Implement a GitHub issue step by step - ask about the branch and the PR target first (batched in one question), then run the work and the review cycle with the review-pr skill. Also accepts a plain problem description, which it files as an issue autonomously first. Use whenever the user asks to implement, work on, or execute a GitHub issue.
+argument-hint: [issue-number | problem description]
 ---
 
 # Interactive Issue Implementation
 
 Implement a GitHub issue by interactively gathering configuration through questions, then processing steps sequentially with automated PR creation and review cycles.
 
-## 1. Determine the Issue
+## 1. Determine or Create the Issue
 
-- If `$ARGUMENTS` contains an issue number, use it as `ISSUE`.
-- If `$ARGUMENTS` is empty, ask the user using `AskUserQuestion`:
-  > "Which GitHub issue do you want to implement?"
+Read `$ARGUMENTS`:
 
-## 2. Fetch and Parse the Issue
+- **An issue number** (digits, with or without a leading `#`): use it as `ISSUE`.
+- **A problem description** (any other non-empty text): file it as an issue **autonomously** with the `create-issue` skill, then use the new number as `ISSUE`. Invoke it with the Skill tool: `skill: "create-issue", args: "<the description> --autonomous"`. Autonomous mode asks the user nothing: it infers the type, picks the title, drafts the body, and creates the issue on its own (see the `create-issue` skill's autonomous mode). Do not stop to confirm; the review cycle later is the safety net.
+- **Empty**: ask the user using `AskUserQuestion`: "Which GitHub issue do you want to implement?"
+
+## 2. Fetch, Parse, and Take Ownership
 
 ```bash
 gh issue view $ISSUE --json title,body,number
@@ -26,43 +28,24 @@ Parse the issue body to extract:
 - **Sub-issues**: collect all `#<number>` references if any.
 - **Steps/phases**: any numbered or grouped structure.
 
-## 3. Ask: Working Branch
+**Self-assign the issue**, because you are taking ownership of the work:
 
-Use `AskUserQuestion` to ask:
+```bash
+gh issue edit $ISSUE --add-assignee @me
+```
 
-> "Do you want to implement the changes in a new branch or use the current one?"
+## 3. Ask: Branches (One Batched Question)
 
-Options:
-1. **Create or switch to a different branch** - Specify a branch name.
-2. **Current branch (`<current-branch-name>`)** - Work on the branch you're already on.
+Ask both branch decisions in a **single `AskUserQuestion` call** (two questions in one batch), so the user answers them almost instantly from pre-filled options:
 
-If the user picks option 1:
-- Ask for the branch name.
-- Check if the branch exists locally or remotely:
-  - If it exists: `git checkout <branch> && git pull origin <branch>`
-  - If it does not exist: create it from the current branch:
-    ```bash
-    git checkout -b <branch> && git push -u origin <branch>
-    ```
+- **Working branch**: `New branch: <issue-number>-<short-slug>` (Recommended, slug derived from the issue title) / `Current branch`. The "Other" field takes a custom branch name. Store the choice as `WORK_BRANCH`.
+- **PR target branch**: `main` (Recommended) / `Current branch`. The "Other" field takes a custom target. Store it as `PR_TARGET_BRANCH`.
 
-Store the chosen branch as `WORK_BRANCH`.
+Then set the working branch up **with the upstream set at once** (the `create-branch` skill). New branch: `git checkout -b <branch> && git push -u origin <branch>`. Existing branch: `git checkout <branch> && git pull origin <branch>`.
 
-## 4. Ask: PR Target Branch
+## 4. Analyze Steps
 
-Use `AskUserQuestion` to ask:
-
-> "Which branch should PRs target?"
-
-Options:
-1. **main** - PRs will target the main branch directly.
-2. **Current branch (`<WORK_BRANCH>`)** - PRs will target the working branch.
-3. **Custom branch** - Specify a different target branch.
-
-Store the chosen branch as `PR_TARGET_BRANCH`.
-
-## 5. Analyze Steps
-
-### 5a. If the issue has explicit phases or sub-issues
+### 4a. If the issue has explicit phases or sub-issues
 
 Present the detected structure to the user and ask using `AskUserQuestion`:
 
@@ -75,7 +58,7 @@ Options (up to 4):
 
 Store the chosen step as `TARGET_STEP`.
 
-### 5b. If the issue has NO explicit steps or sub-issues
+### 4b. If the issue has NO explicit steps or sub-issues
 
 Analyze the issue body to determine if it makes sense to split it into multiple implementation steps. Consider:
 - Number of distinct features or changes described
@@ -95,11 +78,11 @@ Options:
 1. **Yes, implement step by step** - Proceed with the proposed steps.
 2. **No, implement it all at once** - Implement everything in a single pass.
 
-If the user chooses step by step, ask which step to implement (same as 5a).
+If the user chooses step by step, ask which step to implement (same as 4a).
 
 **If splitting does NOT make sense** (simple, focused issue), proceed directly to implementation as a single unit.
 
-## 6. Validate Pre-conditions
+## 5. Validate Pre-conditions
 
 Before starting any work:
 
@@ -109,9 +92,9 @@ Before starting any work:
    ```
 2. Spawn the **validate** agent to confirm the repo's checks pass before you start. Do not build on a broken baseline; report it to the user instead.
 
-## 7. Execute Implementation
+## 6. Execute Implementation
 
-### 7a. Multi-step mode
+### 6a. Multi-step mode
 
 For **each step**, one at a time:
 
@@ -183,32 +166,52 @@ PREOF
 )"
 ```
 
-5. **Run the automated review cycle** (section 8) before moving to the next step.
+5. **Run the automated review cycle** (section 7) before moving to the next step.
 
-### 7b. Single-issue mode
+### 6b. Single-issue mode
 
 1. **Work directly on `$WORK_BRANCH`** (no sub-branch needed).
-2. **Spawn an implementation agent** with the same prompt template as 7a, but referencing the full issue.
+2. **Spawn an implementation agent** with the same prompt template as 6a, but referencing the full issue.
 3. **Create a PR** targeting `$PR_TARGET_BRANCH`.
-4. **Run the automated review cycle** (section 8).
+4. **Run the automated review cycle** (section 7).
 
-## 8. Review Cycle (uses the review-pr skill)
+## 7. Review Cycle (uses the review-pr skill)
 
 Use the **review-pr** skill in `--no-verdict` mode. That mode runs unattended (it never asks the user anything), posts a COMMENT-only review to the PR, and writes a local findings file `.reviews/<PR_NUMBER>-review.md` with a clear verdict: `APPROVED` or `CHANGES_REQUESTED`. Invoke it with the Skill tool: `skill: "invoke", args: "review-pr <PR_NUMBER> --no-verdict"`.
 
-1. Run `review-pr <PR_NUMBER> --no-verdict`, then read the verdict from `.reviews/<PR_NUMBER>-review.md`.
-2. **If `CHANGES_REQUESTED`:** spawn an implementation agent on the same branch to fix every Required item, then run `review-pr <PR_NUMBER> --no-verdict` again (it re-reviews the whole current state and does not re-raise findings it already made). Repeat until `APPROVED`, **at most 3 rounds**; then stop and report to the user.
-3. **On approval, reply on every inline comment thread the cycle posted**, so a human scanning the "Files changed" tab sees each comment's status without reading commits. Do **not** resolve threads (that is the human's call). List the comment `id`s with `gh api repos/<owner>/<repo>/pulls/<PR_NUMBER>/comments --jq '.[] | {id, path, line}'`, then reply to each via the replies endpoint:
+1. Run `review-pr <PR_NUMBER> --no-verdict`, then read the verdict and every finding from `.reviews/<PR_NUMBER>-review.md`.
+
+2. **Decide what to implement, using your judgement on every comment, not only the Required ones.** Always implement each `[Required]` finding. For each `[Suggestion]` and `[Nitpick]`, weigh whether it is worth doing now: is it a real bug or correctness gap? how much tech debt (future cost) does leaving it create? is it a small fix that makes later work easier? does it fit the issue's scope? Implement the ones your judgement says are worth it; leave the rest, each with a clear reason. Do not treat "not Required" as "not worth doing".
+
+3. **Apply the chosen fixes** by spawning an implementation agent on the same branch, then run `review-pr <PR_NUMBER> --no-verdict` again (it re-reviews the whole current state and does not re-raise findings it already made). Repeat until there are no new findings you choose to act on, **at most 3 rounds**; then stop and report to the user.
+
+4. **Reply on every inline comment thread the cycle posted**, so the PR owner sees each comment's status and the reason without reading commits. List the comment `id`s with `gh api repos/<owner>/<repo>/pulls/<PR_NUMBER>/comments --jq '.[] | {id, path, line}'`, then reply to each via the replies endpoint:
    ```bash
    gh api repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/<PR_NUMBER>/comments/<COMMENT_ID>/replies -f body="<reply>"
    ```
-   - **Addressed by a fix round:** `**Applied** in <short-sha> - <one sentence on the change>.`
-   - **Left unapplied on purpose** (optional suggestion, out of scope): `**Not applied** - <one-sentence reason>.`
-4. **Then finish:** delete the review file (and `.reviews/` if it is now empty) and tell the user.
+   - **Implemented:** `**Applied** in <short-sha> - <one sentence on the change>.`
+   - **Left unapplied on purpose:** `**Not applied** - <one-sentence reason>.`
+
+5. **Resolve each thread after you reply to it**, so only threads still needing the human's attention stay open. GitHub resolves review threads through its GraphQL API (there is no plain `gh pr` command). First list the threads with their IDs, then resolve each:
+   ```bash
+   OWNER_REPO=$(gh repo view --json owner,name -q '.owner.login+" "+.name')
+   gh api graphql -f query='query($o:String!,$n:String!,$pr:Int!){ repository(owner:$o,name:$n){ pullRequest(number:$pr){ reviewThreads(first:100){ nodes{ id isResolved comments(first:1){ nodes{ databaseId } } } } } } }' -F o=<owner> -F n=<repo> -F pr=<PR_NUMBER>
+   gh api graphql -f query='mutation($id:ID!){ resolveReviewThread(input:{threadId:$id}){ thread{ isResolved } } }' -F id=<THREAD_ID>
+   ```
+   The thread nodes carry the first comment's `databaseId`, so you can match a thread to the comment you replied to.
+
+6. **Reflect, then update the shared docs (do this every cycle).** For each finding you acted on, ask: "Is this a standard or best practice I should have followed from the start?" If yes, classify why the miss happened and fix the cause, so the same mistake does not recur:
+   - **Guidance already existed** (in `AGENTS.md`, an ADR, or a skill): no doc change; you simply missed it.
+   - **Guidance was missing:** add it to the right shared file via the `write-ai-instructions` skill (`AGENTS.md` for a rule, an ADR for a decision, a skill for a procedure).
+   - **Guidance was weak or hard to find:** sharpen or relocate it.
+
+   Persist every such lesson only in these **shared, version-controlled files** that all coworkers and their agents read; never in your personal memory or the user's global config, which teammates never see. Ride these doc changes along in the same PR and list them in the PR summary.
+
+7. **Then finish:** delete the review file (and `.reviews/` if it is now empty) and tell the user.
 
 **Do not merge the PR.** Wait for the user to review, approve, and merge manually.
 
-## 9. Completion
+## 8. Completion
 
 After all steps are done, report:
 
@@ -222,9 +225,12 @@ If there are remaining steps, report:
 ## Important Rules
 
 - **Never push to `main` directly.** All work goes through branches and PRs.
+- **Take ownership.** Self-assign the issue when you start it and self-assign every PR you open.
 - **Never merge PRs automatically.** Always wait for human approval.
 - **Scope discipline.** Each agent works only on its assigned step. No cross-step changes.
 - **Verification is mandatory.** The implementation agent runs the repo's checks before pushing, and the orchestrator confirms a clean state with the **validate** agent.
 - **Fresh reviewers.** The review agent has no context from the implementation (the `review-pr` skill already spawns fresh agents).
-- **Max 3 review iterations.** If after 3 rounds the review still has issues, notify the user and move on.
-- **Interactive first.** Always use `AskUserQuestion` to gather configuration. Never assume defaults silently.
+- **Bounded iteration.** At most 3 review rounds; then report to the user instead of looping.
+- **Judgement on every comment.** Act on any comment worth acting on, not just the Required ones; reply and resolve each thread with the reason.
+- **Learn in shared docs.** When feedback reveals a should-have-known standard, persist the lesson to `AGENTS.md`/ADR/skill, never to personal memory or global config.
+- **Config is interactive, the issue write-up is autonomous.** Gather the branch and step config via `AskUserQuestion` (batched where possible); when given only a problem description, create the issue with `create-issue --autonomous` and ask nothing.
