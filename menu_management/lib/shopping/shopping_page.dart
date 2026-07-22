@@ -12,6 +12,7 @@ import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
@@ -152,32 +153,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 
   /// Converts owned amount to the actual quantity in [targetUnit] based on the selected owned unit.
+  /// Delegates to the shared [ownedAmountInUnit] so the on-screen list and the trip planner subtract
+  /// the same amount.
   double _ownedInUnit({required String ingredientId, required Ingredient ingredient, required Unit targetUnit}) {
     double amount = ownedAmounts[ingredientId] ?? 0;
-    if (amount <= 0) return 0;
-
     OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? OwnedUnit(unit: targetUnit);
-
-    if (selectedUnit.unit == null) {
-      // "packs" mode: find the first product with matching target unit and convert
-      Product? product = ingredient.products.firstWhereOrNull((p) => p.unit == targetUnit);
-      if (product == null) return 0;
-      return amount * product.totalQuantityPerPack;
-    }
-
-    if (selectedUnit.unit == targetUnit) {
-      return amount;
-    }
-
-    // Different units: try conversion via ingredient density
-    double? ownedGrams = ingredient.toGrams(Quantity(amount: amount, unit: selectedUnit.unit!));
-    if (ownedGrams != null) {
-      if (targetUnit == Unit.grams) return ownedGrams;
-      double? converted = ingredient.fromGrams(ownedGrams, targetUnit);
-      if (converted != null) return converted;
-    }
-
-    return 0;
+    return ownedAmountInUnit(ingredient: ingredient, ownedAmount: amount, ownedUnit: selectedUnit.unit, targetUnit: targetUnit);
   }
 
   List<Quantity> _remainingAmounts({required String ingredientId, required Ingredient ingredient}) {
@@ -284,33 +265,23 @@ class _ShoppingPageState extends State<ShoppingPage> {
   List<ShoppingTrip> _planTrips() {
     List<Ingredient> allIngredients = IngredientsProvider.instance.ingredients;
 
-    // Build remaining-after-owned cooking timeline. We keep events whose summed
-    // amount across all owned-eligible units is still positive; the planner
-    // handles owned subtraction internally via ownedAmounts.
-    Map<String, List<Quantity>> ownedQuantitiesPerIngredient = {};
+    // Pass the user's owned stock as-is (one amount + one selected unit, or "packs").
+    // The planner converts it into each event's unit via the shared ownedAmountInUnit,
+    // so it subtracts exactly what the on-screen list subtracts.
+    Map<String, OwnedStock> ownedStockPerIngredient = {};
     for (MapEntry<String, double> entry in ownedAmounts.entries) {
       String ingredientId = entry.key;
       double amount = entry.value;
       if (amount <= 0) continue;
-      Ingredient? ingredient = allIngredients.firstWhereOrNull((i) => i.id == ingredientId);
-      if (ingredient == null) continue;
 
       OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams);
-      if (selectedUnit.unit != null) {
-        ownedQuantitiesPerIngredient[ingredientId] = [Quantity(amount: amount, unit: selectedUnit.unit!)];
-      } else {
-        // "packs" mode: convert to product's unit using its first product.
-        Product? product = ingredient.products.firstOrNull;
-        if (product != null) {
-          ownedQuantitiesPerIngredient[ingredientId] = [Quantity(amount: amount * product.totalQuantityPerPack, unit: product.unit)];
-        }
-      }
+      ownedStockPerIngredient[ingredientId] = OwnedStock(amount: amount, unit: selectedUnit.unit);
     }
 
     return planShoppingTrips(
       cookingTimeline: cookingTimeline,
       ingredients: allIngredients,
-      ownedAmounts: ownedQuantitiesPerIngredient,
+      ownedAmounts: ownedStockPerIngredient,
       assumeFreezerForFreezable: _useFreezerStrategy,
     );
   }

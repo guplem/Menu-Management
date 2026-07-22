@@ -34,7 +34,9 @@ Shelf life is read from the same-unit product variants of the ingredient. ADR 00
 
 ### Owned amounts
 
-`planShoppingTrips` accepts an optional `ownedAmounts: Map<String, List<Quantity>>`. Owned amounts are consumed against the matching-unit events in chronological order before trips are computed. Owned amounts in a unit that no event uses are ignored (no cross-unit conversion in the planner; the caller is responsible for converting if desired).
+`planShoppingTrips` accepts an optional `ownedAmounts: Map<String, OwnedStock>`, where `OwnedStock` (in `owned_amount.dart`) is the user's stock as one amount plus one selected unit (or null for "packs"). For each cooking event the planner converts that stock into the event's unit via the shared `ownedAmountInUnit` (in `owned_amount.dart`), then consumes it against the matching-unit events in chronological order before trips are computed. `ownedAmountInUnit` handles same-unit, cross-unit (grams <-> pieces via `gramsPerPiece`, weight <-> volume via `density`), and "packs" mode (the product whose unit matches the target unit). The on-screen shopping list (`_ownedInUnit` in `shopping_page.dart`) calls the same function, so the copied trip amounts always equal the on-screen "Need" amounts. When no conversion path exists (for example owned pieces with no `gramsPerPiece`), nothing is subtracted.
+
+Earlier this planner did no cross-unit conversion: it took owned as `Map<String, List<Quantity>>` and subtracted only when the owned unit exactly matched the event unit, and the shopping page converted "packs" using the ingredient's first product. That diverged from the on-screen list (which converted correctly), so the copied list could list a higher amount to buy than the page showed. The shared `ownedAmountInUnit` removed the divergence.
 
 ### UI
 
