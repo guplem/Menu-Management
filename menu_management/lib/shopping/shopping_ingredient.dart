@@ -4,6 +4,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
@@ -58,6 +59,7 @@ class ShoppingIngredient extends StatefulWidget {
     required this.ownedUnit,
     required this.onOwnedChanged,
     required this.sources,
+    required this.plannedTrips,
   });
 
   final Ingredient ingredient;
@@ -68,6 +70,10 @@ class ShoppingIngredient extends StatefulWidget {
   final OwnedUnit ownedUnit;
   final void Function(double amount, OwnedUnit unit) onOwnedChanged;
   final List<IngredientSource> sources;
+
+  /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
+  /// each product row shows the per-trip buy split instead of a single total.
+  final List<ShoppingTrip> plannedTrips;
 
   @override
   State<ShoppingIngredient> createState() => _ShoppingIngredientState();
@@ -189,6 +195,28 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     Quantity? remaining = widget.calculatedRemainingQuantities.firstWhereOrNull((q) => q.unit == product.unit);
     if (remaining == null || remaining.amount <= 0) return 0;
     return product.packsNeeded(remaining.amount);
+  }
+
+  /// Splits a product's buy count across the planned trips, mirroring the per-week sections of
+  /// the copied list. Rounds each trip's amount to whole units before computing packs, exactly
+  /// like `_appendIngredientLines` in shopping_page.dart, so the on-screen split matches the copy.
+  /// Returns an empty list (single-total display) unless 2+ trips actually buy this product.
+  List<ProductTripPurchase> _tripPurchasesForProduct(Product product) {
+    if (widget.plannedTrips.length < 2) return const [];
+    int firstWeek = widget.plannedTrips.first.weekIndex; // trips are sorted ascending by the planner
+    List<ProductTripPurchase> purchases = [];
+    for (ShoppingTrip trip in widget.plannedTrips) {
+      double amount = 0;
+      for (TripItem item in trip.items) {
+        if (item.ingredientId == widget.ingredient.id && item.unit == product.unit) amount += item.amount;
+      }
+      int packs = product.packsNeeded(amount.roundToDouble());
+      if (packs <= 0) continue;
+      purchases.add(ProductTripPurchase(weekIndex: trip.weekIndex, packs: packs, isFirstTrip: trip.weekIndex == firstWeek));
+    }
+    // A row is a "split" only when 2+ trips actually buy this product.
+    if (purchases.length < 2) return const [];
+    return purchases;
   }
 
   void _autoFillOwned() {
@@ -358,6 +386,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       recommendation: recommendation,
                       isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
                       packsToBuy: _packsToBuyForProduct(product),
+                      tripPurchases: _tripPurchasesForProduct(product),
                     ),
                   );
                 }

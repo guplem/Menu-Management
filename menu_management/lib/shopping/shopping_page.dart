@@ -139,6 +139,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             ownedAmount: ownedAmounts[ingredientId] ?? 0,
             ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
             sources: ingredientSources[ingredientId] ?? [],
+            plannedTrips: plannedTrips,
             onOwnedChanged: (double amount, OwnedUnit unit) {
               setState(() {
                 ownedAmounts[ingredientId] = amount;

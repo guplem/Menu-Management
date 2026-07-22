@@ -6,8 +6,24 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
+/// One shopping trip's share of a single product's buy count, for the on-screen per-trip split.
+class ProductTripPurchase {
+  const ProductTripPurchase({required this.weekIndex, required this.packs, required this.isFirstTrip});
+
+  final int weekIndex; // 0-based; displayed as weekIndex + 1
+  final int packs;
+  final bool isFirstTrip; // true for the plan's earliest trip -> labeled "now"
+}
+
 class ShoppingProductRow extends StatelessWidget {
-  const ShoppingProductRow({super.key, required this.product, required this.recommendation, required this.isBestOption, required this.packsToBuy});
+  const ShoppingProductRow({
+    super.key,
+    required this.product,
+    required this.recommendation,
+    required this.isBestOption,
+    required this.packsToBuy,
+    this.tripPurchases = const [],
+  });
 
   final Product product;
   final ProductRecommendation recommendation;
@@ -16,6 +32,19 @@ class ShoppingProductRow extends StatelessWidget {
   /// (includes ties and single-product ingredients).
   final bool isBestOption;
   final int packsToBuy;
+
+  /// Per-trip split of [packsToBuy]. When it has 2+ entries the buy area shows one line per
+  /// trip (e.g. "Buy 6 packs now" + "3 packs week 2"); otherwise it shows a single total.
+  final List<ProductTripPurchase> tripPurchases;
+
+  /// Singular/plural unit word: pieces for single-item packs, packs otherwise.
+  String _packWord(int count) => product.itemsPerPack == 1 ? (count == 1 ? "piece" : "pieces") : (count == 1 ? "pack" : "packs");
+
+  String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
+    String prefix = isFirstLine ? "Buy" : "+";
+    String when = purchase.isFirstTrip ? "now" : "week ${purchase.weekIndex + 1}";
+    return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} $when";
+  }
 
   String _wasteBreakdown() {
     String unit = product.unit.name;
@@ -126,7 +155,7 @@ class ShoppingProductRow extends StatelessWidget {
 
             // Packs to buy (far right)
             SizedBox(
-              width: 100,
+              width: 160,
               child: covered
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -136,8 +165,20 @@ class ShoppingProductRow extends StatelessWidget {
                         Text("Covered", style: TextStyle(color: Theme.of(context).hintColor)),
                       ],
                     )
+                  : tripPurchases.length >= 2
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        for (int i = 0; i < tripPurchases.length; i++)
+                          Text(
+                            _tripPurchaseLabel(tripPurchases[i], isFirstLine: i == 0),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.right,
+                          ),
+                      ],
+                    )
                   : Text(
-                      "Buy $packsToBuy ${product.itemsPerPack == 1 ? (packsToBuy == 1 ? "piece" : "pieces") : (packsToBuy == 1 ? "pack" : "packs")}",
+                      "Buy $packsToBuy ${_packWord(packsToBuy)}",
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.right,
                     ),
