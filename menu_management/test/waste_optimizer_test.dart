@@ -413,7 +413,6 @@ void main() {
       expect(rec.overBuyWaste, closeTo(0, 0.01));
       expect(rec.expiryWaste, closeTo(0, 0.01));
       expect(rec.totalWaste, closeTo(0, 0.01));
-      expect(rec.isViable, isTrue);
       expect(rec.isSingleProduct, isFalse);
     });
 
@@ -534,7 +533,6 @@ void main() {
       expect(rec, isNotNull);
       expect(rec!.selections, isEmpty);
       expect(rec.totalWaste, closeTo(0, 0.01));
-      expect(rec.isViable, isTrue);
     });
   });
 
@@ -549,7 +547,6 @@ void main() {
         ],
         overBuyWaste: 0,
         expiryWaste: 0,
-        isViable: true,
       );
 
       expect(combinationPackLines(rec), ["250 grams/pack: 1 pack", "600 grams/pack: 2 packs"]);
@@ -561,7 +558,6 @@ void main() {
         selections: [PackSelection(product: cups, packs: 2)],
         overBuyWaste: 0,
         expiryWaste: 0,
-        isViable: true,
       );
 
       expect(combinationPackLines(rec), ["6x125grams: 2 packs"]);
@@ -579,7 +575,6 @@ void main() {
         ],
         overBuyWaste: 0,
         expiryWaste: 0,
-        isViable: true,
       );
 
       expect(combinationInlineSummary(rec), "1x 250 grams/pack + 1x 600 grams/pack");

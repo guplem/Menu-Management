@@ -140,14 +140,13 @@ class PackSelection {
 /// When [selections] holds a single entry the recommendation is a single product; when it holds
 /// more than one the recommendation is a mix (for example "1 small pack + 1 large pack").
 class CombinationRecommendation {
-  const CombinationRecommendation({required this.selections, required this.overBuyWaste, required this.expiryWaste, required this.isViable});
+  const CombinationRecommendation({required this.selections, required this.overBuyWaste, required this.expiryWaste});
 
   /// Selected products with pack counts > 0, sorted by ascending pack size then product link.
   /// Empty only when nothing needs buying (need is zero).
   final List<PackSelection> selections;
   final double overBuyWaste;
   final double expiryWaste;
-  final bool isViable;
 
   double get totalWaste => overBuyWaste + expiryWaste;
   bool get isSingleProduct => selections.length == 1;
@@ -180,7 +179,7 @@ CombinationRecommendation? recommendCombination({
 }) {
   if (products.isEmpty) return null;
   if (totalNeeded <= 0) {
-    return const CombinationRecommendation(selections: [], overBuyWaste: 0, expiryWaste: 0, isViable: true);
+    return const CombinationRecommendation(selections: [], overBuyWaste: 0, expiryWaste: 0);
   }
 
   // Deterministic product order: smallest pack first, then by link, then by unit. The search and
@@ -266,7 +265,7 @@ CombinationRecommendation? recommendCombination({
     if (bestCounts![i] > 0) selections.add(PackSelection(product: sorted[i], packs: bestCounts![i]));
   }
 
-  return CombinationRecommendation(selections: selections, overBuyWaste: bestOverBuy, expiryWaste: bestExpiry, isViable: bestExpiry <= 0);
+  return CombinationRecommendation(selections: selections, overBuyWaste: bestOverBuy, expiryWaste: bestExpiry);
 }
 
 /// Whether candidate combination [aCounts]/[aWaste] should beat the current best [bCounts]/[bWaste].
@@ -305,7 +304,6 @@ CombinationRecommendation _bestSingleAsCombination({
     selections: [PackSelection(product: best.product, packs: best.packsNeeded)],
     overBuyWaste: best.overBuyWaste,
     expiryWaste: best.expiryWaste,
-    isViable: best.isViable,
   );
 }
 
