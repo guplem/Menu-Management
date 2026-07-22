@@ -15,13 +15,14 @@ Future<void> _pumpRow(
   required Product product,
   required int packsToBuy,
   List<ProductTripPurchase> tripPurchases = const [],
+  ProductRecommendation? recommendation,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
         body: ShoppingProductRow(
           product: product,
-          recommendation: _recommendation(product),
+          recommendation: recommendation ?? _recommendation(product),
           isBestOption: true,
           packsToBuy: packsToBuy,
           tripPurchases: tripPurchases,
@@ -80,6 +81,34 @@ void main() {
 
       expect(find.text("Buy 2 pieces now"), findsOneWidget);
       expect(find.text("+ 1 piece week 3"), findsOneWidget);
+    });
+  });
+
+  group("ShoppingProductRow under-buy warning", () {
+    testWidgets("shows the 'buying less than recipes' warning chip and buys one pack less", (WidgetTester tester) async {
+      Product product = _packProduct();
+      ProductRecommendation underBuy = ProductRecommendation(
+        product: product,
+        packsNeeded: 2,
+        overBuyWaste: 0,
+        expiryWaste: 0,
+        isViable: true,
+        underBuy: true,
+        shortfall: 100,
+      );
+
+      await _pumpRow(tester, product: product, packsToBuy: 3, recommendation: underBuy);
+
+      // Warning chip shows the shortfall amount and flags the under-buy.
+      expect(find.text("100 grams short"), findsOneWidget);
+      // Its tooltip carries the full "buying less than the recipes calculate" wording.
+      bool hasWarningTooltip = tester
+          .widgetList<Tooltip>(find.byType(Tooltip))
+          .any((Tooltip t) => (t.message ?? "").contains("Buying less than the recipes calculate"));
+      expect(hasWarningTooltip, isTrue);
+      // The single-total buy line drops by one pack.
+      expect(find.text("Buy 2 packs"), findsOneWidget);
+      expect(find.text("Buy 3 packs"), findsNothing);
     });
   });
 }

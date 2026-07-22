@@ -5,6 +5,15 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 
+/// Maximum share of a single recipe's need that may go unmet when buying one pack less.
+///
+/// When dropping the last (mostly-empty) pack would leave every affected cooking event short
+/// by no more than this fraction of its own need, the optimizer recommends buying one pack
+/// less and flags the recommendation as [ProductRecommendation.underBuy]. Evaluated PER RECIPE
+/// (per cooking event), not on the ingredient total, so a small total shortfall that lands
+/// entirely on one small recipe does not trigger the reduction. Starting point: 20%.
+const double underBuyMaxRecipeShortfallFraction = 0.20;
+
 class ProductRecommendation {
   const ProductRecommendation({
     required this.product,
@@ -12,6 +21,8 @@ class ProductRecommendation {
     required this.overBuyWaste,
     required this.expiryWaste,
     required this.isViable,
+    this.underBuy = false,
+    this.shortfall = 0,
   });
 
   final Product product;
@@ -19,6 +30,15 @@ class ProductRecommendation {
   final double overBuyWaste;
   final double expiryWaste;
   final bool isViable;
+
+  /// True when [packsNeeded] was reduced by one pack below what fully covers the recipes,
+  /// trading a small per-recipe shortfall for removing the over-buy surplus. The UI shows a
+  /// "buying less than recipes calculate" warning in this case.
+  final bool underBuy;
+
+  /// Amount (in the product's unit) by which the recipes fall short when [underBuy] is true;
+  /// zero otherwise.
+  final double shortfall;
 
   double get totalWaste => overBuyWaste + expiryWaste;
 }
@@ -66,7 +86,14 @@ ProductRecommendation _simulateProduct({
   if (normalizedEvents.isEmpty || shelfLife == null) {
     int packs = product.packsNeeded(totalNeeded);
     double bought = packs * product.totalQuantityPerPack;
-    return ProductRecommendation(product: product, packsNeeded: packs, overBuyWaste: bought - totalNeeded, expiryWaste: 0, isViable: true);
+    return _considerBuyingOnePackLess(
+      product: product,
+      packsNeeded: packs,
+      overBuyWaste: bought - totalNeeded,
+      expiryWaste: 0,
+      events: normalizedEvents,
+      totalNeeded: totalNeeded,
+    );
   }
 
   // Simulate sequential consumption
@@ -116,12 +143,72 @@ ProductRecommendation _simulateProduct({
     overBuyWaste = openRemaining;
   }
 
-  return ProductRecommendation(
+  return _considerBuyingOnePackLess(
+    product: product,
+    packsNeeded: packsNeeded,
+    overBuyWaste: overBuyWaste,
+    expiryWaste: expiryWaste,
+    events: normalizedEvents,
+    totalNeeded: totalNeeded,
+  );
+}
+
+/// Builds the recommendation, optionally reducing it by one pack when buying one pack less
+/// removes the over-buy surplus while keeping every affected recipe's shortfall under
+/// [underBuyMaxRecipeShortfallFraction].
+///
+/// The shortfall from dropping one pack is `totalQuantityPerPack - overBuyWaste`. It is
+/// allocated to cooking events from the latest day backward (later recipes run short first,
+/// matching the sequential consumption simulation). The reduction applies only when every
+/// affected event stays within the per-recipe threshold. When there are no events (fallback
+/// path), the whole need is treated as a single recipe.
+ProductRecommendation _considerBuyingOnePackLess({
+  required Product product,
+  required int packsNeeded,
+  required double overBuyWaste,
+  required double expiryWaste,
+  required List<_NormalizedEvent> events,
+  required double totalNeeded,
+}) {
+  ProductRecommendation fullBuy = ProductRecommendation(
     product: product,
     packsNeeded: packsNeeded,
     overBuyWaste: overBuyWaste,
     expiryWaste: expiryWaste,
     isViable: expiryWaste <= 0,
+  );
+
+  double packQuantity = product.totalQuantityPerPack;
+
+  // Only reduce viable, over-buying recommendations that keep at least one pack after the drop.
+  if (expiryWaste > 0 || overBuyWaste <= 0 || packsNeeded < 2 || packQuantity <= 0) return fullBuy;
+
+  // Amount the recipes fall short if we buy one pack less.
+  double shortfall = packQuantity - overBuyWaste;
+  if (shortfall <= 0) return fullBuy;
+
+  // Per-recipe check: the shortfall lands on the latest cooking events first.
+  List<_NormalizedEvent> recipeEvents = events.isNotEmpty ? events : [_NormalizedEvent(dayIndex: 0, amount: totalNeeded)];
+  double remaining = shortfall;
+  for (int i = recipeEvents.length - 1; i >= 0 && remaining > 1e-9; i--) {
+    double eventNeed = recipeEvents[i].amount;
+    if (eventNeed <= 0) continue;
+    double eventShortfall = min(remaining, eventNeed);
+    // Reject when this recipe would be short by more than the allowed fraction of its own need.
+    if (eventShortfall > underBuyMaxRecipeShortfallFraction * eventNeed + 1e-9) return fullBuy;
+    remaining -= eventShortfall;
+  }
+  // Reject when the shortfall exceeds everything the recipes need (nothing left to absorb it).
+  if (remaining > 1e-9) return fullBuy;
+
+  return ProductRecommendation(
+    product: product,
+    packsNeeded: packsNeeded - 1,
+    overBuyWaste: 0,
+    expiryWaste: expiryWaste,
+    isViable: expiryWaste <= 0,
+    underBuy: true,
+    shortfall: shortfall,
   );
 }
 

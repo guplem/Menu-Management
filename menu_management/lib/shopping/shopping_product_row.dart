@@ -61,6 +61,25 @@ class ShoppingProductRow extends StatelessWidget {
     double totalWaste = recommendation.totalWaste;
     String unit = product.unit.name;
 
+    // Under-buy: one pack less than the recipes calculate. Amber warning chip.
+    // Label stays compact (like the waste chips); the full wording lives in the tooltip.
+    if (recommendation.underBuy) {
+      ColorScheme amber = ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness);
+      return Tooltip(
+        message:
+            "Buying less than the recipes calculate.\n"
+            "Dropped one mostly-empty pack; recipes will be about ${recommendation.shortfall.toFormattedAmount()} $unit short.",
+        child: Chip(
+          avatar: Icon(Icons.warning_amber_rounded, size: 16, color: amber.onPrimaryContainer),
+          label: Text("${recommendation.shortfall.toFormattedAmount()} $unit short"),
+          backgroundColor: amber.primaryContainer,
+          labelStyle: TextStyle(color: amber.onPrimaryContainer, fontSize: 12),
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+        ),
+      );
+    }
+
     // No waste: green chip
     if (totalWaste == 0) {
       return Tooltip(
@@ -112,6 +131,9 @@ class ShoppingProductRow extends StatelessWidget {
     String? packLabel = product.packLabel();
     String totalLabel = "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
     bool covered = packsToBuy <= 0;
+    // When the recommendation is an under-buy, buy one pack less on the single-total line
+    // (the warning chip explains why). Guarded so it never drops below one pack.
+    int effectivePacksToBuy = recommendation.underBuy && packsToBuy >= 2 ? packsToBuy - 1 : packsToBuy;
 
     return FilledCard(
       outlined: true,
@@ -178,7 +200,7 @@ class ShoppingProductRow extends StatelessWidget {
                       ],
                     )
                   : Text(
-                      "Buy $packsToBuy ${_packWord(packsToBuy)}",
+                      "Buy $effectivePacksToBuy ${_packWord(effectivePacksToBuy)}",
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.right,
                     ),
