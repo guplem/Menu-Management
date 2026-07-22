@@ -414,6 +414,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   }
                   rows.add(
                     ShoppingProductRow(
+                      key: ValueKey<int>(productIndex),
                       product: product,
                       recommendation: recommendation,
                       isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,

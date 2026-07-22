@@ -87,6 +87,39 @@ void main() {
       expect(find.widgetWithText(TextField, "Owned"), findsNothing);
     });
 
+    testWidgets("re-seeds the owned field when ownedCount changes from the parent", (WidgetTester tester) async {
+      double owned = 0;
+      late StateSetter setOuter;
+      Product product = _packProduct();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                setOuter = setState;
+                return ShoppingProductRow(
+                  product: product,
+                  recommendation: _recommendation(product),
+                  isBestOption: true,
+                  packsToBuy: 9,
+                  ownedCount: owned,
+                  onOwnedCountChanged: (double value) {},
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller!.text, "");
+
+      // The parent resets the owned count to 3; the field must reflect it without recreating the widget.
+      setOuter(() => owned = 3);
+      await tester.pump();
+      expect(tester.widget<TextField>(ownedField).controller!.text, "3");
+    });
+
     testWidgets("uses 'piece' wording for single-item packs", (WidgetTester tester) async {
       const Product piecesProduct = Product(link: "", quantityPerItem: 1, itemsPerPack: 1, unit: Unit.pieces);
       await _pumpRow(

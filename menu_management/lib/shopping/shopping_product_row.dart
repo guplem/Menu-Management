@@ -56,7 +56,18 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.ownedCount > 0 ? _formatCount(widget.ownedCount) : "");
+    _controller = TextEditingController(text: _textForCount(widget.ownedCount));
+  }
+
+  @override
+  void didUpdateWidget(ShoppingProductRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-seed the field when the owned count is changed from outside (e.g. reset by the parent),
+    // so the shown text never goes stale against the widget's value.
+    if (widget.ownedCount != oldWidget.ownedCount) {
+      String newText = _textForCount(widget.ownedCount);
+      if (_controller.text != newText) _controller.text = newText;
+    }
   }
 
   @override
@@ -64,6 +75,8 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
     _controller.dispose();
     super.dispose();
   }
+
+  String _textForCount(double count) => count > 0 ? _formatCount(count) : "";
 
   String _formatCount(double value) => value.toStringAsFixed(value == value.roundToDouble() ? 0 : 1);
 
