@@ -8,6 +8,7 @@ import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
+import "package:menu_management/theme/theme_custom.dart";
 
 /// Represents the unit the user picks in the "owned" dropdown.
 /// [unit] is null when the user picks "packs" (product-relative).
@@ -60,12 +61,17 @@ class ShoppingIngredient extends StatefulWidget {
     required this.onOwnedChanged,
     required this.sources,
     required this.plannedTrips,
+    this.combinationRecommendations = const [],
   });
 
   final Ingredient ingredient;
   final List<Quantity> quantitiesDesired;
   final List<Quantity> calculatedRemainingQuantities;
   final List<ProductRecommendation> productRecommendations;
+
+  /// Waste-minimal mixed-pack recommendations (one per required unit). Only holds real mixes
+  /// (2+ products); single-product picks are conveyed by the per-product "best option" chip.
+  final List<CombinationRecommendation> combinationRecommendations;
   final double ownedAmount;
   final OwnedUnit ownedUnit;
   final void Function(double amount, OwnedUnit unit) onOwnedChanged;
@@ -238,6 +244,48 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     widget.onOwnedChanged(autoValue, selectedUnit);
   }
 
+  /// Highlighted line describing a recommended mixed-pack purchase, e.g.
+  /// "Best value: 1x 250 grams/pack + 1x 600 grams/pack" with a waste note.
+  Widget _buildCombinationBanner(CombinationRecommendation combination) {
+    double waste = combination.totalWaste;
+    String wasteNote = waste <= 0 ? "no waste" : "${waste.toFormattedAmount()} ${combination.selections.first.product.unit.name} waste";
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: FilledCard(
+        outlined: true,
+        borderColor: ThemeCustom.colorScheme(context).tertiary,
+        color: ThemeCustom.colorScheme(context).tertiaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          child: Row(
+            children: [
+              Icon(Icons.auto_awesome_rounded, size: 18, color: ThemeCustom.colorScheme(context).onTertiaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ThemeCustom.colorScheme(context).onTertiaryContainer),
+                    children: [
+                      const TextSpan(
+                        text: "Best value: ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: combinationInlineSummary(combination)),
+                      TextSpan(
+                        text: "  ($wasteNote)",
+                        style: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer.withValues(alpha: 0.7)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Determine best waste level among all recommendations.
@@ -347,6 +395,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
               ],
             ),
             const SizedBox(height: 8),
+
+            // Recommended mixed-pack combination(s), shown only when a mix beats every single product.
+            ...widget.combinationRecommendations.map(_buildCombinationBanner),
 
             // Product rows (only for products whose unit matches a required quantity)
             if (widget.ingredient.products.isNotEmpty)

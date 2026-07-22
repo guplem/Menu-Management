@@ -190,6 +190,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 | [0015](adr/0015-freezable-products-and-freezer-aware-trips.md) | Product.canBeFrozen: freeze-required menu warnings and freezer-aware shopping trips |
 | [0016](adr/0016-reference-guarded-deletion.md) | Reference-guarded deletion: warn-confirm-clean-undo cascade; MenuProvider mirrors the active menu |
 | [0017](adr/0017-agent-docs-structure.md) | AGENTS.md map + Claude-Code-only skills/subagents/settings |
+| [0018](adr/0018-mixed-pack-combination-solver.md) | Mixed-pack combination solver: bounded deterministic search recommending a waste-minimal mix of packs |
 
 **One ADR per pattern, kept alive**: when a pattern changes, update its ADR in place; create a new ADR only for a genuinely new pattern. Do not create successor ADRs or "superseded by" chains; history lives in git. Most changes need no ADR. Conventions: `adr/AGENTS.md`.
 

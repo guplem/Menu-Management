@@ -121,6 +121,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
           // Compute product recommendations per required unit
           List<ProductRecommendation> recommendations = [];
+          // Waste-minimal mix of packs per required unit (may combine several products).
+          // Uses the same total need and events as the per-product ranking, so the recommended
+          // mix reflects the individual cooking events, not only the weekly total.
+          List<CombinationRecommendation> combinations = [];
           if (ingredient.products.isNotEmpty && desired.isNotEmpty) {
             for (Quantity quantity in desired) {
               List<Product> matchingProducts = ingredient.products.where((p) => p.unit == quantity.unit).toList();
@@ -128,6 +132,13 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 recommendations.addAll(
                   rankProducts(totalNeeded: quantity.amount, events: events, ingredient: ingredient, products: matchingProducts),
                 );
+                CombinationRecommendation? combination = recommendCombination(
+                  totalNeeded: quantity.amount,
+                  events: events,
+                  ingredient: ingredient,
+                  products: matchingProducts,
+                );
+                if (combination != null && combination.selections.length > 1) combinations.add(combination);
               }
             }
           }
@@ -137,6 +148,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             quantitiesDesired: desired,
             calculatedRemainingQuantities: remaining,
             productRecommendations: recommendations,
+            combinationRecommendations: combinations,
             ownedAmount: ownedAmounts[ingredientId] ?? 0,
             ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
             sources: ingredientSources[ingredientId] ?? [],
@@ -249,13 +261,20 @@ class _ShoppingPageState extends State<ShoppingPage> {
         return;
       }
       buffer.writeln("${ingredient.name}$freezeSuffix");
-      for (Product product in ingredient.products) {
-        if (product.unit != primaryRemaining.unit) continue;
-        int packs = product.packsNeeded(primaryRemaining.amount);
-        if (packs <= 0) continue;
-        String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
-        String packWord = packs == 1 ? "pack" : "packs";
-        buffer.writeln("  $label: $packs $packWord");
+      // Recommend the waste-minimal mix of packs for this amount instead of listing each product
+      // on its own. Events are left empty here: each trip is already a shelf-life-safe bucket, so
+      // the mix only needs to minimize pack-granularity over-buy for the amount bought on the trip.
+      List<Product> matchingProducts = ingredient.products.where((p) => p.unit == primaryRemaining.unit).toList();
+      CombinationRecommendation? combination = recommendCombination(
+        totalNeeded: primaryRemaining.amount,
+        events: const [],
+        ingredient: ingredient,
+        products: matchingProducts,
+      );
+      if (combination != null) {
+        for (String line in combinationPackLines(combination)) {
+          buffer.writeln("  $line");
+        }
       }
     } else {
       String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
