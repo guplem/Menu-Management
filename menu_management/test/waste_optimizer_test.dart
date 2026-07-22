@@ -6,14 +6,14 @@ import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
-Product _product({double quantityPerItem = 250, int itemsPerPack = 1, Unit unit = Unit.grams, int? shelfLifeDays}) {
-  return Product(
-    link: "https://example.com",
-    quantityPerItem: quantityPerItem,
-    itemsPerPack: itemsPerPack,
-    unit: unit,
-    shelfLifeDaysOpened: shelfLifeDays,
-  );
+Product _product({
+  double quantityPerItem = 250,
+  int itemsPerPack = 1,
+  Unit unit = Unit.grams,
+  int? shelfLifeDays,
+  String link = "https://example.com",
+}) {
+  return Product(link: link, quantityPerItem: quantityPerItem, itemsPerPack: itemsPerPack, unit: unit, shelfLifeDaysOpened: shelfLifeDays);
 }
 
 Ingredient _ingredient({double? density}) {
@@ -381,6 +381,134 @@ void main() {
         expect(result.first.overBuyWaste, closeTo(100, 0.01));
         expect(result.first.expiryWaste, closeTo(50, 0.01));
         expect(result.first.isViable, isFalse);
+      });
+    });
+
+    group("cycling equivalent products", () {
+      // "Equivalent" products share every buying/consumption characteristic
+      // (itemsPerPack, quantityPerItem, unit, shelf life opened/closed, canBeFrozen)
+      // and differ only by their store link (variant), e.g. two pizza flavors of the same size.
+      Product equiv(String link) => _product(quantityPerItem: 500, link: link);
+
+      test("distributes one-of-each in a cycle when equivalent products cover multiple units", () {
+        // Need 1500g. Each 500g product alone needs 3 packs. Three equivalent products.
+        // One-of-each cycle: A=1, B=1, C=1 (sum 3).
+        Product a = equiv("https://example.com/a");
+        Product b = equiv("https://example.com/b");
+        Product c = equiv("https://example.com/c");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1500,
+          events: [_event(amount: 1500)],
+          ingredient: _ingredient(),
+          products: [a, b, c],
+        );
+
+        Map<String, int> packsByLink = {for (ProductRecommendation r in result) r.product.link: r.packsNeeded};
+        expect(packsByLink["https://example.com/a"], 1);
+        expect(packsByLink["https://example.com/b"], 1);
+        expect(packsByLink["https://example.com/c"], 1);
+        expect(result.map((ProductRecommendation r) => r.packsNeeded).reduce((int x, int y) => x + y), 3);
+      });
+
+      test("distributes remainder to earlier products in the cycle", () {
+        // Need 2000g. Each 500g product alone needs 4 packs. Three equivalent products.
+        // Round-robin of 4 across 3 by input order: [2, 1, 1].
+        Product a = equiv("https://example.com/a");
+        Product b = equiv("https://example.com/b");
+        Product c = equiv("https://example.com/c");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 2000,
+          events: [_event(amount: 2000)],
+          ingredient: _ingredient(),
+          products: [a, b, c],
+        );
+
+        Map<String, int> packsByLink = {for (ProductRecommendation r in result) r.product.link: r.packsNeeded};
+        expect(packsByLink["https://example.com/a"], 2);
+        expect(packsByLink["https://example.com/b"], 1);
+        expect(packsByLink["https://example.com/c"], 1);
+      });
+
+      test("keeps equivalent products tied on waste so all stay best options", () {
+        Product a = equiv("https://example.com/a");
+        Product b = equiv("https://example.com/b");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1000,
+          events: [_event(amount: 1000)],
+          ingredient: _ingredient(),
+          products: [a, b],
+        );
+
+        expect(result[0].totalWaste, closeTo(result[1].totalWaste, 0.01));
+      });
+
+      test("does not cycle when only a single unit is needed", () {
+        // Need 400g, each 500g product alone needs 1 pack -> nothing to distribute; each stays 1.
+        Product a = equiv("https://example.com/a");
+        Product b = equiv("https://example.com/b");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 400,
+          events: [_event(amount: 400)],
+          ingredient: _ingredient(),
+          products: [a, b],
+        );
+
+        expect(result.every((ProductRecommendation r) => r.packsNeeded == 1), isTrue);
+      });
+
+      test("treats products differing only by store link as equivalent (variety cycle)", () {
+        // Same size and shelf life, different link (two pizza flavors) -> cycled one-of-each.
+        Product margherita = _product(quantityPerItem: 300, shelfLifeDays: 4, link: "https://example.com/margherita");
+        Product pepperoni = _product(quantityPerItem: 300, shelfLifeDays: 4, link: "https://example.com/pepperoni");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 600,
+          events: [_event(amount: 600)],
+          ingredient: _ingredient(),
+          products: [margherita, pepperoni],
+        );
+
+        Map<String, int> packsByLink = {for (ProductRecommendation r in result) r.product.link: r.packsNeeded};
+        expect(packsByLink["https://example.com/margherita"], 1);
+        expect(packsByLink["https://example.com/pepperoni"], 1);
+      });
+
+      test("non-equivalent products keep waste-based ranking without cycling", () {
+        // Need 1000g. small 500g (exact fit, 0 waste, 2 packs) vs big 750g (500g waste, 2 packs).
+        // Different pack sizes -> not equivalent -> no distribution; sorted by waste.
+        Product small = _product(quantityPerItem: 500, link: "https://example.com/small");
+        Product big = _product(quantityPerItem: 750, link: "https://example.com/big");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1000,
+          events: [_event(amount: 1000)],
+          ingredient: _ingredient(),
+          products: [big, small],
+        );
+
+        expect(result.first.product.link, "https://example.com/small");
+        expect(result.first.packsNeeded, 2);
+        expect(result.last.product.link, "https://example.com/big");
+        expect(result.last.packsNeeded, 2);
+      });
+
+      test("products differing in shelf life are not equivalent", () {
+        // Same size, different shelfLifeDaysOpened -> not equivalent -> no cycling even when waste ties.
+        Product fresh = _product(quantityPerItem: 500, shelfLifeDays: 2, link: "https://example.com/fresh");
+        Product longLife = _product(quantityPerItem: 500, shelfLifeDays: 30, link: "https://example.com/long");
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1000,
+          events: [_event(amount: 1000)],
+          ingredient: _ingredient(),
+          products: [fresh, longLife],
+        );
+
+        expect(result.every((ProductRecommendation r) => r.packsNeeded == 2), isTrue);
       });
     });
   });
