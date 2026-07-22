@@ -262,21 +262,35 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
               Icon(Icons.auto_awesome_rounded, size: 18, color: ThemeCustom.colorScheme(context).onTertiaryContainer),
               const SizedBox(width: 8),
               Expanded(
-                child: RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ThemeCustom.colorScheme(context).onTertiaryContainer),
-                    children: [
-                      const TextSpan(
-                        text: "Best value: ",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ThemeCustom.colorScheme(context).onTertiaryContainer),
+                        children: [
+                          const TextSpan(
+                            text: "Best value: ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: combinationInlineSummary(combination)),
+                          TextSpan(
+                            text: "  ($wasteNote)",
+                            style: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer.withValues(alpha: 0.7)),
+                          ),
+                        ],
                       ),
-                      TextSpan(text: combinationInlineSummary(combination)),
-                      TextSpan(
-                        text: "  ($wasteNote)",
-                        style: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer.withValues(alpha: 0.7)),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 2),
+                    // The copied list is split per shop trip (ADR 0014), while this banner covers the whole
+                    // menu, so the two can differ. Warn the user so they trust the copied per-trip breakdown.
+                    Text(
+                      "This is the whole-menu best buy. The copied list splits the buy per shop trip, so its per-trip breakdown can differ.",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: ThemeCustom.colorScheme(context).onTertiaryContainer.withValues(alpha: 0.7)),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -6,6 +6,7 @@ import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
+import "package:menu_management/shopping/waste_optimizer.dart";
 
 // 100 grams per pack (2 items x 50 grams), so itemsPerPack > 1 keeps the "pack(s)" wording.
 Product _packProduct() => const Product(link: "", quantityPerItem: 50, itemsPerPack: 2, unit: Unit.grams);
@@ -18,7 +19,12 @@ TripItem _item({String ingredientId = "beans", required double amount}) => TripI
 
 /// Pumps [ShoppingIngredient] in isolation with real [plannedTrips], so the assertions
 /// exercise `_tripPurchasesForProduct` (the split computation), not hand-built purchases.
-Future<void> _pumpIngredient(WidgetTester tester, {required double remainingGrams, required List<ShoppingTrip> plannedTrips}) async {
+Future<void> _pumpIngredient(
+  WidgetTester tester, {
+  required double remainingGrams,
+  required List<ShoppingTrip> plannedTrips,
+  List<CombinationRecommendation> combinationRecommendations = const [],
+}) async {
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
@@ -27,6 +33,7 @@ Future<void> _pumpIngredient(WidgetTester tester, {required double remainingGram
           quantitiesDesired: const [Quantity(amount: 900, unit: Unit.grams)],
           calculatedRemainingQuantities: [Quantity(amount: remainingGrams, unit: Unit.grams)],
           productRecommendations: const [],
+          combinationRecommendations: combinationRecommendations,
           ownedAmount: 0,
           ownedUnit: const OwnedUnit(),
           onOwnedChanged: (double amount, OwnedUnit unit) {},
@@ -103,6 +110,35 @@ void main() {
       expect(find.text("Buy 6 packs"), findsOneWidget);
       expect(find.textContaining("week"), findsNothing);
       expect(find.textContaining("now"), findsNothing);
+    });
+  });
+
+  group("ShoppingIngredient best-value banner", () {
+    // A real 2-product mix, so the "Best value" banner is shown.
+    CombinationRecommendation buildMix() {
+      const Product small = Product(link: "a", quantityPerItem: 250, itemsPerPack: 1, unit: Unit.grams);
+      const Product large = Product(link: "b", quantityPerItem: 600, itemsPerPack: 1, unit: Unit.grams);
+      return const CombinationRecommendation(
+        selections: [
+          PackSelection(product: small, packs: 1),
+          PackSelection(product: large, packs: 1),
+        ],
+        overBuyWaste: 0,
+        expiryWaste: 0,
+      );
+    }
+
+    testWidgets("warns that the copied list splits per trip so it can differ from the banner", (WidgetTester tester) async {
+      await _pumpIngredient(tester, remainingGrams: 850, plannedTrips: const [], combinationRecommendations: [buildMix()]);
+
+      expect(find.text("Best value: "), findsNothing); // it is part of a RichText, not a standalone Text
+      expect(find.textContaining("per shop trip"), findsOneWidget);
+    });
+
+    testWidgets("shows no per-trip note when there is no mix banner", (WidgetTester tester) async {
+      await _pumpIngredient(tester, remainingGrams: 600, plannedTrips: const []);
+
+      expect(find.textContaining("per shop trip"), findsNothing);
     });
   });
 }
