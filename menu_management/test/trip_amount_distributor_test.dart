@@ -3,7 +3,9 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/trip_amount_distributor.dart";
 
 Product _grams({int? shelfLifeDaysClosed, double quantityPerItem = 100}) =>
@@ -106,9 +108,11 @@ void main() {
       expect(result.single.freezeOnArrival, isTrue);
     });
 
-    test("distributes the whole page amount onto the earliest trip when raw weights are all zero", () {
-      // Planner produced trip lines but their raw amounts are zero (fully owned-covered there),
-      // yet the page still shows a remaining amount. It must still land somewhere: the first trip.
+    test("defensive: whole page amount lands on the earliest trip when raw weights are all zero", () {
+      // Defensive-only path. In production the planner never emits a zero-amount trip item (events with
+      // nothing left to buy are skipped), so a present-but-zero-weight week cannot happen through the
+      // real flow. This still guards the largest-remainder split's weightSum <= 0 branch directly: if
+      // every weight were zero yet the page showed a remaining, it must still land somewhere (trip 0).
       Ingredient flour = Ingredient(id: "flour", name: "Flour", products: [_grams()]);
       List<ShoppingTrip> trips = [
         _trip(0, [_item(ingredientId: "flour", amount: 0)]),
@@ -139,6 +143,61 @@ void main() {
       );
 
       expect(result, isEmpty);
+    });
+  });
+
+  group("copy matches the page end-to-end (planner + distributor)", () {
+    test("ingredient with owned stock spanning two units is not dropped from the copy", () {
+      // Reachable regression case (issue #34, case 3). Garlic is needed as 4 pieces AND 100 g on the
+      // same day, with gramsPerPiece = 25 and both a pieces and a grams product (units stay separate).
+      // The user owns 100 g. The on-screen page subtracts the stock once (single grams pool), so it
+      // still shows a positive remaining. The old planner subtracted the full 100 g from EACH unit,
+      // zeroed every event, produced no trip item, and the distributor then returned nothing -- so the
+      // ingredient vanished from the copy while the page still showed a "Need". This test runs the real
+      // page flow (computeRemainingQuantities -> planShoppingTrips -> distributeRemainingAcrossTrips)
+      // and asserts the copied per-trip amounts sum to exactly what the page shows.
+      Ingredient garlic = Ingredient(
+        id: "garlic",
+        name: "Ajo",
+        gramsPerPiece: 25,
+        products: [
+          _grams(quantityPerItem: 150),
+          Product(link: "https://example.com/pc", unit: Unit.pieces, quantityPerItem: 1),
+        ],
+      );
+      const List<Quantity> required = [Quantity(amount: 4, unit: Unit.pieces), Quantity(amount: 100, unit: Unit.grams)];
+
+      List<Quantity> pageRemaining = computeRemainingQuantities(
+        ingredient: garlic,
+        requiredQuantities: required,
+        ownedAmount: 100,
+        ownedUnit: Unit.grams,
+      );
+
+      // The page shows a positive remaining (200 g of need minus 100 g owned = 100 g still to buy).
+      double pageGrams = pageRemaining.fold(0, (double sum, Quantity q) => sum + (garlic.toGrams(q) ?? 0));
+      expect(pageGrams, 100);
+
+      Map<String, List<CookingEvent>> timeline = {
+        "garlic": [CookingEvent(dayIndex: 0, quantities: required)],
+      };
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [garlic],
+        ownedAmounts: const {"garlic": OwnedStock(amount: 100, unit: Unit.grams)},
+      );
+
+      List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: garlic, pageRemaining: pageRemaining, trips: trips);
+
+      // The ingredient must appear in the copy, and the copied amounts must sum to the page total.
+      expect(allocations, isNotEmpty);
+      double copyGrams = 0;
+      for (TripAllocation a in allocations) {
+        for (Quantity q in a.quantities) {
+          copyGrams += garlic.toGrams(q) ?? 0;
+        }
+      }
+      expect(copyGrams, pageGrams);
     });
   });
 }
