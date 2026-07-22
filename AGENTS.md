@@ -49,7 +49,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code generation | `cd menu_management && dart run build_runner build --delete-conflicting-outputs` | Required after changing any Freezed/json_serializable model |
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
-| Build + copy to Desktop | `cd menu_management && ./build_and_copy.bat` | Windows only; copies portable build to Desktop |
+| Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
 | Run all tests | `cd menu_management && flutter test test/` | 600 tests across 20 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
