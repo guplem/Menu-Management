@@ -34,6 +34,11 @@ class ProductRecommendation {
   /// True when [packsNeeded] was reduced by one pack below what fully covers the recipes,
   /// trading a small per-recipe shortfall for removing the over-buy surplus. The UI shows a
   /// "buying less than recipes calculate" warning in this case.
+  ///
+  /// When true, [overBuyWaste]/[expiryWaste]/[totalWaste] keep the FULL-pack-buy values (the waste
+  /// you would get buying the non-reduced count). This keeps ranking and the best-option marker
+  /// comparing every product on its full-buy waste; only [packsNeeded] and [shortfall] reflect the
+  /// reduction. See [rankProducts].
   final bool underBuy;
 
   /// Amount (in the product's unit) by which the recipes fall short when [underBuy] is true;
@@ -201,10 +206,12 @@ ProductRecommendation _considerBuyingOnePackLess({
   // Reject when the shortfall exceeds everything the recipes need (nothing left to absorb it).
   if (remaining > 1e-9) return fullBuy;
 
+  // Keep the full-pack-buy waste so ranking and the best-option marker do not favor this reduced
+  // recommendation over a product that fully covers the need with small waste (see [underBuy]).
   return ProductRecommendation(
     product: product,
     packsNeeded: packsNeeded - 1,
-    overBuyWaste: 0,
+    overBuyWaste: overBuyWaste,
     expiryWaste: expiryWaste,
     isViable: expiryWaste <= 0,
     underBuy: true,

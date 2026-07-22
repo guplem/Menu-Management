@@ -110,5 +110,62 @@ void main() {
       expect(find.text("Buy 2 packs"), findsOneWidget);
       expect(find.text("Buy 3 packs"), findsNothing);
     });
+
+    testWidgets("does not reduce or warn when owned stock changed the buy count", (WidgetTester tester) async {
+      Product product = _packProduct();
+      // rankProducts computed the under-buy on the DESIRED need: the full buy is 3 packs (packsNeeded
+      // holds the reduced 2). But owned stock left only 2 packs to actually buy, so the desired-based
+      // analysis no longer matches (2 != 2 + 1). The row must buy the full 2 packs and NOT warn.
+      ProductRecommendation underBuy = ProductRecommendation(
+        product: product,
+        packsNeeded: 2,
+        overBuyWaste: 60,
+        expiryWaste: 0,
+        isViable: true,
+        underBuy: true,
+        shortfall: 100,
+      );
+
+      await _pumpRow(tester, product: product, packsToBuy: 2, recommendation: underBuy);
+
+      // Full count, no bogus "-1".
+      expect(find.text("Buy 2 packs"), findsOneWidget);
+      expect(find.text("Buy 1 pack"), findsNothing);
+      // No under-buy chip and no under-buy tooltip.
+      expect(find.textContaining("short"), findsNothing);
+      bool hasWarningTooltip = tester
+          .widgetList<Tooltip>(find.byType(Tooltip))
+          .any((Tooltip t) => (t.message ?? "").contains("Buying less than the recipes calculate"));
+      expect(hasWarningTooltip, isFalse);
+    });
+
+    testWidgets("suppresses the under-buy warning chip when the trip-split layout is active", (WidgetTester tester) async {
+      Product product = _packProduct();
+      ProductRecommendation underBuy = ProductRecommendation(
+        product: product,
+        packsNeeded: 2,
+        overBuyWaste: 60,
+        expiryWaste: 0,
+        isViable: true,
+        underBuy: true,
+        shortfall: 100,
+      );
+
+      await _pumpRow(
+        tester,
+        product: product,
+        packsToBuy: 3,
+        recommendation: underBuy,
+        tripPurchases: const [
+          ProductTripPurchase(weekIndex: 0, packs: 2, isFirstTrip: true),
+          ProductTripPurchase(weekIndex: 1, packs: 1, isFirstTrip: false),
+        ],
+      );
+
+      // Per-trip lines show the FULL round-up; the "N short" chip must not appear alongside them.
+      expect(find.text("Buy 2 packs now"), findsOneWidget);
+      expect(find.text("+ 1 pack week 2"), findsOneWidget);
+      expect(find.textContaining("short"), findsNothing);
+    });
   });
 }

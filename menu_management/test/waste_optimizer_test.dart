@@ -406,7 +406,9 @@ void main() {
         expect(result.first.packsNeeded, 10);
         expect(result.first.underBuy, isTrue);
         expect(result.first.shortfall, closeTo(40, 0.01));
-        expect(result.first.overBuyWaste, closeTo(0, 0.01));
+        // The waste fields keep the FULL-pack-buy surplus (60g here) so ranking and best-option
+        // compare fairly against products that fully cover; only packsNeeded/shortfall are reduced.
+        expect(result.first.overBuyWaste, closeTo(60, 0.01));
         expect(result.first.isViable, isTrue);
       });
 
@@ -426,7 +428,8 @@ void main() {
         expect(result.first.packsNeeded, 2);
         expect(result.first.underBuy, isTrue);
         expect(result.first.shortfall, closeTo(100, 0.01));
-        expect(result.first.overBuyWaste, closeTo(0, 0.01));
+        // Full-pack-buy surplus kept for ranking (300g); only packsNeeded/shortfall are reduced.
+        expect(result.first.overBuyWaste, closeTo(300, 0.01));
         expect(result.first.expiryWaste, closeTo(0, 0.01));
         expect(result.first.isViable, isTrue);
       });
@@ -514,6 +517,29 @@ void main() {
 
         expect(result.first.packsNeeded, 1);
         expect(result.first.underBuy, isFalse);
+      });
+
+      test("ranks a fully-covering low-waste product above one that would under-buy", () {
+        // Need 1040g in one event, no shelf life.
+        // Covering: 1x1060g pack -> 1 pack, 20g surplus, cannot under-buy (only one pack). Waste 20g.
+        // Under-buyer: 1x100g packs -> full 11 packs = 1100g, 60g surplus; drops to 10 packs (40g short).
+        //   Its full-pack-buy waste is 60g. The under-buy reduction must NOT zero this for ranking,
+        //   or the under-buyer would wrongly sort first (0 < 20) and be flagged the "best option".
+        Product covering = _product(quantityPerItem: 1060, itemsPerPack: 1);
+        Product underBuyer = _product(quantityPerItem: 100, itemsPerPack: 1);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1040,
+          events: [_event(amount: 1040)],
+          ingredient: _ingredient(),
+          products: [underBuyer, covering],
+        );
+
+        expect(result.first.product, covering);
+        expect(result.first.totalWaste, closeTo(20, 0.01));
+        ProductRecommendation underBuyRec = result.firstWhere((ProductRecommendation r) => r.product == underBuyer);
+        expect(underBuyRec.underBuy, isTrue);
+        expect(underBuyRec.totalWaste, greaterThan(result.first.totalWaste));
       });
     });
   });
