@@ -1524,9 +1524,18 @@
       "products": [
         {
           "link": "https://tienda.mercadona.es/product/2787/filetes-pechuga-pollo-bandeja",
-          "itemsPerPack": 5,
+          "itemsPerPack": 1,
           "quantityPerItem": 530.0,
           "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/2787/filetes-pechuga-pollo-bandeja",
+          "itemsPerPack": 4,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
           "shelfLifeDaysOpened": 1,
           "shelfLifeDaysClosed": 5,
           "canBeFrozen": true
