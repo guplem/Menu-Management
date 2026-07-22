@@ -58,6 +58,8 @@ class ShoppingIngredient extends StatefulWidget {
     required this.ownedAmount,
     required this.ownedUnit,
     required this.onOwnedChanged,
+    required this.ownedProductCounts,
+    required this.onProductOwnedChanged,
     required this.sources,
     required this.plannedTrips,
   });
@@ -66,9 +68,17 @@ class ShoppingIngredient extends StatefulWidget {
   final List<Quantity> quantitiesDesired;
   final List<Quantity> calculatedRemainingQuantities;
   final List<ProductRecommendation> productRecommendations;
+
+  /// Single owned input, used only when the ingredient has no products.
   final double ownedAmount;
   final OwnedUnit ownedUnit;
   final void Function(double amount, OwnedUnit unit) onOwnedChanged;
+
+  /// Owned count per product (product index in [Ingredient.products] -> count), used when the
+  /// ingredient has products. Each product row shows its own owned input.
+  final Map<int, double> ownedProductCounts;
+  final void Function(int productIndex, double count) onProductOwnedChanged;
+
   final List<IngredientSource> sources;
 
   /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
@@ -265,8 +275,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   ),
                 ),
 
-                // Owned quantity input with unit dropdown
-                if (availableUnits.isNotEmpty) ...[
+                // Owned quantity input with unit dropdown.
+                // Only for ingredients with no products; products use per-product owned inputs in each row.
+                if (widget.ingredient.products.isEmpty && availableUnits.isNotEmpty) ...[
                   SizedBox(
                     width: 120,
                     child: TextField(
@@ -358,6 +369,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                     .toList();
                 List<Widget> rows = [];
                 for (int i = 0; i < matchingProducts.length; i++) {
+                  int productIndex = matchingProducts[i].key;
                   Product product = matchingProducts[i].value;
                   ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
                     (r) => r.product == product,
@@ -387,6 +399,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
                       packsToBuy: _packsToBuyForProduct(product),
                       tripPurchases: _tripPurchasesForProduct(product),
+                      ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
+                      onOwnedCountChanged: (double count) => widget.onProductOwnedChanged(productIndex, count),
                     ),
                   );
                 }

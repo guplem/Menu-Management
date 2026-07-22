@@ -30,8 +30,37 @@ Future<void> _pumpIngredient(WidgetTester tester, {required double remainingGram
           ownedAmount: 0,
           ownedUnit: const OwnedUnit(),
           onOwnedChanged: (double amount, OwnedUnit unit) {},
+          ownedProductCounts: const {},
+          onProductOwnedChanged: (int productIndex, double count) {},
           sources: const [],
           plannedTrips: plannedTrips,
+        ),
+      ),
+    ),
+  );
+}
+
+Future<void> _pumpForOwnedInputs(
+  WidgetTester tester, {
+  required Ingredient ingredient,
+  required List<Quantity> quantitiesDesired,
+  void Function(int productIndex, double count)? onProductOwnedChanged,
+}) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: ShoppingIngredient(
+          ingredient: ingredient,
+          quantitiesDesired: quantitiesDesired,
+          calculatedRemainingQuantities: const [Quantity(amount: 100, unit: Unit.grams)],
+          productRecommendations: const [],
+          ownedAmount: 0,
+          ownedUnit: const OwnedUnit(unit: Unit.grams),
+          onOwnedChanged: (double amount, OwnedUnit unit) {},
+          ownedProductCounts: const {},
+          onProductOwnedChanged: onProductOwnedChanged ?? (int productIndex, double count) {},
+          sources: const [],
+          plannedTrips: const [],
         ),
       ),
     ),
@@ -86,6 +115,39 @@ void main() {
       expect(find.text("Buy 6 packs"), findsOneWidget);
       expect(find.textContaining("week"), findsNothing);
       expect(find.textContaining("now"), findsNothing);
+    });
+
+    testWidgets("an ingredient with products shows a per-product owned input, not the header input", (WidgetTester tester) async {
+      double? reportedIndex;
+      double? reportedCount;
+      await _pumpForOwnedInputs(
+        tester,
+        ingredient: _ingredient(),
+        quantitiesDesired: const [Quantity(amount: 900, unit: Unit.grams)],
+        onProductOwnedChanged: (int productIndex, double count) {
+          reportedIndex = productIndex.toDouble();
+          reportedCount = count;
+        },
+      );
+
+      // The per-product owned field lives in the product row.
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(ownedField, findsOneWidget);
+
+      await tester.enterText(ownedField, "3");
+      expect(reportedIndex, 0);
+      expect(reportedCount, 3);
+    });
+
+    testWidgets("an ingredient with no products keeps the single header owned input", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(
+        tester,
+        ingredient: const Ingredient(id: "spice", name: "Spice"),
+        quantitiesDesired: const [Quantity(amount: 5, unit: Unit.grams)],
+      );
+
+      // Header input is present; there are no product rows to host a per-product input.
+      expect(find.widgetWithText(TextField, "Owned"), findsOneWidget);
     });
 
     testWidgets("skips trips whose rounded amount yields 0 packs, avoiding a false split", (WidgetTester tester) async {

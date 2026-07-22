@@ -174,9 +174,7 @@ List<_PlanEvent> _buildPlanEvents({
         double remainingNeed = quantity.amount;
         double ownedRemaining = ownedRemainingByUnit.putIfAbsent(
           quantity.unit,
-          () => (owned == null || ingredient == null)
-              ? 0
-              : ownedAmountInUnit(ingredient: ingredient, ownedAmount: owned.amount, ownedUnit: owned.unit, targetUnit: quantity.unit),
+          () => (owned == null || ingredient == null) ? 0 : owned.amountInUnit(ingredient: ingredient, targetUnit: quantity.unit),
         );
         if (ownedRemaining > 0 && remainingNeed > 0) {
           double consumed = min(ownedRemaining, remainingNeed);

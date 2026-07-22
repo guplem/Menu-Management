@@ -15,6 +15,8 @@ Future<void> _pumpRow(
   required Product product,
   required int packsToBuy,
   List<ProductTripPurchase> tripPurchases = const [],
+  double ownedCount = 0,
+  ValueChanged<double>? onOwnedCountChanged,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -25,6 +27,8 @@ Future<void> _pumpRow(
           isBestOption: true,
           packsToBuy: packsToBuy,
           tripPurchases: tripPurchases,
+          ownedCount: ownedCount,
+          onOwnedCountChanged: onOwnedCountChanged,
         ),
       ),
     ),
@@ -64,6 +68,23 @@ void main() {
       await _pumpRow(tester, product: product, packsToBuy: 0);
 
       expect(find.text("Covered"), findsOneWidget);
+    });
+
+    testWidgets("shows a per-product owned input and reports typed counts", (WidgetTester tester) async {
+      double? reported;
+      await _pumpRow(tester, product: _packProduct(), packsToBuy: 9, onOwnedCountChanged: (double value) => reported = value);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(ownedField, findsOneWidget);
+
+      await tester.enterText(ownedField, "2");
+      expect(reported, 2);
+    });
+
+    testWidgets("hides the owned input when no owned callback is provided", (WidgetTester tester) async {
+      await _pumpRow(tester, product: _packProduct(), packsToBuy: 9);
+
+      expect(find.widgetWithText(TextField, "Owned"), findsNothing);
     });
 
     testWidgets("uses 'piece' wording for single-item packs", (WidgetTester tester) async {

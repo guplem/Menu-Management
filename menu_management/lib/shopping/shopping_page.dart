@@ -30,11 +30,17 @@ class ShoppingPage extends StatefulWidget {
 class _ShoppingPageState extends State<ShoppingPage> {
   late final Map<String, List<Quantity>> ingredientsRequired;
 
-  /// Owned amount per ingredient (raw number entered by user).
+  /// Owned amount per ingredient (raw number entered by user). Used only for ingredients with
+  /// no products, where the user types a single number in the selected unit.
   late final Map<String, double> ownedAmounts;
 
-  /// Selected unit for owned input per ingredient.
+  /// Selected unit for owned input per ingredient (no-products ingredients only).
   late final Map<String, OwnedUnit> ownedUnits;
+
+  /// Owned count per product for ingredients that have products, keyed by ingredient id then by
+  /// the product's index in [Ingredient.products]. The global owned amount is derived from these
+  /// counts via [OwnedStock.perProduct].
+  late final Map<String, Map<int, double>> ownedProductCounts;
 
   /// Cooking event timeline per ingredient (for event-based waste calculation).
   late final Map<String, List<CookingEvent>> cookingTimeline;
@@ -60,6 +66,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
     ownedAmounts = {};
     ownedUnits = {};
+    ownedProductCounts = {};
 
     for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
       String ingredientId = entry.key;
@@ -67,7 +74,18 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       ownedAmounts[ingredientId] = 0;
       ownedUnits[ingredientId] = defaultOwnedUnit(ingredient: ingredient, desiredQuantities: entry.value);
+      ownedProductCounts[ingredientId] = {};
     }
+  }
+
+  /// Builds the owned stock for an ingredient: per-product counts when it has products,
+  /// otherwise the single amount + selected unit. Both resolve to the same units via
+  /// [OwnedStock.amountInUnit], so the on-screen list and the planner subtract the same amount.
+  OwnedStock _ownedStockFor({required String ingredientId, required Ingredient ingredient}) {
+    if (ingredient.products.isNotEmpty) {
+      return OwnedStock.perProduct(countsByProductIndex: ownedProductCounts[ingredientId] ?? const {});
+    }
+    return OwnedStock(amount: ownedAmounts[ingredientId] ?? 0, unit: ownedUnits[ingredientId]?.unit);
   }
 
   @override
@@ -139,6 +157,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             productRecommendations: recommendations,
             ownedAmount: ownedAmounts[ingredientId] ?? 0,
             ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
+            ownedProductCounts: ownedProductCounts[ingredientId] ?? const {},
             sources: ingredientSources[ingredientId] ?? [],
             plannedTrips: plannedTrips,
             onOwnedChanged: (double amount, OwnedUnit unit) {
@@ -147,19 +166,21 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 ownedUnits[ingredientId] = unit;
               });
             },
+            onProductOwnedChanged: (int productIndex, double count) {
+              setState(() {
+                (ownedProductCounts[ingredientId] ??= {})[productIndex] = count;
+              });
+            },
           );
         },
       ),
     );
   }
 
-  /// Converts owned amount to the actual quantity in [targetUnit] based on the selected owned unit.
-  /// Delegates to the shared [ownedAmountInUnit] so the on-screen list and the trip planner subtract
-  /// the same amount.
+  /// Converts the owned stock of an ingredient into [targetUnit]. Delegates to the shared
+  /// [OwnedStock.amountInUnit] so the on-screen list and the trip planner subtract the same amount.
   double _ownedInUnit({required String ingredientId, required Ingredient ingredient, required Unit targetUnit}) {
-    double amount = ownedAmounts[ingredientId] ?? 0;
-    OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? OwnedUnit(unit: targetUnit);
-    return ownedAmountInUnit(ingredient: ingredient, ownedAmount: amount, ownedUnit: selectedUnit.unit, targetUnit: targetUnit);
+    return _ownedStockFor(ingredientId: ingredientId, ingredient: ingredient).amountInUnit(ingredient: ingredient, targetUnit: targetUnit);
   }
 
   List<Quantity> _remainingAmounts({required String ingredientId, required Ingredient ingredient}) {
@@ -265,18 +286,19 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
   List<ShoppingTrip> _planTrips() {
     List<Ingredient> allIngredients = IngredientsProvider.instance.ingredients;
+    Map<String, Ingredient> ingredientsById = {for (Ingredient ingredient in allIngredients) ingredient.id: ingredient};
 
-    // Pass the user's owned stock as-is (one amount + one selected unit, or "packs").
-    // The planner converts it into each event's unit via the shared ownedAmountInUnit,
-    // so it subtracts exactly what the on-screen list subtracts.
+    // Build each ingredient's owned stock (per-product counts, or a single amount + unit for
+    // no-products ingredients). The planner resolves it into each event's unit via the shared
+    // OwnedStock.amountInUnit, so it subtracts exactly what the on-screen list subtracts.
     Map<String, OwnedStock> ownedStockPerIngredient = {};
-    for (MapEntry<String, double> entry in ownedAmounts.entries) {
-      String ingredientId = entry.key;
-      double amount = entry.value;
-      if (amount <= 0) continue;
+    for (String ingredientId in ingredientsRequired.keys) {
+      Ingredient? ingredient = ingredientsById[ingredientId];
+      if (ingredient == null) continue;
 
-      OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams);
-      ownedStockPerIngredient[ingredientId] = OwnedStock(amount: amount, unit: selectedUnit.unit);
+      OwnedStock stock = _ownedStockFor(ingredientId: ingredientId, ingredient: ingredient);
+      if (!stock.hasStock) continue;
+      ownedStockPerIngredient[ingredientId] = stock;
     }
 
     return planShoppingTrips(

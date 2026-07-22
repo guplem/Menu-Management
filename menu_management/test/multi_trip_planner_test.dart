@@ -281,6 +281,32 @@ void main() {
       expect(trips.first.items.first.unit, Unit.grams);
     });
 
+    test("per-product owned stock reduces the trip amount by the summed global owned amount", () {
+      // Recipe needs 1000 g. Two grams products: 500 g/pack and 250 g/pack.
+      // Owning 1 of the 500 g pack + 1 of the 250 g pack -> 750 g owned -> 250 g left to buy.
+      Ingredient item = _ingredient(
+        id: "i1",
+        products: [
+          Product(link: "https://example.com/a", unit: Unit.grams, quantityPerItem: 500),
+          Product(link: "https://example.com/b", unit: Unit.grams, quantityPerItem: 250),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "i1": [_event(day: 0, amount: 1000, unit: Unit.grams)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [item],
+        ownedAmounts: {
+          "i1": OwnedStock.perProduct(countsByProductIndex: {0: 1, 1: 1}),
+        },
+      );
+
+      expect(trips.first.items.first.amount, 250);
+      expect(trips.first.items.first.unit, Unit.grams);
+    });
+
     test("event whose shelf life cannot be satisfied by any prior trip falls back to closest trip", () {
       // Shelf life 1 day, event on day 10. No trip satisfies fresh constraint:
       // Trip 0 (-1): 11 days → expired. Trip 1 (6): 4 days → expired. Trip 2 (13): purchase after use.

@@ -61,4 +61,86 @@ void main() {
       expect(ownedAmountInUnit(ingredient: banana, ownedAmount: 3, ownedUnit: Unit.pieces, targetUnit: Unit.grams), 0);
     });
   });
+
+  group("productOwnedAmountInUnit", () {
+    test("count of a product times its pack quantity, when the product unit is the target unit", () {
+      // Product: 6 items x 125 g = 750 g per pack. Owning 2 packs -> 1500 g.
+      Product product = _product(unit: Unit.grams, quantityPerItem: 125, itemsPerPack: 6);
+      Ingredient ingredient = Ingredient(id: "i1", name: "Item", products: [product]);
+      expect(productOwnedAmountInUnit(ingredient: ingredient, product: product, count: 2, targetUnit: Unit.grams), 1500);
+    });
+
+    test("converts a piece product's owned count into grams via gramsPerPiece", () {
+      // 3 pieces owned, gramsPerPiece 120 -> 360 g.
+      Product product = _product(unit: Unit.pieces, quantityPerItem: 1);
+      Ingredient banana = Ingredient(id: "banana", name: "Banana", gramsPerPiece: 120, products: [product]);
+      expect(productOwnedAmountInUnit(ingredient: banana, product: product, count: 3, targetUnit: Unit.grams), 360);
+    });
+
+    test("returns the count in pieces directly when target is pieces (no gramsPerPiece needed)", () {
+      Product product = _product(unit: Unit.pieces, quantityPerItem: 1);
+      Ingredient eggs = Ingredient(id: "eggs", name: "Eggs", products: [product]);
+      expect(productOwnedAmountInUnit(ingredient: eggs, product: product, count: 4, targetUnit: Unit.pieces), 4);
+    });
+
+    test("returns 0 when a cross-unit conversion has no bridge", () {
+      // Pieces product, target grams, no gramsPerPiece -> cannot convert.
+      Product product = _product(unit: Unit.pieces, quantityPerItem: 1);
+      Ingredient eggs = Ingredient(id: "eggs", name: "Eggs", products: [product]);
+      expect(productOwnedAmountInUnit(ingredient: eggs, product: product, count: 4, targetUnit: Unit.grams), 0);
+    });
+
+    test("returns 0 for a non-positive count", () {
+      Product product = _product(unit: Unit.grams, quantityPerItem: 100);
+      Ingredient ingredient = Ingredient(id: "i1", name: "Item", products: [product]);
+      expect(productOwnedAmountInUnit(ingredient: ingredient, product: product, count: 0, targetUnit: Unit.grams), 0);
+    });
+  });
+
+  group("OwnedStock.amountInUnit", () {
+    test("single-form stock delegates to ownedAmountInUnit", () {
+      Ingredient flour = const Ingredient(id: "flour", name: "Flour");
+      const OwnedStock stock = OwnedStock(amount: 250, unit: Unit.grams);
+      expect(stock.amountInUnit(ingredient: flour, targetUnit: Unit.grams), 250);
+    });
+
+    test("per-product stock sums two products of different pack sizes into grams", () {
+      // Product A: 500 g per pack. Product B: 250 g per pack.
+      // Owning 3 of A + 5 of B -> 1500 + 1250 = 2750 g.
+      Product a = _product(unit: Unit.grams, quantityPerItem: 500);
+      Product b = _product(unit: Unit.grams, quantityPerItem: 250);
+      Ingredient ingredient = Ingredient(id: "i1", name: "Item", products: [a, b]);
+      OwnedStock stock = OwnedStock.perProduct(countsByProductIndex: {0: 3, 1: 5});
+      expect(stock.amountInUnit(ingredient: ingredient, targetUnit: Unit.grams), 2750);
+    });
+
+    test("per-product stock mixes a weight product and a piece product via gramsPerPiece", () {
+      // Product 0: 200 g per pack (weight). Product 1: pieces, gramsPerPiece 50.
+      // Owning 1 weight pack (200 g) + 2 pieces (100 g) -> 300 g.
+      Product weight = _product(unit: Unit.grams, quantityPerItem: 200);
+      Product pieces = _product(unit: Unit.pieces, quantityPerItem: 1);
+      Ingredient ingredient = Ingredient(id: "i1", name: "Item", gramsPerPiece: 50, products: [weight, pieces]);
+      OwnedStock stock = OwnedStock.perProduct(countsByProductIndex: {0: 1, 1: 2});
+      expect(stock.amountInUnit(ingredient: ingredient, targetUnit: Unit.grams), 300);
+    });
+
+    test("per-product stock reports the global owned amount in a target unit via fromGrams", () {
+      // 4 pieces owned, gramsPerPiece 120 -> 480 g -> back to 4 pieces.
+      Product pieces = _product(unit: Unit.pieces, quantityPerItem: 1);
+      Ingredient banana = Ingredient(id: "banana", name: "Banana", gramsPerPiece: 120, products: [pieces]);
+      OwnedStock stock = OwnedStock.perProduct(countsByProductIndex: {0: 4});
+      expect(stock.amountInUnit(ingredient: banana, targetUnit: Unit.grams), 480);
+      expect(stock.amountInUnit(ingredient: banana, targetUnit: Unit.pieces), 4);
+    });
+
+    test("hasStock is false when nothing is owned and true when some product is owned", () {
+      Product a = _product(unit: Unit.grams, quantityPerItem: 500);
+      expect(OwnedStock.perProduct(countsByProductIndex: const {0: 0}).hasStock, isFalse);
+      expect(OwnedStock.perProduct(countsByProductIndex: const {0: 2}).hasStock, isTrue);
+      expect(const OwnedStock(amount: 0, unit: Unit.grams).hasStock, isFalse);
+      expect(const OwnedStock(amount: 5, unit: Unit.grams).hasStock, isTrue);
+      // Reference the product so the analyzer does not flag it as unused.
+      expect(a.totalQuantityPerPack, 500);
+    });
+  });
 }
