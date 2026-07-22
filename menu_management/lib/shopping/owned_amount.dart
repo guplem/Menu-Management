@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
@@ -45,4 +47,54 @@ double ownedAmountInUnit({required Ingredient ingredient, required double ownedA
   }
 
   return 0;
+}
+
+/// Subtracts the user's owned stock from an ingredient's required amounts and rounds each to a
+/// whole unit, producing the "remaining to buy" the on-screen shopping list shows.
+///
+/// [requiredQuantities] must already be normalized (the output of `normalizeQuantities`).
+///
+/// The owned stock is consumed a single time. It is turned into one grams pool (via the shared
+/// [ownedAmountInUnit]) and drawn down across the required units in order. This prevents the
+/// old bug where a single stock was fully converted into every unit and subtracted from each,
+/// over-subtracting when an ingredient is needed in more than one unit at once. Units that cannot
+/// be related to grams (no density and no gramsPerPiece) fall back to a same-unit subtraction.
+List<Quantity> computeRemainingQuantities({
+  required Ingredient ingredient,
+  required List<Quantity> requiredQuantities,
+  required double ownedAmount,
+  required Unit? ownedUnit,
+}) {
+  Quantity toRemaining(Quantity required, double owned) => Quantity(amount: max(0, required.amount - owned).roundToDouble(), unit: required.unit);
+
+  if (ownedAmount <= 0) {
+    return requiredQuantities.map((Quantity q) => toRemaining(q, 0)).toList();
+  }
+
+  double ownedGramsPool = ownedAmountInUnit(ingredient: ingredient, ownedAmount: ownedAmount, ownedUnit: ownedUnit, targetUnit: Unit.grams);
+
+  // No grams conversion path (e.g. pieces with no gramsPerPiece): subtract per unit directly.
+  if (ownedGramsPool <= 0) {
+    return requiredQuantities.map((Quantity q) {
+      double owned = ownedAmountInUnit(ingredient: ingredient, ownedAmount: ownedAmount, ownedUnit: ownedUnit, targetUnit: q.unit);
+      return toRemaining(q, owned);
+    }).toList();
+  }
+
+  List<Quantity> result = [];
+  for (Quantity q in requiredQuantities) {
+    double? needGrams = ingredient.toGrams(q);
+    if (needGrams == null) {
+      // This unit cannot be expressed in grams; only a same-unit owned stock can reduce it.
+      double owned = ownedAmountInUnit(ingredient: ingredient, ownedAmount: ownedAmount, ownedUnit: ownedUnit, targetUnit: q.unit);
+      result.add(toRemaining(q, owned));
+      continue;
+    }
+    double consumed = min(ownedGramsPool, needGrams);
+    ownedGramsPool -= consumed;
+    double remainingGrams = needGrams - consumed;
+    double? remainingInUnit = ingredient.fromGrams(remainingGrams, q.unit);
+    result.add(Quantity(amount: max(0, remainingInUnit ?? q.amount).roundToDouble(), unit: q.unit));
+  }
+  return result;
 }
