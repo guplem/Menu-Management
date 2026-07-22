@@ -78,11 +78,15 @@ class _ShoppingPageState extends State<ShoppingPage> {
     }
   }
 
-  /// Builds the owned stock for an ingredient: per-product counts when it has products,
-  /// otherwise the single amount + selected unit. Both resolve to the same units via
-  /// [OwnedStock.amountInUnit], so the on-screen list and the planner subtract the same amount.
+  /// Builds the owned stock for an ingredient: per-product counts when per-product rows render
+  /// (see [usesPerProductOwnedInputs]), otherwise the single header amount + selected unit. This
+  /// mirrors which input the UI shows, so the header fallback (products present but no product unit
+  /// matches a recipe unit) is read from the single amount, not the empty per-product counts. Both
+  /// resolve to the same units via [OwnedStock.amountInUnit], so the on-screen list and the planner
+  /// subtract the same amount.
   OwnedStock _ownedStockFor({required String ingredientId, required Ingredient ingredient}) {
-    if (ingredient.products.isNotEmpty) {
+    List<Quantity> desired = ingredientsRequired[ingredientId] ?? const [];
+    if (usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: desired)) {
       return OwnedStock.perProduct(countsByProductIndex: ownedProductCounts[ingredientId] ?? const {});
     }
     return OwnedStock(amount: ownedAmounts[ingredientId] ?? 0, unit: ownedUnits[ingredientId]?.unit);

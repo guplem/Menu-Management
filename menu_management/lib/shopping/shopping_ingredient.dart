@@ -34,18 +34,36 @@ class OwnedUnit {
 /// practical unit for counting items at home. Falls back to pieces or the first
 /// desired unit when no products are configured.
 OwnedUnit defaultOwnedUnit({required Ingredient? ingredient, required List<Quantity> desiredQuantities}) {
-  if (ingredient != null && ingredient.products.isNotEmpty) {
+  // Packs is only a useful default when a product row will actually render (its unit matches a
+  // recipe unit). Otherwise the header owned input is the fallback, and packs cannot convert, so
+  // fall through to a concrete unit the shared resolver can convert.
+  if (ingredient != null && usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: desiredQuantities)) {
     bool allSinglePiece = ingredient.products.every((Product p) => p.unit == Unit.pieces && p.totalQuantityPerPack == 1.0);
     if (allSinglePiece) return const OwnedUnit(unit: Unit.pieces);
     return const OwnedUnit(); // packs
   }
 
-  bool hasPieces = desiredQuantities.any((q) => q.unit == Unit.pieces);
+  // Prefer pieces (from a product or a recipe) so the user can count whole items, then the first
+  // recipe unit, then grams.
+  bool hasPieces = (ingredient?.products.any((Product p) => p.unit == Unit.pieces) ?? false) || desiredQuantities.any((q) => q.unit == Unit.pieces);
   if (hasPieces) return const OwnedUnit(unit: Unit.pieces);
 
   if (desiredQuantities.isNotEmpty) return OwnedUnit(unit: desiredQuantities.first.unit);
 
   return const OwnedUnit(unit: Unit.grams);
+}
+
+/// Whether an ingredient shows per-product owned inputs (one per product row) instead of the single
+/// header owned input.
+///
+/// True only when the ingredient has products AND at least one product's unit matches a
+/// desired-quantity unit, because a product row renders only for such products. When false (no
+/// products, or products whose units never match a recipe unit, e.g. a pieces-only product used by
+/// a grams recipe), the header owned input is shown as the fallback so the user can always enter
+/// owned stock. Both callers (the widget's layout and `ShoppingPage`'s owned-stock resolver) use
+/// this so the shown input and the subtracted amount stay in sync.
+bool usesPerProductOwnedInputs({required Ingredient ingredient, required List<Quantity> desiredQuantities}) {
+  return ingredient.products.any((Product product) => desiredQuantities.any((Quantity q) => q.unit == product.unit));
 }
 
 class ShoppingIngredient extends StatefulWidget {
@@ -276,8 +294,10 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                 ),
 
                 // Owned quantity input with unit dropdown.
-                // Only for ingredients with no products; products use per-product owned inputs in each row.
-                if (widget.ingredient.products.isEmpty && availableUnits.isNotEmpty) ...[
+                // Shown as the fallback whenever no per-product owned inputs will render (no products,
+                // or no product unit matches a recipe unit); otherwise each product row hosts its own input.
+                if (!usesPerProductOwnedInputs(ingredient: widget.ingredient, desiredQuantities: widget.quantitiesDesired) &&
+                    availableUnits.isNotEmpty) ...[
                   SizedBox(
                     width: 120,
                     child: TextField(
@@ -360,7 +380,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             const SizedBox(height: 8),
 
             // Product rows (only for products whose unit matches a required quantity)
-            if (widget.ingredient.products.isNotEmpty)
+            if (usesPerProductOwnedInputs(ingredient: widget.ingredient, desiredQuantities: widget.quantitiesDesired))
               ...() {
                 List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products
                     .asMap()
