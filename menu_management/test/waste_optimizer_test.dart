@@ -534,6 +534,50 @@ void main() {
       expect(rec!.selections, isEmpty);
       expect(rec.totalWaste, closeTo(0, 0.01));
     });
+
+    test("falls back to a single product when the search space exceeds the bound", () {
+      // Tiny 1 g packs with a huge need blow past _maxCombinationVectors (20000): the 1 g product
+      // alone needs 30000 packs, so the Cartesian product is far too large and the search is skipped.
+      // The bounded fallback (_bestSingleAsCombination) returns the best single product instead.
+      Product tiny = _product(quantityPerItem: 1);
+      Product bigger = _product(quantityPerItem: 7);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 30000,
+        events: const [],
+        ingredient: _ingredient(),
+        products: [tiny, bigger],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.selections, isNotEmpty);
+      expect(rec.isSingleProduct, isTrue);
+      // 30000 exact-fit 1 g packs (zero waste) beat 4286 x 7 g packs (2 g waste).
+      expect(packsBySize(rec), {1.0: 30000});
+      expect(rec.totalWaste, closeTo(0, 0.01));
+    });
+
+    test("a larger purchase wins when a quantity-sufficient one expires before a later event", () {
+      // One 600 g pack, opened shelf life 3 days. Two events 300 g each, 10 days apart.
+      // By raw quantity one 600 g pack covers the 600 g total, but it opens on day 0 and its 300 g
+      // leftover expires before day 10, so a single pack cannot feed the second event: infeasible.
+      // The solver must buy 2 packs. Bought 1200 g, consumed 600 g, 300 g expires, 300 g over-buy.
+      Product pack = _product(quantityPerItem: 600, shelfLifeDays: 3);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 600,
+        events: [_event(day: 0, amount: 300), _event(day: 10, amount: 300)],
+        ingredient: _ingredient(),
+        products: [pack],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.isSingleProduct, isTrue);
+      expect(packsBySize(rec), {600.0: 2});
+      expect(rec.expiryWaste, closeTo(300, 0.01));
+      expect(rec.overBuyWaste, closeTo(300, 0.01));
+      expect(rec.totalWaste, closeTo(600, 0.01));
+    });
   });
 
   group("combinationPackLines", () {
