@@ -10,9 +10,9 @@ import "package:menu_management/theme/theme_custom.dart";
 class ProductTripPurchase {
   const ProductTripPurchase({required this.weekIndex, required this.packs, required this.isFirstTrip});
 
-  final int weekIndex; // 0-based; displayed as weekIndex + 1
+  final int weekIndex; // 0-based; displayed as "W${weekIndex + 1}"
   final int packs;
-  final bool isFirstTrip; // true for the plan's earliest trip -> labeled "now"
+  final bool isFirstTrip; // true for the plan's earliest trip -> tooltip says "first shop visit"
 }
 
 class ShoppingProductRow extends StatelessWidget {
@@ -34,16 +34,21 @@ class ShoppingProductRow extends StatelessWidget {
   final int packsToBuy;
 
   /// Per-trip split of [packsToBuy]. When it has 2+ entries the buy area shows one line per
-  /// trip (e.g. "Buy 6 packs now" + "3 packs week 2"); otherwise it shows a single total.
+  /// trip (e.g. "Buy 6 packs (W1)" + "Buy 3 packs (W2)"); otherwise it shows a single total.
   final List<ProductTripPurchase> tripPurchases;
 
   /// Singular/plural unit word: pieces for single-item packs, packs otherwise.
   String _packWord(int count) => product.itemsPerPack == 1 ? (count == 1 ? "piece" : "pieces") : (count == 1 ? "pack" : "packs");
 
-  String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
-    String prefix = isFirstLine ? "Buy" : "+";
-    String when = purchase.isFirstTrip ? "now" : "week ${purchase.weekIndex + 1}";
-    return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} $when";
+  /// Short label shown on each split line, e.g. "Buy 3 packs (W2)". "W2" is the shop visit
+  /// the day before week 2, matching the "Week 2" section header in the copied list.
+  String _tripPurchaseLabel(ProductTripPurchase purchase) => "Buy ${purchase.packs} ${_packWord(purchase.packs)} (W${purchase.weekIndex + 1})";
+
+  /// Full-words explanation of the short "W${n}" label, shown as the line's tooltip.
+  String _tripPurchaseTooltip(ProductTripPurchase purchase) {
+    int week = purchase.weekIndex + 1;
+    if (purchase.isFirstTrip) return "W$week = first shop visit, the day before week $week starts.";
+    return "W$week = shop visit the day before week $week starts.";
   }
 
   String _wasteBreakdown() {
@@ -169,11 +174,14 @@ class ShoppingProductRow extends StatelessWidget {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        for (int i = 0; i < tripPurchases.length; i++)
-                          Text(
-                            _tripPurchaseLabel(tripPurchases[i], isFirstLine: i == 0),
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.right,
+                        for (final ProductTripPurchase purchase in tripPurchases)
+                          Tooltip(
+                            message: _tripPurchaseTooltip(purchase),
+                            child: Text(
+                              _tripPurchaseLabel(purchase),
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.right,
+                            ),
                           ),
                       ],
                     )

@@ -33,7 +33,7 @@ Future<void> _pumpRow(
 
 void main() {
   group("ShoppingProductRow buy area", () {
-    testWidgets("renders per-trip split lines when 2+ trip purchases are given", (WidgetTester tester) async {
+    testWidgets("renders per-trip split lines with short week labels when 2+ trip purchases are given", (WidgetTester tester) async {
       Product product = _packProduct();
       await _pumpRow(
         tester,
@@ -45,10 +45,29 @@ void main() {
         ],
       );
 
-      expect(find.text("Buy 6 packs now"), findsOneWidget);
-      expect(find.text("+ 3 packs week 2"), findsOneWidget);
+      expect(find.text("Buy 6 packs (W1)"), findsOneWidget);
+      expect(find.text("Buy 3 packs (W2)"), findsOneWidget);
       // The single-total label must not appear when the row is split.
       expect(find.text("Buy 9 packs"), findsNothing);
+    });
+
+    testWidgets("gives each per-trip label a tooltip spelling out the short week label", (WidgetTester tester) async {
+      Product product = _packProduct();
+      await _pumpRow(
+        tester,
+        product: product,
+        packsToBuy: 9,
+        tripPurchases: const [
+          ProductTripPurchase(weekIndex: 0, packs: 6, isFirstTrip: true),
+          ProductTripPurchase(weekIndex: 1, packs: 3, isFirstTrip: false),
+        ],
+      );
+
+      expect(
+        find.byWidgetPredicate((Widget w) => w is Tooltip && w.message == "W1 = first shop visit, the day before week 1 starts."),
+        findsOneWidget,
+      );
+      expect(find.byWidgetPredicate((Widget w) => w is Tooltip && w.message == "W2 = shop visit the day before week 2 starts."), findsOneWidget);
     });
 
     testWidgets("renders a single total line when no trip purchases are given", (WidgetTester tester) async {
@@ -56,7 +75,7 @@ void main() {
       await _pumpRow(tester, product: product, packsToBuy: 9);
 
       expect(find.text("Buy 9 packs"), findsOneWidget);
-      expect(find.text("Buy 6 packs now"), findsNothing);
+      expect(find.text("Buy 6 packs (W1)"), findsNothing);
     });
 
     testWidgets("renders 'Covered' when nothing needs buying", (WidgetTester tester) async {
@@ -78,8 +97,8 @@ void main() {
         ],
       );
 
-      expect(find.text("Buy 2 pieces now"), findsOneWidget);
-      expect(find.text("+ 1 piece week 3"), findsOneWidget);
+      expect(find.text("Buy 2 pieces (W1)"), findsOneWidget);
+      expect(find.text("Buy 1 piece (W3)"), findsOneWidget);
     });
   });
 }

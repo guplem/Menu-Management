@@ -51,8 +51,8 @@ void main() {
         ],
       );
 
-      expect(find.text("Buy 6 packs now"), findsOneWidget);
-      expect(find.text("+ 3 packs week 2"), findsOneWidget);
+      expect(find.text("Buy 6 packs (W1)"), findsOneWidget);
+      expect(find.text("Buy 3 packs (W2)"), findsOneWidget);
       // The single-total label must not appear when the row is split.
       expect(find.text("Buy 9 packs"), findsNothing);
     });
@@ -67,8 +67,8 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
-      expect(find.textContaining("week"), findsNothing);
-      expect(find.textContaining("now"), findsNothing);
+      // No per-visit split: no short week label should appear.
+      expect(find.textContaining("(W"), findsNothing);
     });
 
     testWidgets("shows no split when 3 trips exist but only 1 buys the product", (WidgetTester tester) async {
@@ -84,8 +84,8 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
-      expect(find.textContaining("week"), findsNothing);
-      expect(find.textContaining("now"), findsNothing);
+      // No per-visit split: no short week label should appear.
+      expect(find.textContaining("(W"), findsNothing);
     });
 
     testWidgets("skips trips whose rounded amount yields 0 packs, avoiding a false split", (WidgetTester tester) async {
@@ -101,8 +101,8 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
-      expect(find.textContaining("week"), findsNothing);
-      expect(find.textContaining("now"), findsNothing);
+      // No per-visit split: no short week label should appear.
+      expect(find.textContaining("(W"), findsNothing);
     });
   });
 }
