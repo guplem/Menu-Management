@@ -5,6 +5,7 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 
 /// A grouped item to buy on a specific [ShoppingTrip].
 class TripItem {
@@ -51,7 +52,10 @@ class ShoppingTrip {
 /// relative to the cooking day), the planner falls back to the latest trip on
 /// or before the event day. The matching menu warning surfaces this to the user.
 ///
-/// [ownedAmounts] is consumed against the earliest events first, per matching unit.
+/// [ownedAmounts] holds the user's owned stock per ingredient (one amount + one selected
+/// unit, or "packs"). It is converted into each event's unit via the shared
+/// [ownedAmountInUnit] and consumed against the earliest events first, so the planner
+/// subtracts exactly what the on-screen shopping list subtracts.
 ///
 /// When [assumeFreezerForFreezable] is true, every event whose matching product has
 /// [Product.canBeFrozen] set is treated as non-perishable for trip assignment, so freezable
@@ -61,7 +65,7 @@ class ShoppingTrip {
 List<ShoppingTrip> planShoppingTrips({
   required Map<String, List<CookingEvent>> cookingTimeline,
   required List<Ingredient> ingredients,
-  Map<String, List<Quantity>> ownedAmounts = const {},
+  Map<String, OwnedStock> ownedAmounts = const {},
   bool assumeFreezerForFreezable = false,
 }) {
   Map<String, Ingredient> ingredientsById = {for (Ingredient i in ingredients) i.id: i};
@@ -140,7 +144,8 @@ List<ShoppingTrip> planShoppingTrips({
 }
 
 /// Builds per-(ingredient, unit) plan events from the timeline, after applying
-/// owned amounts chronologically against matching-unit events.
+/// owned amounts chronologically against each event. Owned stock is converted into
+/// the event's unit via the shared [ownedAmountInUnit] the first time that unit is seen.
 ///
 /// When [assumeFreezerForFreezable] is true and the matching product is freezable,
 /// the event's effective shelf life is null (treated as non-perishable for trip assignment).
@@ -149,7 +154,7 @@ List<ShoppingTrip> planShoppingTrips({
 List<_PlanEvent> _buildPlanEvents({
   required Map<String, List<CookingEvent>> cookingTimeline,
   required Map<String, Ingredient> ingredientsById,
-  required Map<String, List<Quantity>> ownedAmounts,
+  required Map<String, OwnedStock> ownedAmounts,
   required bool assumeFreezerForFreezable,
 }) {
   List<_PlanEvent> result = [];
@@ -158,21 +163,24 @@ List<_PlanEvent> _buildPlanEvents({
     String ingredientId = entry.key;
     List<CookingEvent> events = [...entry.value]..sort((a, b) => a.dayIndex.compareTo(b.dayIndex));
     Ingredient? ingredient = ingredientsById[ingredientId];
+    OwnedStock? owned = ownedAmounts[ingredientId];
 
+    // Remaining owned per event unit, converted from the user's stock via the shared
+    // converter the first time each unit appears, then consumed chronologically.
     Map<Unit, double> ownedRemainingByUnit = {};
-    if (ownedAmounts[ingredientId] != null) {
-      for (Quantity owned in ownedAmounts[ingredientId]!) {
-        ownedRemainingByUnit[owned.unit] = (ownedRemainingByUnit[owned.unit] ?? 0) + owned.amount;
-      }
-    }
 
     for (CookingEvent event in events) {
       for (Quantity quantity in event.quantities) {
         double remainingNeed = quantity.amount;
-        double owned = ownedRemainingByUnit[quantity.unit] ?? 0;
-        if (owned > 0 && remainingNeed > 0) {
-          double consumed = min(owned, remainingNeed);
-          ownedRemainingByUnit[quantity.unit] = owned - consumed;
+        double ownedRemaining = ownedRemainingByUnit.putIfAbsent(
+          quantity.unit,
+          () => (owned == null || ingredient == null)
+              ? 0
+              : ownedAmountInUnit(ingredient: ingredient, ownedAmount: owned.amount, ownedUnit: owned.unit, targetUnit: quantity.unit),
+        );
+        if (ownedRemaining > 0 && remainingNeed > 0) {
+          double consumed = min(ownedRemaining, remainingNeed);
+          ownedRemainingByUnit[quantity.unit] = ownedRemaining - consumed;
           remainingNeed -= consumed;
         }
         if (remainingNeed <= 0) continue;

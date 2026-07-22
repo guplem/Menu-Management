@@ -38,7 +38,7 @@ The field is persisted in `.tsr` files via Freezed JSON serialization with `@Jso
 ## Consequences
 
 - Shopping list product rows now appear for ingredients where recipes use pieces but products are in grams (e.g., "Ajo troceado": 4 pieces becomes 20g, matching the 150g product).
-- Owned-amount conversion between pieces and grams works through the existing `_ownedInUnit` pipeline with no additional changes to the shopping page.
+- Owned-amount conversion between pieces and grams works through the shared `ownedAmountInUnit` (in `owned_amount.dart`), which the shopping page's `_ownedInUnit` and the multi-trip planner both call (see ADR 0014).
 - The waste optimizer receives already-normalized gram quantities and produces correct recommendations.
 - Ingredients with pieces-based products (e.g., Patata, Calabacin with pieces product) are unaffected: pieces stay as pieces.
 - The UI exposes the field in the ingredient name editor dialog alongside the existing density field.

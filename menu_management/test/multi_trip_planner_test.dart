@@ -5,6 +5,7 @@ import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 
 Product _product({Unit unit = Unit.grams, int? shelfLifeDaysClosed, double quantityPerItem = 100, int itemsPerPack = 1, bool canBeFrozen = false}) {
   return Product(
@@ -17,8 +18,8 @@ Product _product({Unit unit = Unit.grams, int? shelfLifeDaysClosed, double quant
   );
 }
 
-Ingredient _ingredient({required String id, String? name, List<Product> products = const []}) {
-  return Ingredient(id: id, name: name ?? id, products: products);
+Ingredient _ingredient({required String id, String? name, List<Product> products = const [], double? gramsPerPiece, double? density}) {
+  return Ingredient(id: id, name: name ?? id, products: products, gramsPerPiece: gramsPerPiece, density: density);
 }
 
 CookingEvent _event({required int day, double amount = 100, Unit unit = Unit.grams}) {
@@ -178,9 +179,7 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(
         cookingTimeline: timeline,
         ingredients: [banana],
-        ownedAmounts: const {
-          "banana": [Quantity(amount: 100, unit: Unit.grams)],
-        },
+        ownedAmounts: const {"banana": OwnedStock(amount: 100, unit: Unit.grams)},
       );
 
       expect(trips.length, 1);
@@ -197,18 +196,17 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(
         cookingTimeline: timeline,
         ingredients: [flour],
-        ownedAmounts: const {
-          "flour": [Quantity(amount: 100, unit: Unit.grams)],
-        },
+        ownedAmounts: const {"flour": OwnedStock(amount: 100, unit: Unit.grams)},
       );
 
       expect(trips.length, 1);
       expect(trips.first.items.first.amount, 150);
     });
 
-    test("owned amount in non-matching unit does not subtract from a different-unit event", () {
+    test("owned amount in a different unit does not subtract when no conversion path exists", () {
+      // Recipe uses grams; owned is in pieces but the ingredient has no gramsPerPiece.
+      // With no way to convert, nothing is subtracted.
       Ingredient banana = _ingredient(id: "banana");
-      // Recipe uses grams; owned is in pieces. Without conversion, no subtraction.
       Map<String, List<CookingEvent>> timeline = {
         "banana": [_event(day: 0, amount: 200, unit: Unit.grams)],
       };
@@ -216,12 +214,70 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(
         cookingTimeline: timeline,
         ingredients: [banana],
-        ownedAmounts: const {
-          "banana": [Quantity(amount: 3, unit: Unit.pieces)],
-        },
+        ownedAmounts: const {"banana": OwnedStock(amount: 3, unit: Unit.pieces)},
       );
 
       expect(trips.first.items.first.amount, 200);
+      expect(trips.first.items.first.unit, Unit.grams);
+    });
+
+    test("owned amount in a different unit subtracts via gramsPerPiece conversion", () {
+      // Recipe uses 200 grams; owned is 1 piece; gramsPerPiece = 120.
+      // The planner must subtract 120 g so the trip lists 80 g, matching the on-screen page.
+      Ingredient banana = _ingredient(id: "banana", gramsPerPiece: 120);
+      Map<String, List<CookingEvent>> timeline = {
+        "banana": [_event(day: 0, amount: 200, unit: Unit.grams)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [banana],
+        ownedAmounts: const {"banana": OwnedStock(amount: 1, unit: Unit.pieces)},
+      );
+
+      expect(trips.first.items.first.amount, 80);
+      expect(trips.first.items.first.unit, Unit.grams);
+    });
+
+    test("owned amount in a different unit subtracts via density conversion", () {
+      // Recipe uses 100 centiliters; owned is 400 grams; density = 0.8.
+      // 400 g -> 50 cl, so the trip lists 50 cl.
+      Ingredient oil = _ingredient(id: "oil", density: 0.8);
+      Map<String, List<CookingEvent>> timeline = {
+        "oil": [_event(day: 0, amount: 100, unit: Unit.centiliters)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [oil],
+        ownedAmounts: const {"oil": OwnedStock(amount: 400, unit: Unit.grams)},
+      );
+
+      expect(trips.first.items.first.amount, 50);
+      expect(trips.first.items.first.unit, Unit.centiliters);
+    });
+
+    test("owned amount in packs mode subtracts using the product matching the event unit", () {
+      // Products: pieces (1/pack) first, grams (500/pack) second. Recipe uses 1000 grams.
+      // Owned is 1 pack. The planner must use the 500 g product, subtracting 500 g -> 500 g left.
+      Ingredient item = _ingredient(
+        id: "i1",
+        products: [
+          Product(link: "https://example.com/pieces", unit: Unit.pieces, quantityPerItem: 1),
+          Product(link: "https://example.com/grams", unit: Unit.grams, quantityPerItem: 500),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "i1": [_event(day: 0, amount: 1000, unit: Unit.grams)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [item],
+        ownedAmounts: const {"i1": OwnedStock(amount: 1, unit: null)},
+      );
+
+      expect(trips.first.items.first.amount, 500);
       expect(trips.first.items.first.unit, Unit.grams);
     });
 
@@ -429,9 +485,7 @@ void main() {
         cookingTimeline: timeline,
         ingredients: [chicken],
         assumeFreezerForFreezable: true,
-        ownedAmounts: const {
-          "chicken": [Quantity(amount: 50, unit: Unit.grams)],
-        },
+        ownedAmounts: const {"chicken": OwnedStock(amount: 50, unit: Unit.grams)},
       );
 
       expect(trips.length, 1);
@@ -450,9 +504,7 @@ void main() {
         cookingTimeline: timeline,
         ingredients: [chicken],
         assumeFreezerForFreezable: true,
-        ownedAmounts: const {
-          "chicken": [Quantity(amount: 200, unit: Unit.grams)],
-        },
+        ownedAmounts: const {"chicken": OwnedStock(amount: 200, unit: Unit.grams)},
       );
 
       expect(trips, isEmpty);
