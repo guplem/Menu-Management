@@ -1,5 +1,3 @@
-import "dart:math";
-
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
@@ -16,6 +14,7 @@ import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
+import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
 class ShoppingPage extends StatefulWidget {
@@ -153,23 +152,18 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  /// Converts owned amount to the actual quantity in [targetUnit] based on the selected owned unit.
-  /// Delegates to the shared [ownedAmountInUnit] so the on-screen list and the trip planner subtract
-  /// the same amount.
-  double _ownedInUnit({required String ingredientId, required Ingredient ingredient, required Unit targetUnit}) {
-    double amount = ownedAmounts[ingredientId] ?? 0;
-    OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? OwnedUnit(unit: targetUnit);
-    return ownedAmountInUnit(ingredient: ingredient, ownedAmount: amount, ownedUnit: selectedUnit.unit, targetUnit: targetUnit);
-  }
-
+  /// The on-screen "remaining to buy" for one ingredient: the normalized required amounts with the
+  /// user's owned stock subtracted once and each line rounded to a whole unit. Delegates to the
+  /// shared [computeRemainingQuantities] so the header, the single list, and the per-trip copy all
+  /// start from the same numbers.
   List<Quantity> _remainingAmounts({required String ingredientId, required Ingredient ingredient}) {
-    List<Quantity> required = ingredientsRequired[ingredientId]!;
-
-    return required.map((Quantity quantityRequired) {
-      double owned = _ownedInUnit(ingredientId: ingredientId, ingredient: ingredient, targetUnit: quantityRequired.unit);
-      double amount = quantityRequired.amount - owned;
-      return Quantity(amount: max(0, amount).roundToDouble(), unit: quantityRequired.unit);
-    }).toList();
+    OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams);
+    return computeRemainingQuantities(
+      ingredient: ingredient,
+      requiredQuantities: ingredientsRequired[ingredientId]!,
+      ownedAmount: ownedAmounts[ingredientId] ?? 0,
+      ownedUnit: selectedUnit.unit,
+    );
   }
 
   void _copyToClipboard() {
@@ -203,24 +197,38 @@ class _ShoppingPageState extends State<ShoppingPage> {
     List<ShoppingTrip> trips = _planTrips();
     if (trips.isEmpty) return _buildSingleListCopyText();
 
+    // Spread each ingredient's on-screen remaining across the trip weeks in the on-screen unit, so
+    // the copied per-trip amounts sum to exactly what the page shows (same unit, no rounding drift).
+    // Bucket the resulting lines by week, then print the sections in the planner's trip order.
+    Map<int, List<({Ingredient ingredient, TripAllocation allocation})>> linesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
+
+    for (String ingredientId in ingredientsRequired.keys) {
+      Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
+      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
+      List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
+      for (TripAllocation allocation in allocations) {
+        linesByWeek[allocation.weekIndex]!.add((ingredient: ingredient, allocation: allocation));
+      }
+    }
+
     StringBuffer buffer = StringBuffer();
-    for (int i = 0; i < trips.length; i++) {
-      ShoppingTrip trip = trips[i];
-      if (i > 0) buffer.writeln();
+    bool wroteSection = false;
+    for (ShoppingTrip trip in trips) {
+      List<({Ingredient ingredient, TripAllocation allocation})> lines = linesByWeek[trip.weekIndex]!;
+      if (lines.isEmpty) continue;
+      lines.sort((a, b) => a.ingredient.name.toLowerCase().compareTo(b.ingredient.name.toLowerCase()));
+
+      if (wroteSection) buffer.writeln();
+      wroteSection = true;
       buffer.writeln("Week ${trip.weekIndex + 1}");
       buffer.writeln("--------");
-
-      // Group items by ingredient (one ingredient may have multiple units).
-      Map<String, List<TripItem>> byIngredient = {};
-      for (TripItem item in trip.items) {
-        byIngredient.putIfAbsent(item.ingredientId, () => []).add(item);
-      }
-
-      for (MapEntry<String, List<TripItem>> entry in byIngredient.entries) {
-        Ingredient ingredient = IngredientsProvider.instance.get(entry.key);
-        List<Quantity> tripQuantities = entry.value.map((TripItem i) => Quantity(amount: i.amount, unit: i.unit)).toList();
-        bool freezeOnArrival = entry.value.any((TripItem i) => i.freezeOnArrival);
-        _appendIngredientLines(buffer: buffer, ingredient: ingredient, remaining: tripQuantities, freezeOnArrival: freezeOnArrival);
+      for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
+        _appendIngredientLines(
+          buffer: buffer,
+          ingredient: line.ingredient,
+          remaining: line.allocation.quantities,
+          freezeOnArrival: line.allocation.freezeOnArrival,
+        );
       }
     }
 
