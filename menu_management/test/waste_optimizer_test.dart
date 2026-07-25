@@ -445,8 +445,10 @@ void main() {
         expect(result[0].totalWaste, closeTo(result[1].totalWaste, 0.01));
       });
 
-      test("does not cycle when only a single unit is needed", () {
-        // Need 400g, each 500g product alone needs 1 pack -> nothing to distribute; each stays 1.
+      test("cycles a single needed pack to one product and zero to the rest (true total stays 1)", () {
+        // Need 400g, each 500g product alone needs 1 pack. The single pack is cycled one-of-each:
+        // the first equivalent gets it, the rest get 0, so the shares still sum to the true total (1).
+        // This keeps the auto-fill sum correct instead of over-counting one pack per equivalent.
         Product a = equiv("https://example.com/a");
         Product b = equiv("https://example.com/b");
 
@@ -457,7 +459,10 @@ void main() {
           products: [a, b],
         );
 
-        expect(result.every((ProductRecommendation r) => r.packsNeeded == 1), isTrue);
+        Map<String, int> packsByLink = {for (ProductRecommendation r in result) r.product.link: r.packsNeeded};
+        expect(packsByLink["https://example.com/a"], 1);
+        expect(packsByLink["https://example.com/b"], 0);
+        expect(result.map((ProductRecommendation r) => r.packsNeeded).reduce((int x, int y) => x + y), 1);
       });
 
       test("treats products differing only by store link as equivalent (variety cycle)", () {

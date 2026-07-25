@@ -273,26 +273,34 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
           ? distributeEquivalentPacks(totalPacks: _packsToBuyForProduct(group.first), groupSize: group.length)
           : const [];
 
+      bool isFirstVisibleInGroup = true;
       for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
         Product product = group[memberIndex];
+        int packsToBuy = isCombinedGroup ? cycledShares[memberIndex] : _packsToBuyForProduct(product);
+        // In a combined group a member cycled to 0 packs is fully covered by its equivalents.
+        // Skip it (matching the copied list) so no "... and Covered" row and no dangling "and"
+        // divider appear. If this leaves one visible member, it renders as a normal single row.
+        if (isCombinedGroup && packsToBuy <= 0) continue;
+
         ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
           (r) => r.product == product,
           orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
         );
 
         if (!isFirstRow) {
-          // "and" joins members of the same equivalence group; "or" separates different options.
-          bool sameGroupAsPrevious = isCombinedGroup && memberIndex > 0;
+          // "and" joins visible members of the same equivalence group; "or" separates different options.
+          bool sameGroupAsPrevious = isCombinedGroup && !isFirstVisibleInGroup;
           rows.add(_separatorDivider(context, sameGroupAsPrevious ? "and" : "or"));
         }
         isFirstRow = false;
+        isFirstVisibleInGroup = false;
 
         rows.add(
           ShoppingProductRow(
             product: product,
             recommendation: recommendation,
             isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
-            packsToBuy: isCombinedGroup ? cycledShares[memberIndex] : _packsToBuyForProduct(product),
+            packsToBuy: packsToBuy,
             // The one-of-each cycle already splits an equivalent group; a per-trip split on top
             // would show the wrong (solo) counts, so it is only used for standalone products.
             tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),

@@ -185,5 +185,42 @@ void main() {
 
       expect(captured, 3.0);
     });
+
+    testWidgets("auto-fill counts one pack for two equivalents that need only one (no over-fill)", (WidgetTester tester) async {
+      double? captured;
+      // Two equivalent 500 g variants, need 500 g -> 1 pack total. Recommendations come from
+      // rankProducts, which cycles the single pack to [1, 0]. Auto-fill must sum to 1, not 2.
+      List<Product> products = [_equivProduct("a"), _equivProduct("b")];
+      List<ProductRecommendation> recommendations = rankProducts(
+        totalNeeded: 500,
+        events: const [],
+        ingredient: Ingredient(id: "pizza", name: "Pizza", products: products),
+        products: products,
+      );
+      await _pumpProducts(
+        tester,
+        products: products,
+        remainingGrams: 500,
+        recommendations: recommendations,
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      await tester.tap(find.byTooltip("Auto-fill with needed amount"));
+      await tester.pump();
+
+      expect(captured, 1.0);
+    });
+
+    testWidgets("hides a zero-share equivalent instead of rendering '... and Covered'", (WidgetTester tester) async {
+      // Two equivalent 500 g variants, need 500 g -> 1 pack total, cycled to [1, 0]. The 0-share
+      // variant must not render (no "Covered"), and no dangling "and" divider appears; the single
+      // visible variant renders as a normal row showing "Buy 1 pack".
+      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 500);
+
+      expect(find.text("Buy 1 pack"), findsOneWidget);
+      expect(find.text("Covered"), findsNothing);
+      expect(find.text("and"), findsNothing);
+      expect(find.text("or"), findsNothing);
+    });
   });
 }

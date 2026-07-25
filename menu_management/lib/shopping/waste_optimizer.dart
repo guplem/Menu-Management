@@ -49,11 +49,12 @@ class ProductRecommendation {
 /// input order so the ordering (and the cycle below) is deterministic.
 ///
 /// Equivalent products are cycled: when two or more products share every
-/// buying/consumption characteristic (see [productEquivalenceKey]) and multiple packs
-/// are needed, the packs are spread one-of-each across them instead of loading
+/// buying/consumption characteristic (see [productEquivalenceKey]) and one or more
+/// packs are needed, the packs are spread one-of-each across them instead of loading
 /// all packs onto the single top-ranked product. This gives variety (e.g. one of
 /// each pizza flavor) without changing total cost, since equivalent products have
-/// identical pack size and therefore identical waste.
+/// identical pack size and therefore identical waste. When only one pack is needed
+/// the first product gets it and the rest get 0, so the group's total stays exact.
 List<ProductRecommendation> rankProducts({
   required double totalNeeded,
   required List<CookingEvent> events,
@@ -82,9 +83,10 @@ List<ProductRecommendation> rankProducts({
 /// Spreads packs one-of-each across groups of equivalent products.
 ///
 /// Products are grouped by [productEquivalenceKey]. Within a group of 2+ products
-/// that each need the same number of packs `p >= 2`, the `p` packs are distributed
+/// that each need the same number of packs `p >= 1`, the `p` packs are distributed
 /// via [distributeEquivalentPacks] in the group's (already sorted) order: earlier
-/// products absorb the remainder. Waste fields are left untouched: equivalent
+/// products absorb the remainder (so `p = 1` gives the first product 1 and the rest
+/// 0, keeping the group total exact). Waste fields are left untouched: equivalent
 /// products have identical waste, and it is a per-product "if this were the sole
 /// supplier" figure that the UI compares to flag the best option, so all group
 /// members stay tied for best.
@@ -98,7 +100,7 @@ List<ProductRecommendation> _cycleEquivalentProducts(List<ProductRecommendation>
   for (List<int> memberIndexes in groups.values) {
     if (memberIndexes.length < 2) continue;
     int totalPacks = recommendations[memberIndexes.first].packsNeeded;
-    if (totalPacks < 2) continue; // Nothing to spread when a single (or no) pack is needed.
+    if (totalPacks <= 0) continue; // Nothing to distribute when no packs are needed.
 
     List<int> shares = distributeEquivalentPacks(totalPacks: totalPacks, groupSize: memberIndexes.length);
     for (int position = 0; position < memberIndexes.length; position++) {
