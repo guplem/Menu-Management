@@ -233,34 +233,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     required List<Quantity> remaining,
     bool freezeOnArrival = false,
   }) {
-    // Round to whole units to match the on-screen / single-list display semantics.
-    // Sub-1-unit residuals (e.g., 0.3 teaspoons of a spice) drop out instead of rendering as "0 teaspoons".
-    List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
-    if (!rounded.any((q) => q.amount > 0)) return;
-
-    String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
-
-    if (ingredient.products.isNotEmpty) {
-      Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
-      if (primaryRemaining == null) {
-        // No matching product unit -> fall back to raw amount line.
-        String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-        buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-        return;
-      }
-      buffer.writeln("${ingredient.name}$freezeSuffix");
-      for (Product product in ingredient.products) {
-        if (product.unit != primaryRemaining.unit) continue;
-        int packs = product.packsNeeded(primaryRemaining.amount);
-        if (packs <= 0) continue;
-        String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
-        String packWord = packs == 1 ? "pack" : "packs";
-        buffer.writeln("  $label: $packs $packWord");
-      }
-    } else {
-      String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-      buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-    }
+    buffer.write(buildIngredientCopyLines(ingredient: ingredient, remaining: remaining, freezeOnArrival: freezeOnArrival));
   }
 
   List<ShoppingTrip> _planTrips() {
@@ -286,4 +259,67 @@ class _ShoppingPageState extends State<ShoppingPage> {
       assumeFreezerForFreezable: _useFreezerStrategy,
     );
   }
+}
+
+/// Builds the copied shopping-list text for one ingredient (one trip's worth of [remaining]).
+///
+/// Pure: takes the ingredient and its still-needed quantities, returns the lines as text
+/// (empty when nothing is needed). Amounts are rounded to whole units so sub-1-unit residuals
+/// drop out instead of rendering as "0 teaspoons".
+///
+/// Equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the same size)
+/// share the packs one-of-each via [distributeEquivalentPacks], so each shows its cycled share
+/// instead of every variant showing the full solo count. A variant that ends up with 0 packs is
+/// skipped. Non-equivalent products each keep their full solo count.
+String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
+  StringBuffer buffer = StringBuffer();
+
+  List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
+  if (!rounded.any((q) => q.amount > 0)) return "";
+
+  String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
+
+  if (ingredient.products.isEmpty) {
+    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
+    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
+    return buffer.toString();
+  }
+
+  Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
+  if (primaryRemaining == null) {
+    // No matching product unit -> fall back to raw amount line.
+    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
+    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
+    return buffer.toString();
+  }
+
+  buffer.writeln("${ingredient.name}$freezeSuffix");
+
+  // Products matching the primary unit, in configured order.
+  List<Product> matching = ingredient.products.where((Product p) => p.unit == primaryRemaining.unit).toList();
+
+  // Per-equivalence-group cycled shares: the group's solo cover split one-of-each.
+  Map<String, List<int>> sharesByKey = {};
+  Map<String, int> cursorByKey = {};
+  Map<String, List<Product>> groups = {};
+  for (Product product in matching) {
+    groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
+  }
+  for (MapEntry<String, List<Product>> group in groups.entries) {
+    int total = group.value.first.packsNeeded(primaryRemaining.amount);
+    sharesByKey[group.key] = distributeEquivalentPacks(totalPacks: total, groupSize: group.value.length);
+  }
+
+  for (Product product in matching) {
+    String key = productEquivalenceKey(product);
+    int cursor = cursorByKey[key] ?? 0;
+    cursorByKey[key] = cursor + 1;
+    int packs = sharesByKey[key]![cursor];
+    if (packs <= 0) continue;
+    String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
+    String packWord = packs == 1 ? "pack" : "packs";
+    buffer.writeln("  $label: $packs $packWord");
+  }
+
+  return buffer.toString();
 }

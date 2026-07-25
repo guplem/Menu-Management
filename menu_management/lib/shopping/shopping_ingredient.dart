@@ -225,9 +225,19 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     double autoValue;
 
     if (selectedUnit.unit == null) {
-      // Packs: use the recommended product's packs needed
+      // Packs: use the full packs needed for the recommended product. rankProducts spreads
+      // equivalent products one-of-each, so a single recommendation.packsNeeded is only a
+      // cycled share. Sum the whole equivalence group to recover the full amount needed.
       ProductRecommendation? bestRec = widget.productRecommendations.firstWhereOrNull((r) => r.isViable) ?? widget.productRecommendations.firstOrNull;
-      autoValue = bestRec?.packsNeeded.toDouble() ?? 0;
+      if (bestRec == null) {
+        autoValue = 0;
+      } else {
+        String groupKey = productEquivalenceKey(bestRec.product);
+        autoValue = widget.productRecommendations
+            .where((ProductRecommendation r) => productEquivalenceKey(r.product) == groupKey)
+            .fold<int>(0, (int sum, ProductRecommendation r) => sum + r.packsNeeded)
+            .toDouble();
+      }
     } else {
       // Raw unit: use the desired quantity for that unit
       Quantity? desired = widget.quantitiesDesired.firstWhereOrNull((q) => q.unit == selectedUnit.unit);
@@ -236,6 +246,77 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
     setState(() => _controller.text = autoValue.toStringAsFixed(autoValue == autoValue.roundToDouble() ? 0 : 1));
     widget.onOwnedChanged(autoValue, selectedUnit);
+  }
+
+  /// Builds the product rows, grouping equivalent products (same [productEquivalenceKey],
+  /// e.g. two pizza flavors of the same size) so they render as a combined "buy one of each"
+  /// joined by "and" instead of mutually-exclusive "or" alternatives.
+  ///
+  /// For an equivalent group of 2+ members the buy count is the cycled share: the group's
+  /// solo cover ([_packsToBuyForProduct], computed from the still-needed amount so it reflects
+  /// owned stock) split one-of-each via [distributeEquivalentPacks]. Non-equivalent products
+  /// (different pack size, shelf life, ...) keep their solo count and the per-trip split.
+  List<Widget> _buildProductRows(BuildContext context, double? bestWaste) {
+    List<Product> matchingProducts = widget.ingredient.products.where((Product p) => widget.quantitiesDesired.any((q) => q.unit == p.unit)).toList();
+
+    // Group by equivalence, preserving first-appearance order (Dart maps keep insertion order).
+    Map<String, List<Product>> groups = {};
+    for (Product product in matchingProducts) {
+      groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
+    }
+
+    List<Widget> rows = [];
+    bool isFirstRow = true;
+    for (List<Product> group in groups.values) {
+      bool isCombinedGroup = group.length >= 2;
+      List<int> cycledShares = isCombinedGroup
+          ? distributeEquivalentPacks(totalPacks: _packsToBuyForProduct(group.first), groupSize: group.length)
+          : const [];
+
+      for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
+        Product product = group[memberIndex];
+        ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
+          (r) => r.product == product,
+          orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
+        );
+
+        if (!isFirstRow) {
+          // "and" joins members of the same equivalence group; "or" separates different options.
+          bool sameGroupAsPrevious = isCombinedGroup && memberIndex > 0;
+          rows.add(_separatorDivider(context, sameGroupAsPrevious ? "and" : "or"));
+        }
+        isFirstRow = false;
+
+        rows.add(
+          ShoppingProductRow(
+            product: product,
+            recommendation: recommendation,
+            isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
+            packsToBuy: isCombinedGroup ? cycledShares[memberIndex] : _packsToBuyForProduct(product),
+            // The one-of-each cycle already splits an equivalent group; a per-trip split on top
+            // would show the wrong (solo) counts, so it is only used for standalone products.
+            tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),
+          ),
+        );
+      }
+    }
+    return rows;
+  }
+
+  Widget _separatorDivider(BuildContext context, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
+    );
   }
 
   @override
@@ -349,49 +430,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             const SizedBox(height: 8),
 
             // Product rows (only for products whose unit matches a required quantity)
-            if (widget.ingredient.products.isNotEmpty)
-              ...() {
-                List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products
-                    .asMap()
-                    .entries
-                    .where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit))
-                    .toList();
-                List<Widget> rows = [];
-                for (int i = 0; i < matchingProducts.length; i++) {
-                  Product product = matchingProducts[i].value;
-                  ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
-                    (r) => r.product == product,
-                    orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
-                  );
-                  if (i > 0) {
-                    rows.add(
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(
-                          children: [
-                            const Expanded(child: Divider()),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text("or", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
-                            ),
-                            const Expanded(child: Divider()),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-                  rows.add(
-                    ShoppingProductRow(
-                      product: product,
-                      recommendation: recommendation,
-                      isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
-                      packsToBuy: _packsToBuyForProduct(product),
-                      tripPurchases: _tripPurchasesForProduct(product),
-                    ),
-                  );
-                }
-                return rows;
-              }(),
+            if (widget.ingredient.products.isNotEmpty) ..._buildProductRows(context, bestWaste),
           ],
         ),
       ),

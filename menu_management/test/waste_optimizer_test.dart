@@ -512,4 +512,42 @@ void main() {
       });
     });
   });
+
+  group("productEquivalenceKey", () {
+    test("two products with identical buying characteristics share a key", () {
+      Product a = _product(quantityPerItem: 500, link: "https://example.com/a");
+      Product b = _product(quantityPerItem: 500, link: "https://example.com/b");
+      expect(productEquivalenceKey(a), productEquivalenceKey(b));
+    });
+
+    test("products differing only by link are still equivalent (variety)", () {
+      Product margherita = _product(quantityPerItem: 300, shelfLifeDays: 4, link: "https://example.com/margherita");
+      Product pepperoni = _product(quantityPerItem: 300, shelfLifeDays: 4, link: "https://example.com/pepperoni");
+      expect(productEquivalenceKey(margherita), productEquivalenceKey(pepperoni));
+    });
+
+    test("products with different pack sizes have different keys", () {
+      Product small = _product(quantityPerItem: 500);
+      Product big = _product(quantityPerItem: 750);
+      expect(productEquivalenceKey(small), isNot(productEquivalenceKey(big)));
+    });
+  });
+
+  group("distributeEquivalentPacks", () {
+    test("spreads one-of-each when packs match group size", () {
+      expect(distributeEquivalentPacks(totalPacks: 3, groupSize: 3), [1, 1, 1]);
+    });
+
+    test("gives the remainder to the earliest products", () {
+      expect(distributeEquivalentPacks(totalPacks: 4, groupSize: 3), [2, 1, 1]);
+    });
+
+    test("leaves trailing products at zero when packs are fewer than the group", () {
+      expect(distributeEquivalentPacks(totalPacks: 2, groupSize: 3), [1, 1, 0]);
+    });
+
+    test("returns the whole count for a single product", () {
+      expect(distributeEquivalentPacks(totalPacks: 5, groupSize: 1), [5]);
+    });
+  });
 }

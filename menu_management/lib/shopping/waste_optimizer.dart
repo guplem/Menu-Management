@@ -49,7 +49,7 @@ class ProductRecommendation {
 /// input order so the ordering (and the cycle below) is deterministic.
 ///
 /// Equivalent products are cycled: when two or more products share every
-/// buying/consumption characteristic (see [_equivalenceKey]) and multiple packs
+/// buying/consumption characteristic (see [productEquivalenceKey]) and multiple packs
 /// are needed, the packs are spread one-of-each across them instead of loading
 /// all packs onto the single top-ranked product. This gives variety (e.g. one of
 /// each pizza flavor) without changing total cost, since equivalent products have
@@ -81,16 +81,17 @@ List<ProductRecommendation> rankProducts({
 
 /// Spreads packs one-of-each across groups of equivalent products.
 ///
-/// Products are grouped by [_equivalenceKey]. Within a group of 2+ products that
-/// each need the same number of packs `p >= 2`, the `p` packs are distributed
-/// round-robin in the group's (already sorted) order: earlier products absorb the
-/// remainder. Waste fields are left untouched: equivalent products have identical
-/// waste, and it is a per-product "if this were the sole supplier" figure that the
-/// UI compares to flag the best option, so all group members stay tied for best.
+/// Products are grouped by [productEquivalenceKey]. Within a group of 2+ products
+/// that each need the same number of packs `p >= 2`, the `p` packs are distributed
+/// via [distributeEquivalentPacks] in the group's (already sorted) order: earlier
+/// products absorb the remainder. Waste fields are left untouched: equivalent
+/// products have identical waste, and it is a per-product "if this were the sole
+/// supplier" figure that the UI compares to flag the best option, so all group
+/// members stay tied for best.
 List<ProductRecommendation> _cycleEquivalentProducts(List<ProductRecommendation> recommendations) {
   Map<String, List<int>> groups = {};
   for (int i = 0; i < recommendations.length; i++) {
-    groups.putIfAbsent(_equivalenceKey(recommendations[i].product), () => []).add(i);
+    groups.putIfAbsent(productEquivalenceKey(recommendations[i].product), () => []).add(i);
   }
 
   List<ProductRecommendation> result = List<ProductRecommendation>.of(recommendations);
@@ -99,16 +100,26 @@ List<ProductRecommendation> _cycleEquivalentProducts(List<ProductRecommendation>
     int totalPacks = recommendations[memberIndexes.first].packsNeeded;
     if (totalPacks < 2) continue; // Nothing to spread when a single (or no) pack is needed.
 
-    int groupSize = memberIndexes.length;
-    int base = totalPacks ~/ groupSize;
-    int remainder = totalPacks % groupSize;
-    for (int position = 0; position < groupSize; position++) {
-      int share = base + (position < remainder ? 1 : 0);
+    List<int> shares = distributeEquivalentPacks(totalPacks: totalPacks, groupSize: memberIndexes.length);
+    for (int position = 0; position < memberIndexes.length; position++) {
       int index = memberIndexes[position];
-      result[index] = recommendations[index].copyWithPacksNeeded(share);
+      result[index] = recommendations[index].copyWithPacksNeeded(shares[position]);
     }
   }
   return result;
+}
+
+/// Distributes [totalPacks] one-of-each across [groupSize] equivalent products.
+///
+/// Returns per-product pack counts in group order: `base = totalPacks ~/ groupSize`
+/// each, with the remainder given to the earliest products. Examples: (3, 3) -> [1,1,1];
+/// (4, 3) -> [2,1,1]; (2, 3) -> [1,1,0]; (5, 1) -> [5]. Single source of truth for the
+/// one-of-each split used by [rankProducts], the shopping card, and the copied list.
+List<int> distributeEquivalentPacks({required int totalPacks, required int groupSize}) {
+  if (groupSize <= 0) return const [];
+  int base = totalPacks ~/ groupSize;
+  int remainder = totalPacks % groupSize;
+  return List<int>.generate(groupSize, (int position) => base + (position < remainder ? 1 : 0));
 }
 
 /// The set of characteristics that make two products interchangeable for buying.
@@ -119,7 +130,10 @@ List<ProductRecommendation> _cycleEquivalentProducts(List<ProductRecommendation>
 /// only identifies the store item or variant (e.g. two pizza flavors of the same
 /// size are equivalent and should be cycled). Price is not modeled on [Product];
 /// if it is added later it belongs in this key.
-String _equivalenceKey(Product product) {
+///
+/// Public so the shopping card and the copied list define equivalence in exactly
+/// one place (same grouping the cycle above uses).
+String productEquivalenceKey(Product product) {
   return [
     product.itemsPerPack,
     product.quantityPerItem,
