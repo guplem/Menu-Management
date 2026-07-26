@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
@@ -102,4 +104,85 @@ double ownedAmountInUnit({required Ingredient ingredient, required double ownedA
   }
 
   return 0;
+}
+
+/// Draws down a user's owned stock across an ingredient's needs, one need at a time.
+///
+/// The stock is turned into a single shared grams pool (via [OwnedStock.amountInUnit]) and consumed
+/// across every need in the order [consumeRemaining] is called. This makes a single owned stock get
+/// subtracted only once, even when the ingredient is needed in more than one unit at the same time.
+/// It is the single source of truth for owned-stock subtraction, shared by the on-screen shopping
+/// list ([computeRemainingQuantities]) and the multi-trip planner (`multi_trip_planner.dart`), so the
+/// two never disagree on how much is still needed.
+///
+/// The consumer takes an [OwnedStock], so both stock shapes flow through the same single pool:
+/// single-form (one amount + unit) and per-product (one count per product, summed into a global
+/// grams amount, see issue #24). Whichever shape the user entered, [OwnedStock.amountInUnit] gives
+/// its grams total for the pool and its per-unit total for the fallback below.
+///
+/// Create one consumer per (ingredient, owned stock). A need whose unit cannot be related to grams
+/// (no density and no gramsPerPiece), or an owned stock with no grams path at all (for example owned
+/// pieces with no gramsPerPiece), falls back to a per-unit subtraction that is likewise consumed only
+/// once per unit across calls.
+class OwnedStockConsumer {
+  OwnedStockConsumer({required Ingredient ingredient, required OwnedStock owned})
+    : _ingredient = ingredient,
+      _owned = owned,
+      _gramsPool = owned.hasStock ? owned.amountInUnit(ingredient: ingredient, targetUnit: Unit.grams) : 0;
+
+  final Ingredient _ingredient;
+  final OwnedStock _owned;
+
+  /// Remaining shared grams pool. Drawn down by each need; reaching 0 just means the stock is used up,
+  /// not that there is no grams path (that is fixed at construction, see [_ownedHasGramsPath]).
+  double _gramsPool;
+
+  /// Whether the owned stock can be expressed in grams at all. Fixed at construction from the initial
+  /// pool. The branch must key off this, not the live pool level: once the pool drains to 0, later
+  /// needs must still stay on the grams path (subtracting nothing more), not fall back to a per-unit
+  /// conversion that would re-subtract the full owned stock.
+  late final bool _ownedHasGramsPath = _gramsPool > 0;
+
+  /// Per-unit remaining owned for needs with no grams path, converted on first use of each unit.
+  final Map<Unit, double> _fallbackOwnedByUnit = {};
+
+  /// Returns how much of [need] still has to be bought after applying the owned stock.
+  /// The result is raw (not rounded); callers that display whole units round it themselves.
+  double consumeRemaining(Quantity need) {
+    if (!_owned.hasStock) return need.amount;
+
+    // No grams conversion path from the owned stock: subtract per unit directly.
+    if (!_ownedHasGramsPath) return _consumeFallback(need);
+
+    double? needGrams = _ingredient.toGrams(need);
+    // This need's unit cannot be expressed in grams; only a same-unit owned stock can reduce it.
+    if (needGrams == null) return _consumeFallback(need);
+
+    double consumed = min(_gramsPool, needGrams);
+    _gramsPool -= consumed;
+    double remainingGrams = needGrams - consumed;
+    double? remainingInUnit = _ingredient.fromGrams(remainingGrams, need.unit);
+    return remainingInUnit ?? need.amount;
+  }
+
+  double _consumeFallback(Quantity need) {
+    double owned = _fallbackOwnedByUnit.putIfAbsent(need.unit, () => _owned.amountInUnit(ingredient: _ingredient, targetUnit: need.unit));
+    double consumed = min(owned, need.amount);
+    _fallbackOwnedByUnit[need.unit] = owned - consumed;
+    return need.amount - consumed;
+  }
+}
+
+/// Subtracts the user's owned stock from an ingredient's required amounts and rounds each to a
+/// whole unit, producing the "remaining to buy" the on-screen shopping list shows.
+///
+/// [requiredQuantities] must already be normalized (the output of `normalizeQuantities`).
+///
+/// Delegates to [OwnedStockConsumer] so the stock is consumed a single time across all units. This
+/// prevents the old bug where a single stock was fully converted into every unit and subtracted from
+/// each, over-subtracting when an ingredient is needed in more than one unit at once. [owned] may be
+/// either stock shape (single-form or per-product); both resolve through the same single pool.
+List<Quantity> computeRemainingQuantities({required Ingredient ingredient, required List<Quantity> requiredQuantities, required OwnedStock owned}) {
+  OwnedStockConsumer consumer = OwnedStockConsumer(ingredient: ingredient, owned: owned);
+  return requiredQuantities.map((Quantity q) => Quantity(amount: max(0, consumer.consumeRemaining(q)).roundToDouble(), unit: q.unit)).toList();
 }

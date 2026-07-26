@@ -1,5 +1,3 @@
-import "dart:math";
-
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
@@ -53,9 +51,9 @@ class ShoppingTrip {
 /// or before the event day. The matching menu warning surfaces this to the user.
 ///
 /// [ownedAmounts] holds the user's owned stock per ingredient (one amount + one selected
-/// unit, or "packs"). It is converted into each event's unit via the shared
-/// [ownedAmountInUnit] and consumed against the earliest events first, so the planner
-/// subtracts exactly what the on-screen shopping list subtracts.
+/// unit, or "packs"). It is drawn down via the shared [OwnedStockConsumer] (a single grams pool)
+/// against the earliest events first, the same subtraction the on-screen shopping list runs, so the
+/// planner subtracts exactly what the page subtracts and never drops an ingredient the page still needs.
 ///
 /// When [assumeFreezerForFreezable] is true, every event whose matching product has
 /// [Product.canBeFrozen] set is treated as non-perishable for trip assignment, so freezable
@@ -144,8 +142,9 @@ List<ShoppingTrip> planShoppingTrips({
 }
 
 /// Builds per-(ingredient, unit) plan events from the timeline, after applying
-/// owned amounts chronologically against each event. Owned stock is converted into
-/// the event's unit via the shared [ownedAmountInUnit] the first time that unit is seen.
+/// owned amounts chronologically against each event. Owned stock is drawn down via the shared
+/// [OwnedStockConsumer], the same single-grams-pool logic the on-screen list uses, so a single
+/// stock is subtracted only once even when the ingredient is needed in more than one unit.
 ///
 /// When [assumeFreezerForFreezable] is true and the matching product is freezable,
 /// the event's effective shelf life is null (treated as non-perishable for trip assignment).
@@ -165,22 +164,17 @@ List<_PlanEvent> _buildPlanEvents({
     Ingredient? ingredient = ingredientsById[ingredientId];
     OwnedStock? owned = ownedAmounts[ingredientId];
 
-    // Remaining owned per event unit, converted from the user's stock via the shared
-    // converter the first time each unit appears, then consumed chronologically.
-    Map<Unit, double> ownedRemainingByUnit = {};
+    // One shared owned-stock pool for this ingredient, consumed chronologically across every event
+    // and unit. This is the same single-grams-pool subtraction the on-screen list runs (see
+    // computeRemainingQuantities), so the planner and the page never disagree on how much is still
+    // needed. Consuming full owned stock per unit here would over-subtract and drop the ingredient.
+    // The owned stock carries its shape (single-form or per-product, see issue #24); the consumer
+    // reads its grams total from OwnedStock.amountInUnit, so per-product counts feed the same pool.
+    OwnedStockConsumer? consumer = (owned == null || ingredient == null) ? null : OwnedStockConsumer(ingredient: ingredient, owned: owned);
 
     for (CookingEvent event in events) {
       for (Quantity quantity in event.quantities) {
-        double remainingNeed = quantity.amount;
-        double ownedRemaining = ownedRemainingByUnit.putIfAbsent(
-          quantity.unit,
-          () => (owned == null || ingredient == null) ? 0 : owned.amountInUnit(ingredient: ingredient, targetUnit: quantity.unit),
-        );
-        if (ownedRemaining > 0 && remainingNeed > 0) {
-          double consumed = min(ownedRemaining, remainingNeed);
-          ownedRemainingByUnit[quantity.unit] = ownedRemaining - consumed;
-          remainingNeed -= consumed;
-        }
+        double remainingNeed = consumer == null ? quantity.amount : consumer.consumeRemaining(quantity);
         if (remainingNeed <= 0) continue;
 
         // Any-match across same-unit variants: the user can pick the longest-shelf-life

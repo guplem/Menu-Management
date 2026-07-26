@@ -29,6 +29,19 @@ CookingEvent _event({required int day, double amount = 100, Unit unit = Unit.gra
   );
 }
 
+CookingEvent _multiUnitEvent({required int day, required List<Quantity> quantities}) => CookingEvent(dayIndex: day, quantities: quantities);
+
+double _gramsBoughtFor(List<ShoppingTrip> trips, Ingredient ingredient) {
+  double total = 0;
+  for (ShoppingTrip trip in trips) {
+    for (TripItem item in trip.items) {
+      if (item.ingredientId != ingredient.id) continue;
+      total += ingredient.toGrams(Quantity(amount: item.amount, unit: item.unit)) ?? item.amount;
+    }
+  }
+  return total;
+}
+
 void main() {
   group("planShoppingTrips", () {
     test("returns no trips when timeline is empty", () {
@@ -255,6 +268,46 @@ void main() {
 
       expect(trips.first.items.first.amount, 50);
       expect(trips.first.items.first.unit, Unit.centiliters);
+    });
+
+    test("single owned stock spanning two units is subtracted only once (ingredient is not dropped)", () {
+      // Garlic is needed as 4 pieces AND 100 g on the same day. It has gramsPerPiece = 25 and both a
+      // pieces and a grams product, so the two units stay separate. The user owns 100 g, which equals
+      // the 4 pieces (4 * 25). A single owned stock must cover only one of the two lines, leaving the
+      // other still to buy. The on-screen page shows a positive remaining (100 g of need left), so the
+      // planner must NOT zero out every event and drop the ingredient from the trip list.
+      Ingredient garlic = _ingredient(
+        id: "garlic",
+        name: "Ajo",
+        gramsPerPiece: 25,
+        products: [
+          _product(unit: Unit.grams, quantityPerItem: 150),
+          _product(unit: Unit.pieces, quantityPerItem: 1),
+        ],
+      );
+      Map<String, List<CookingEvent>> timeline = {
+        "garlic": [
+          _multiUnitEvent(
+            day: 0,
+            quantities: const [
+              Quantity(amount: 4, unit: Unit.pieces),
+              Quantity(amount: 100, unit: Unit.grams),
+            ],
+          ),
+        ],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [garlic],
+        ownedAmounts: const {"garlic": OwnedStock(amount: 100, unit: Unit.grams)},
+      );
+
+      expect(trips, isNotEmpty);
+      // Total still-needed for garlic (grams-equivalent) must be exactly 100 g: 200 g of need minus the
+      // single 100 g owned stock. The old per-unit subtraction removed 100 g from BOTH lines (200 g) and
+      // dropped the ingredient entirely.
+      expect(_gramsBoughtFor(trips, garlic), 100);
     });
 
     test("owned amount in packs mode subtracts using the product matching the event unit", () {
