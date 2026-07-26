@@ -38,19 +38,21 @@ void main() {
       expect(text.contains(": 0 pack"), isFalse);
     });
 
-    test("non-equivalent products each keep their full solo count", () {
+    test("waste-minimal mix lists each distinct pack size with its own count", () {
       Product small = const Product(link: "small", quantityPerItem: 250, itemsPerPack: 2, unit: Unit.grams); // 500 g
       Product big = const Product(link: "big", quantityPerItem: 250, itemsPerPack: 3, unit: Unit.grams); // 750 g
       Ingredient ingredient = Ingredient(id: "flour", name: "Flour", products: [small, big]);
 
-      // small: ceil(1000/500)=2 packs; big: ceil(1000/750)=2 packs. No distribution.
+      // The copy now shows the waste-minimal pack mix (issue #26), not every product's solo count.
+      // Need 1250 g: the only zero-waste mix is 1 small (500) + 1 big (750). Different pack sizes are
+      // separate equivalence groups, so neither is spread one-of-each; each lists its own count.
       String text = buildIngredientCopyLines(
         ingredient: ingredient,
-        remaining: const [Quantity(amount: 1000, unit: Unit.grams)],
+        remaining: const [Quantity(amount: 1250, unit: Unit.grams)],
       );
 
-      expect(text.contains("2x250grams: 2 packs"), isTrue);
-      expect(text.contains("3x250grams: 2 packs"), isTrue);
+      expect(text.contains("2x250grams: 1 pack"), isTrue);
+      expect(text.contains("3x250grams: 1 pack"), isTrue);
     });
   });
 }

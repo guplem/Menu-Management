@@ -8,6 +8,7 @@ import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
+import "package:menu_management/theme/theme_custom.dart";
 
 /// Represents the unit the user picks in the "owned" dropdown.
 /// [unit] is null when the user picks "packs" (product-relative).
@@ -80,12 +81,17 @@ class ShoppingIngredient extends StatefulWidget {
     required this.onProductOwnedChanged,
     required this.sources,
     required this.plannedTrips,
+    this.combinationRecommendations = const [],
   });
 
   final Ingredient ingredient;
   final List<Quantity> quantitiesDesired;
   final List<Quantity> calculatedRemainingQuantities;
   final List<ProductRecommendation> productRecommendations;
+
+  /// Waste-minimal mixed-pack recommendations (one per required unit). Only holds real mixes
+  /// (2+ products); single-product picks are conveyed by the per-product "best option" chip.
+  final List<CombinationRecommendation> combinationRecommendations;
 
   /// Single owned input, used only when the ingredient has no products.
   final double ownedAmount;
@@ -281,6 +287,62 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
     setState(() => _controller.text = autoValue.toStringAsFixed(autoValue == autoValue.roundToDouble() ? 0 : 1));
     widget.onOwnedChanged(autoValue, selectedUnit);
+  }
+
+  /// Highlighted line describing a recommended mixed-pack purchase, e.g.
+  /// "Best value: 1x 250 grams/pack + 1x 600 grams/pack" with a waste note.
+  Widget _buildCombinationBanner(CombinationRecommendation combination) {
+    double waste = combination.totalWaste;
+    String wasteNote = waste <= 0 ? "no waste" : "${waste.toFormattedAmount()} ${combination.selections.first.product.unit.name} waste";
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: FilledCard(
+        outlined: true,
+        borderColor: ThemeCustom.colorScheme(context).tertiary,
+        color: ThemeCustom.colorScheme(context).tertiaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          child: Row(
+            children: [
+              Icon(Icons.auto_awesome_rounded, size: 18, color: ThemeCustom.colorScheme(context).onTertiaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ThemeCustom.colorScheme(context).onTertiaryContainer),
+                        children: [
+                          const TextSpan(
+                            text: "Best value: ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: combinationInlineSummary(combination)),
+                          TextSpan(
+                            text: "  ($wasteNote)",
+                            style: TextStyle(color: ThemeCustom.colorScheme(context).onTertiaryContainer.withValues(alpha: 0.7)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    // The copied list is split per shop trip (ADR 0014), while this banner covers the whole
+                    // menu, so the two can differ. Warn the user so they trust the copied per-trip breakdown.
+                    Text(
+                      "This is the whole-menu best buy. The copied list splits the buy per shop trip, so its per-trip breakdown can differ.",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: ThemeCustom.colorScheme(context).onTertiaryContainer.withValues(alpha: 0.7)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   /// Builds the product rows, grouping equivalent products (same [productEquivalenceKey],
@@ -509,6 +571,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             // Freeze note: shown when the freezer strategy requires freezing this item on arrival.
             if (_freezeOnArrival) Padding(padding: const EdgeInsets.only(top: 4), child: _buildFreezeNote(context)),
             const SizedBox(height: 8),
+
+            // Recommended mixed-pack combination(s), shown only when a mix beats every single product.
+            ...widget.combinationRecommendations.map(_buildCombinationBanner),
 
             // Product rows (only for products whose unit matches a required quantity)
             if (widget.ingredient.products.isNotEmpty) ..._buildProductRows(context, bestWaste),

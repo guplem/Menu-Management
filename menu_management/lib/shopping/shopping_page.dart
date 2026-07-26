@@ -142,6 +142,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
           // Compute product recommendations per required unit
           List<ProductRecommendation> recommendations = [];
+          // Waste-minimal mix of packs per required unit (may combine several products).
+          // Uses the same total need and events as the per-product ranking, so the recommended
+          // mix reflects the individual cooking events, not only the weekly total.
+          List<CombinationRecommendation> combinations = [];
           if (ingredient.products.isNotEmpty && desired.isNotEmpty) {
             for (Quantity quantity in desired) {
               List<Product> matchingProducts = ingredient.products.where((p) => p.unit == quantity.unit).toList();
@@ -149,6 +153,13 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 recommendations.addAll(
                   rankProducts(totalNeeded: quantity.amount, events: events, ingredient: ingredient, products: matchingProducts),
                 );
+                CombinationRecommendation? combination = recommendCombination(
+                  totalNeeded: quantity.amount,
+                  events: events,
+                  ingredient: ingredient,
+                  products: matchingProducts,
+                );
+                if (combination != null && combination.selections.length > 1) combinations.add(combination);
               }
             }
           }
@@ -158,6 +169,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             quantitiesDesired: desired,
             calculatedRemainingQuantities: remaining,
             productRecommendations: recommendations,
+            combinationRecommendations: combinations,
             ownedAmount: ownedAmounts[ingredientId] ?? 0,
             ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
             ownedProductCounts: ownedProductCounts[ingredientId] ?? const {},
@@ -303,10 +315,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
 /// (empty when nothing is needed). Amounts are rounded to whole units so sub-1-unit residuals
 /// drop out instead of rendering as "0 teaspoons".
 ///
-/// Equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the same size)
-/// share the packs one-of-each via [distributeEquivalentPacks], so each shows its cycled share
-/// instead of every variant showing the full solo count. A variant that ends up with 0 packs is
-/// skipped. Non-equivalent products each keep their full solo count.
+/// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
+/// product's solo count: a product the mix does not pick is not listed. Where that mix contains
+/// two or more equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the
+/// same size), the group's packs are spread one-of-each via [distributeEquivalentPacks] (issue
+/// #27), so identical variants list as "one of each" instead of all packs on one variant. A
+/// variant that ends up with 0 packs is skipped.
 String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
   StringBuffer buffer = StringBuffer();
 
@@ -334,7 +348,27 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
   // Products matching the primary unit, in configured order.
   List<Product> matching = ingredient.products.where((Product p) => p.unit == primaryRemaining.unit).toList();
 
-  // Per-equivalence-group cycled shares: the group's solo cover split one-of-each.
+  // Pick the waste-minimal mix of packs for this amount (issue #26): the copy shows that mix, not
+  // every product's solo count. Events are empty: each trip is already a shelf-life-safe bucket, so
+  // the mix only needs to minimize pack-granularity over-buy for the amount bought on this trip.
+  CombinationRecommendation? combination = recommendCombination(
+    totalNeeded: primaryRemaining.amount,
+    events: const [],
+    ingredient: ingredient,
+    products: matching,
+  );
+  if (combination == null) return buffer.toString();
+
+  // Total packs the mix buys per equivalence group. Equivalent variants share one key, so the
+  // solver may load them all onto one representative; summing per key recovers the group's total.
+  Map<String, int> packsByKey = {};
+  for (PackSelection selection in combination.selections) {
+    String key = productEquivalenceKey(selection.product);
+    packsByKey[key] = (packsByKey[key] ?? 0) + selection.packs;
+  }
+
+  // Spread each group's packs one-of-each across its equivalent variants (issue #27), so identical
+  // variants in the recommendation list as "one of each" instead of all packs on one variant.
   Map<String, List<int>> sharesByKey = {};
   Map<String, int> cursorByKey = {};
   Map<String, List<Product>> groups = {};
@@ -342,7 +376,7 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
     groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
   }
   for (MapEntry<String, List<Product>> group in groups.entries) {
-    int total = group.value.first.packsNeeded(primaryRemaining.amount);
+    int total = packsByKey[group.key] ?? 0;
     sharesByKey[group.key] = distributeEquivalentPacks(totalPacks: total, groupSize: group.value.length);
   }
 

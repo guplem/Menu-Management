@@ -677,6 +677,246 @@ void main() {
     });
   });
 
+  group("recommendCombination", () {
+    /// Returns a {packSize: packs} map so assertions do not depend on selection ordering.
+    Map<double, int> packsBySize(CombinationRecommendation rec) {
+      return {for (PackSelection s in rec.selections) s.product.totalQuantityPerPack: s.packs};
+    }
+
+    test("recommends a mix of two products when it beats every single product (per-event)", () {
+      // Two cooking events beyond shelf life, so no food carries from the first to the second.
+      // Day 0 needs 250 g, day 20 needs 600 g. Both products last 5 days once opened.
+      //   Small 250 g pack: perfect for day 0, but day 20 needs 3 packs (750 g -> 150 g surplus).
+      //   Large 600 g pack: perfect for day 20, but on day 0 it opens and 350 g expires by day 20.
+      // Best combination: 1 small (day 0) + 1 large (day 20) = 850 g bought for 850 g needed, zero waste.
+      Product small = _product(quantityPerItem: 250, shelfLifeDays: 5);
+      Product large = _product(quantityPerItem: 600, shelfLifeDays: 5);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 850,
+        events: [_event(day: 0, amount: 250), _event(day: 20, amount: 600)],
+        ingredient: _ingredient(),
+        products: [small, large],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.selections.length, 2);
+      expect(packsBySize(rec), {250.0: 1, 600.0: 1});
+      expect(rec.overBuyWaste, closeTo(0, 0.01));
+      expect(rec.expiryWaste, closeTo(0, 0.01));
+      expect(rec.totalWaste, closeTo(0, 0.01));
+      expect(rec.isSingleProduct, isFalse);
+    });
+
+    test("combination accounts for individual cooking events, not only the weekly total", () {
+      // Same 600 g total need, but split across two events 20 days apart (beyond 5-day shelf life).
+      Product small = _product(quantityPerItem: 300, shelfLifeDays: 5);
+      Product large = _product(quantityPerItem: 600, shelfLifeDays: 5);
+
+      // Per-event: two 300 g events. A single 600 g pack opened on day 0 loses 300 g by day 20,
+      // so the solver buys 2 small packs (300 g each), one per event -> zero waste.
+      CombinationRecommendation? perEvent = recommendCombination(
+        totalNeeded: 600,
+        events: [_event(day: 0, amount: 300), _event(day: 20, amount: 300)],
+        ingredient: _ingredient(),
+        products: [small, large],
+      );
+      expect(perEvent, isNotNull);
+      expect(packsBySize(perEvent!), {300.0: 2});
+      expect(perEvent.totalWaste, closeTo(0, 0.01));
+
+      // Weekly total only: a single 600 g event. Here the large pack is a perfect fit,
+      // so the solver picks 1 large pack. Different answer -> the solver used the per-event split.
+      CombinationRecommendation? lumped = recommendCombination(
+        totalNeeded: 600,
+        events: [_event(day: 0, amount: 600)],
+        ingredient: _ingredient(),
+        products: [small, large],
+      );
+      expect(lumped, isNotNull);
+      expect(packsBySize(lumped!), {600.0: 1});
+    });
+
+    test("falls back to a single product when one product covers the need with least waste", () {
+      // Need 500 g in one event. The 500 g pack is an exact fit (zero waste); no mix can beat it.
+      Product exact = _product(quantityPerItem: 500);
+      Product small = _product(quantityPerItem: 300);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 500,
+        events: [_event(amount: 500)],
+        ingredient: _ingredient(),
+        products: [exact, small],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.isSingleProduct, isTrue);
+      expect(packsBySize(rec), {500.0: 1});
+      expect(rec.totalWaste, closeTo(0, 0.01));
+    });
+
+    test("prefers a single product over an equal-waste mix", () {
+      // Need 750 g in one event. A single 750 g pack is an exact fit (zero waste).
+      // A 250 g + 500 g mix is also an exact fit (zero waste), but a single product is simpler,
+      // so the tie-break must pick the single 750 g pack.
+      Product big = _product(quantityPerItem: 750);
+      Product mid = _product(quantityPerItem: 500);
+      Product small = _product(quantityPerItem: 250);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 750,
+        events: [_event(amount: 750)],
+        ingredient: _ingredient(),
+        products: [big, mid, small],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.isSingleProduct, isTrue);
+      expect(packsBySize(rec), {750.0: 1});
+      expect(rec.totalWaste, closeTo(0, 0.01));
+    });
+
+    test("is deterministic: repeated calls give identical results", () {
+      Product small = _product(quantityPerItem: 250, shelfLifeDays: 5);
+      Product large = _product(quantityPerItem: 600, shelfLifeDays: 5);
+      List<CookingEvent> events = [_event(day: 0, amount: 250), _event(day: 20, amount: 600)];
+
+      CombinationRecommendation? first = recommendCombination(totalNeeded: 850, events: events, ingredient: _ingredient(), products: [small, large]);
+      CombinationRecommendation? second = recommendCombination(totalNeeded: 850, events: events, ingredient: _ingredient(), products: [small, large]);
+
+      expect(packsBySize(first!), packsBySize(second!));
+      expect(first.overBuyWaste, closeTo(second.overBuyWaste, 0.0001));
+      expect(first.expiryWaste, closeTo(second.expiryWaste, 0.0001));
+    });
+
+    test("is deterministic regardless of input product order", () {
+      // Need 600 g in one event. Mix of 250 g + 400 g (650 g, 50 g surplus) beats both singles
+      // (2x400 = 800 g -> 200 g surplus; 3x250 = 750 g -> 150 g surplus).
+      Product a = _product(quantityPerItem: 400);
+      Product b = _product(quantityPerItem: 250);
+
+      CombinationRecommendation? forward = recommendCombination(
+        totalNeeded: 600,
+        events: [_event(amount: 600)],
+        ingredient: _ingredient(),
+        products: [a, b],
+      );
+      CombinationRecommendation? reversed = recommendCombination(
+        totalNeeded: 600,
+        events: [_event(amount: 600)],
+        ingredient: _ingredient(),
+        products: [b, a],
+      );
+
+      expect(packsBySize(forward!), {250.0: 1, 400.0: 1});
+      expect(packsBySize(reversed!), packsBySize(forward));
+      expect(forward.overBuyWaste, closeTo(50, 0.01));
+      expect(reversed.overBuyWaste, closeTo(50, 0.01));
+    });
+
+    test("returns null for empty products", () {
+      expect(recommendCombination(totalNeeded: 500, events: [_event(amount: 500)], ingredient: _ingredient(), products: []), isNull);
+    });
+
+    test("returns an empty, viable recommendation when nothing is needed", () {
+      Product product = _product(quantityPerItem: 500);
+      CombinationRecommendation? rec = recommendCombination(totalNeeded: 0, events: const [], ingredient: _ingredient(), products: [product]);
+
+      expect(rec, isNotNull);
+      expect(rec!.selections, isEmpty);
+      expect(rec.totalWaste, closeTo(0, 0.01));
+    });
+
+    test("falls back to a single product when the search space exceeds the bound", () {
+      // Tiny 1 g packs with a huge need blow past _maxCombinationVectors (20000): the 1 g product
+      // alone needs 30000 packs, so the Cartesian product is far too large and the search is skipped.
+      // The bounded fallback (_bestSingleAsCombination) returns the best single product instead.
+      Product tiny = _product(quantityPerItem: 1);
+      Product bigger = _product(quantityPerItem: 7);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 30000,
+        events: const [],
+        ingredient: _ingredient(),
+        products: [tiny, bigger],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.selections, isNotEmpty);
+      expect(rec.isSingleProduct, isTrue);
+      // 30000 exact-fit 1 g packs (zero waste) beat 4286 x 7 g packs (2 g waste).
+      expect(packsBySize(rec), {1.0: 30000});
+      expect(rec.totalWaste, closeTo(0, 0.01));
+    });
+
+    test("a larger purchase wins when a quantity-sufficient one expires before a later event", () {
+      // One 600 g pack, opened shelf life 3 days. Two events 300 g each, 10 days apart.
+      // By raw quantity one 600 g pack covers the 600 g total, but it opens on day 0 and its 300 g
+      // leftover expires before day 10, so a single pack cannot feed the second event: infeasible.
+      // The solver must buy 2 packs. Bought 1200 g, consumed 600 g, 300 g expires, 300 g over-buy.
+      Product pack = _product(quantityPerItem: 600, shelfLifeDays: 3);
+
+      CombinationRecommendation? rec = recommendCombination(
+        totalNeeded: 600,
+        events: [_event(day: 0, amount: 300), _event(day: 10, amount: 300)],
+        ingredient: _ingredient(),
+        products: [pack],
+      );
+
+      expect(rec, isNotNull);
+      expect(rec!.isSingleProduct, isTrue);
+      expect(packsBySize(rec), {600.0: 2});
+      expect(rec.expiryWaste, closeTo(300, 0.01));
+      expect(rec.overBuyWaste, closeTo(300, 0.01));
+      expect(rec.totalWaste, closeTo(600, 0.01));
+    });
+  });
+
+  group("combinationPackLines", () {
+    test("renders one pack line per selected product", () {
+      Product small = _product(quantityPerItem: 250);
+      Product large = _product(quantityPerItem: 600);
+      CombinationRecommendation rec = CombinationRecommendation(
+        selections: [
+          PackSelection(product: small, packs: 1),
+          PackSelection(product: large, packs: 2),
+        ],
+        overBuyWaste: 0,
+        expiryWaste: 0,
+      );
+
+      expect(combinationPackLines(rec), ["250 grams/pack: 1 pack", "600 grams/pack: 2 packs"]);
+    });
+
+    test("uses the multi-item pack label when the product has one", () {
+      Product cups = _product(quantityPerItem: 125, itemsPerPack: 6);
+      CombinationRecommendation rec = CombinationRecommendation(
+        selections: [PackSelection(product: cups, packs: 2)],
+        overBuyWaste: 0,
+        expiryWaste: 0,
+      );
+
+      expect(combinationPackLines(rec), ["6x125grams: 2 packs"]);
+    });
+  });
+
+  group("combinationInlineSummary", () {
+    test("joins the selected products into one line", () {
+      Product small = _product(quantityPerItem: 250);
+      Product large = _product(quantityPerItem: 600);
+      CombinationRecommendation rec = CombinationRecommendation(
+        selections: [
+          PackSelection(product: small, packs: 1),
+          PackSelection(product: large, packs: 1),
+        ],
+        overBuyWaste: 0,
+        expiryWaste: 0,
+      );
+
+      expect(combinationInlineSummary(rec), "1x 250 grams/pack + 1x 600 grams/pack");
+    });
+  });
+
   group("productEquivalenceKey", () {
     test("two products with identical buying characteristics share a key", () {
       Product a = _product(quantityPerItem: 500, link: "https://example.com/a");
