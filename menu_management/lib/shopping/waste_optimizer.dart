@@ -46,6 +46,18 @@ class ProductRecommendation {
   final double shortfall;
 
   double get totalWaste => overBuyWaste + expiryWaste;
+
+  /// Returns a copy with a different [packsNeeded]; used to spread packs across
+  /// equivalent products (all other fields, including waste, stay the same).
+  ProductRecommendation copyWithPacksNeeded(int newPacksNeeded) {
+    return ProductRecommendation(
+      product: product,
+      packsNeeded: newPacksNeeded,
+      overBuyWaste: overBuyWaste,
+      expiryWaste: expiryWaste,
+      isViable: isViable,
+    );
+  }
 }
 
 /// Ranks products by total waste (over-buy + expiry) for a given required amount.
@@ -58,7 +70,16 @@ class ProductRecommendation {
 /// [ingredient] provides unit conversion functions.
 /// [products] is the list of available products to compare.
 ///
-/// Returns recommendations sorted by total waste (lowest first).
+/// Returns recommendations sorted by total waste (lowest first). Ties keep the
+/// input order so the ordering (and the cycle below) is deterministic.
+///
+/// Equivalent products are cycled: when two or more products share every
+/// buying/consumption characteristic (see [productEquivalenceKey]) and one or more
+/// packs are needed, the packs are spread one-of-each across them instead of loading
+/// all packs onto the single top-ranked product. This gives variety (e.g. one of
+/// each pizza flavor) without changing total cost, since equivalent products have
+/// identical pack size and therefore identical waste. When only one pack is needed
+/// the first product gets it and the rest get 0, so the group's total stays exact.
 List<ProductRecommendation> rankProducts({
   required double totalNeeded,
   required List<CookingEvent> events,
@@ -71,8 +92,83 @@ List<ProductRecommendation> rankProducts({
     return _simulateProduct(product: product, totalNeeded: totalNeeded, events: events, ingredient: ingredient);
   }).toList();
 
-  recommendations.sort((ProductRecommendation a, ProductRecommendation b) => a.totalWaste.compareTo(b.totalWaste));
-  return recommendations;
+  // Stable sort: lowest waste first, ties broken by original input order so the
+  // cycle distribution below is deterministic.
+  List<int> order = List<int>.generate(recommendations.length, (int i) => i);
+  order.sort((int a, int b) {
+    int byWaste = recommendations[a].totalWaste.compareTo(recommendations[b].totalWaste);
+    if (byWaste != 0) return byWaste;
+    return a.compareTo(b);
+  });
+  recommendations = order.map((int i) => recommendations[i]).toList();
+
+  return _cycleEquivalentProducts(recommendations);
+}
+
+/// Spreads packs one-of-each across groups of equivalent products.
+///
+/// Products are grouped by [productEquivalenceKey]. Within a group of 2+ products
+/// that each need the same number of packs `p >= 1`, the `p` packs are distributed
+/// via [distributeEquivalentPacks] in the group's (already sorted) order: earlier
+/// products absorb the remainder (so `p = 1` gives the first product 1 and the rest
+/// 0, keeping the group total exact). Waste fields are left untouched: equivalent
+/// products have identical waste, and it is a per-product "if this were the sole
+/// supplier" figure that the UI compares to flag the best option, so all group
+/// members stay tied for best.
+List<ProductRecommendation> _cycleEquivalentProducts(List<ProductRecommendation> recommendations) {
+  Map<String, List<int>> groups = {};
+  for (int i = 0; i < recommendations.length; i++) {
+    groups.putIfAbsent(productEquivalenceKey(recommendations[i].product), () => []).add(i);
+  }
+
+  List<ProductRecommendation> result = List<ProductRecommendation>.of(recommendations);
+  for (List<int> memberIndexes in groups.values) {
+    if (memberIndexes.length < 2) continue;
+    int totalPacks = recommendations[memberIndexes.first].packsNeeded;
+    if (totalPacks <= 0) continue; // Nothing to distribute when no packs are needed.
+
+    List<int> shares = distributeEquivalentPacks(totalPacks: totalPacks, groupSize: memberIndexes.length);
+    for (int position = 0; position < memberIndexes.length; position++) {
+      int index = memberIndexes[position];
+      result[index] = recommendations[index].copyWithPacksNeeded(shares[position]);
+    }
+  }
+  return result;
+}
+
+/// Distributes [totalPacks] one-of-each across [groupSize] equivalent products.
+///
+/// Returns per-product pack counts in group order: `base = totalPacks ~/ groupSize`
+/// each, with the remainder given to the earliest products. Examples: (3, 3) -> [1,1,1];
+/// (4, 3) -> [2,1,1]; (2, 3) -> [1,1,0]; (5, 1) -> [5]. Single source of truth for the
+/// one-of-each split used by [rankProducts], the shopping card, and the copied list.
+List<int> distributeEquivalentPacks({required int totalPacks, required int groupSize}) {
+  if (groupSize <= 0) return const [];
+  int base = totalPacks ~/ groupSize;
+  int remainder = totalPacks % groupSize;
+  return List<int>.generate(groupSize, (int position) => base + (position < remainder ? 1 : 0));
+}
+
+/// The set of characteristics that make two products interchangeable for buying.
+///
+/// Includes every field that changes how a product is bought and consumed:
+/// pack shape ([Product.itemsPerPack], [Product.quantityPerItem], [Product.unit]),
+/// both shelf lives, and whether it can be frozen. Excludes [Product.link], which
+/// only identifies the store item or variant (e.g. two pizza flavors of the same
+/// size are equivalent and should be cycled). Price is not modeled on [Product];
+/// if it is added later it belongs in this key.
+///
+/// Public so the shopping card and the copied list define equivalence in exactly
+/// one place (same grouping the cycle above uses).
+String productEquivalenceKey(Product product) {
+  return [
+    product.itemsPerPack,
+    product.quantityPerItem,
+    product.unit.name,
+    product.shelfLifeDaysOpened,
+    product.shelfLifeDaysClosed,
+    product.canBeFrozen,
+  ].join("|");
 }
 
 /// Simulates sequential container consumption across cooking events for a single product.
