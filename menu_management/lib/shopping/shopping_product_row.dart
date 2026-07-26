@@ -40,6 +40,16 @@ class ShoppingProductRow extends StatelessWidget {
   /// Singular/plural unit word: pieces for single-item packs, packs otherwise.
   String _packWord(int count) => product.itemsPerPack == 1 ? (count == 1 ? "piece" : "pieces") : (count == 1 ? "pack" : "packs");
 
+  /// Whether to actually buy one pack less and show the under-buy warning.
+  ///
+  /// [recommendation] is computed by `rankProducts` on the DESIRED need, but [packsToBuy] is the
+  /// REMAINING need after owned stock. The desired-based under-buy analysis is only valid for what
+  /// is actually bought when owned stock did not change the count, which holds exactly when
+  /// `packsToBuy == recommendation.packsNeeded + 1` (packsNeeded is already the reduced count).
+  /// Also suppressed in the multi-trip split (2+ purchases), where the per-trip lines render the
+  /// full round-up, so a "buying less" chip would contradict them.
+  bool get _appliesUnderBuy => recommendation.underBuy && tripPurchases.length < 2 && packsToBuy == recommendation.packsNeeded + 1;
+
   String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
     String prefix = isFirstLine ? "Buy" : "+";
     String when = purchase.isFirstTrip ? "now" : "week ${purchase.weekIndex + 1}";
@@ -60,6 +70,26 @@ class ShoppingProductRow extends StatelessWidget {
   Widget _buildChip(BuildContext context) {
     double totalWaste = recommendation.totalWaste;
     String unit = product.unit.name;
+
+    // Under-buy: one pack less than the recipes calculate. Amber warning chip.
+    // Label stays compact (like the waste chips); the full wording lives in the tooltip.
+    // Only shown when the reduction actually applies (see [_appliesUnderBuy]).
+    if (_appliesUnderBuy) {
+      ColorScheme amber = ColorScheme.fromSeed(seedColor: Colors.amber, brightness: Theme.of(context).brightness);
+      return Tooltip(
+        message:
+            "Buying less than the recipes calculate.\n"
+            "Dropped one mostly-empty pack; recipes will be about ${recommendation.shortfall.toFormattedAmount()} $unit short.",
+        child: Chip(
+          avatar: Icon(Icons.warning_amber_rounded, size: 16, color: amber.onPrimaryContainer),
+          label: Text("${recommendation.shortfall.toFormattedAmount()} $unit short"),
+          backgroundColor: amber.primaryContainer,
+          labelStyle: TextStyle(color: amber.onPrimaryContainer, fontSize: 12),
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+        ),
+      );
+    }
 
     // No waste: green chip
     if (totalWaste == 0) {
@@ -112,6 +142,9 @@ class ShoppingProductRow extends StatelessWidget {
     String? packLabel = product.packLabel();
     String totalLabel = "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
     bool covered = packsToBuy <= 0;
+    // When the under-buy recommendation applies, buy one pack less on the single-total line
+    // (the warning chip explains why). See [_appliesUnderBuy] for when it applies.
+    int effectivePacksToBuy = _appliesUnderBuy ? packsToBuy - 1 : packsToBuy;
 
     return FilledCard(
       outlined: true,
@@ -178,7 +211,7 @@ class ShoppingProductRow extends StatelessWidget {
                       ],
                     )
                   : Text(
-                      "Buy $packsToBuy ${_packWord(packsToBuy)}",
+                      "Buy $effectivePacksToBuy ${_packWord(effectivePacksToBuy)}",
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.right,
                     ),

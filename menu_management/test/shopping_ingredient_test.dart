@@ -15,7 +15,8 @@ Ingredient _ingredient() => Ingredient(id: "beans", name: "Beans", products: [_p
 
 ShoppingTrip _trip(int weekIndex, List<TripItem> items) => ShoppingTrip(weekIndex: weekIndex, items: items);
 
-TripItem _item({String ingredientId = "beans", required double amount}) => TripItem(ingredientId: ingredientId, amount: amount, unit: Unit.grams);
+TripItem _item({String ingredientId = "beans", required double amount, bool freezeOnArrival = false}) =>
+    TripItem(ingredientId: ingredientId, amount: amount, unit: Unit.grams, freezeOnArrival: freezeOnArrival);
 
 /// Pumps [ShoppingIngredient] in isolation with real [plannedTrips], so the assertions
 /// exercise `_tripPurchasesForProduct` (the split computation), not hand-built purchases.
@@ -139,6 +140,45 @@ void main() {
       await _pumpIngredient(tester, remainingGrams: 600, plannedTrips: const []);
 
       expect(find.textContaining("per shop trip"), findsNothing);
+    });
+  });
+
+  group("ShoppingIngredient freeze on arrival note", () {
+    testWidgets("shows the note when the planner marks this ingredient to freeze on arrival", (WidgetTester tester) async {
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(amount: 600, freezeOnArrival: true)]),
+        ],
+      );
+
+      // Matches the "(freeze on arrival)" suffix in the copied list.
+      expect(find.text("freeze on arrival"), findsOneWidget);
+    });
+
+    testWidgets("hides the note when no trip marks this ingredient to freeze", (WidgetTester tester) async {
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(amount: 600)]),
+        ],
+      );
+
+      expect(find.text("freeze on arrival"), findsNothing);
+    });
+
+    testWidgets("hides the note when only a different ingredient must be frozen", (WidgetTester tester) async {
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(amount: 600), _item(ingredientId: "rice", amount: 600, freezeOnArrival: true)]),
+        ],
+      );
+
+      expect(find.text("freeze on arrival"), findsNothing);
     });
   });
 }

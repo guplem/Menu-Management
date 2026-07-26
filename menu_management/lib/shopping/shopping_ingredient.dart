@@ -90,6 +90,13 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
   bool get _isFullyCovered => widget.calculatedRemainingQuantities.every((q) => q.amount <= 0);
 
+  /// True when the planner marked any planned purchase of this ingredient as needing to be
+  /// frozen on arrival. Mirrors the "(freeze on arrival)" suffix in the copied list, which reads
+  /// the same [TripItem.freezeOnArrival] flag, so the on-screen note and the copy stay in sync.
+  bool get _freezeOnArrival => widget.plannedTrips.any(
+    (ShoppingTrip trip) => trip.items.any((TripItem item) => item.ingredientId == widget.ingredient.id && item.freezeOnArrival),
+  );
+
   List<OwnedUnit> get _availableUnits {
     Set<Unit> seen = {};
     List<OwnedUnit> unitEntries = [];
@@ -300,6 +307,23 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     );
   }
 
+  /// Snowflake note shown next to the ingredient name when the freezer strategy requires freezing
+  /// this item on arrival. Uses the same snowflake + blue as the menu page freeze warning, and the
+  /// same "freeze on arrival" wording as the copied list, so the two stay visually consistent.
+  Widget _buildFreezeNote(BuildContext context) {
+    return Tooltip(
+      message: "Buy it on the first trip and freeze it on arrival so it lasts until you cook it.",
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.ac_unit, size: 16, color: Colors.blue.shade400),
+          const SizedBox(width: 4),
+          Text("freeze on arrival", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.blue.shade400)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Determine best waste level among all recommendations.
@@ -408,6 +432,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   ),
               ],
             ),
+
+            // Freeze note: shown when the freezer strategy requires freezing this item on arrival.
+            if (_freezeOnArrival) Padding(padding: const EdgeInsets.only(top: 4), child: _buildFreezeNote(context)),
             const SizedBox(height: 8),
 
             // Recommended mixed-pack combination(s), shown only when a mix beats every single product.

@@ -2,6 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/owned_amount.dart";
 
 Product _product({required Unit unit, double quantityPerItem = 100, int itemsPerPack = 1}) {
@@ -59,6 +60,64 @@ void main() {
     test("returns 0 when cross-unit conversion is impossible (no density or gramsPerPiece)", () {
       Ingredient banana = const Ingredient(id: "banana", name: "Banana");
       expect(ownedAmountInUnit(ingredient: banana, ownedAmount: 3, ownedUnit: Unit.pieces, targetUnit: Unit.grams), 0);
+    });
+  });
+
+  group("computeRemainingQuantities", () {
+    test("subtracts owned once for a single-unit need (matches the old per-unit result)", () {
+      Ingredient flour = const Ingredient(id: "flour", name: "Flour");
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: flour,
+        requiredQuantities: const [Quantity(amount: 600, unit: Unit.grams)],
+        ownedAmount: 250,
+        ownedUnit: Unit.grams,
+      );
+
+      expect(remaining.length, 1);
+      expect(remaining.first.unit, Unit.grams);
+      expect(remaining.first.amount, 350);
+    });
+
+    test("rounds the remaining amount to whole units", () {
+      Ingredient flour = const Ingredient(id: "flour", name: "Flour");
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: flour,
+        requiredQuantities: const [Quantity(amount: 100.6, unit: Unit.grams)],
+        ownedAmount: 0,
+        ownedUnit: Unit.grams,
+      );
+
+      expect(remaining.first.amount, 101);
+    });
+
+    test("does not subtract a single owned stock more than once when the need spans two units", () {
+      // Garlic is needed as 4 pieces AND 50 g. It has gramsPerPiece = 25 and a pieces product,
+      // so the normalizer keeps pieces and grams as two separate lines. The user owns 100 g.
+      // 100 g equals the 4 pieces (4 * 25). The owned stock must cover the pieces line and be
+      // used up, leaving the 50 g line untouched -- NOT subtracted from both lines.
+      Ingredient garlic = Ingredient(
+        id: "garlic",
+        name: "Ajo",
+        gramsPerPiece: 25,
+        products: [
+          _product(unit: Unit.grams, quantityPerItem: 150),
+          _product(unit: Unit.pieces, quantityPerItem: 1),
+        ],
+      );
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: garlic,
+        requiredQuantities: const [
+          Quantity(amount: 4, unit: Unit.pieces),
+          Quantity(amount: 50, unit: Unit.grams),
+        ],
+        ownedAmount: 100,
+        ownedUnit: Unit.grams,
+      );
+
+      double pieces = remaining.firstWhere((q) => q.unit == Unit.pieces).amount;
+      double grams = remaining.firstWhere((q) => q.unit == Unit.grams).amount;
+      expect(pieces, 0);
+      expect(grams, 50);
     });
   });
 }
