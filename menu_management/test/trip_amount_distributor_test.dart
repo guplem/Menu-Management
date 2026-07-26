@@ -170,8 +170,7 @@ void main() {
       List<Quantity> pageRemaining = computeRemainingQuantities(
         ingredient: garlic,
         requiredQuantities: required,
-        ownedAmount: 100,
-        ownedUnit: Unit.grams,
+        owned: const OwnedStock(amount: 100, unit: Unit.grams),
       );
 
       // The page shows a positive remaining (200 g of need minus 100 g owned = 100 g still to buy).

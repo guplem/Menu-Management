@@ -34,18 +34,36 @@ class OwnedUnit {
 /// practical unit for counting items at home. Falls back to pieces or the first
 /// desired unit when no products are configured.
 OwnedUnit defaultOwnedUnit({required Ingredient? ingredient, required List<Quantity> desiredQuantities}) {
-  if (ingredient != null && ingredient.products.isNotEmpty) {
+  // Packs is only a useful default when a product row will actually render (its unit matches a
+  // recipe unit). Otherwise the header owned input is the fallback, and packs cannot convert, so
+  // fall through to a concrete unit the shared resolver can convert.
+  if (ingredient != null && usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: desiredQuantities)) {
     bool allSinglePiece = ingredient.products.every((Product p) => p.unit == Unit.pieces && p.totalQuantityPerPack == 1.0);
     if (allSinglePiece) return const OwnedUnit(unit: Unit.pieces);
     return const OwnedUnit(); // packs
   }
 
-  bool hasPieces = desiredQuantities.any((q) => q.unit == Unit.pieces);
+  // Prefer pieces (from a product or a recipe) so the user can count whole items, then the first
+  // recipe unit, then grams.
+  bool hasPieces = (ingredient?.products.any((Product p) => p.unit == Unit.pieces) ?? false) || desiredQuantities.any((q) => q.unit == Unit.pieces);
   if (hasPieces) return const OwnedUnit(unit: Unit.pieces);
 
   if (desiredQuantities.isNotEmpty) return OwnedUnit(unit: desiredQuantities.first.unit);
 
   return const OwnedUnit(unit: Unit.grams);
+}
+
+/// Whether an ingredient shows per-product owned inputs (one per product row) instead of the single
+/// header owned input.
+///
+/// True only when the ingredient has products AND at least one product's unit matches a
+/// desired-quantity unit, because a product row renders only for such products. When false (no
+/// products, or products whose units never match a recipe unit, e.g. a pieces-only product used by
+/// a grams recipe), the header owned input is shown as the fallback so the user can always enter
+/// owned stock. Both callers (the widget's layout and `ShoppingPage`'s owned-stock resolver) use
+/// this so the shown input and the subtracted amount stay in sync.
+bool usesPerProductOwnedInputs({required Ingredient ingredient, required List<Quantity> desiredQuantities}) {
+  return ingredient.products.any((Product product) => desiredQuantities.any((Quantity q) => q.unit == product.unit));
 }
 
 class ShoppingIngredient extends StatefulWidget {
@@ -58,6 +76,8 @@ class ShoppingIngredient extends StatefulWidget {
     required this.ownedAmount,
     required this.ownedUnit,
     required this.onOwnedChanged,
+    required this.ownedProductCounts,
+    required this.onProductOwnedChanged,
     required this.sources,
     required this.plannedTrips,
   });
@@ -66,9 +86,17 @@ class ShoppingIngredient extends StatefulWidget {
   final List<Quantity> quantitiesDesired;
   final List<Quantity> calculatedRemainingQuantities;
   final List<ProductRecommendation> productRecommendations;
+
+  /// Single owned input, used only when the ingredient has no products.
   final double ownedAmount;
   final OwnedUnit ownedUnit;
   final void Function(double amount, OwnedUnit unit) onOwnedChanged;
+
+  /// Owned count per product (product index in [Ingredient.products] -> count), used when the
+  /// ingredient has products. Each product row shows its own owned input.
+  final Map<int, double> ownedProductCounts;
+  final void Function(int productIndex, double count) onProductOwnedChanged;
+
   final List<IngredientSource> sources;
 
   /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
@@ -263,26 +291,38 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   /// solo cover ([_packsToBuyForProduct], computed from the still-needed amount so it reflects
   /// owned stock) split one-of-each via [distributeEquivalentPacks]. Non-equivalent products
   /// (different pack size, shelf life, ...) keep their solo count and the per-trip split.
+  ///
+  /// Every rendered row also hosts its own "Owned" input (per-product owned counts), including the
+  /// combined members of an equivalence group. The product's index in [Ingredient.products] keys the
+  /// [ownedProductCounts] map, the [onProductOwnedChanged] callback, and the row's [ValueKey] so the
+  /// stateful owned field stays bound to the right product across rebuilds. A row renders here only
+  /// when its product's unit matches a recipe unit, which is exactly when [usesPerProductOwnedInputs]
+  /// is true, so the header fallback owned input never shows at the same time as these inputs.
   List<Widget> _buildProductRows(BuildContext context, double? bestWaste) {
-    List<Product> matchingProducts = widget.ingredient.products.where((Product p) => widget.quantitiesDesired.any((q) => q.unit == p.unit)).toList();
+    List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products
+        .asMap()
+        .entries
+        .where((MapEntry<int, Product> entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit))
+        .toList();
 
     // Group by equivalence, preserving first-appearance order (Dart maps keep insertion order).
-    Map<String, List<Product>> groups = {};
-    for (Product product in matchingProducts) {
-      groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
+    Map<String, List<MapEntry<int, Product>>> groups = {};
+    for (MapEntry<int, Product> entry in matchingProducts) {
+      groups.putIfAbsent(productEquivalenceKey(entry.value), () => <MapEntry<int, Product>>[]).add(entry);
     }
 
     List<Widget> rows = [];
     bool isFirstRow = true;
-    for (List<Product> group in groups.values) {
+    for (List<MapEntry<int, Product>> group in groups.values) {
       bool isCombinedGroup = group.length >= 2;
       List<int> cycledShares = isCombinedGroup
-          ? distributeEquivalentPacks(totalPacks: _packsToBuyForProduct(group.first), groupSize: group.length)
+          ? distributeEquivalentPacks(totalPacks: _packsToBuyForProduct(group.first.value), groupSize: group.length)
           : const [];
 
       bool isFirstVisibleInGroup = true;
       for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
-        Product product = group[memberIndex];
+        int productIndex = group[memberIndex].key;
+        Product product = group[memberIndex].value;
         int packsToBuy = isCombinedGroup ? cycledShares[memberIndex] : _packsToBuyForProduct(product);
         // In a combined group a member cycled to 0 packs is fully covered by its equivalents.
         // Skip it (matching the copied list) so no "... and Covered" row and no dangling "and"
@@ -304,6 +344,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
         rows.add(
           ShoppingProductRow(
+            key: ValueKey<int>(productIndex),
             product: product,
             recommendation: recommendation,
             isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
@@ -311,6 +352,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             // The one-of-each cycle already splits an equivalent group; a per-trip split on top
             // would show the wrong (solo) counts, so it is only used for standalone products.
             tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),
+            ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
+            onOwnedCountChanged: (double count) => widget.onProductOwnedChanged(productIndex, count),
           ),
         );
       }
@@ -378,8 +421,11 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   ),
                 ),
 
-                // Owned quantity input with unit dropdown
-                if (availableUnits.isNotEmpty) ...[
+                // Owned quantity input with unit dropdown.
+                // Shown as the fallback whenever no per-product owned inputs will render (no products,
+                // or no product unit matches a recipe unit); otherwise each product row hosts its own input.
+                if (!usesPerProductOwnedInputs(ingredient: widget.ingredient, desiredQuantities: widget.quantitiesDesired) &&
+                    availableUnits.isNotEmpty) ...[
                   SizedBox(
                     width: 120,
                     child: TextField(

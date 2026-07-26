@@ -15,7 +15,7 @@ class ProductTripPurchase {
   final bool isFirstTrip; // true for the plan's earliest trip -> labeled "now"
 }
 
-class ShoppingProductRow extends StatelessWidget {
+class ShoppingProductRow extends StatefulWidget {
   const ShoppingProductRow({
     super.key,
     required this.product,
@@ -23,6 +23,8 @@ class ShoppingProductRow extends StatelessWidget {
     required this.isBestOption,
     required this.packsToBuy,
     this.tripPurchases = const [],
+    this.ownedCount = 0,
+    this.onOwnedCountChanged,
   });
 
   final Product product;
@@ -37,8 +39,49 @@ class ShoppingProductRow extends StatelessWidget {
   /// trip (e.g. "Buy 6 packs now" + "3 packs week 2"); otherwise it shows a single total.
   final List<ProductTripPurchase> tripPurchases;
 
+  /// How many of this product the user already owns. Seeds the owned input.
+  final double ownedCount;
+
+  /// Called with the new owned count when the user edits the owned input.
+  /// When null, the owned input is hidden (the row is display-only).
+  final ValueChanged<double>? onOwnedCountChanged;
+
+  @override
+  State<ShoppingProductRow> createState() => _ShoppingProductRowState();
+}
+
+class _ShoppingProductRowState extends State<ShoppingProductRow> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: _textForCount(widget.ownedCount));
+  }
+
+  @override
+  void didUpdateWidget(ShoppingProductRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-seed the field when the owned count is changed from outside (e.g. reset by the parent),
+    // so the shown text never goes stale against the widget's value.
+    if (widget.ownedCount != oldWidget.ownedCount) {
+      String newText = _textForCount(widget.ownedCount);
+      if (_controller.text != newText) _controller.text = newText;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String _textForCount(double count) => count > 0 ? _formatCount(count) : "";
+
+  String _formatCount(double value) => value.toStringAsFixed(value == value.roundToDouble() ? 0 : 1);
+
   /// Singular/plural unit word: pieces for single-item packs, packs otherwise.
-  String _packWord(int count) => product.itemsPerPack == 1 ? (count == 1 ? "piece" : "pieces") : (count == 1 ? "pack" : "packs");
+  String _packWord(int count) => widget.product.itemsPerPack == 1 ? (count == 1 ? "piece" : "pieces") : (count == 1 ? "pack" : "packs");
 
   /// Whether to actually buy one pack less and show the under-buy warning.
   ///
@@ -48,7 +91,8 @@ class ShoppingProductRow extends StatelessWidget {
   /// `packsToBuy == recommendation.packsNeeded + 1` (packsNeeded is already the reduced count).
   /// Also suppressed in the multi-trip split (2+ purchases), where the per-trip lines render the
   /// full round-up, so a "buying less" chip would contradict them.
-  bool get _appliesUnderBuy => recommendation.underBuy && tripPurchases.length < 2 && packsToBuy == recommendation.packsNeeded + 1;
+  bool get _appliesUnderBuy =>
+      widget.recommendation.underBuy && widget.tripPurchases.length < 2 && widget.packsToBuy == widget.recommendation.packsNeeded + 1;
 
   String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
     String prefix = isFirstLine ? "Buy" : "+";
@@ -57,9 +101,9 @@ class ShoppingProductRow extends StatelessWidget {
   }
 
   String _wasteBreakdown() {
-    String unit = product.unit.name;
-    double over = recommendation.overBuyWaste;
-    double expiry = recommendation.expiryWaste;
+    String unit = widget.product.unit.name;
+    double over = widget.recommendation.overBuyWaste;
+    double expiry = widget.recommendation.expiryWaste;
 
     List<String> parts = [];
     if (over > 0) parts.add("${over.toFormattedAmount()} $unit surplus from buying whole packs");
@@ -68,8 +112,8 @@ class ShoppingProductRow extends StatelessWidget {
   }
 
   Widget _buildChip(BuildContext context) {
-    double totalWaste = recommendation.totalWaste;
-    String unit = product.unit.name;
+    double totalWaste = widget.recommendation.totalWaste;
+    String unit = widget.product.unit.name;
 
     // Under-buy: one pack less than the recipes calculate. Amber warning chip.
     // Label stays compact (like the waste chips); the full wording lives in the tooltip.
@@ -79,10 +123,10 @@ class ShoppingProductRow extends StatelessWidget {
       return Tooltip(
         message:
             "Buying less than the recipes calculate.\n"
-            "Dropped one mostly-empty pack; recipes will be about ${recommendation.shortfall.toFormattedAmount()} $unit short.",
+            "Dropped one mostly-empty pack; recipes will be about ${widget.recommendation.shortfall.toFormattedAmount()} $unit short.",
         child: Chip(
           avatar: Icon(Icons.warning_amber_rounded, size: 16, color: amber.onPrimaryContainer),
-          label: Text("${recommendation.shortfall.toFormattedAmount()} $unit short"),
+          label: Text("${widget.recommendation.shortfall.toFormattedAmount()} $unit short"),
           backgroundColor: amber.primaryContainer,
           labelStyle: TextStyle(color: amber.onPrimaryContainer, fontSize: 12),
           visualDensity: VisualDensity.compact,
@@ -108,7 +152,7 @@ class ShoppingProductRow extends StatelessWidget {
     String wasteLabel = "${totalWaste.toFormattedAmount()} $unit waste";
 
     // Best option (or tied for best): blue/teal chip with waste amount
-    if (isBestOption) {
+    if (widget.isBestOption) {
       return Tooltip(
         message: "Least total waste among available options.\n${_wasteBreakdown()}",
         child: Chip(
@@ -139,16 +183,16 @@ class ShoppingProductRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? packLabel = product.packLabel();
-    String totalLabel = "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
-    bool covered = packsToBuy <= 0;
+    String? packLabel = widget.product.packLabel();
+    String totalLabel = "${widget.product.totalQuantityPerPack.toFormattedAmount()} ${widget.product.unit.name}/pack";
+    bool covered = widget.packsToBuy <= 0;
     // When the under-buy recommendation applies, buy one pack less on the single-total line
     // (the warning chip explains why). See [_appliesUnderBuy] for when it applies.
-    int effectivePacksToBuy = _appliesUnderBuy ? packsToBuy - 1 : packsToBuy;
+    int effectivePacksToBuy = _appliesUnderBuy ? widget.packsToBuy - 1 : widget.packsToBuy;
 
     return FilledCard(
       outlined: true,
-      borderColor: isBestOption && recommendation.totalWaste > 0 ? ThemeCustom.colorScheme(context).tertiary : null,
+      borderColor: widget.isBestOption && widget.recommendation.totalWaste > 0 ? ThemeCustom.colorScheme(context).tertiary : null,
       color: ThemeCustom.colorScheme(context).secondaryContainer.withValues(alpha: covered ? 0.3 : 1),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -174,6 +218,25 @@ class ShoppingProductRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
 
+            // Per-product owned count input (how many of this product the user already has)
+            if (widget.onOwnedCountChanged != null) ...[
+              SizedBox(
+                width: 90,
+                child: TextField(
+                  controller: _controller,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: "Owned", border: OutlineInputBorder(), isDense: true),
+                  onChanged: (String value) {
+                    double? parsed = double.tryParse(value);
+                    if (value.isNullOrEmpty) parsed = 0;
+                    if (parsed == null) return;
+                    widget.onOwnedCountChanged!(parsed);
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+
             // Waste status chip (shown for all products)
             Padding(padding: const EdgeInsets.only(right: 8), child: _buildChip(context)),
 
@@ -181,7 +244,7 @@ class ShoppingProductRow extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.open_in_new_rounded, size: 20),
               tooltip: "Open product page",
-              onPressed: product.link.isEmpty ? null : () => Process.run("start", [product.link], runInShell: true),
+              onPressed: widget.product.link.isEmpty ? null : () => Process.run("start", [widget.product.link], runInShell: true),
             ),
 
             const Spacer(),
@@ -198,13 +261,13 @@ class ShoppingProductRow extends StatelessWidget {
                         Text("Covered", style: TextStyle(color: Theme.of(context).hintColor)),
                       ],
                     )
-                  : tripPurchases.length >= 2
+                  : widget.tripPurchases.length >= 2
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        for (int i = 0; i < tripPurchases.length; i++)
+                        for (int i = 0; i < widget.tripPurchases.length; i++)
                           Text(
-                            _tripPurchaseLabel(tripPurchases[i], isFirstLine: i == 0),
+                            _tripPurchaseLabel(widget.tripPurchases[i], isFirstLine: i == 0),
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.right,
                           ),
