@@ -168,9 +168,9 @@ List<_PlanEvent> _buildPlanEvents({
     // and unit. This is the same single-grams-pool subtraction the on-screen list runs (see
     // computeRemainingQuantities), so the planner and the page never disagree on how much is still
     // needed. Consuming full owned stock per unit here would over-subtract and drop the ingredient.
-    OwnedStockConsumer? consumer = (owned == null || ingredient == null)
-        ? null
-        : OwnedStockConsumer(ingredient: ingredient, ownedAmount: owned.amount, ownedUnit: owned.unit);
+    // The owned stock carries its shape (single-form or per-product, see issue #24); the consumer
+    // reads its grams total from OwnedStock.amountInUnit, so per-product counts feed the same pool.
+    OwnedStockConsumer? consumer = (owned == null || ingredient == null) ? null : OwnedStockConsumer(ingredient: ingredient, owned: owned);
 
     for (CookingEvent event in events) {
       for (Quantity quantity in event.quantities) {

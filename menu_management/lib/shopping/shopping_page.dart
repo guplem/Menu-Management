@@ -29,11 +29,17 @@ class ShoppingPage extends StatefulWidget {
 class _ShoppingPageState extends State<ShoppingPage> {
   late final Map<String, List<Quantity>> ingredientsRequired;
 
-  /// Owned amount per ingredient (raw number entered by user).
+  /// Owned amount per ingredient (raw number entered by user). Used only for ingredients with
+  /// no products, where the user types a single number in the selected unit.
   late final Map<String, double> ownedAmounts;
 
-  /// Selected unit for owned input per ingredient.
+  /// Selected unit for owned input per ingredient (no-products ingredients only).
   late final Map<String, OwnedUnit> ownedUnits;
+
+  /// Owned count per product for ingredients that have products, keyed by ingredient id then by
+  /// the product's index in [Ingredient.products]. The global owned amount is derived from these
+  /// counts via [OwnedStock.perProduct].
+  late final Map<String, Map<int, double>> ownedProductCounts;
 
   /// Cooking event timeline per ingredient (for event-based waste calculation).
   late final Map<String, List<CookingEvent>> cookingTimeline;
@@ -59,6 +65,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
     ownedAmounts = {};
     ownedUnits = {};
+    ownedProductCounts = {};
 
     for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
       String ingredientId = entry.key;
@@ -66,7 +73,22 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       ownedAmounts[ingredientId] = 0;
       ownedUnits[ingredientId] = defaultOwnedUnit(ingredient: ingredient, desiredQuantities: entry.value);
+      ownedProductCounts[ingredientId] = {};
     }
+  }
+
+  /// Builds the owned stock for an ingredient: per-product counts when per-product rows render
+  /// (see [usesPerProductOwnedInputs]), otherwise the single header amount + selected unit. This
+  /// mirrors which input the UI shows, so the header fallback (products present but no product unit
+  /// matches a recipe unit) is read from the single amount, not the empty per-product counts. Both
+  /// resolve to the same units via [OwnedStock.amountInUnit], so the on-screen list and the planner
+  /// subtract the same amount.
+  OwnedStock _ownedStockFor({required String ingredientId, required Ingredient ingredient}) {
+    List<Quantity> desired = ingredientsRequired[ingredientId] ?? const [];
+    if (usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: desired)) {
+      return OwnedStock.perProduct(countsByProductIndex: ownedProductCounts[ingredientId] ?? const {});
+    }
+    return OwnedStock(amount: ownedAmounts[ingredientId] ?? 0, unit: ownedUnits[ingredientId]?.unit);
   }
 
   @override
@@ -150,12 +172,18 @@ class _ShoppingPageState extends State<ShoppingPage> {
             combinationRecommendations: combinations,
             ownedAmount: ownedAmounts[ingredientId] ?? 0,
             ownedUnit: ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams),
+            ownedProductCounts: ownedProductCounts[ingredientId] ?? const {},
             sources: ingredientSources[ingredientId] ?? [],
             plannedTrips: plannedTrips,
             onOwnedChanged: (double amount, OwnedUnit unit) {
               setState(() {
                 ownedAmounts[ingredientId] = amount;
                 ownedUnits[ingredientId] = unit;
+              });
+            },
+            onProductOwnedChanged: (int productIndex, double count) {
+              setState(() {
+                (ownedProductCounts[ingredientId] ??= {})[productIndex] = count;
               });
             },
           );
@@ -167,14 +195,13 @@ class _ShoppingPageState extends State<ShoppingPage> {
   /// The on-screen "remaining to buy" for one ingredient: the normalized required amounts with the
   /// user's owned stock subtracted once and each line rounded to a whole unit. Delegates to the
   /// shared [computeRemainingQuantities] so the header, the single list, and the per-trip copy all
-  /// start from the same numbers.
+  /// start from the same numbers. The owned stock comes from [_ownedStockFor], so per-product owned
+  /// counts (issue #24) feed the same single pool as the single-form amount.
   List<Quantity> _remainingAmounts({required String ingredientId, required Ingredient ingredient}) {
-    OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams);
     return computeRemainingQuantities(
       ingredient: ingredient,
       requiredQuantities: ingredientsRequired[ingredientId]!,
-      ownedAmount: ownedAmounts[ingredientId] ?? 0,
-      ownedUnit: selectedUnit.unit,
+      owned: _ownedStockFor(ingredientId: ingredientId, ingredient: ingredient),
     );
   }
 
@@ -253,57 +280,24 @@ class _ShoppingPageState extends State<ShoppingPage> {
     required List<Quantity> remaining,
     bool freezeOnArrival = false,
   }) {
-    // Round to whole units to match the on-screen / single-list display semantics.
-    // Sub-1-unit residuals (e.g., 0.3 teaspoons of a spice) drop out instead of rendering as "0 teaspoons".
-    List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
-    if (!rounded.any((q) => q.amount > 0)) return;
-
-    String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
-
-    if (ingredient.products.isNotEmpty) {
-      Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
-      if (primaryRemaining == null) {
-        // No matching product unit -> fall back to raw amount line.
-        String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-        buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-        return;
-      }
-      buffer.writeln("${ingredient.name}$freezeSuffix");
-      // Recommend the waste-minimal mix of packs for this amount instead of listing each product
-      // on its own. Events are left empty here: each trip is already a shelf-life-safe bucket, so
-      // the mix only needs to minimize pack-granularity over-buy for the amount bought on the trip.
-      List<Product> matchingProducts = ingredient.products.where((p) => p.unit == primaryRemaining.unit).toList();
-      CombinationRecommendation? combination = recommendCombination(
-        totalNeeded: primaryRemaining.amount,
-        events: const [],
-        ingredient: ingredient,
-        products: matchingProducts,
-      );
-      if (combination != null) {
-        for (String line in combinationPackLines(combination)) {
-          buffer.writeln("  $line");
-        }
-      }
-    } else {
-      String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-      buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-    }
+    buffer.write(buildIngredientCopyLines(ingredient: ingredient, remaining: remaining, freezeOnArrival: freezeOnArrival));
   }
 
   List<ShoppingTrip> _planTrips() {
     List<Ingredient> allIngredients = IngredientsProvider.instance.ingredients;
+    Map<String, Ingredient> ingredientsById = {for (Ingredient ingredient in allIngredients) ingredient.id: ingredient};
 
-    // Pass the user's owned stock as-is (one amount + one selected unit, or "packs").
-    // The planner converts it into each event's unit via the shared ownedAmountInUnit,
-    // so it subtracts exactly what the on-screen list subtracts.
+    // Build each ingredient's owned stock (per-product counts, or a single amount + unit for
+    // no-products ingredients). The planner resolves it into each event's unit via the shared
+    // OwnedStock.amountInUnit, so it subtracts exactly what the on-screen list subtracts.
     Map<String, OwnedStock> ownedStockPerIngredient = {};
-    for (MapEntry<String, double> entry in ownedAmounts.entries) {
-      String ingredientId = entry.key;
-      double amount = entry.value;
-      if (amount <= 0) continue;
+    for (String ingredientId in ingredientsRequired.keys) {
+      Ingredient? ingredient = ingredientsById[ingredientId];
+      if (ingredient == null) continue;
 
-      OwnedUnit selectedUnit = ownedUnits[ingredientId] ?? const OwnedUnit(unit: Unit.grams);
-      ownedStockPerIngredient[ingredientId] = OwnedStock(amount: amount, unit: selectedUnit.unit);
+      OwnedStock stock = _ownedStockFor(ingredientId: ingredientId, ingredient: ingredient);
+      if (!stock.hasStock) continue;
+      ownedStockPerIngredient[ingredientId] = stock;
     }
 
     return planShoppingTrips(
@@ -313,4 +307,89 @@ class _ShoppingPageState extends State<ShoppingPage> {
       assumeFreezerForFreezable: _useFreezerStrategy,
     );
   }
+}
+
+/// Builds the copied shopping-list text for one ingredient (one trip's worth of [remaining]).
+///
+/// Pure: takes the ingredient and its still-needed quantities, returns the lines as text
+/// (empty when nothing is needed). Amounts are rounded to whole units so sub-1-unit residuals
+/// drop out instead of rendering as "0 teaspoons".
+///
+/// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
+/// product's solo count: a product the mix does not pick is not listed. Where that mix contains
+/// two or more equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the
+/// same size), the group's packs are spread one-of-each via [distributeEquivalentPacks] (issue
+/// #27), so identical variants list as "one of each" instead of all packs on one variant. A
+/// variant that ends up with 0 packs is skipped.
+String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
+  StringBuffer buffer = StringBuffer();
+
+  List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
+  if (!rounded.any((q) => q.amount > 0)) return "";
+
+  String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
+
+  if (ingredient.products.isEmpty) {
+    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
+    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
+    return buffer.toString();
+  }
+
+  Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
+  if (primaryRemaining == null) {
+    // No matching product unit -> fall back to raw amount line.
+    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
+    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
+    return buffer.toString();
+  }
+
+  buffer.writeln("${ingredient.name}$freezeSuffix");
+
+  // Products matching the primary unit, in configured order.
+  List<Product> matching = ingredient.products.where((Product p) => p.unit == primaryRemaining.unit).toList();
+
+  // Pick the waste-minimal mix of packs for this amount (issue #26): the copy shows that mix, not
+  // every product's solo count. Events are empty: each trip is already a shelf-life-safe bucket, so
+  // the mix only needs to minimize pack-granularity over-buy for the amount bought on this trip.
+  CombinationRecommendation? combination = recommendCombination(
+    totalNeeded: primaryRemaining.amount,
+    events: const [],
+    ingredient: ingredient,
+    products: matching,
+  );
+  if (combination == null) return buffer.toString();
+
+  // Total packs the mix buys per equivalence group. Equivalent variants share one key, so the
+  // solver may load them all onto one representative; summing per key recovers the group's total.
+  Map<String, int> packsByKey = {};
+  for (PackSelection selection in combination.selections) {
+    String key = productEquivalenceKey(selection.product);
+    packsByKey[key] = (packsByKey[key] ?? 0) + selection.packs;
+  }
+
+  // Spread each group's packs one-of-each across its equivalent variants (issue #27), so identical
+  // variants in the recommendation list as "one of each" instead of all packs on one variant.
+  Map<String, List<int>> sharesByKey = {};
+  Map<String, int> cursorByKey = {};
+  Map<String, List<Product>> groups = {};
+  for (Product product in matching) {
+    groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
+  }
+  for (MapEntry<String, List<Product>> group in groups.entries) {
+    int total = packsByKey[group.key] ?? 0;
+    sharesByKey[group.key] = distributeEquivalentPacks(totalPacks: total, groupSize: group.value.length);
+  }
+
+  for (Product product in matching) {
+    String key = productEquivalenceKey(product);
+    int cursor = cursorByKey[key] ?? 0;
+    cursorByKey[key] = cursor + 1;
+    int packs = sharesByKey[key]![cursor];
+    if (packs <= 0) continue;
+    String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
+    String packWord = packs == 1 ? "pack" : "packs";
+    buffer.writeln("  $label: $packs $packWord");
+  }
+
+  return buffer.toString();
 }

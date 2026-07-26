@@ -35,18 +35,36 @@ class OwnedUnit {
 /// practical unit for counting items at home. Falls back to pieces or the first
 /// desired unit when no products are configured.
 OwnedUnit defaultOwnedUnit({required Ingredient? ingredient, required List<Quantity> desiredQuantities}) {
-  if (ingredient != null && ingredient.products.isNotEmpty) {
+  // Packs is only a useful default when a product row will actually render (its unit matches a
+  // recipe unit). Otherwise the header owned input is the fallback, and packs cannot convert, so
+  // fall through to a concrete unit the shared resolver can convert.
+  if (ingredient != null && usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: desiredQuantities)) {
     bool allSinglePiece = ingredient.products.every((Product p) => p.unit == Unit.pieces && p.totalQuantityPerPack == 1.0);
     if (allSinglePiece) return const OwnedUnit(unit: Unit.pieces);
     return const OwnedUnit(); // packs
   }
 
-  bool hasPieces = desiredQuantities.any((q) => q.unit == Unit.pieces);
+  // Prefer pieces (from a product or a recipe) so the user can count whole items, then the first
+  // recipe unit, then grams.
+  bool hasPieces = (ingredient?.products.any((Product p) => p.unit == Unit.pieces) ?? false) || desiredQuantities.any((q) => q.unit == Unit.pieces);
   if (hasPieces) return const OwnedUnit(unit: Unit.pieces);
 
   if (desiredQuantities.isNotEmpty) return OwnedUnit(unit: desiredQuantities.first.unit);
 
   return const OwnedUnit(unit: Unit.grams);
+}
+
+/// Whether an ingredient shows per-product owned inputs (one per product row) instead of the single
+/// header owned input.
+///
+/// True only when the ingredient has products AND at least one product's unit matches a
+/// desired-quantity unit, because a product row renders only for such products. When false (no
+/// products, or products whose units never match a recipe unit, e.g. a pieces-only product used by
+/// a grams recipe), the header owned input is shown as the fallback so the user can always enter
+/// owned stock. Both callers (the widget's layout and `ShoppingPage`'s owned-stock resolver) use
+/// this so the shown input and the subtracted amount stay in sync.
+bool usesPerProductOwnedInputs({required Ingredient ingredient, required List<Quantity> desiredQuantities}) {
+  return ingredient.products.any((Product product) => desiredQuantities.any((Quantity q) => q.unit == product.unit));
 }
 
 class ShoppingIngredient extends StatefulWidget {
@@ -59,6 +77,8 @@ class ShoppingIngredient extends StatefulWidget {
     required this.ownedAmount,
     required this.ownedUnit,
     required this.onOwnedChanged,
+    required this.ownedProductCounts,
+    required this.onProductOwnedChanged,
     required this.sources,
     required this.plannedTrips,
     this.combinationRecommendations = const [],
@@ -72,9 +92,17 @@ class ShoppingIngredient extends StatefulWidget {
   /// Waste-minimal mixed-pack recommendations (one per required unit). Only holds real mixes
   /// (2+ products); single-product picks are conveyed by the per-product "best option" chip.
   final List<CombinationRecommendation> combinationRecommendations;
+
+  /// Single owned input, used only when the ingredient has no products.
   final double ownedAmount;
   final OwnedUnit ownedUnit;
   final void Function(double amount, OwnedUnit unit) onOwnedChanged;
+
+  /// Owned count per product (product index in [Ingredient.products] -> count), used when the
+  /// ingredient has products. Each product row shows its own owned input.
+  final Map<int, double> ownedProductCounts;
+  final void Function(int productIndex, double count) onProductOwnedChanged;
+
   final List<IngredientSource> sources;
 
   /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
@@ -238,9 +266,19 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     double autoValue;
 
     if (selectedUnit.unit == null) {
-      // Packs: use the recommended product's packs needed
+      // Packs: use the full packs needed for the recommended product. rankProducts spreads
+      // equivalent products one-of-each, so a single recommendation.packsNeeded is only a
+      // cycled share. Sum the whole equivalence group to recover the full amount needed.
       ProductRecommendation? bestRec = widget.productRecommendations.firstWhereOrNull((r) => r.isViable) ?? widget.productRecommendations.firstOrNull;
-      autoValue = bestRec?.packsNeeded.toDouble() ?? 0;
+      if (bestRec == null) {
+        autoValue = 0;
+      } else {
+        String groupKey = productEquivalenceKey(bestRec.product);
+        autoValue = widget.productRecommendations
+            .where((ProductRecommendation r) => productEquivalenceKey(r.product) == groupKey)
+            .fold<int>(0, (int sum, ProductRecommendation r) => sum + r.packsNeeded)
+            .toDouble();
+      }
     } else {
       // Raw unit: use the desired quantity for that unit
       Quantity? desired = widget.quantitiesDesired.firstWhereOrNull((q) => q.unit == selectedUnit.unit);
@@ -307,6 +345,100 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     );
   }
 
+  /// Builds the product rows, grouping equivalent products (same [productEquivalenceKey],
+  /// e.g. two pizza flavors of the same size) so they render as a combined "buy one of each"
+  /// joined by "and" instead of mutually-exclusive "or" alternatives.
+  ///
+  /// For an equivalent group of 2+ members the buy count is the cycled share: the group's
+  /// solo cover ([_packsToBuyForProduct], computed from the still-needed amount so it reflects
+  /// owned stock) split one-of-each via [distributeEquivalentPacks]. Non-equivalent products
+  /// (different pack size, shelf life, ...) keep their solo count and the per-trip split.
+  ///
+  /// Every rendered row also hosts its own "Owned" input (per-product owned counts), including the
+  /// combined members of an equivalence group. The product's index in [Ingredient.products] keys the
+  /// [ownedProductCounts] map, the [onProductOwnedChanged] callback, and the row's [ValueKey] so the
+  /// stateful owned field stays bound to the right product across rebuilds. A row renders here only
+  /// when its product's unit matches a recipe unit, which is exactly when [usesPerProductOwnedInputs]
+  /// is true, so the header fallback owned input never shows at the same time as these inputs.
+  List<Widget> _buildProductRows(BuildContext context, double? bestWaste) {
+    List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products
+        .asMap()
+        .entries
+        .where((MapEntry<int, Product> entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit))
+        .toList();
+
+    // Group by equivalence, preserving first-appearance order (Dart maps keep insertion order).
+    Map<String, List<MapEntry<int, Product>>> groups = {};
+    for (MapEntry<int, Product> entry in matchingProducts) {
+      groups.putIfAbsent(productEquivalenceKey(entry.value), () => <MapEntry<int, Product>>[]).add(entry);
+    }
+
+    List<Widget> rows = [];
+    bool isFirstRow = true;
+    for (List<MapEntry<int, Product>> group in groups.values) {
+      bool isCombinedGroup = group.length >= 2;
+      List<int> cycledShares = isCombinedGroup
+          ? distributeEquivalentPacks(totalPacks: _packsToBuyForProduct(group.first.value), groupSize: group.length)
+          : const [];
+
+      bool isFirstVisibleInGroup = true;
+      for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
+        int productIndex = group[memberIndex].key;
+        Product product = group[memberIndex].value;
+        int packsToBuy = isCombinedGroup ? cycledShares[memberIndex] : _packsToBuyForProduct(product);
+        // In a combined group a member cycled to 0 packs is fully covered by its equivalents.
+        // Skip it (matching the copied list) so no "... and Covered" row and no dangling "and"
+        // divider appear. If this leaves one visible member, it renders as a normal single row.
+        if (isCombinedGroup && packsToBuy <= 0) continue;
+
+        ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
+          (r) => r.product == product,
+          orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
+        );
+
+        if (!isFirstRow) {
+          // "and" joins visible members of the same equivalence group; "or" separates different options.
+          bool sameGroupAsPrevious = isCombinedGroup && !isFirstVisibleInGroup;
+          rows.add(_separatorDivider(context, sameGroupAsPrevious ? "and" : "or"));
+        }
+        isFirstRow = false;
+        isFirstVisibleInGroup = false;
+
+        rows.add(
+          ShoppingProductRow(
+            key: ValueKey<int>(productIndex),
+            product: product,
+            recommendation: recommendation,
+            isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
+            packsToBuy: packsToBuy,
+            // The one-of-each cycle already splits an equivalent group; a per-trip split on top
+            // would show the wrong (solo) counts, so it is only used for standalone products.
+            tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),
+            ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
+            onOwnedCountChanged: (double count) => widget.onProductOwnedChanged(productIndex, count),
+          ),
+        );
+      }
+    }
+    return rows;
+  }
+
+  Widget _separatorDivider(BuildContext context, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
+    );
+  }
+
   /// Snowflake note shown next to the ingredient name when the freezer strategy requires freezing
   /// this item on arrival. Uses the same snowflake + blue as the menu page freeze warning, and the
   /// same "freeze on arrival" wording as the copied list, so the two stay visually consistent.
@@ -351,8 +483,11 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                   ),
                 ),
 
-                // Owned quantity input with unit dropdown
-                if (availableUnits.isNotEmpty) ...[
+                // Owned quantity input with unit dropdown.
+                // Shown as the fallback whenever no per-product owned inputs will render (no products,
+                // or no product unit matches a recipe unit); otherwise each product row hosts its own input.
+                if (!usesPerProductOwnedInputs(ingredient: widget.ingredient, desiredQuantities: widget.quantitiesDesired) &&
+                    availableUnits.isNotEmpty) ...[
                   SizedBox(
                     width: 120,
                     child: TextField(
@@ -441,49 +576,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             ...widget.combinationRecommendations.map(_buildCombinationBanner),
 
             // Product rows (only for products whose unit matches a required quantity)
-            if (widget.ingredient.products.isNotEmpty)
-              ...() {
-                List<MapEntry<int, Product>> matchingProducts = widget.ingredient.products
-                    .asMap()
-                    .entries
-                    .where((entry) => widget.quantitiesDesired.any((q) => q.unit == entry.value.unit))
-                    .toList();
-                List<Widget> rows = [];
-                for (int i = 0; i < matchingProducts.length; i++) {
-                  Product product = matchingProducts[i].value;
-                  ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
-                    (r) => r.product == product,
-                    orElse: () => ProductRecommendation(product: product, packsNeeded: 0, overBuyWaste: 0, expiryWaste: 0, isViable: true),
-                  );
-                  if (i > 0) {
-                    rows.add(
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(
-                          children: [
-                            const Expanded(child: Divider()),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text("or", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
-                            ),
-                            const Expanded(child: Divider()),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-                  rows.add(
-                    ShoppingProductRow(
-                      product: product,
-                      recommendation: recommendation,
-                      isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
-                      packsToBuy: _packsToBuyForProduct(product),
-                      tripPurchases: _tripPurchasesForProduct(product),
-                    ),
-                  );
-                }
-                return rows;
-              }(),
+            if (widget.ingredient.products.isNotEmpty) ..._buildProductRows(context, bestWaste),
           ],
         ),
       ),
