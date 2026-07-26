@@ -65,39 +65,44 @@ void main() {
       });
 
       test("handles multiple packs needed", () {
-        // Need 1200g. Product: 1x500g -> 3 packs = 1500g, 300g waste
+        // Need 1300g. Product: 1x500g -> 3 packs = 1500g, 200g surplus.
+        // The 3rd pack is 60% used (300g of 500g), so dropping it would leave the recipe
+        // 300g / 1300g = 23% short, above the 20% threshold. Keep all 3 packs (no under-buy).
         Product product = _product(quantityPerItem: 500);
 
         List<ProductRecommendation> result = rankProducts(
-          totalNeeded: 1200,
-          events: [_event(amount: 1200)],
+          totalNeeded: 1300,
+          events: [_event(amount: 1300)],
           ingredient: _ingredient(),
           products: [product],
         );
 
         expect(result.first.packsNeeded, 3);
-        expect(result.first.overBuyWaste, closeTo(300, 0.01));
+        expect(result.first.overBuyWaste, closeTo(200, 0.01));
+        expect(result.first.underBuy, isFalse);
       });
     });
 
     group("event-based expiry simulation", () {
       test("single cooking event consuming all at once: no expiry waste", () {
-        // Tomate Triturado scenario: need 900g in one cooking event.
-        // 400g pack, 5-day shelf life. Opens 3 packs on cooking day.
-        // Leftover 300g is over-buy, NOT expiry.
+        // Need 1100g in one cooking event. 400g pack, 5-day shelf life. Opens 3 packs = 1200g.
+        // Leftover 100g is over-buy, NOT expiry. The 3rd pack is 75% used (300g of 400g),
+        // so dropping it would leave the recipe 300g / 1100g = 27% short, above the 20%
+        // threshold: keep all 3 packs (no under-buy).
         Product product = _product(quantityPerItem: 400, shelfLifeDays: 5);
 
         List<ProductRecommendation> result = rankProducts(
-          totalNeeded: 900,
-          events: [_event(amount: 900)],
+          totalNeeded: 1100,
+          events: [_event(amount: 1100)],
           ingredient: _ingredient(),
           products: [product],
         );
 
         expect(result.first.packsNeeded, 3);
-        expect(result.first.overBuyWaste, closeTo(300, 0.01));
+        expect(result.first.overBuyWaste, closeTo(100, 0.01));
         expect(result.first.expiryWaste, closeTo(0, 0.01));
         expect(result.first.isViable, isTrue);
+        expect(result.first.underBuy, isFalse);
       });
 
       test("two events within shelf life: no expiry waste", () {
@@ -514,6 +519,160 @@ void main() {
         );
 
         expect(result.every((ProductRecommendation r) => r.packsNeeded == 2), isTrue);
+      });
+    });
+
+    group("buy one pack less (under-buy)", () {
+      test("drops one pack when the per-recipe shortfall is under the threshold and it removes waste", () {
+        // Need 1040g in one cooking event. Pack 100g, no shelf life.
+        // Full buy: 11 packs = 1100g, 60g surplus (the 11th pack is almost empty).
+        // Dropping one pack: 10 packs = 1000g, 40g short = 40 / 1040 = 3.8% < 20%. Buy 10 and warn.
+        Product product = _product(quantityPerItem: 100, itemsPerPack: 1);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1040,
+          events: [_event(amount: 1040)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 10);
+        expect(result.first.underBuy, isTrue);
+        expect(result.first.shortfall, closeTo(40, 0.01));
+        // The waste fields keep the FULL-pack-buy surplus (60g here) so ranking and best-option
+        // compare fairly against products that fully cover; only packsNeeded/shortfall are reduced.
+        expect(result.first.overBuyWaste, closeTo(60, 0.01));
+        expect(result.first.isViable, isTrue);
+      });
+
+      test("drops one pack in the shelf-life simulation path when the shortfall is small", () {
+        // Tomate Triturado scenario: need 900g in one cooking event. Pack 400g, 5-day shelf life.
+        // The simulation opens 3 containers = 3 packs = 1200g, 300g surplus (the 3rd pack is 75% empty).
+        // Dropping one pack: 2 packs = 800g, 100g short = 100 / 900 = 11.1% < 20%. Buy 2 and warn.
+        Product product = _product(quantityPerItem: 400, shelfLifeDays: 5);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 900,
+          events: [_event(amount: 900)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 2);
+        expect(result.first.underBuy, isTrue);
+        expect(result.first.shortfall, closeTo(100, 0.01));
+        // Full-pack-buy surplus kept for ranking (300g); only packsNeeded/shortfall are reduced.
+        expect(result.first.overBuyWaste, closeTo(300, 0.01));
+        expect(result.first.expiryWaste, closeTo(0, 0.01));
+        expect(result.first.isViable, isTrue);
+      });
+
+      test("does not drop a pack when one recipe is short beyond the threshold, even if the total shortfall is small", () {
+        // Two cooking events: day 0 needs 1000g, day 5 needs 40g. Pack 100g, no shelf life.
+        // Full buy: 11 packs = 1100g, 60g surplus.
+        // Dropping one pack removes 40g, which falls on the last (small) recipe: 40 / 40 = 100% short.
+        // The total shortfall 40 / 1040 = 3.8% looks fine, but the per-recipe check blocks the drop.
+        Product product = _product(quantityPerItem: 100, itemsPerPack: 1);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1040,
+          events: [_event(day: 0, amount: 1000), _event(day: 5, amount: 40)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 11);
+        expect(result.first.underBuy, isFalse);
+        expect(result.first.overBuyWaste, closeTo(60, 0.01));
+      });
+
+      test("does not drop a pack when the shortfall exceeds the threshold", () {
+        // Need 700g in one event. Pack 500g, no shelf life. Full buy 2 packs = 1000g, 300g surplus.
+        // Dropping one pack: 1 pack = 500g, 200g short = 200 / 700 = 28.6% > 20%. Keep 2 packs.
+        Product product = _product(quantityPerItem: 500, itemsPerPack: 1);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 700,
+          events: [_event(amount: 700)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 2);
+        expect(result.first.underBuy, isFalse);
+        expect(result.first.overBuyWaste, closeTo(300, 0.01));
+      });
+
+      test("does not drop a pack when there is no over-buy waste to remove", () {
+        // Need 1000g in one event. Pack 500g. Full buy 2 packs = 1000g exactly, no surplus. Keep 2.
+        Product product = _product(quantityPerItem: 500, itemsPerPack: 1);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1000,
+          events: [_event(amount: 1000)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 2);
+        expect(result.first.underBuy, isFalse);
+        expect(result.first.overBuyWaste, closeTo(0, 0.01));
+      });
+
+      test("drops one multi-item pack when the per-recipe shortfall stays under the threshold", () {
+        // 4x200g pack (800g/pack), no shelf life. Need 2900g in one event.
+        // Full buy 4 packs = 3200g, 300g surplus. Drop one pack: 3 packs = 2400g,
+        // 500g short = 500 / 2900 = 17.2% < 20%. Buy 3 and warn.
+        Product product = _product(quantityPerItem: 200, itemsPerPack: 4);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 2900,
+          events: [_event(amount: 2900)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 3);
+        expect(result.first.underBuy, isTrue);
+        expect(result.first.shortfall, closeTo(500, 0.01));
+      });
+
+      test("does not set the under-buy flag when only one pack is needed", () {
+        // Need 500g, 6x100g pack. Full buy 1 pack = 600g, 100g surplus, but dropping it buys nothing.
+        Product product = _product(quantityPerItem: 100, itemsPerPack: 6);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 500,
+          events: [_event(amount: 500)],
+          ingredient: _ingredient(),
+          products: [product],
+        );
+
+        expect(result.first.packsNeeded, 1);
+        expect(result.first.underBuy, isFalse);
+      });
+
+      test("ranks a fully-covering low-waste product above one that would under-buy", () {
+        // Need 1040g in one event, no shelf life.
+        // Covering: 1x1060g pack -> 1 pack, 20g surplus, cannot under-buy (only one pack). Waste 20g.
+        // Under-buyer: 1x100g packs -> full 11 packs = 1100g, 60g surplus; drops to 10 packs (40g short).
+        //   Its full-pack-buy waste is 60g. The under-buy reduction must NOT zero this for ranking,
+        //   or the under-buyer would wrongly sort first (0 < 20) and be flagged the "best option".
+        Product covering = _product(quantityPerItem: 1060, itemsPerPack: 1);
+        Product underBuyer = _product(quantityPerItem: 100, itemsPerPack: 1);
+
+        List<ProductRecommendation> result = rankProducts(
+          totalNeeded: 1040,
+          events: [_event(amount: 1040)],
+          ingredient: _ingredient(),
+          products: [underBuyer, covering],
+        );
+
+        expect(result.first.product, covering);
+        expect(result.first.totalWaste, closeTo(20, 0.01));
+        ProductRecommendation underBuyRec = result.firstWhere((ProductRecommendation r) => r.product == underBuyer);
+        expect(underBuyRec.underBuy, isTrue);
+        expect(underBuyRec.totalWaste, greaterThan(result.first.totalWaste));
       });
     });
   });
