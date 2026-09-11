@@ -194,15 +194,20 @@ List<Quantity> computeRemainingQuantities({required Ingredient ingredient, requi
 /// 0.01 grams for 100 grams minus 3 pieces of 33.33 grams. Without this margin every such residue
 /// would become a whole unit to buy. The margin stays far below the smallest real need, which is
 /// a fraction of a teaspoon.
-const double _negligibleNeed = 0.05;
+///
+/// Every place that decides whether a need is real reads this one constant: [roundNeededAmount]
+/// for the page and the copied list, and the multi-trip planner for the decision to plan a trip.
+/// A planner with its own threshold would plan a trip for a residue that the page shows as
+/// covered, and the copied list would then hold an empty trip section.
+const double negligibleNeed = 0.05;
 
 /// Rounds an amount that the user must still buy to a whole unit.
 ///
 /// A real need never becomes zero. The user cannot buy 0.4 teaspoons, but a pinch of salt is
-/// still a need, so the smallest need is one unit. An amount at or below [_negligibleNeed] is
+/// still a need, so the smallest need is one unit. An amount at or below [negligibleNeed] is
 /// not a real need, so it becomes zero. The page and the copied list both round here, so they
 /// always show the same number.
 double roundNeededAmount(double amount) {
-  if (amount <= _negligibleNeed) return 0;
+  if (amount <= negligibleNeed) return 0;
   return max(1, amount.round()).toDouble();
 }
