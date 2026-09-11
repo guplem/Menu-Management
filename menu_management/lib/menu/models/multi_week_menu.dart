@@ -8,6 +8,7 @@ import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 
 part "multi_week_menu.freezed.dart";
@@ -190,6 +191,27 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
             combined[entry.key]!.add(source);
           }
         }
+      }
+    }
+
+    return combined;
+  }
+
+  /// Returns, for each ingredient, the meals of the whole menu that need it.
+  ///
+  /// [ingredientSources] merges the entries of every week by recipe, so it loses the week, the
+  /// day and the meal slot. This method keeps them: it writes one entry per sub-meal, and it
+  /// tags each entry with the week that holds the meal.
+  Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes}) {
+    Map<String, List<IngredientMealRequirement>> combined = {};
+
+    for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+      Map<String, List<IngredientMealRequirement>> weekRequirements = weeks[weekIndex].ingredientMealRequirements(
+        recipes: recipes,
+        weekIndex: weekIndex,
+      );
+      for (MapEntry<String, List<IngredientMealRequirement>> entry in weekRequirements.entries) {
+        combined.putIfAbsent(entry.key, () => <IngredientMealRequirement>[]).addAll(entry.value);
       }
     }
 

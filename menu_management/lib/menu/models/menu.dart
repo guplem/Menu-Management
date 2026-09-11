@@ -10,6 +10,7 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 
 part "menu.freezed.dart";
@@ -233,6 +234,72 @@ abstract class Menu with _$Menu {
     }
 
     return sources;
+  }
+
+  /// Returns, for each ingredient, the meals of this week that need it.
+  ///
+  /// [ingredientSources] groups the need per recipe, so it drops the week, the day and the meal
+  /// slot. This method keeps them: it writes one entry per sub-meal that eats the recipe, cook
+  /// meals and leftover meals alike, with the amount that this one meal needs.
+  ///
+  /// [weekIndex] only names the week in each entry. It never changes the math.
+  ///
+  /// The entries of one ingredient add up to the amount that [allIngredients] reports for it,
+  /// because both read the same cooked recipes and the same people counts.
+  Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes, int weekIndex = 0}) {
+    Map<String, List<IngredientMealRequirement>> requirements = {};
+
+    for (({Recipe recipe, int peopleFactor}) entry in _activeCookedRecipes(recipes: recipes)) {
+      // The per-serving need of this recipe, one quantity per ingredient and unit.
+      Map<String, List<Quantity>> perServing = {};
+      for (Instruction instruction in entry.recipe.instructions) {
+        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
+          List<Quantity> quantities = perServing.putIfAbsent(ingredientUsage.ingredient, () => <Quantity>[]);
+          int existingIndex = quantities.indexWhere((Quantity q) => q.unit == ingredientUsage.quantity.unit);
+          if (existingIndex < 0) {
+            quantities.add(ingredientUsage.quantity);
+          } else {
+            quantities[existingIndex] = quantities[existingIndex].copyWith(
+              amount: quantities[existingIndex].amount + ingredientUsage.quantity.amount,
+            );
+          }
+        }
+      }
+
+      for (Meal meal in meals) {
+        for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
+          SubMeal subMeal = meal.subMeals[subMealIndex];
+          if (subMeal.cooking?.recipeId != entry.recipe.id) continue;
+
+          for (MapEntry<String, List<Quantity>> ingredient in perServing.entries) {
+            requirements
+                .putIfAbsent(ingredient.key, () => <IngredientMealRequirement>[])
+                .add(
+                  IngredientMealRequirement(
+                    weekIndex: weekIndex,
+                    mealTime: meal.mealTime,
+                    subMealIndex: subMealIndex,
+                    recipeId: entry.recipe.id,
+                    recipeName: entry.recipe.name,
+                    people: subMeal.people,
+                    isCookEvent: subMeal.cooking!.yield > 0,
+                    quantities: ingredient.value.map((Quantity q) => q.scaledBy(subMeal.people)).toList(),
+                  ),
+                );
+          }
+        }
+      }
+    }
+
+    // One ingredient can come from two recipes, so order every list by the clock at the end.
+    for (List<IngredientMealRequirement> mealRequirements in requirements.values) {
+      mealRequirements.sort((IngredientMealRequirement a, IngredientMealRequirement b) {
+        if (a.mealTime.isSameTime(b.mealTime)) return a.subMealIndex.compareTo(b.subMealIndex);
+        return a.mealTime.goesBefore(b.mealTime) ? -1 : 1;
+      });
+    }
+
+    return requirements;
   }
 
   Menu copyWithClearedSubMeal({required MealTime mealTime, required int subMealIndex, required List<Recipe> recipes}) {
