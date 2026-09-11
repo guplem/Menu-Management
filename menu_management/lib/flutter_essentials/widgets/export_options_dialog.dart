@@ -5,8 +5,7 @@ import "package:menu_management/flutter_essentials/widgets/error_dialog.dart";
 /// One row of [showExportOptionsDialog]: one format that the user can pick.
 ///
 /// The row carries its own action, so the dialog stays free of any knowledge about the formats.
-/// A later step adds a PDF row as one more subtype, and the pages that call the dialog keep
-/// their shape.
+/// [ClipboardExportOption] copies a text, and [FileExportOption] writes a file.
 abstract class ExportOption {
   const ExportOption({required this.label, required this.description, required this.icon, required this.failureNote});
 
@@ -63,13 +62,87 @@ class ClipboardExportOption extends ExportOption {
   }
 }
 
+/// The save call that [FileExportOption] uses. It has the shape of `Persistency.saveBytes`.
+/// A test passes its own function here, so no test opens a real save dialog.
+typedef SaveBytesCall =
+    Future<String?> Function({required List<int> bytes, required String dialogTitle, required String fileName, required String extension});
+
+/// An [ExportOption] that writes a file through a save dialog.
+///
+/// It is the file counterpart of [ClipboardExportOption]. The class holds no knowledge of any
+/// page: the caller passes the bytes, the kind of file, the file name and every message. The
+/// caller also passes the two file calls, so this library imports nothing outside itself
+/// (ADR 0007).
+class FileExportOption extends ExportOption {
+  const FileExportOption({
+    required super.label,
+    required super.description,
+    required this.buildBytes,
+    required this.dialogTitle,
+    required this.defaultFileName,
+    required this.buildConfirmation,
+    required this.saveBytes,
+    required this.supportsFileSaving,
+    this.extension = "pdf",
+    this.unavailableMessage = defaultUnavailableMessage,
+    super.icon = Icons.picture_as_pdf_rounded,
+    super.failureNote = "No file was written.",
+  });
+
+  /// Builds the bytes of the file. [run] calls it only when the user picks this format, and only
+  /// after it knows that the device can save a file.
+  final Future<Uint8List> Function() buildBytes;
+
+  /// The title of the save dialog, for example "Select where to save the menu PDF".
+  final String dialogTitle;
+
+  /// The file name that the save dialog proposes, for example "Menu-2025-08-06.pdf".
+  final String defaultFileName;
+
+  /// The kind of file, for example "pdf". The save dialog filters the folder with it.
+  final String extension;
+
+  /// Builds the snackbar text from the path of the written file. The user has to know where the
+  /// file went, because a save dialog can put it in any folder.
+  final String Function(String path) buildConfirmation;
+
+  /// Writes the file. The menu page passes `Persistency.saveBytes`, and a test passes its own.
+  final SaveBytesCall saveBytes;
+
+  /// Says if this device has a save dialog. The menu page passes
+  /// `Persistency.supportsFileSaving`, and a test passes its own.
+  final bool Function() supportsFileSaving;
+
+  /// What the row reports on iOS and on Android, where `FilePicker` has no save dialog
+  /// (ADR 0003). It names the way out, so the user still gets the data out of the app.
+  /// Every page that exports something else than the menu passes its own words.
+  final String unavailableMessage;
+
+  /// The message of the menu export, which is the only file export of the app today.
+  static const String defaultUnavailableMessage = "This device cannot save a file. Copy the menu as text instead.";
+
+  /// Writes the file and returns the snackbar text.
+  ///
+  /// Returns [unavailableMessage] where the device has no save dialog, and null when the user
+  /// closes the dialog. A cancelled save is not a failure, so it shows no snackbar.
+  @override
+  Future<String?> run() async {
+    if (!supportsFileSaving()) return unavailableMessage;
+
+    final Uint8List bytes = await buildBytes();
+    final String? path = await saveBytes(bytes: bytes, dialogTitle: dialogTitle, fileName: defaultFileName, extension: extension);
+    if (path == null) return null;
+    return buildConfirmation(path);
+  }
+}
+
 /// Shows the export dialog: one row per format, plus a Cancel button.
 ///
 /// A tap on a row runs that format, closes the dialog, and shows the message of that format in a
 /// snackbar. A tap on Cancel runs nothing.
 ///
-/// The dialog knows only the rows that the caller gives it. Each row owns its action, so a later
-/// step that adds a PDF adds one more kind of row here and changes nothing in this function.
+/// The dialog knows only the rows that the caller gives it. Each row owns its action, so a new
+/// format adds one more kind of row and changes nothing in this function.
 ///
 /// A row that throws shows an error dialog. The export can fail, for example when the menu points
 /// at a deleted recipe. This function catches the throw and never rethrows it, so the caller reads
