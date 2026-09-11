@@ -8,6 +8,10 @@ enum Unit {
   const Unit(this.value);
   final int value;
 
+  factory Unit.fromValue(int value) {
+    return Unit.values.firstWhere((x) => x.value == value);
+  }
+
   /// Short name of the unit, for places with little room such as the cook mode step list.
   String get abbreviation {
     switch (this) {
@@ -22,9 +26,5 @@ enum Unit {
       case Unit.teaspoons:
         return "tsp";
     }
-  }
-
-  factory Unit.fromValue(int value) {
-    return Unit.values.firstWhere((x) => x.value == value);
   }
 }

@@ -5,6 +5,11 @@ import "package:menu_management/menu/enums/week_day.dart";
 part "meal_time.freezed.dart";
 part "meal_time.g.dart";
 
+/// The day and the meal slot of one meal.
+///
+/// Callers also use MealTime as a map key, so the generated `==` must stay equivalent to
+/// [isSameTime]. A new field would break that: `==` would compare it, [isSameTime] would not,
+/// and a lookup by a slot would miss.
 @freezed
 abstract class MealTime with _$MealTime {
   const factory MealTime({

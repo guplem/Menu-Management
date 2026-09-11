@@ -1107,10 +1107,73 @@ void main() {
         expect(() => menu.toStringBeautified(recipes: [recipe], dayLabels: _dayLabels(), cookServings: const {}), throwsA(isA<TypeError>()));
       });
 
-      test("shows dash for missing meals", () {
+      test("shows a dash in all 21 slots of a menu without meals", () {
         const Menu menu = Menu(meals: []);
+
         String output = menu.toStringBeautified(recipes: [], dayLabels: _dayLabels(), cookServings: const {});
-        expect(output.contains("-"), true);
+
+        List<String> mealLines = output.split("\n").where((String line) => line.startsWith("  ")).toList();
+        expect(mealLines.length, 21);
+        expect(mealLines.toSet(), {"  Breakfast: -", "  Lunch: -", "  Dinner: -"});
+      });
+
+      test("names a deleted recipe with a dash and still promises the servings", () {
+        // ADR 0016 allows a menu that still points at a deleted recipe. The text must not hide
+        // the cook event, because the user has to see which meal lost its dish.
+        Menu menu = const Menu(
+          meals: [
+            Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [SubMeal(cooking: Cooking(recipeId: "deleted", yield: 2), people: 2)],
+            ),
+          ],
+        );
+
+        String output = menu.toStringBeautified(
+          recipes: const [],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 4},
+        );
+
+        expect(output.contains("Lunch: - [2p] (cook 4 servings)"), true);
+      });
+
+      test("keeps the people count of a sub-meal without a recipe in a shared slot", () {
+        // A slot where two people have nothing to eat is exactly the gap the text must surface.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = const Menu(
+          meals: [
+            Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [
+                SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 3),
+                SubMeal(people: 2),
+              ],
+            ),
+          ],
+        );
+
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 3},
+        );
+
+        expect(output.contains("1. Pasta [3p] (cook 3 servings)"), true);
+        expect(output.contains("2. - [2p]"), true);
+      });
+
+      test("writes only a dash for a slot that holds one sub-meal without a recipe", () {
+        Menu menu = const Menu(
+          meals: [
+            Meal(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), subMeals: [SubMeal(people: 2)]),
+          ],
+        );
+
+        String output = menu.toStringBeautified(recipes: const [], dayLabels: _dayLabels(), cookServings: const {});
+
+        expect(output.contains("Lunch: -\n"), true);
+        expect(output.contains("Lunch: - ["), false);
       });
 
       test("says the meal is cooked and how many servings it makes", () {

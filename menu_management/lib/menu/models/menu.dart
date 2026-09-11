@@ -331,9 +331,14 @@ abstract class Menu with _$Menu {
 
   /// Writes one sub-meal of [toStringBeautified], for example "Pasta [2p] (cook 4 servings)".
   ///
-  /// A sub-meal with no recipe reads only "-", because there is nothing to eat and nobody to
-  /// count. Every other sub-meal shows its people count, and then says if the cook makes the food
-  /// at that meal or if the meal eats leftovers of an earlier cook.
+  /// A sub-meal with no recipe reads "-". In a slot that holds two or more sub-meals it also keeps
+  /// its people count, as "- [2p]": a slot where two people have nothing to eat is a gap that the
+  /// text must show. Every other sub-meal shows its people count, and then says if the cook makes
+  /// the food at that meal or if the meal eats leftovers of an earlier cook.
+  ///
+  /// A sub-meal whose recipe is not in [recipes] reads "-" as its dish name and keeps the rest of
+  /// the line. ADR 0016 allows a menu that still points at a deleted recipe, and the user has to
+  /// see which meal lost its dish.
   String _subMealText({
     required Meal meal,
     required int subMealIndex,
@@ -342,7 +347,7 @@ abstract class Menu with _$Menu {
   }) {
     SubMeal subMeal = meal.subMeals[subMealIndex];
     Cooking? cooking = subMeal.cooking;
-    if (cooking == null) return "-";
+    if (cooking == null) return meal.subMeals.length > 1 ? "- [${subMeal.people}p]" : "-";
 
     String recipeName = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId)?.name ?? "-";
     if (cooking.yield <= 0) return "$recipeName [${subMeal.people}p] (leftovers)";
