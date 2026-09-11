@@ -187,12 +187,22 @@ List<Quantity> computeRemainingQuantities({required Ingredient ingredient, requi
   return requiredQuantities.map((Quantity q) => Quantity(amount: roundNeededAmount(consumer.consumeRemaining(q)), unit: q.unit)).toList();
 }
 
+/// A need at or below this many units is arithmetic noise, not food to buy.
+///
+/// The subtraction of the owned stock runs on doubles and crosses unit conversions, so a fully
+/// covered need rarely lands on an exact 0. It leaves a residue: 4e-17 for `0.1 + 0.2 - 0.3`, or
+/// 0.01 grams for 100 grams minus 3 pieces of 33.33 grams. Without this margin every such residue
+/// would become a whole unit to buy. The margin stays far below the smallest real need, which is
+/// a fraction of a teaspoon.
+const double _negligibleNeed = 0.05;
+
 /// Rounds an amount that the user must still buy to a whole unit.
 ///
-/// A need above zero never becomes zero. The user cannot buy 0.4 teaspoons, but a pinch of salt
-/// is still a need, so the smallest need is one unit. The page and the copied list both round
-/// here, so they always show the same number.
+/// A real need never becomes zero. The user cannot buy 0.4 teaspoons, but a pinch of salt is
+/// still a need, so the smallest need is one unit. An amount at or below [_negligibleNeed] is
+/// not a real need, so it becomes zero. The page and the copied list both round here, so they
+/// always show the same number.
 double roundNeededAmount(double amount) {
-  if (amount <= 0) return 0;
+  if (amount <= _negligibleNeed) return 0;
   return max(1, amount.round()).toDouble();
 }
