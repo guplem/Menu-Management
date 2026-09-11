@@ -13,7 +13,11 @@ part "multi_week_menu.g.dart";
 
 @freezed
 abstract class MultiWeekMenu with _$MultiWeekMenu {
-  const factory MultiWeekMenu({@Default([]) List<Menu> weeks}) = _MultiWeekMenu;
+  /// [startDate] is the real calendar date of menu day 0. It is optional: a menu without it
+  /// keeps the date-less day order of the WeekDay enum, which starts at Saturday.
+  /// The date never changes the planning math, which stays in absolute day offsets.
+  /// Use the functions in `menu_dates.dart` to turn a day offset into a date or a label.
+  const factory MultiWeekMenu({@Default([]) List<Menu> weeks, @JsonKey(includeIfNull: false) DateTime? startDate}) = _MultiWeekMenu;
 
   factory MultiWeekMenu.fromJson(Map<String, Object?> json) => _$MultiWeekMenuFromJson(json);
 

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MultiWeekMenu {
 
- List<Menu> get weeks;
+ List<Menu> get weeks;@JsonKey(includeIfNull: false) DateTime? get startDate;
 /// Create a copy of MultiWeekMenu
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MultiWeekMenuCopyWith<MultiWeekMenu> get copyWith => _$MultiWeekMenuCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MultiWeekMenu&&const DeepCollectionEquality().equals(other.weeks, weeks));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MultiWeekMenu&&const DeepCollectionEquality().equals(other.weeks, weeks)&&(identical(other.startDate, startDate) || other.startDate == startDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(weeks));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(weeks),startDate);
 
 @override
 String toString() {
-  return 'MultiWeekMenu(weeks: $weeks)';
+  return 'MultiWeekMenu(weeks: $weeks, startDate: $startDate)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $MultiWeekMenuCopyWith<$Res>  {
   factory $MultiWeekMenuCopyWith(MultiWeekMenu value, $Res Function(MultiWeekMenu) _then) = _$MultiWeekMenuCopyWithImpl;
 @useResult
 $Res call({
- List<Menu> weeks
+ List<Menu> weeks,@JsonKey(includeIfNull: false) DateTime? startDate
 });
 
 
@@ -65,10 +65,11 @@ class _$MultiWeekMenuCopyWithImpl<$Res>
 
 /// Create a copy of MultiWeekMenu
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? weeks = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? weeks = null,Object? startDate = freezed,}) {
   return _then(_self.copyWith(
 weeks: null == weeks ? _self.weeks : weeks // ignore: cast_nullable_to_non_nullable
-as List<Menu>,
+as List<Menu>,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -153,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Menu> weeks)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Menu> weeks, @JsonKey(includeIfNull: false)  DateTime? startDate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MultiWeekMenu() when $default != null:
-return $default(_that.weeks);case _:
+return $default(_that.weeks,_that.startDate);case _:
   return orElse();
 
 }
@@ -174,10 +175,10 @@ return $default(_that.weeks);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Menu> weeks)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Menu> weeks, @JsonKey(includeIfNull: false)  DateTime? startDate)  $default,) {final _that = this;
 switch (_that) {
 case _MultiWeekMenu():
-return $default(_that.weeks);case _:
+return $default(_that.weeks,_that.startDate);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +195,10 @@ return $default(_that.weeks);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Menu> weeks)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Menu> weeks, @JsonKey(includeIfNull: false)  DateTime? startDate)?  $default,) {final _that = this;
 switch (_that) {
 case _MultiWeekMenu() when $default != null:
-return $default(_that.weeks);case _:
+return $default(_that.weeks,_that.startDate);case _:
   return null;
 
 }
@@ -209,7 +210,7 @@ return $default(_that.weeks);case _:
 @JsonSerializable()
 
 class _MultiWeekMenu extends MultiWeekMenu {
-  const _MultiWeekMenu({final  List<Menu> weeks = const []}): _weeks = weeks,super._();
+  const _MultiWeekMenu({final  List<Menu> weeks = const [], @JsonKey(includeIfNull: false) this.startDate}): _weeks = weeks,super._();
   factory _MultiWeekMenu.fromJson(Map<String, dynamic> json) => _$MultiWeekMenuFromJson(json);
 
  final  List<Menu> _weeks;
@@ -219,6 +220,7 @@ class _MultiWeekMenu extends MultiWeekMenu {
   return EqualUnmodifiableListView(_weeks);
 }
 
+@override@JsonKey(includeIfNull: false) final  DateTime? startDate;
 
 /// Create a copy of MultiWeekMenu
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MultiWeekMenu&&const DeepCollectionEquality().equals(other._weeks, _weeks));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MultiWeekMenu&&const DeepCollectionEquality().equals(other._weeks, _weeks)&&(identical(other.startDate, startDate) || other.startDate == startDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_weeks));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_weeks),startDate);
 
 @override
 String toString() {
-  return 'MultiWeekMenu(weeks: $weeks)';
+  return 'MultiWeekMenu(weeks: $weeks, startDate: $startDate)';
 }
 
 
@@ -253,7 +255,7 @@ abstract mixin class _$MultiWeekMenuCopyWith<$Res> implements $MultiWeekMenuCopy
   factory _$MultiWeekMenuCopyWith(_MultiWeekMenu value, $Res Function(_MultiWeekMenu) _then) = __$MultiWeekMenuCopyWithImpl;
 @override @useResult
 $Res call({
- List<Menu> weeks
+ List<Menu> weeks,@JsonKey(includeIfNull: false) DateTime? startDate
 });
 
 
@@ -270,10 +272,11 @@ class __$MultiWeekMenuCopyWithImpl<$Res>
 
 /// Create a copy of MultiWeekMenu
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? weeks = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? weeks = null,Object? startDate = freezed,}) {
   return _then(_MultiWeekMenu(
 weeks: null == weeks ? _self._weeks : weeks // ignore: cast_nullable_to_non_nullable
-as List<Menu>,
+as List<Menu>,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

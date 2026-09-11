@@ -224,6 +224,28 @@ void main() {
       expect(menu.weeks.first.meals.length, 2);
     });
 
+    test("loads a .tsm file without a start date and keeps the menu date-less", () async {
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      List<Recipe> recipes = [r1, r2];
+
+      File tsmFile = File("${tempDir.path}/no_start_date.tsm");
+      tsmFile.writeAsStringSync(_validTsmContent());
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: recipes);
+
+      expect(menu!.startDate, isNull);
+    });
+
+    test("keeps the start date of a menu whose recipes are all missing", () async {
+      File tsmFile = File("${tempDir.path}/start_date_missing_recipes.tsm");
+      tsmFile.writeAsStringSync(jsonEncode({"startDate": "2025-08-06T00:00:00.000", "weeks": jsonDecode(_validTsmContent())["weeks"]}));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: []);
+
+      expect(menu!.startDate, DateTime(2025, 8, 6));
+    });
+
     test("loads old single-week format and wraps in MultiWeekMenu", () async {
       Recipe r1 = _recipe();
       List<Recipe> recipes = [r1];
@@ -409,6 +431,32 @@ void main() {
     });
   });
 
+  // ── defaultMenuFileName ──
+
+  group("defaultMenuFileName", () {
+    test("names the file after the first day of the menu", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      expect(Persistency.defaultMenuFileName(menu), "Menu-2025-08-06.tsm");
+    });
+
+    test("falls back to the next Saturday when the menu has no first day", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      expect(Persistency.defaultMenuFileName(menu), startsWith("Menu-"));
+      expect(Persistency.defaultMenuFileName(menu), endsWith(".tsm"));
+    });
+  });
+
   // ── saveMenuToPath ──
 
   group("saveMenuToPath", () {
@@ -431,6 +479,44 @@ void main() {
       expect(loaded, isNotNull);
       expect(loaded!.weekCount, 1);
       expect(loaded.weeks.first.meals.first.subMeals.first.cooking!.recipeId, "r1");
+    });
+
+    test("saves and reloads the menu start date", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Lunch Recipe");
+      List<Recipe> recipes = [r1];
+      MultiWeekMenu menu = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)],
+          ),
+        ],
+      );
+
+      String path = "${tempDir.path}/start_date_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      MultiWeekMenu? loaded = await Persistency.loadMenuFromPath(path, recipes: recipes);
+
+      expect(loaded!.startDate, DateTime(2025, 8, 6));
+    });
+
+    test("omits the start date from the file when the menu has none", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Lunch Recipe");
+      List<Recipe> recipes = [r1];
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)],
+          ),
+        ],
+      );
+
+      String path = "${tempDir.path}/no_start_date_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      Map<String, dynamic> savedJson = jsonDecode(File(path).readAsStringSync());
+      expect(savedJson.containsKey("startDate"), isFalse);
     });
 
     test("saved menu file is pretty-printed with tab indentation", () async {

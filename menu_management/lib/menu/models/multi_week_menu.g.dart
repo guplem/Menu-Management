@@ -13,7 +13,13 @@ _MultiWeekMenu _$MultiWeekMenuFromJson(Map<String, dynamic> json) =>
               ?.map((e) => Menu.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      startDate: json['startDate'] == null
+          ? null
+          : DateTime.parse(json['startDate'] as String),
     );
 
 Map<String, dynamic> _$MultiWeekMenuToJson(_MultiWeekMenu instance) =>
-    <String, dynamic>{'weeks': instance.weeks.map((e) => e.toJson()).toList()};
+    <String, dynamic>{
+      'weeks': instance.weeks.map((e) => e.toJson()).toList(),
+      'startDate': ?instance.startDate?.toIso8601String(),
+    };

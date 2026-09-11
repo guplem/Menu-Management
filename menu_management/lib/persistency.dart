@@ -235,7 +235,7 @@ class Persistency {
       Debug.logWarning(true, "Menu loaded with missing recipes:\n${warnings.join('\n')}", asAssertion: false);
     }
 
-    return MultiWeekMenu(weeks: validatedWeeks);
+    return rawMenu.copyWith(weeks: validatedWeeks);
   }
 
   // ============================================================
@@ -360,14 +360,20 @@ class Persistency {
     return loaded ? LoadOutcome.success : LoadOutcome.failed;
   }
 
-  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
-    DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
-    String date = "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
+  /// Builds the file name that the save dialog proposes.
+  /// It uses the first day of the menu. Without one it falls back to the next Saturday.
+  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu) {
+    DateTime date = multiWeekMenu.startDate ?? DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
+    String month = date.month.toString().padLeft(2, "0");
+    String day = date.day.toString().padLeft(2, "0");
+    return "Menu-${date.year}-$month-$day.tsm";
+  }
 
+  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: "Select where to save the menu",
-      fileName: "Menu-$date.tsm",
+      fileName: defaultMenuFileName(multiWeekMenu),
       allowedExtensions: ["tsm", "json"],
       type: FileType.custom,
     );

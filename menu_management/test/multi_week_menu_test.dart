@@ -414,4 +414,69 @@ void main() {
       );
     });
   });
+
+  group("MultiWeekMenu start date", () {
+    test("defaults to no start date", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+
+      expect(multi.startDate, isNull);
+    });
+
+    test("survives a JSON round trip", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [_singleMealMenu(recipe: recipe)],
+      );
+
+      MultiWeekMenu restored = MultiWeekMenu.fromJson(jsonDecode(jsonEncode(multi.toJson())));
+
+      expect(restored.startDate, DateTime(2025, 8, 6));
+    });
+
+    test("is absent from the JSON when the menu has no start date", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+
+      expect(multi.toJson().containsKey("startDate"), isFalse);
+    });
+
+    test("a missing start date in the JSON loads as no start date", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      Map<String, dynamic> json = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]).toJson();
+
+      expect(MultiWeekMenu.fromJson(json).startDate, isNull);
+    });
+
+    test("changing the start date leaves every meal where it is", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+
+      MultiWeekMenu dated = multi.copyWith(startDate: DateTime(2025, 8, 6));
+
+      expect(dated.weeks, multi.weeks);
+    });
+
+    test("the start date does not change the yield calculation", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu undated = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+      MultiWeekMenu dated = undated.copyWith(startDate: DateTime(2025, 8, 6));
+
+      expect(dated.copyWithUpdatedYields(recipes: [recipe]).weeks, undated.copyWithUpdatedYields(recipes: [recipe]).weeks);
+    });
+
+    test("adding and removing a week keeps the start date", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [_singleMealMenu(recipe: recipe)],
+      );
+
+      MultiWeekMenu grown = multi.addWeek(_singleMealMenu(recipe: recipe));
+
+      expect(grown.startDate, DateTime(2025, 8, 6));
+      expect(grown.removeLastWeek().startDate, DateTime(2025, 8, 6));
+    });
+  });
 }
