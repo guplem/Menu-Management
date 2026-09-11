@@ -208,7 +208,14 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 
   void _copyToClipboard() {
-    String text = _buildMultiTripCopyText();
+    List<ShoppingTrip> trips = _planTrips();
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    String text = buildMultiTripCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
+    );
     Clipboard.setData(ClipboardData(text: text));
   }
 
@@ -232,70 +239,17 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
-  String _buildSingleListCopyText() {
-    StringBuffer buffer = StringBuffer();
-
-    for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
-      String ingredientId = entry.key;
-      Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
-      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-
-      _appendIngredientLines(buffer: buffer, ingredient: ingredient, remaining: remaining);
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  String _buildMultiTripCopyText() {
-    List<ShoppingTrip> trips = _planTrips();
-    if (trips.isEmpty) return _buildSingleListCopyText();
-
-    // Spread each ingredient's on-screen remaining across the trip weeks in the on-screen unit, so
-    // the copied per-trip amounts sum to exactly what the page shows (same unit, no rounding drift).
-    // Bucket the resulting lines by week, then print the sections in the planner's trip order.
-    Map<int, List<({Ingredient ingredient, TripAllocation allocation})>> linesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
-
+  /// Collects the ingredients of the list and what the user must still buy of each one.
+  /// Both copy builders read the same two values, so they can never start from different data.
+  ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) _copyInput() {
+    List<Ingredient> ingredients = [];
+    Map<String, List<Quantity>> remainingByIngredientId = {};
     for (String ingredientId in ingredientsRequired.keys) {
       Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
-      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-      List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
-      for (TripAllocation allocation in allocations) {
-        linesByWeek[allocation.weekIndex]!.add((ingredient: ingredient, allocation: allocation));
-      }
+      ingredients.add(ingredient);
+      remainingByIngredientId[ingredientId] = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
     }
-
-    StringBuffer buffer = StringBuffer();
-    bool wroteSection = false;
-    for (ShoppingTrip trip in trips) {
-      List<({Ingredient ingredient, TripAllocation allocation})> lines = linesByWeek[trip.weekIndex]!;
-      if (lines.isEmpty) continue;
-      lines.sort((a, b) => a.ingredient.name.toLowerCase().compareTo(b.ingredient.name.toLowerCase()));
-
-      if (wroteSection) buffer.writeln();
-      wroteSection = true;
-      String header = _tripLabel(trip: trip, trips: trips);
-      buffer.writeln(header);
-      buffer.writeln("-" * header.length);
-      for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
-        _appendIngredientLines(
-          buffer: buffer,
-          ingredient: line.ingredient,
-          remaining: line.allocation.quantities,
-          freezeOnArrival: line.allocation.freezeOnArrival,
-        );
-      }
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  void _appendIngredientLines({
-    required StringBuffer buffer,
-    required Ingredient ingredient,
-    required List<Quantity> remaining,
-    bool freezeOnArrival = false,
-  }) {
-    buffer.write(buildIngredientCopyLines(ingredient: ingredient, remaining: remaining, freezeOnArrival: freezeOnArrival));
+    return (ingredients: ingredients, remainingByIngredientId: remainingByIngredientId);
   }
 
   List<ShoppingTrip> _planTrips() {
@@ -324,11 +278,85 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 }
 
+/// Sorts the ingredients of the copied list by name, ignoring upper and lower case.
+///
+/// Both copy builders call this, so one menu can never produce two different ingredient orders.
+List<Ingredient> sortIngredientsForCopy(List<Ingredient> ingredients) {
+  List<Ingredient> sorted = [...ingredients];
+  sorted.sort((Ingredient a, Ingredient b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  return sorted;
+}
+
+/// Builds the copied shopping list as one single list, with no trip sections.
+///
+/// Pure: takes the ingredients and what the user must still buy of each one, keyed by ingredient
+/// id, and returns the text. Used when the planner finds no trip to plan.
+String buildSingleListCopyText({required List<Ingredient> ingredients, required Map<String, List<Quantity>> remainingByIngredientId}) {
+  StringBuffer buffer = StringBuffer();
+  for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
+    buffer.write(buildIngredientCopyLines(ingredient: ingredient, remaining: remainingByIngredientId[ingredient.id] ?? const []));
+  }
+  return buffer.toString().trimRight();
+}
+
+/// Builds the copied shopping list split into one section per shop trip (ADR 0014).
+///
+/// Pure: takes the ingredients, what the user must still buy of each one, the planned trips, and
+/// a function that names one trip. Falls back to the single list when there is no trip to plan.
+///
+/// It spreads the on-screen remaining of each ingredient across the trip weeks in the on-screen
+/// unit, so the copied per-trip amounts sum to exactly what the page shows (same unit, no
+/// rounding drift). It buckets the resulting lines by week, then writes the sections in the
+/// trip order of the planner.
+String buildMultiTripCopyText({
+  required List<Ingredient> ingredients,
+  required Map<String, List<Quantity>> remainingByIngredientId,
+  required List<ShoppingTrip> trips,
+  required String Function(ShoppingTrip trip) tripLabel,
+}) {
+  if (trips.isEmpty) return buildSingleListCopyText(ingredients: ingredients, remainingByIngredientId: remainingByIngredientId);
+
+  Map<int, List<({Ingredient ingredient, TripAllocation allocation})>> linesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
+
+  for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
+    List<Quantity> remaining = remainingByIngredientId[ingredient.id] ?? const [];
+    List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
+    for (TripAllocation allocation in allocations) {
+      linesByWeek[allocation.weekIndex]!.add((ingredient: ingredient, allocation: allocation));
+    }
+  }
+
+  StringBuffer buffer = StringBuffer();
+  bool wroteSection = false;
+  for (ShoppingTrip trip in trips) {
+    List<({Ingredient ingredient, TripAllocation allocation})> lines = linesByWeek[trip.weekIndex]!;
+    if (lines.isEmpty) continue;
+
+    if (wroteSection) buffer.writeln();
+    wroteSection = true;
+    String header = tripLabel(trip);
+    buffer.writeln(header);
+    buffer.writeln("-" * header.length);
+    for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
+      buffer.write(
+        buildIngredientCopyLines(
+          ingredient: line.ingredient,
+          remaining: line.allocation.quantities,
+          freezeOnArrival: line.allocation.freezeOnArrival,
+        ),
+      );
+    }
+  }
+
+  return buffer.toString().trimRight();
+}
+
 /// Builds the copied shopping-list text for one ingredient (one trip's worth of [remaining]).
 ///
 /// Pure: takes the ingredient and its still-needed quantities, returns the lines as text
-/// (empty when nothing is needed). Amounts are rounded to whole units so sub-1-unit residuals
-/// drop out instead of rendering as "0 teaspoons".
+/// (empty when nothing is needed). [roundNeededAmount] rounds each amount to a whole unit and
+/// never rounds a real need down to zero, so a sub-1-unit need lists as one unit instead of
+/// dropping out of the list.
 ///
 /// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
 /// product's solo count: a product the mix does not pick is not listed. Where that mix contains
@@ -339,7 +367,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
   StringBuffer buffer = StringBuffer();
 
-  List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
+  List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: roundNeededAmount(q.amount), unit: q.unit)).toList();
   if (!rounded.any((q) => q.amount > 0)) return "";
 
   String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";

@@ -3,6 +3,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/shopping_page.dart";
 
 // 500 grams per pack (2 items x 250 grams). Different links -> variety variants of the same size.
@@ -53,6 +54,92 @@ void main() {
 
       expect(text.contains("2x250grams: 1 pack"), isTrue);
       expect(text.contains("3x250grams: 1 pack"), isTrue);
+    });
+
+    test("lists an ingredient whose need is below one unit", () {
+      // A pinch of salt is still on the shopping list. The old rounding dropped the line.
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+
+      String text = buildIngredientCopyLines(
+        ingredient: salt,
+        remaining: const [Quantity(amount: 0.4, unit: Unit.teaspoons)],
+      );
+
+      expect(text.contains("Salt: 1 teaspoons"), isTrue);
+    });
+
+    test("writes nothing for an ingredient that the user already owns", () {
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+
+      String text = buildIngredientCopyLines(
+        ingredient: salt,
+        remaining: const [Quantity(amount: 0, unit: Unit.teaspoons)],
+      );
+
+      expect(text, "");
+    });
+  });
+
+  group("copy text ingredient order", () {
+    // Two ingredients with no products, given in an order that is not alphabetical.
+    List<Ingredient> unsortedIngredients() => const [Ingredient(id: "zucchini", name: "Zucchini"), Ingredient(id: "apple", name: "Apple")];
+
+    Map<String, List<Quantity>> remainingPerIngredient() => const {
+      "zucchini": [Quantity(amount: 200, unit: Unit.grams)],
+      "apple": [Quantity(amount: 100, unit: Unit.grams)],
+    };
+
+    test("the single list sorts the ingredients by name", () {
+      String text = buildSingleListCopyText(ingredients: unsortedIngredients(), remainingByIngredientId: remainingPerIngredient());
+
+      expect(text.indexOf("Apple") < text.indexOf("Zucchini"), isTrue);
+    });
+
+    test("the per-trip list sorts the ingredients by name", () {
+      List<ShoppingTrip> trips = const [
+        ShoppingTrip(
+          weekIndex: 0,
+          items: [
+            TripItem(ingredientId: "zucchini", amount: 200, unit: Unit.grams),
+            TripItem(ingredientId: "apple", amount: 100, unit: Unit.grams),
+          ],
+        ),
+      ];
+
+      String text = buildMultiTripCopyText(
+        ingredients: unsortedIngredients(),
+        remainingByIngredientId: remainingPerIngredient(),
+        trips: trips,
+        tripLabel: (ShoppingTrip trip) => "Week ${trip.weekIndex}",
+      );
+
+      expect(text.indexOf("Apple") < text.indexOf("Zucchini"), isTrue);
+    });
+
+    test("both paths order the same menu the same way", () {
+      // One menu must never produce two different ingredient orders.
+      List<ShoppingTrip> trips = const [
+        ShoppingTrip(
+          weekIndex: 0,
+          items: [
+            TripItem(ingredientId: "zucchini", amount: 200, unit: Unit.grams),
+            TripItem(ingredientId: "apple", amount: 100, unit: Unit.grams),
+          ],
+        ),
+      ];
+
+      String single = buildSingleListCopyText(ingredients: unsortedIngredients(), remainingByIngredientId: remainingPerIngredient());
+      String perTrip = buildMultiTripCopyText(
+        ingredients: unsortedIngredients(),
+        remainingByIngredientId: remainingPerIngredient(),
+        trips: trips,
+        tripLabel: (ShoppingTrip trip) => "Week ${trip.weekIndex}",
+      );
+
+      List<String> namesOf(String text) =>
+          text.split("\n").where((String line) => line.contains(":")).map((String line) => line.split(":").first.trim()).toList();
+
+      expect(namesOf(perTrip), namesOf(single));
     });
   });
 }
