@@ -1060,6 +1060,18 @@ void main() {
         expect(output.contains("Wednesday 6 Aug"), true);
       });
 
+      test("throws when a day has no label", () {
+        // A partial map is a mistake of the caller. The method must stop there, not print
+        // the text "null" into the clipboard of the user.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
+        );
+        Map<WeekDay, String> partialLabels = <WeekDay, String>{WeekDay.saturday: "Saturday"};
+
+        expect(() => menu.toStringBeautified(recipes: [recipe], dayLabels: partialLabels), throwsA(isA<TypeError>()));
+      });
+
       test("shows dash for missing meals", () {
         const Menu menu = Menu(meals: []);
         String output = menu.toStringBeautified(recipes: [], dayLabels: _dayLabels());
