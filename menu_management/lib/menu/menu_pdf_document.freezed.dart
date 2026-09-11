@@ -745,12 +745,12 @@ return $default(_that.dayLabel,_that.slots);case _:
 
 
 class _MenuPdfDayRow implements MenuPdfDayRow {
-  const _MenuPdfDayRow({required this.dayLabel, required final  List<MenuPdfSlot> slots}): _slots = slots;
+  const _MenuPdfDayRow({required this.dayLabel, final  List<MenuPdfSlot> slots = const []}): _slots = slots;
   
 
 @override final  String dayLabel;
  final  List<MenuPdfSlot> _slots;
-@override List<MenuPdfSlot> get slots {
+@override@JsonKey() List<MenuPdfSlot> get slots {
   if (_slots is EqualUnmodifiableListView) return _slots;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_slots);
@@ -1011,12 +1011,12 @@ return $default(_that.title,_that.days);case _:
 
 
 class _MenuPdfWeekSection implements MenuPdfWeekSection {
-  const _MenuPdfWeekSection({required this.title, required final  List<MenuPdfDayRow> days}): _days = days;
+  const _MenuPdfWeekSection({required this.title, final  List<MenuPdfDayRow> days = const []}): _days = days;
   
 
 @override final  String title;
  final  List<MenuPdfDayRow> _days;
-@override List<MenuPdfDayRow> get days {
+@override@JsonKey() List<MenuPdfDayRow> get days {
   if (_days is EqualUnmodifiableListView) return _days;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_days);

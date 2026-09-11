@@ -3,7 +3,7 @@ import "dart:typed_data";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
-import "package:menu_management/menu/models/menu_pdf_document.dart";
+import "package:menu_management/menu/menu_pdf_document.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:pdf/pdf.dart";

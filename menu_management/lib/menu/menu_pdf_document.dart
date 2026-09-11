@@ -74,13 +74,13 @@ abstract class MenuPdfSlot with _$MenuPdfSlot {
 /// One row of the week table: one day, with its three meal slots in the order of the clock.
 @freezed
 abstract class MenuPdfDayRow with _$MenuPdfDayRow {
-  const factory MenuPdfDayRow({required String dayLabel, required List<MenuPdfSlot> slots}) = _MenuPdfDayRow;
+  const factory MenuPdfDayRow({required String dayLabel, @Default([]) List<MenuPdfSlot> slots}) = _MenuPdfDayRow;
 }
 
 /// One week of the menu: one table of seven days.
 @freezed
 abstract class MenuPdfWeekSection with _$MenuPdfWeekSection {
-  const factory MenuPdfWeekSection({required String title, required List<MenuPdfDayRow> days}) = _MenuPdfWeekSection;
+  const factory MenuPdfWeekSection({required String title, @Default([]) List<MenuPdfDayRow> days}) = _MenuPdfWeekSection;
 }
 
 /// One ingredient line, with the amount already scaled and written as text.
@@ -122,6 +122,13 @@ abstract class MenuPdfRecipeSection with _$MenuPdfRecipeSection {
 ///
 /// The renderer in `menu_pdf.dart` turns this into a PDF. The split keeps the content testable:
 /// a test reads the rows, the labels and the amounts here, and never decodes a PDF.
+///
+/// Every model of this file is derived: the app builds it on demand from the menu and saves it
+/// never. This is why it carries no JSON and why it lives outside `menu/models/`, which holds the
+/// entities that the `.tsm` file reads and writes.
+///
+/// Every list field of this file is `@Default([])`. A section with nothing in it is a valid
+/// value, so one rule covers every list and no caller has to write an empty literal.
 @freezed
 abstract class MenuPdfDocument with _$MenuPdfDocument {
   const factory MenuPdfDocument({
