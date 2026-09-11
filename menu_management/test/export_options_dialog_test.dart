@@ -171,8 +171,20 @@ void main() {
 
       expect(copiedTexts, isEmpty);
       expect(find.text("Error"), findsOneWidget);
-      expect(find.textContaining("Could not export the Detailed format."), findsOneWidget);
+      expect(find.textContaining("Could not export the Detailed format. Nothing was copied."), findsOneWidget);
       expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets("writes the failure note of the format that failed", (WidgetTester tester) async {
+      // A format that writes a file copies nothing, so the message of the clipboard formats does
+      // not fit it. Each format carries its own note.
+      await pumpAndOpenDialog(tester, options: [const _ThrowingFileExportOption()]);
+
+      await tester.tap(find.text("File"));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining("Could not export the File format. No file was written."), findsOneWidget);
+      expect(find.textContaining("Nothing was copied."), findsNothing);
     });
   });
 
@@ -203,3 +215,13 @@ void main() {
 
 /// A format that builds no text, for the empty-export test.
 String _emptyText() => "";
+
+/// One format that writes a file and fails. It stands for the PDF format of a later step: it
+/// copies nothing, so it carries its own failure note.
+class _ThrowingFileExportOption extends ExportOption {
+  const _ThrowingFileExportOption()
+    : super(label: "File", description: "The menu as a file.", icon: Icons.picture_as_pdf_rounded, failureNote: "No file was written.");
+
+  @override
+  Future<String?> run() async => throw StateError("the disk is full");
+}

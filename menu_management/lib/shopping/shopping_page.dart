@@ -213,8 +213,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
   /// Offers the text formats of the shopping list and copies the one that the user picks.
   /// The reader of the text shops without the app, so each format stands on its own.
   ///
-  /// The dialog reports a failed export, so this awaits it. Without the await the failure would
-  /// land in a future that nobody reads.
+  /// The dialog itself reports a failed export, so this function reads no result of it.
   Future<void> _showExportDialog() async {
     await showExportOptionsDialog(
       context: context,

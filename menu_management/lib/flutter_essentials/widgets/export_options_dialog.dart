@@ -8,7 +8,7 @@ import "package:menu_management/flutter_essentials/widgets/error_dialog.dart";
 /// A later step adds a PDF row as one more subtype, and the pages that call the dialog keep
 /// their shape.
 abstract class ExportOption {
-  const ExportOption({required this.label, required this.description, required this.icon});
+  const ExportOption({required this.label, required this.description, required this.icon, required this.failureNote});
 
   /// Names the format in the dialog, for example "Simplified".
   final String label;
@@ -18,6 +18,12 @@ abstract class ExportOption {
 
   /// The icon of the row. It says what the format does, for example a copy icon.
   final IconData icon;
+
+  /// Says what the failure left behind, for example "Nothing was copied.".
+  ///
+  /// The dialog writes it in the error message. A format owns this text, because a format that
+  /// writes a file copies nothing and must say so in its own words.
+  final String failureNote;
 
   /// Performs the export and returns the snackbar text, for example "Copied ... to the clipboard.".
   ///
@@ -34,6 +40,7 @@ class ClipboardExportOption extends ExportOption {
     required this.buildText,
     required this.confirmation,
     super.icon = Icons.copy_rounded,
+    super.failureNote = "Nothing was copied.",
   });
 
   /// Builds the text to copy. [run] calls it only when the user picks this format.
@@ -65,8 +72,8 @@ class ClipboardExportOption extends ExportOption {
 /// step that adds a PDF adds one more kind of row here and changes nothing in this function.
 ///
 /// A row that throws shows an error dialog. The export can fail, for example when the menu points
-/// at a deleted recipe. The caller must `await` this function, or the failure lands in a future
-/// that nobody reads and the user sees nothing at all.
+/// at a deleted recipe. This function catches the throw and never rethrows it, so the caller reads
+/// no result and no failure of it.
 Future<void> showExportOptionsDialog({required BuildContext context, required String title, required List<ExportOption> options}) async {
   final ExportOption? picked = await showDialog<ExportOption>(
     context: context,
@@ -104,7 +111,7 @@ Future<void> showExportOptionsDialog({required BuildContext context, required St
     message = await picked.run();
   } catch (error) {
     if (!context.mounted) return;
-    await showErrorDialog(context: context, message: "Could not export the ${picked.label} format. Nothing was copied.\n\n$error");
+    await showErrorDialog(context: context, message: "Could not export the ${picked.label} format. ${picked.failureNote}\n\n$error");
     return;
   }
 

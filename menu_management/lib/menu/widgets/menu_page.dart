@@ -86,8 +86,7 @@ class _MenuPageState extends State<MenuPage> {
   /// Offers the text formats of the menu and copies the one that the user picks.
   /// The reader of the text follows the menu without the app, so each format stands on its own.
   ///
-  /// The dialog reports a failed export, so this awaits it. Without the await the failure would
-  /// land in a future that nobody reads.
+  /// The dialog itself reports a failed export, so this function reads no result of it.
   Future<void> _showExportDialog() async {
     await showExportOptionsDialog(
       context: context,
