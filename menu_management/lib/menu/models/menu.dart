@@ -285,9 +285,10 @@ abstract class Menu with _$Menu {
     return total;
   }
 
-  /// [dayLabels] names each day of this week. The caller builds it, because the start date
-  /// lives on MultiWeekMenu. Without it each day keeps the date-less name of the WeekDay enum.
-  String toStringBeautified({required List<Recipe> recipes, Map<WeekDay, String>? dayLabels}) {
+  /// [dayLabels] names each day of this week. The caller builds it with `menuDayLabel`,
+  /// because the start date lives on MultiWeekMenu. That function owns the date-less wording
+  /// too, so this method never needs a name of its own.
+  String toStringBeautified({required List<Recipe> recipes, required Map<WeekDay, String> dayLabels}) {
     // Format:
     // Weekday
     //   Breakfast: recipe (yield pp) [x people]
@@ -297,7 +298,7 @@ abstract class Menu with _$Menu {
 
     String result = "";
     for (WeekDay weekDay in WeekDay.values) {
-      result += "${dayLabels?[weekDay] ?? weekDay.name.capitalizeFirstLetter()}\n";
+      result += "${dayLabels[weekDay]}\n";
       List<Meal?> dayMeals = mealsOfDay(weekDay);
       for (int i = 0; i < dayMeals.length; i++) {
         Meal? meal = dayMeals[i];
