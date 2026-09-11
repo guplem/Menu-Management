@@ -171,4 +171,23 @@ void main() {
       expect(find.text("Saturday"), findsOneWidget);
     });
   });
+
+  group("MenuPage export button", () {
+    testWidgets("opens the export dialog with both menu formats", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      await tester.tap(find.byTooltip("Export menu"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Export menu"), findsWidgets);
+      expect(find.text("Simplified"), findsOneWidget);
+      expect(find.text("Detailed"), findsOneWidget);
+    });
+
+    testWidgets("holds no direct copy button any more", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      expect(find.byTooltip("Copy to clipboard"), findsNothing);
+    });
+  });
 }

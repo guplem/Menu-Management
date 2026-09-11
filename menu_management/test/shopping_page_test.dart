@@ -130,7 +130,7 @@ void main() {
     testWidgets("says now for the only trip when the menu has no first day", (WidgetTester tester) async {
       await _pumpShoppingPage(tester, _menu());
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (now)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: the detailed export splits into 1 trip (now)."), findsOneWidget);
     });
 
     testWidgets("says now for the only trip when the menu has a first day", (WidgetTester tester) async {
@@ -138,7 +138,7 @@ void main() {
       // The banner must match the product row, which calls that same trip "now".
       await _pumpShoppingPage(tester, _menu(startDate: DateTime(2025, 8, 6)));
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (now)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: the detailed export splits into 1 trip (now)."), findsOneWidget);
     });
 
     testWidgets("keeps the real date of a later trip", (WidgetTester tester) async {
@@ -147,7 +147,26 @@ void main() {
       // The menu starts on Wednesday 6 Aug 2025. The second trip happens on day 6, 12 Aug.
       await _pumpShoppingPage(tester, _twoWeekMilkMenu(startDate: DateTime(2025, 8, 6)));
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 2 trips (now, Tuesday 12 Aug)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: the detailed export splits into 2 trips (now, Tuesday 12 Aug)."), findsOneWidget);
+    });
+  });
+
+  group("ShoppingPage export button", () {
+    testWidgets("opens the export dialog with both shopping formats", (WidgetTester tester) async {
+      await _pumpShoppingPage(tester, _menu());
+
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Export shopping list"), findsWidgets);
+      expect(find.text("Simplified"), findsOneWidget);
+      expect(find.text("Detailed"), findsOneWidget);
+    });
+
+    testWidgets("holds no direct copy button any more", (WidgetTester tester) async {
+      await _pumpShoppingPage(tester, _menu());
+
+      expect(find.byTooltip("Copy to clipboard"), findsNothing);
     });
   });
 }
