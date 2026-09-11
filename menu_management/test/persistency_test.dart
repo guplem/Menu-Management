@@ -670,6 +670,18 @@ void main() {
       expect(written, null);
     });
 
+    test("drops the spaces around the name, so the file lands where the name points", () async {
+      // The guard below reads the name without the spaces. The write has to read the same name,
+      // or a path with a leading space names a folder that does not exist.
+      String path = "${tempDir.path}/padded.pdf";
+      _FakeFilePicker.pickedPath = "  $path  ";
+
+      String? written = await Persistency.saveBytes(bytes: const [37], dialogTitle: "Save", fileName: "padded.pdf", extension: "pdf");
+
+      expect(written, path);
+      expect(await File(path).readAsBytes(), const [37]);
+    });
+
     test("writes nothing when the save dialog returns an empty name, so no file lands in an unknown folder", () async {
       _FakeFilePicker.pickedPath = "   ";
 

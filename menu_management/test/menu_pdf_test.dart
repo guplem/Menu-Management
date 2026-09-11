@@ -157,13 +157,16 @@ void main() {
   });
 
   group("renderMenuPdf", () {
-    test("writes a day that holds four sub-meals with long names, because a table row cannot split over two pages", () async {
+    test("caps every dish name at two lines, so a day of twenty long dishes still fits one row on a page", () async {
+      // A table row cannot split over two pages: the renderer throws when one row is taller than
+      // a page. Twenty dishes of six lines each pass that height, and the two-line cap holds them
+      // under it. Remove the `maxLines` of the dish name and this test throws.
       MenuPdfSlot fullSlot(MealType mealType) => MenuPdfSlot(
         mealType: mealType,
         dishes: List<MenuPdfDish>.generate(
-          4,
+          20,
           (int index) => MenuPdfDish(
-            recipeName: "Slow-roasted-aubergine-with-tahini-and-pomegranate number $index",
+            recipeName: "Slow roasted aubergine with tahini and pomegranate and toasted pine nuts and flat leaf parsley number $index",
             people: 2,
             source: MenuPdfDishSource.cooked,
             servingsToCook: 4,

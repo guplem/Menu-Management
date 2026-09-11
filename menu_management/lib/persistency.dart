@@ -471,13 +471,16 @@ class Persistency {
     );
 
     if (outputFile == null) return null;
+    // One rule for the check and for the write: the name is the text without the spaces around
+    // it. A leading space names a folder that does not exist, so the write would fail.
+    final String path = outputFile.trim();
     // An empty name has no folder in it, so the file would land in the working directory of the
     // app and the user would never find it. Report nothing instead.
-    if (outputFile.trim().isEmpty) {
+    if (path.isEmpty) {
       Debug.logWarning(true, "The save dialog returned an empty file name. No file was written.", asAssertion: false);
       return null;
     }
-    return saveBytesToPath(path: outputFile, bytes: bytes);
+    return saveBytesToPath(path: path, bytes: bytes);
   }
 
   static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {

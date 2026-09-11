@@ -246,7 +246,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
           buildConfirmation: (String path) => "Saved the shopping list PDF to $path.",
           saveBytes: Persistency.saveBytes,
           supportsFileSaving: Persistency.supportsFileSaving,
+          extension: "pdf",
           unavailableMessage: "This device cannot save a file. Copy the shopping list as text instead.",
+          icon: Icons.picture_as_pdf_rounded,
         ),
       ],
     );

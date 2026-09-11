@@ -414,6 +414,47 @@ void main() {
       expect(document.recipes.single.ingredients, const [MenuPdfIngredientLine(ingredientName: "Unknown ingredient", amounts: "100 grams")]);
     });
 
+    test("writes the recipe section of a dish that the menu only eats as leftovers", () {
+      // The menu can hold a leftover meal whose cook event sits outside it, for example after the
+      // user removes the first week. The reader still has to know what the dish is, so the
+      // section stays. The walk adds the recipe before it reads the yield of the meal.
+      Recipe pasta = _recipe(
+        id: "r1",
+        name: "Pasta",
+        instructions: [
+          _instruction(
+            id: "i1",
+            description: "Boil.",
+            ingredientsUsed: [_usage(ingredientId: "n1", amount: 100)],
+          ),
+        ],
+      );
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r1", yield: 0, people: 3)],
+          ),
+        ],
+      );
+
+      MenuPdfDocument document = buildMenuPdfDocument(
+        multiWeekMenu: menu,
+        recipes: [pasta],
+        ingredients: [_ingredient(id: "n1", name: "Noodles")],
+      );
+
+      expect(document.recipes.single.recipeName, "Pasta");
+      expect(document.recipes.single.servings, 3);
+      expect(document.recipes.single.ingredients, const [MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "300 grams")]);
+      expect(
+        document.weeks.single.days.first.slots[1],
+        const MenuPdfSlot(
+          mealType: MealType.lunch,
+          dishes: [MenuPdfDish(recipeName: "Pasta", people: 3, source: MenuPdfDishSource.leftovers, servingsToCook: 0)],
+        ),
+      );
+    });
+
     test("writes no recipe section for a menu that cooks nothing", () {
       MultiWeekMenu menu = MultiWeekMenu(
         weeks: [
