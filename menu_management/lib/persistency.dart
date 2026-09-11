@@ -413,26 +413,35 @@ class Persistency {
 
   /// True when this device can show a save-file dialog.
   ///
-  /// `FilePicker` has no save dialog on iOS and on Android (ADR 0003), so every export that
-  /// writes a file asks this first and tells the user instead of failing without a word.
+  /// `FilePicker` has no save dialog on iOS and on Android (ADR 0003). [FileExportOption] asks
+  /// this before it builds any byte, and tells the user instead of failing without a word.
   static bool supportsFileSaving() => !Platform.isIOS && !Platform.isAndroid;
 
   /// Writes [bytes] to [path] and returns the path of the file that it wrote.
   ///
-  /// The write is binary, because a PDF is not text. It adds [extension] when [path] does not end
-  /// with it: a save dialog can return a name with no extension, and a reader opens a PDF by its
-  /// name. The comparison ignores the case of the letters, so "Menu.PDF" keeps its own name.
+  /// The write is binary, because a PDF is not text. It writes the name that the user picked, and
+  /// adds no extension to it. The save dialog asks the user before it overwrites a file, and it
+  /// asks about the name that the user typed. A name changed after that question could destroy a
+  /// file that the user never saw. The `allowedExtensions` of the dialog and the proposed file
+  /// name carry the extension instead.
   ///
   /// This method writes no last-session entry. The last session points at the file that the app
   /// reloads at startup, and the app cannot read a PDF back.
-  static Future<String> saveBytesToPath({required String path, required List<int> bytes, required String extension}) async {
-    String target = path.toLowerCase().endsWith(".${extension.toLowerCase()}") ? path : "$path.$extension";
-    await File(target).writeAsBytes(bytes);
-    return target;
+  static Future<String> saveBytesToPath({required String path, required List<int> bytes}) async {
+    try {
+      await File(path).writeAsBytes(bytes);
+    } catch (error, stackTrace) {
+      Debug.logError("Could not write the file $path: $error", stack: stackTrace, asException: false);
+      rethrow;
+    }
+    return path;
   }
 
   /// Asks the user where to save, then writes [bytes] there.
   /// Returns the path of the written file, or null when the user closes the dialog.
+  ///
+  /// [extension] names the kind of file, for example "pdf". The dialog uses it to filter the
+  /// folder and to complete the name that the user types.
   static Future<String?> saveBytes({
     required List<int> bytes,
     required String dialogTitle,
@@ -447,7 +456,13 @@ class Persistency {
     );
 
     if (outputFile == null) return null;
-    return saveBytesToPath(path: outputFile, bytes: bytes, extension: extension);
+    // An empty name has no folder in it, so the file would land in the working directory of the
+    // app and the user would never find it. Report nothing instead.
+    if (outputFile.trim().isEmpty) {
+      Debug.logWarning(true, "The save dialog returned an empty file name. No file was written.", asAssertion: false);
+      return null;
+    }
+    return saveBytesToPath(path: outputFile, bytes: bytes);
   }
 
   static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
