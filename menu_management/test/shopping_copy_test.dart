@@ -318,7 +318,7 @@ void main() {
     });
   });
 
-  group("freezeOnArrivalIngredientIds", () {
+  group("computeFreezeOnArrivalIngredientIds", () {
     test("names every ingredient that the plan freezes, and no other one", () {
       // The peas ride trip 0 and must be frozen; the rice is bought on the trip of its own week.
       const Ingredient peas = Ingredient(
@@ -338,7 +338,7 @@ void main() {
         ),
       ];
 
-      Set<String> frozen = freezeOnArrivalIngredientIds(
+      Set<String> frozen = computeFreezeOnArrivalIngredientIds(
         ingredients: const [peas, rice],
         remainingByIngredientId: const {
           "peas": [Quantity(amount: 500, unit: Unit.grams)],
@@ -350,11 +350,44 @@ void main() {
       expect(frozen, const {"peas"});
     });
 
+    test("names an ingredient that one trip freezes and another trip does not", () {
+      // The peas ride two trips: the batch of trip 0 must wait in the freezer, the batch of the
+      // later trip does not. The simplified list holds no trip, so its reader buys both batches on
+      // day one. The later batch then also has to wait, and only the freezer keeps it. So one
+      // frozen batch marks the whole line.
+      const Ingredient peas = Ingredient(
+        id: "peas",
+        name: "Peas",
+        products: [Product(link: "", quantityPerItem: 500, unit: Unit.grams, shelfLifeDaysClosed: 3, canBeFrozen: true)],
+      );
+
+      List<ShoppingTrip> trips = const [
+        ShoppingTrip(
+          weekIndex: 0,
+          items: [TripItem(ingredientId: "peas", amount: 500, unit: Unit.grams, freezeOnArrival: true)],
+        ),
+        ShoppingTrip(
+          weekIndex: 1,
+          items: [TripItem(ingredientId: "peas", amount: 300, unit: Unit.grams)],
+        ),
+      ];
+
+      Set<String> frozen = computeFreezeOnArrivalIngredientIds(
+        ingredients: const [peas],
+        remainingByIngredientId: const {
+          "peas": [Quantity(amount: 800, unit: Unit.grams)],
+        },
+        trips: trips,
+      );
+
+      expect(frozen, const {"peas"});
+    });
+
     test("names nothing when the planner planned no trip", () {
       const Ingredient rice = Ingredient(id: "rice", name: "Rice");
 
       expect(
-        freezeOnArrivalIngredientIds(
+        computeFreezeOnArrivalIngredientIds(
           ingredients: const [rice],
           remainingByIngredientId: const {
             "rice": [Quantity(amount: 200, unit: Unit.grams)],
@@ -363,6 +396,37 @@ void main() {
         ),
         isEmpty,
       );
+    });
+  });
+
+  group("buildIngredientCopyLines with a real product of the recipe book", () {
+    test("writes the name, the pack size, the pack count and the link of a real store product", () {
+      // The ingredient, the link and the pack come word for word from assets/RecipeBook.tsr, so
+      // this test shows the shape that the user really reads.
+      const Ingredient milk = Ingredient(
+        id: "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+        name: "Leche desnatada sin lactosa",
+        density: 1.03,
+        products: [
+          Product(
+            link: "https://tienda.mercadona.es/product/10730/leche-desnatada-sin-lactosa-hacendado-pack-6",
+            itemsPerPack: 6,
+            quantityPerItem: 100,
+            unit: Unit.centiliters,
+            shelfLifeDaysOpened: 3,
+            shelfLifeDaysClosed: 365,
+          ),
+        ],
+      );
+
+      String text = buildIngredientCopyLines(ingredient: milk, remaining: const [Quantity(amount: 800, unit: Unit.centiliters)]);
+
+      expect(text.split("\n"), const [
+        "Leche desnatada sin lactosa",
+        "  Leche desnatada sin lactosa hacendado pack 6 (6x100centiliters): 2 packs",
+        "    https://tienda.mercadona.es/product/10730/leche-desnatada-sin-lactosa-hacendado-pack-6",
+        "",
+      ]);
     });
   });
 

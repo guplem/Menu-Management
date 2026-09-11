@@ -247,7 +247,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return buildSimplifiedShoppingCopyText(
       ingredients: input.ingredients,
       remainingByIngredientId: input.remainingByIngredientId,
-      freezeOnArrivalIngredientIds: freezeOnArrivalIngredientIds(
+      freezeOnArrivalIngredientIds: computeFreezeOnArrivalIngredientIds(
         ingredients: input.ingredients,
         remainingByIngredientId: input.remainingByIngredientId,
         trips: _planTrips(),

@@ -33,7 +33,7 @@ List<Ingredient> sortIngredientsForCopy(List<Ingredient> ingredients) {
 /// [freezeOnArrivalIngredientIds] names the ingredients that the user must freeze on the day of
 /// the trip (ADR 0015). Each of them keeps the same "(freeze on arrival)" suffix that the detailed
 /// text writes. Without the suffix the one-trip plan cannot be followed safely, because the plan
-/// assumes the freezer. Build the set with [freezeOnArrivalIngredientIds].
+/// assumes the freezer. Build the set with [computeFreezeOnArrivalIngredientIds].
 ///
 /// Precondition: every amount is already a whole number of its unit, as in [buildIngredientCopyLines].
 String buildSimplifiedShoppingCopyText({
@@ -70,9 +70,14 @@ void _assertWholeAmounts({required Ingredient ingredient, required List<Quantity
 /// Returns the ids of the ingredients that the user must freeze on the day of the trip.
 ///
 /// Pure: takes the same input as the copy builders plus the planned trips. It reads the same
-/// per-ingredient split as [buildMultiTripCopyText], so the two formats can never disagree about
-/// which ingredient the plan freezes.
-Set<String> freezeOnArrivalIngredientIds({
+/// per-ingredient split as [buildMultiTripCopyText].
+///
+/// The detailed text marks each trip line on its own, so one ingredient can carry the note on one
+/// trip and not on another. This set holds one flag per ingredient, and one marked trip marks the
+/// whole ingredient. The two formats therefore read differently for such an ingredient, and that
+/// is on purpose: the simplified text holds no trip, so its reader buys every batch on day one.
+/// The batch of a later trip then also has to wait, and only the freezer keeps it.
+Set<String> computeFreezeOnArrivalIngredientIds({
   required List<Ingredient> ingredients,
   required Map<String, List<Quantity>> remainingByIngredientId,
   required List<ShoppingTrip> trips,
