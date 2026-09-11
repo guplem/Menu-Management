@@ -30,7 +30,11 @@ class ShoppingTrip {
   final int weekIndex;
   final List<TripItem> items;
 
-  int get tripDay => weekIndex * 7 - 1;
+  int get tripDay => dayForWeek(weekIndex);
+
+  /// The day offset of the trip that covers the week at [weekIndex].
+  /// This is the one place that says when a trip happens. Labels and plans both read it.
+  static int dayForWeek(int weekIndex) => weekIndex * 7 - 1;
 }
 
 /// Plans a minimal set of shopping trips that respects sealed shelf life.

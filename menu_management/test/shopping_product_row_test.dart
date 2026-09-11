@@ -53,7 +53,7 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs now"), findsOneWidget);
-      expect(find.text("+ 3 packs week 2"), findsOneWidget);
+      expect(find.text("+ 3 packs Week 2"), findsOneWidget);
       // The single-total label must not appear when the row is split.
       expect(find.text("Buy 9 packs"), findsNothing);
     });
@@ -153,7 +153,7 @@ void main() {
       );
 
       expect(find.text("Buy 2 pieces now"), findsOneWidget);
-      expect(find.text("+ 1 piece week 3"), findsOneWidget);
+      expect(find.text("+ 1 piece Week 3"), findsOneWidget);
     });
   });
 
@@ -237,7 +237,7 @@ void main() {
 
       // Per-trip lines show the FULL round-up; the "N short" chip must not appear alongside them.
       expect(find.text("Buy 2 packs now"), findsOneWidget);
-      expect(find.text("+ 1 pack week 2"), findsOneWidget);
+      expect(find.text("+ 1 pack Week 2"), findsOneWidget);
       expect(find.textContaining("short"), findsNothing);
     });
   });

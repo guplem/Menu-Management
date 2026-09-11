@@ -216,7 +216,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
     String prefix = _useFreezerStrategy ? "One-trip mode" : "Multi-trip mode";
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
-    String weeksText = trips.map((ShoppingTrip t) => shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: t.weekIndex)).join(", ");
+    String weeksText = trips
+        .map((ShoppingTrip t) => shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: t.weekIndex, tripDay: t.tripDay))
+        .join(", ");
     return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
@@ -261,8 +263,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       if (wroteSection) buffer.writeln();
       wroteSection = true;
-      buffer.writeln(shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: trip.weekIndex));
-      buffer.writeln("--------");
+      String header = shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: trip.weekIndex, tripDay: trip.tripDay);
+      buffer.writeln(header);
+      buffer.writeln("-" * header.length);
       for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
         _appendIngredientLines(
           buffer: buffer,

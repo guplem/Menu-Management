@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
@@ -102,11 +103,11 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
 
   String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
     String prefix = isFirstLine ? "Buy" : "+";
+    // shoppingTripLabel already falls back to "Week N" without a start date, so the label
+    // rule stays in one place.
     String when = purchase.isFirstTrip
         ? "now"
-        : widget.startDate == null
-        ? "week ${purchase.weekIndex + 1}"
-        : shoppingTripLabel(startDate: widget.startDate, weekIndex: purchase.weekIndex);
+        : shoppingTripLabel(startDate: widget.startDate, weekIndex: purchase.weekIndex, tripDay: ShoppingTrip.dayForWeek(purchase.weekIndex));
     return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} $when";
   }
 
