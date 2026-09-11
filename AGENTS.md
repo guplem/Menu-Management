@@ -33,6 +33,7 @@ The people who read your output may read English as a second language and may be
 - **No `-ing` verb form as a noun or as a sentence opener.** Write "Use the skill to create a branch", not "Creating a branch is done with the skill".
 - **About 20 words per sentence at most** (25 in descriptive text).
 - **Leave out no word that guards the meaning.** Write "the file that you changed" when "the file you changed" could be misread.
+- **Claim in a comment only what the code does.** Never write that something is "the one place", that it "never" happens, or that a caller is "the only" one, unless you checked every other site and the compiler or a test holds the claim. Write what this code does, not what the codebase promises.
 
 Both layers cover prose only. Neither covers code identifiers or text you quote word for word.
 
