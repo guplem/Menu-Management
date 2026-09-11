@@ -109,16 +109,48 @@ void main() {
       );
     });
 
-    test("says now for the first trip, with or without a start date", () {
-      // The first trip of the plan happens the day before menu day 0, which is already past.
-      // The user shops for it now, so no calendar date is correct for it.
+    test("says now for a first trip whose day is already past", () {
+      // A date-less menu has no day to print. A past day is gone, so the user shops now.
       expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 0, tripDay: -1, isFirstTrip: true), "now");
       expect(shoppingTripLabel(startDate: null, weekIndex: 0, tripDay: -1, isFirstTrip: true), "now");
     });
 
-    test("says now for a first trip that is not week 0", () {
-      // The planner can drop week 0, so the earliest trip of the plan is the one that is now.
+    test("says now for a first trip that is not week 0 but is already past", () {
+      // The planner can drop week 0, so the earliest trip of the plan can be a later week.
       expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: 6, isFirstTrip: true), "now");
+    });
+
+    test("names the real day of a first trip in week 2 of a menu that starts today", () {
+      // The planner can drop week 0 and week 1. The trip of week 2 is 13 days away, so it is
+      // not now. The label must print that day, the same as for any later trip.
+      final DateTime today = DateTime.now();
+      final DateTime startsToday = DateTime(today.year, today.month, today.day);
+      final int tripDay = ShoppingTrip.dayForWeek(2);
+
+      final String label = shoppingTripLabel(startDate: startsToday, weekIndex: 2, tripDay: tripDay, isFirstTrip: true);
+
+      expect(label, isNot("now"));
+      expect(label, shoppingTripLabel(startDate: startsToday, weekIndex: 2, tripDay: tripDay, isFirstTrip: false));
+    });
+
+    test("names the real day of the first trip of a menu that starts in the future", () {
+      // The trip before menu day 0 is only past when the menu already started. A menu that
+      // starts next week shops on a real day that is still to come.
+      final DateTime today = DateTime.now();
+      final DateTime startsNextWeek = DateTime(today.year, today.month, today.day + 7);
+
+      final String label = shoppingTripLabel(startDate: startsNextWeek, weekIndex: 0, tripDay: -1, isFirstTrip: true);
+
+      expect(label, isNot("now"));
+      expect(label, shoppingTripLabel(startDate: startsNextWeek, weekIndex: 0, tripDay: -1, isFirstTrip: false));
+    });
+
+    test("says now for a first trip that falls on today", () {
+      // Today is not after today, so the user shops now.
+      final DateTime today = DateTime.now();
+      final DateTime startsTomorrow = DateTime(today.year, today.month, today.day + 1);
+
+      expect(shoppingTripLabel(startDate: startsTomorrow, weekIndex: 0, tripDay: -1, isFirstTrip: true), "now");
     });
   });
 }

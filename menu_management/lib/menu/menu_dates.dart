@@ -56,14 +56,23 @@ String menuWeekRangeLabel({required DateTime? startDate, required int weekIndex}
 /// owns the rule that says when a trip happens. Without a start date the label falls back
 /// to "Week N", which is why the function also needs [weekIndex].
 ///
-/// Set [isFirstTrip] for the earliest trip of the plan. That trip happens before menu day 0,
-/// so its calendar date is already past. The label is "now" instead, and every screen that
+/// Set [isFirstTrip] for the earliest trip of the plan. The label of that trip is "now", but
+/// only when its day is gone. The day is gone when the menu has no date at all, or when the
+/// date of the trip is today or earlier. The planner can drop the first weeks of the menu, and
+/// a menu can start in the future, so the earliest trip of the plan can still be days away. In
+/// that case the label is the real date, the same as for every later trip. Every screen that
 /// names a trip reads this one rule.
 String shoppingTripLabel({required DateTime? startDate, required int weekIndex, required int tripDay, required bool isFirstTrip}) {
-  if (isFirstTrip) return "now";
   final DateTime? date = menuDateForDay(startDate: startDate, dayOffset: tripDay);
+  if (isFirstTrip && (date == null || !date.isAfter(_today()))) return "now";
   if (date == null) return "Week ${weekIndex + 1}";
   return "${menuDayName(startDate: startDate, dayOffset: tripDay)} ${date.toShortDateString()}";
+}
+
+/// Returns today at midnight, so a comparison against a menu date ignores the time of day.
+DateTime _today() {
+  final DateTime now = DateTime.now();
+  return DateTime(now.year, now.month, now.day);
 }
 
 /// Returns the capitalized [WeekDay] name at [dayOffset].

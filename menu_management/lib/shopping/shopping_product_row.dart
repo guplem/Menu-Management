@@ -14,7 +14,7 @@ class ProductTripPurchase {
 
   final int weekIndex; // 0-based; displayed as weekIndex + 1
   final int packs;
-  final bool isFirstTrip; // true for the plan's earliest trip -> labeled "now"
+  final bool isFirstTrip; // true for the earliest trip of the plan; shoppingTripLabel decides the wording
 }
 
 class ShoppingProductRow extends StatefulWidget {

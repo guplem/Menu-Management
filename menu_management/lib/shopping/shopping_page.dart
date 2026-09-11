@@ -212,9 +212,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
     Clipboard.setData(ClipboardData(text: text));
   }
 
-  /// Names one trip of [trips]. The earliest trip of the plan is "now", because its day is
-  /// already past. The banner and the copied section headers both call this, so they agree
-  /// with the per-product rows, which call the same [shoppingTripLabel].
+  /// Names one trip of [trips]. [shoppingTripLabel] owns the rule that decides when the
+  /// earliest trip of the plan reads "now". The banner and the copied section headers both
+  /// call this, so they agree with the per-product rows, which call the same function.
   String _tripLabel({required ShoppingTrip trip, required List<ShoppingTrip> trips}) {
     return shoppingTripLabel(
       startDate: widget.multiWeekMenu.startDate,
