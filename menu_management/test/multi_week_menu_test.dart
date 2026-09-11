@@ -933,6 +933,29 @@ void main() {
       ]);
     });
 
+    test("writes no time for a recipe that holds no time", () {
+      // The recipe is in the list, so this is not the "recipe is gone" branch. It holds no
+      // instruction, so its total is 0 minutes. ", 0 min" would read as an instant dish.
+      Recipe pasta = _testRecipe(id: "r1", name: "Pasta");
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
     test("keeps the simplified format free of the time", () {
       Recipe pasta = _testRecipe(
         id: "r1",

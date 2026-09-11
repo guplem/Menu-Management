@@ -348,8 +348,10 @@ abstract class Menu with _$Menu {
 
     int servings = cookServings[(meal.mealTime, subMealIndex)]!;
     // The detailed format adds the time that the cook needs for the whole recipe. A cook event
-    // whose recipe is gone gets no time, because the deleted recipe holds the instructions.
-    String time = format == MenuCopyFormat.detailed && recipe != null ? ", ${recipe.totalTimeMinutes} min" : "";
+    // whose recipe is gone gets no time, because the deleted recipe holds the instructions. A
+    // recipe of 0 minutes gets no time either: ", 0 min" reads as a claim that the dish is instant,
+    // but it only means that the recipe holds no time yet.
+    String time = format == MenuCopyFormat.detailed && recipe != null && recipe.totalTimeMinutes > 0 ? ", ${recipe.totalTimeMinutes} min" : "";
     return "$recipeName [${subMeal.people}p] (cook $servings ${servings == 1 ? "serving" : "servings"}$time)";
   }
 }
