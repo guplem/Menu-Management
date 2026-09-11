@@ -556,6 +556,49 @@ void main() {
       // 2025-08-10 is a Sunday. The next Saturday is six days later, not the day before.
       expect(Persistency.defaultMenuFileName(menu, today: DateTime(2025, 8, 10)), "Menu-2025-08-16.tsm");
     });
+
+    test("names the PDF of the menu after the same day as the menu file", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      expect(Persistency.defaultMenuFileName(menu, extension: "pdf"), "Menu-2025-08-06.pdf");
+    });
+  });
+
+  // ── saveBytesToPath ──
+
+  group("saveBytesToPath", () {
+    test("writes the bytes that it receives, so the file holds the PDF and nothing else", () async {
+      String path = "${tempDir.path}/bytes_test.pdf";
+
+      String written = await Persistency.saveBytesToPath(path: path, bytes: const [37, 80, 68, 70], extension: "pdf");
+
+      expect(written, path);
+      expect(await File(path).readAsBytes(), const [37, 80, 68, 70]);
+    });
+
+    test("adds the extension when the user names a file without one, so every reader opens it", () async {
+      String path = "${tempDir.path}/no_extension";
+
+      String written = await Persistency.saveBytesToPath(path: path, bytes: const [37], extension: "pdf");
+
+      expect(written, "$path.pdf");
+      expect(File("$path.pdf").existsSync(), true);
+      expect(File(path).existsSync(), false);
+    });
+
+    test("keeps the extension that the user wrote, whatever the case of its letters", () async {
+      String path = "${tempDir.path}/upper_case.PDF";
+
+      String written = await Persistency.saveBytesToPath(path: path, bytes: const [37], extension: "pdf");
+
+      expect(written, path);
+      expect(File("$path.pdf").existsSync(), false);
+    });
   });
 
   // ── saveMenuToPath ──

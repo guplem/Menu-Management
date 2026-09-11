@@ -394,7 +394,9 @@ class Persistency {
   /// Builds the file name that the save dialog proposes.
   /// It uses the first day of the menu. Without one it falls back to the next Saturday.
   /// [today] is the reference day. It defaults to the real today and exists for the tests.
-  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today}) {
+  /// [extension] names the kind of file: "tsm" for the menu itself, "pdf" for the export.
+  /// Both files carry the same name, so the user finds them together in one folder.
+  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today, String extension = "tsm"}) {
     DateTime reference = today ?? DateTime.now();
     // DateTime.weekday is 6 on a Saturday, so the wrap keeps a Sunday looking forward
     // (6 days ahead) instead of backward to yesterday.
@@ -402,7 +404,50 @@ class Persistency {
     DateTime date = multiWeekMenu.startDate ?? DateTime(reference.year, reference.month, reference.day + daysToSaturday);
     String month = date.month.toString().padLeft(2, "0");
     String day = date.day.toString().padLeft(2, "0");
-    return "Menu-${date.year}-$month-$day.tsm";
+    return "Menu-${date.year}-$month-$day.$extension";
+  }
+
+  // ============================================================
+  // Save bytes (exports that are not JSON)
+  // ============================================================
+
+  /// True when this device can show a save-file dialog.
+  ///
+  /// `FilePicker` has no save dialog on iOS and on Android (ADR 0003), so every export that
+  /// writes a file asks this first and tells the user instead of failing without a word.
+  static bool supportsFileSaving() => !Platform.isIOS && !Platform.isAndroid;
+
+  /// Writes [bytes] to [path] and returns the path of the file that it wrote.
+  ///
+  /// The write is binary, because a PDF is not text. It adds [extension] when [path] does not end
+  /// with it: a save dialog can return a name with no extension, and a reader opens a PDF by its
+  /// name. The comparison ignores the case of the letters, so "Menu.PDF" keeps its own name.
+  ///
+  /// This method writes no last-session entry. The last session points at the file that the app
+  /// reloads at startup, and the app cannot read a PDF back.
+  static Future<String> saveBytesToPath({required String path, required List<int> bytes, required String extension}) async {
+    String target = path.toLowerCase().endsWith(".${extension.toLowerCase()}") ? path : "$path.$extension";
+    await File(target).writeAsBytes(bytes);
+    return target;
+  }
+
+  /// Asks the user where to save, then writes [bytes] there.
+  /// Returns the path of the written file, or null when the user closes the dialog.
+  static Future<String?> saveBytes({
+    required List<int> bytes,
+    required String dialogTitle,
+    required String fileName,
+    required String extension,
+  }) async {
+    String? outputFile = await FilePicker.platform.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      allowedExtensions: [extension],
+      type: FileType.custom,
+    );
+
+    if (outputFile == null) return null;
+    return saveBytesToPath(path: outputFile, bytes: bytes, extension: extension);
   }
 
   static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
