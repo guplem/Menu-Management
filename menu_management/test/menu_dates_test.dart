@@ -90,18 +90,33 @@ void main() {
 
   group("shoppingTripLabel", () {
     test("falls back to the week number when there is no start date", () {
-      expect(shoppingTripLabel(startDate: null, weekIndex: 0, tripDay: -1), "Week 1");
-      expect(shoppingTripLabel(startDate: null, weekIndex: 1, tripDay: 6), "Week 2");
+      expect(shoppingTripLabel(startDate: null, weekIndex: 0, tripDay: -1, isFirstTrip: false), "Week 1");
+      expect(shoppingTripLabel(startDate: null, weekIndex: 1, tripDay: 6, isFirstTrip: false), "Week 2");
     });
 
     test("names the trip day that the caller gives", () {
-      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 0, tripDay: -1), "Tuesday 5 Aug");
-      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: 6), "Tuesday 12 Aug");
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 0, tripDay: -1, isFirstTrip: false), "Tuesday 5 Aug");
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: 6, isFirstTrip: false), "Tuesday 12 Aug");
     });
 
     test("uses the trip day of the planner, not the week index", () {
       // ShoppingTrip.dayForWeek owns the rule. The label must follow the day that it gives.
-      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: ShoppingTrip.dayForWeek(1)), "Tuesday 12 Aug");
+      expect(
+        shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: ShoppingTrip.dayForWeek(1), isFirstTrip: false),
+        "Tuesday 12 Aug",
+      );
+    });
+
+    test("says now for the first trip, with or without a start date", () {
+      // The first trip of the plan happens the day before menu day 0, which is already past.
+      // The user shops for it now, so no calendar date is correct for it.
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 0, tripDay: -1, isFirstTrip: true), "now");
+      expect(shoppingTripLabel(startDate: null, weekIndex: 0, tripDay: -1, isFirstTrip: true), "now");
+    });
+
+    test("says now for a first trip that is not week 0", () {
+      // The planner can drop week 0, so the earliest trip of the plan is the one that is now.
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: 6, isFirstTrip: true), "now");
     });
   });
 }

@@ -103,11 +103,14 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
 
   String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
     String prefix = isFirstLine ? "Buy" : "+";
-    // shoppingTripLabel already falls back to "Week N" without a start date, so the label
-    // rule stays in one place.
-    String when = purchase.isFirstTrip
-        ? "now"
-        : shoppingTripLabel(startDate: widget.startDate, weekIndex: purchase.weekIndex, tripDay: ShoppingTrip.dayForWeek(purchase.weekIndex));
+    // shoppingTripLabel owns the whole rule: "now" for the first trip, a real date after it,
+    // and "Week N" without a start date.
+    String when = shoppingTripLabel(
+      startDate: widget.startDate,
+      weekIndex: purchase.weekIndex,
+      tripDay: ShoppingTrip.dayForWeek(purchase.weekIndex),
+      isFirstTrip: purchase.isFirstTrip,
+    );
     return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} $when";
   }
 

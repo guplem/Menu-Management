@@ -212,13 +212,23 @@ class _ShoppingPageState extends State<ShoppingPage> {
     Clipboard.setData(ClipboardData(text: text));
   }
 
+  /// Names one trip of [trips]. The earliest trip of the plan is "now", because its day is
+  /// already past. The banner and the copied section headers both call this, so they agree
+  /// with the per-product rows, which call the same [shoppingTripLabel].
+  String _tripLabel({required ShoppingTrip trip, required List<ShoppingTrip> trips}) {
+    return shoppingTripLabel(
+      startDate: widget.multiWeekMenu.startDate,
+      weekIndex: trip.weekIndex,
+      tripDay: trip.tripDay,
+      isFirstTrip: trip.weekIndex == trips.first.weekIndex,
+    );
+  }
+
   String _buildBannerText(List<ShoppingTrip> trips) {
     String prefix = _useFreezerStrategy ? "One-trip mode" : "Multi-trip mode";
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
-    String weeksText = trips
-        .map((ShoppingTrip t) => shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: t.weekIndex, tripDay: t.tripDay))
-        .join(", ");
+    String weeksText = trips.map((ShoppingTrip t) => _tripLabel(trip: t, trips: trips)).join(", ");
     return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
@@ -263,7 +273,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       if (wroteSection) buffer.writeln();
       wroteSection = true;
-      String header = shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: trip.weekIndex, tripDay: trip.tripDay);
+      String header = _tripLabel(trip: trip, trips: trips);
       buffer.writeln(header);
       buffer.writeln("-" * header.length);
       for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {

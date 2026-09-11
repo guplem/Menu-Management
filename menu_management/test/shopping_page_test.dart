@@ -47,6 +47,47 @@ Recipe _riceRecipe() {
   );
 }
 
+// A short sealed shelf life forces the planner to schedule one trip per week.
+const Ingredient _milk = Ingredient(
+  id: "milk",
+  name: "Milk",
+  products: [Product(link: "https://example.com/milk", quantityPerItem: 1000, itemsPerPack: 1, unit: Unit.grams, shelfLifeDaysClosed: 3)],
+);
+
+Recipe _milkRecipe() {
+  return const Recipe(
+    id: "r2",
+    name: "Milk bowl",
+    instructions: [
+      Instruction(
+        id: "i2",
+        description: "pour the milk",
+        workingTimeMinutes: 5,
+        cookingTimeMinutes: 0,
+        ingredientsUsed: [
+          IngredientUsage(
+            ingredient: "milk",
+            quantity: Quantity(amount: 300, unit: Unit.grams),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+/// A two-week menu that cooks the milk recipe on the Monday of each week.
+MultiWeekMenu _twoWeekMilkMenu({required DateTime startDate}) {
+  const Menu week = Menu(
+    meals: [
+      Meal(
+        mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "r2", yield: 1), people: 2)],
+      ),
+    ],
+  );
+  return MultiWeekMenu(startDate: startDate, weeks: const [week, week]);
+}
+
 MultiWeekMenu _menu({DateTime? startDate}) {
   return MultiWeekMenu(
     startDate: startDate,
@@ -86,17 +127,27 @@ void main() {
   });
 
   group("ShoppingPage trip banner", () {
-    testWidgets("names the trip by week number when the menu has no first day", (WidgetTester tester) async {
+    testWidgets("says now for the only trip when the menu has no first day", (WidgetTester tester) async {
       await _pumpShoppingPage(tester, _menu());
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (Week 1)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (now)."), findsOneWidget);
     });
 
-    testWidgets("names the real shopping date when the menu has a first day", (WidgetTester tester) async {
-      // The menu starts on Wednesday 6 Aug 2025, so its trip happens the day before.
+    testWidgets("says now for the only trip when the menu has a first day", (WidgetTester tester) async {
+      // The trip of the first week happens the day before menu day 0, a day already past.
+      // The banner must match the product row, which calls that same trip "now".
       await _pumpShoppingPage(tester, _menu(startDate: DateTime(2025, 8, 6)));
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (Tuesday 5 Aug)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (now)."), findsOneWidget);
+    });
+
+    testWidgets("keeps the real date of a later trip", (WidgetTester tester) async {
+      IngredientsProvider.instance.setData([_milk]);
+      RecipesProvider.instance.setData([_milkRecipe()], ingredients: [_milk]);
+      // The menu starts on Wednesday 6 Aug 2025. The second trip happens on day 6, 12 Aug.
+      await _pumpShoppingPage(tester, _twoWeekMilkMenu(startDate: DateTime(2025, 8, 6)));
+
+      expect(find.textContaining("Multi-trip mode: copy will split into 2 trips (now, Tuesday 12 Aug)."), findsOneWidget);
     });
   });
 }
