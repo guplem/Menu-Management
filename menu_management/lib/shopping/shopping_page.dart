@@ -4,6 +4,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -175,6 +176,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             ownedProductCounts: ownedProductCounts[ingredientId] ?? const {},
             sources: ingredientSources[ingredientId] ?? [],
             plannedTrips: plannedTrips,
+            startDate: widget.multiWeekMenu.startDate,
             onOwnedChanged: (double amount, OwnedUnit unit) {
               setState(() {
                 ownedAmounts[ingredientId] = amount;
@@ -210,11 +212,23 @@ class _ShoppingPageState extends State<ShoppingPage> {
     Clipboard.setData(ClipboardData(text: text));
   }
 
+  /// Names one trip of [trips]. [shoppingTripLabel] owns the rule that decides when the
+  /// earliest trip of the plan reads "now". The banner and the copied section headers both
+  /// call this, so they agree with the per-product rows, which call the same function.
+  String _tripLabel({required ShoppingTrip trip, required List<ShoppingTrip> trips}) {
+    return shoppingTripLabel(
+      startDate: widget.multiWeekMenu.startDate,
+      weekIndex: trip.weekIndex,
+      tripDay: trip.tripDay,
+      isFirstTrip: trip.weekIndex == trips.first.weekIndex,
+    );
+  }
+
   String _buildBannerText(List<ShoppingTrip> trips) {
     String prefix = _useFreezerStrategy ? "One-trip mode" : "Multi-trip mode";
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
-    String weeksText = trips.map((ShoppingTrip t) => "Week ${t.weekIndex + 1}").join(", ");
+    String weeksText = trips.map((ShoppingTrip t) => _tripLabel(trip: t, trips: trips)).join(", ");
     return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
@@ -259,8 +273,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       if (wroteSection) buffer.writeln();
       wroteSection = true;
-      buffer.writeln("Week ${trip.weekIndex + 1}");
-      buffer.writeln("--------");
+      String header = _tripLabel(trip: trip, trips: trips);
+      buffer.writeln(header);
+      buffer.writeln("-" * header.length);
       for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
         _appendIngredientLines(
           buffer: buffer,

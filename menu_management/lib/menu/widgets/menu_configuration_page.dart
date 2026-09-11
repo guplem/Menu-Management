@@ -3,6 +3,7 @@ import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
@@ -15,6 +16,8 @@ class MenuConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The page borrows the date of the active menu. Read it once: it is the same for every column.
+    final DateTime? startDate = MenuProvider.listenableMultiWeekMenuOf(context)?.startDate;
     final WidgetStateProperty<Icon?> switchIcon = WidgetStateProperty.resolveWith<Icon?>((states) {
       if (states.contains(WidgetState.selected)) {
         return const Icon(Icons.fastfood_rounded);
@@ -67,7 +70,7 @@ class MenuConfigurationPage extends StatelessWidget {
                   padding: const EdgeInsets.all(15),
                   child: DefaultTextStyle(
                     style: Theme.of(context).textTheme.titleLarge!,
-                    child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
+                    child: Text(menuDayName(startDate: startDate, dayOffset: weekDayValue)),
                   ),
                 ),
                 ...List.generate(3, (mealTypeValue) {

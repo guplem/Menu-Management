@@ -201,17 +201,48 @@ class Persistency {
     recipesProvider.setData(recipes, ingredients: ingredients);
   }
 
+  /// Normalizes the "startDate" field, and drops it when it is not a valid date.
+  ///
+  /// Two problems are handled here, at the one boundary where the file becomes data:
+  ///
+  /// 1. `MultiWeekMenu.fromJson` calls `DateTime.parse`, which throws on a value such as
+  ///    "6 Aug 2025" or a number. The loaders catch every error and return null, so the user
+  ///    would lose all the meals. The menu loads date-less instead, with a warning.
+  /// 2. `DateTime.parse` keeps the UTC flag of a value such as "2025-08-06T23:00:00Z", and it
+  ///    keeps the time of day. The date chip, the date picker and the day grid each read the
+  ///    field in a different way, so a UTC value can render one day off. This function converts
+  ///    the value to local time and strips the time, which is the exact shape the date picker
+  ///    writes.
+  static Map<String, dynamic> _normalizeStartDate(Map<String, dynamic> json) {
+    Object? rawStartDate = json["startDate"];
+    if (rawStartDate == null) return json;
+
+    DateTime? parsed = rawStartDate is String ? DateTime.tryParse(rawStartDate) : null;
+    if (parsed == null) {
+      Debug.logWarning(true, 'Menu loaded without its first day: "$rawStartDate" is not a valid date.', asAssertion: false);
+      return Map<String, dynamic>.from(json)..remove("startDate");
+    }
+
+    DateTime local = parsed.isUtc ? parsed.toLocal() : parsed;
+    DateTime normalized = DateTime(local.year, local.month, local.day);
+    return Map<String, dynamic>.from(json)..["startDate"] = normalized.toIso8601String();
+  }
+
   /// Parses .tsm JSON content into a MultiWeekMenu. Supports both multi-week and single-week formats.
   /// Validates that all referenced recipeIds exist in [recipes]. Missing recipes are nullified with a warning.
   static MultiWeekMenu _parseMenuFromJson(String data, {required List<Recipe> recipes}) {
-    Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+    Map<String, dynamic> json = _normalizeStartDate(Map<String, dynamic>.from(jsonDecode(data)));
 
     MultiWeekMenu rawMenu;
     if (json.containsKey("weeks")) {
       rawMenu = MultiWeekMenu.fromJson(json);
     } else {
+      // An old single-week file holds one Menu at the top level. A "startDate" beside it is
+      // still the first day of the menu, so carry it onto the wrapper.
       Menu singleWeek = Menu.fromJson(json);
-      rawMenu = MultiWeekMenu.validated(weeks: [singleWeek]);
+      Object? rawStartDate = json["startDate"];
+      DateTime? startDate = rawStartDate is String ? DateTime.parse(rawStartDate) : null;
+      rawMenu = MultiWeekMenu.validated(weeks: [singleWeek], startDate: startDate);
     }
 
     // Validate: warn and strip sub-meals with missing recipe IDs
@@ -235,7 +266,7 @@ class Persistency {
       Debug.logWarning(true, "Menu loaded with missing recipes:\n${warnings.join('\n')}", asAssertion: false);
     }
 
-    return MultiWeekMenu(weeks: validatedWeeks);
+    return rawMenu.copyWith(weeks: validatedWeeks);
   }
 
   // ============================================================
@@ -360,14 +391,25 @@ class Persistency {
     return loaded ? LoadOutcome.success : LoadOutcome.failed;
   }
 
-  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
-    DateTime nextSaturday = DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
-    String date = "${nextSaturday.year}-${nextSaturday.month}-${nextSaturday.day}";
+  /// Builds the file name that the save dialog proposes.
+  /// It uses the first day of the menu. Without one it falls back to the next Saturday.
+  /// [today] is the reference day. It defaults to the real today and exists for the tests.
+  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today}) {
+    DateTime reference = today ?? DateTime.now();
+    // DateTime.weekday is 6 on a Saturday, so the wrap keeps a Sunday looking forward
+    // (6 days ahead) instead of backward to yesterday.
+    int daysToSaturday = (6 - reference.weekday) % 7;
+    DateTime date = multiWeekMenu.startDate ?? DateTime(reference.year, reference.month, reference.day + daysToSaturday);
+    String month = date.month.toString().padLeft(2, "0");
+    String day = date.day.toString().padLeft(2, "0");
+    return "Menu-${date.year}-$month-$day.tsm";
+  }
 
+  static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {
     // Pick the destination
     String? outputFile = await FilePicker.platform.saveFile(
       dialogTitle: "Select where to save the menu",
-      fileName: "Menu-$date.tsm",
+      fileName: defaultMenuFileName(multiWeekMenu),
       allowedExtensions: ["tsm", "json"],
       type: FileType.custom,
     );

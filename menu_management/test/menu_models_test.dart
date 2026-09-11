@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
@@ -32,6 +33,11 @@ Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lun
       ),
     ],
   );
+}
+
+/// Builds the day labels of one week the same way MultiWeekMenu builds them.
+Map<WeekDay, String> _dayLabels({DateTime? startDate, int weekIndex = 0}) {
+  return {for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: weekIndex, weekDay: weekDay)};
 }
 
 void main() {
@@ -1036,15 +1042,39 @@ void main() {
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
         );
-        String output = menu.toStringBeautified(recipes: recipes);
+        String output = menu.toStringBeautified(recipes: recipes, dayLabels: _dayLabels());
         expect(output.contains("Saturday"), true);
         expect(output.contains("Sunday"), true);
         expect(output.contains("Friday"), true);
       });
 
+      test("uses the labels that the caller gives", () {
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
+        );
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(startDate: DateTime(2025, 8, 6)),
+        );
+        expect(output.contains("Wednesday 6 Aug"), true);
+      });
+
+      test("throws when a day has no label", () {
+        // A partial map is a mistake of the caller. The method must stop there, not print
+        // the text "null" into the clipboard of the user.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
+        );
+        Map<WeekDay, String> partialLabels = <WeekDay, String>{WeekDay.saturday: "Saturday"};
+
+        expect(() => menu.toStringBeautified(recipes: [recipe], dayLabels: partialLabels), throwsA(isA<TypeError>()));
+      });
+
       test("shows dash for missing meals", () {
         const Menu menu = Menu(meals: []);
-        String output = menu.toStringBeautified(recipes: []);
+        String output = menu.toStringBeautified(recipes: [], dayLabels: _dayLabels());
         expect(output.contains("-"), true);
       });
 
@@ -1054,7 +1084,7 @@ void main() {
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2)],
         );
-        String output = menu.toStringBeautified(recipes: recipes);
+        String output = menu.toStringBeautified(recipes: recipes, dayLabels: _dayLabels());
         expect(output.contains("Pasta"), true);
         expect(output.contains("2 pp"), true);
       });

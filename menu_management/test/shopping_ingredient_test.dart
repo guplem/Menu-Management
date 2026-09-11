@@ -205,7 +205,7 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs now"), findsOneWidget);
-      expect(find.text("+ 3 packs week 2"), findsOneWidget);
+      expect(find.text("+ 3 packs Week 2"), findsOneWidget);
       // The single-total label must not appear when the row is split.
       expect(find.text("Buy 9 packs"), findsNothing);
     });

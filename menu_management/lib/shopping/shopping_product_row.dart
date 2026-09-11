@@ -3,6 +3,8 @@ import "dart:io";
 import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/product.dart";
+import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
@@ -12,7 +14,7 @@ class ProductTripPurchase {
 
   final int weekIndex; // 0-based; displayed as weekIndex + 1
   final int packs;
-  final bool isFirstTrip; // true for the plan's earliest trip -> labeled "now"
+  final bool isFirstTrip; // true for the earliest trip of the plan; shoppingTripLabel decides the wording
 }
 
 class ShoppingProductRow extends StatefulWidget {
@@ -23,6 +25,7 @@ class ShoppingProductRow extends StatefulWidget {
     required this.isBestOption,
     required this.packsToBuy,
     this.tripPurchases = const [],
+    this.startDate,
     this.ownedCount = 0,
     this.onOwnedCountChanged,
   });
@@ -38,6 +41,10 @@ class ShoppingProductRow extends StatefulWidget {
   /// Per-trip split of [packsToBuy]. When it has 2+ entries the buy area shows one line per
   /// trip (e.g. "Buy 6 packs now" + "3 packs week 2"); otherwise it shows a single total.
   final List<ProductTripPurchase> tripPurchases;
+
+  /// First day of the menu. When it is set, a later trip line names its real shopping date
+  /// instead of the week number. Null keeps the week number.
+  final DateTime? startDate;
 
   /// How many of this product the user already owns. Seeds the owned input.
   final double ownedCount;
@@ -96,7 +103,14 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
 
   String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
     String prefix = isFirstLine ? "Buy" : "+";
-    String when = purchase.isFirstTrip ? "now" : "week ${purchase.weekIndex + 1}";
+    // shoppingTripLabel owns the whole rule: "now" for the first trip, a real date after it,
+    // and "Week N" without a start date.
+    String when = shoppingTripLabel(
+      startDate: widget.startDate,
+      weekIndex: purchase.weekIndex,
+      tripDay: ShoppingTrip.dayForWeek(purchase.weekIndex),
+      isFirstTrip: purchase.isFirstTrip,
+    );
     return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} $when";
   }
 

@@ -3,6 +3,17 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/models/cooking.dart";
+import "package:menu_management/menu/models/meal.dart";
+import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/owned_amount.dart";
@@ -20,6 +31,19 @@ Product _product({Unit unit = Unit.grams, int? shelfLifeDaysClosed, double quant
 
 Ingredient _ingredient({required String id, String? name, List<Product> products = const [], double? gramsPerPiece, double? density}) {
   return Ingredient(id: id, name: name ?? id, products: products, gramsPerPiece: gramsPerPiece, density: density);
+}
+
+/// One meal of a menu week, used to build a real timeline from a menu.
+Meal _menuMeal({required WeekDay weekDay, required String recipeId, MealType mealType = MealType.lunch, int people = 2}) {
+  return Meal(
+    mealTime: MealTime(weekDay: weekDay, mealType: mealType),
+    subMeals: [
+      SubMeal(
+        cooking: Cooking(recipeId: recipeId, yield: 1),
+        people: people,
+      ),
+    ],
+  );
 }
 
 CookingEvent _event({required int day, double amount = 100, Unit unit = Unit.grams}) {
@@ -649,6 +673,67 @@ void main() {
       expect(trips.length, 1);
       expect(trips.first.weekIndex, greaterThan(0));
       expect(trips.first.items.first.freezeOnArrival, isFalse);
+    });
+  });
+
+  group("ShoppingTrip.dayForWeek", () {
+    test("puts the trip on the day before the week starts", () {
+      expect(ShoppingTrip.dayForWeek(0), -1);
+      expect(ShoppingTrip.dayForWeek(1), 6);
+      expect(ShoppingTrip.dayForWeek(2), 13);
+    });
+  });
+
+  group("start date of the menu", () {
+    test("does not change how the menu splits into trips", () {
+      // The planner works on day offsets. A menu with a real date must split the same way.
+      Recipe recipe = Recipe(
+        id: "r1",
+        name: "Stew",
+        instructions: [
+          const Instruction(
+            id: "i1",
+            description: "cook it",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "milk",
+                quantity: Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
+          ),
+        ],
+      );
+      Ingredient milk = _ingredient(id: "milk", products: [_product(shelfLifeDaysClosed: 5)]);
+      List<Menu> weeks = [
+        Menu(
+          meals: [_menuMeal(weekDay: WeekDay.saturday, recipeId: "r1")],
+        ),
+        Menu(
+          meals: [_menuMeal(weekDay: WeekDay.thursday, recipeId: "r1")],
+        ),
+      ];
+
+      List<ShoppingTrip> undatedTrips = planShoppingTrips(
+        cookingTimeline: buildCookingTimeline(
+          multiWeekMenu: MultiWeekMenu(weeks: weeks),
+          recipes: [recipe],
+        ),
+        ingredients: [milk],
+      );
+      List<ShoppingTrip> datedTrips = planShoppingTrips(
+        cookingTimeline: buildCookingTimeline(
+          multiWeekMenu: MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: weeks),
+          recipes: [recipe],
+        ),
+        ingredients: [milk],
+      );
+
+      expect(undatedTrips.map((ShoppingTrip trip) => trip.tripDay).toList(), [-1, 6]);
+      expect(datedTrips.map((ShoppingTrip trip) => trip.tripDay).toList(), undatedTrips.map((ShoppingTrip trip) => trip.tripDay).toList());
+      expect(
+        datedTrips.map((ShoppingTrip trip) => trip.items.map((TripItem item) => "${item.ingredientId} ${item.amount}").toList()).toList(),
+        undatedTrips.map((ShoppingTrip trip) => trip.items.map((TripItem item) => "${item.ingredientId} ${item.amount}").toList()).toList(),
+      );
     });
   });
 }

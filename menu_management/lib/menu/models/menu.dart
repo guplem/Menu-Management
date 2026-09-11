@@ -285,7 +285,11 @@ abstract class Menu with _$Menu {
     return total;
   }
 
-  String toStringBeautified({required List<Recipe> recipes}) {
+  /// [dayLabels] names each day of this week. The caller builds it with `menuDayLabel`,
+  /// because the start date lives on MultiWeekMenu. That function owns the date-less wording
+  /// too, so this method never needs a name of its own. The map must hold all seven days.
+  /// A missing day throws, so a partial map fails at the caller, not in the clipboard text.
+  String toStringBeautified({required List<Recipe> recipes, required Map<WeekDay, String> dayLabels}) {
     // Format:
     // Weekday
     //   Breakfast: recipe (yield pp) [x people]
@@ -295,7 +299,7 @@ abstract class Menu with _$Menu {
 
     String result = "";
     for (WeekDay weekDay in WeekDay.values) {
-      result += "${weekDay.name.capitalizeFirstLetter()}\n";
+      result += "${dayLabels[weekDay]!}\n";
       List<Meal?> dayMeals = mealsOfDay(weekDay);
       for (int i = 0; i < dayMeals.length; i++) {
         Meal? meal = dayMeals[i];

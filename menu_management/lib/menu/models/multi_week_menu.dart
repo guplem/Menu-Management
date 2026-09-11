@@ -1,5 +1,7 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -13,7 +15,11 @@ part "multi_week_menu.g.dart";
 
 @freezed
 abstract class MultiWeekMenu with _$MultiWeekMenu {
-  const factory MultiWeekMenu({@Default([]) List<Menu> weeks}) = _MultiWeekMenu;
+  /// [startDate] is the real calendar date of menu day 0. It is optional: a menu without it
+  /// keeps the date-less day order of the WeekDay enum, which starts at Saturday.
+  /// The date never changes the planning math, which stays in absolute day offsets.
+  /// Use the functions in `menu_dates.dart` to turn a day offset into a date or a label.
+  const factory MultiWeekMenu({@Default([]) List<Menu> weeks, @JsonKey(includeIfNull: false) DateTime? startDate}) = _MultiWeekMenu;
 
   factory MultiWeekMenu.fromJson(Map<String, Object?> json) => _$MultiWeekMenuFromJson(json);
 
@@ -21,9 +27,9 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
 
   /// Validates that the menu has at least one week.
   /// Use this factory instead of the default constructor when creating from user actions.
-  factory MultiWeekMenu.validated({required List<Menu> weeks}) {
+  factory MultiWeekMenu.validated({required List<Menu> weeks, DateTime? startDate}) {
     if (weeks.isEmpty) throw ArgumentError("MultiWeekMenu must have at least one week");
-    return MultiWeekMenu(weeks: weeks);
+    return MultiWeekMenu(weeks: weeks, startDate: startDate);
   }
 
   int get weekCount => weeks.length;
@@ -190,11 +196,17 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return combined;
   }
 
+  /// Writes the whole menu as text for the clipboard.
+  /// This model owns the start date, so it builds the day labels and hands them to each week.
   String toStringBeautified({required List<Recipe> recipes}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
-      result += "Week ${i + 1}\n";
-      result += "${weeks[i].toStringBeautified(recipes: recipes)}\n\n";
+      final String weekRange = menuWeekRangeLabel(startDate: startDate, weekIndex: i);
+      result += weekRange.isEmpty ? "Week ${i + 1}\n" : "Week ${i + 1} ($weekRange)\n";
+      final Map<WeekDay, String> dayLabels = {
+        for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: i, weekDay: weekDay),
+      };
+      result += "${weeks[i].toStringBeautified(recipes: recipes, dayLabels: dayLabels)}\n\n";
     }
     return result.trim();
   }

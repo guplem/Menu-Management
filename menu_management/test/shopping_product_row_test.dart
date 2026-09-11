@@ -18,6 +18,7 @@ Future<void> _pumpRow(
   double ownedCount = 0,
   ValueChanged<double>? onOwnedCountChanged,
   ProductRecommendation? recommendation,
+  DateTime? startDate,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -28,6 +29,7 @@ Future<void> _pumpRow(
           isBestOption: true,
           packsToBuy: packsToBuy,
           tripPurchases: tripPurchases,
+          startDate: startDate,
           ownedCount: ownedCount,
           onOwnedCountChanged: onOwnedCountChanged,
         ),
@@ -51,9 +53,26 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs now"), findsOneWidget);
-      expect(find.text("+ 3 packs week 2"), findsOneWidget);
+      expect(find.text("+ 3 packs Week 2"), findsOneWidget);
       // The single-total label must not appear when the row is split.
       expect(find.text("Buy 9 packs"), findsNothing);
+    });
+
+    testWidgets("names the shopping date of a later trip when the menu has a start date", (WidgetTester tester) async {
+      Product product = _packProduct();
+      await _pumpRow(
+        tester,
+        product: product,
+        packsToBuy: 9,
+        startDate: DateTime(2025, 8, 6),
+        tripPurchases: const [
+          ProductTripPurchase(weekIndex: 0, packs: 6, isFirstTrip: true),
+          ProductTripPurchase(weekIndex: 1, packs: 3, isFirstTrip: false),
+        ],
+      );
+
+      expect(find.text("Buy 6 packs now"), findsOneWidget);
+      expect(find.text("+ 3 packs Tuesday 12 Aug"), findsOneWidget);
     });
 
     testWidgets("renders a single total line when no trip purchases are given", (WidgetTester tester) async {
@@ -134,7 +153,7 @@ void main() {
       );
 
       expect(find.text("Buy 2 pieces now"), findsOneWidget);
-      expect(find.text("+ 1 piece week 3"), findsOneWidget);
+      expect(find.text("+ 1 piece Week 3"), findsOneWidget);
     });
   });
 
@@ -218,7 +237,7 @@ void main() {
 
       // Per-trip lines show the FULL round-up; the "N short" chip must not appear alongside them.
       expect(find.text("Buy 2 packs now"), findsOneWidget);
-      expect(find.text("+ 1 pack week 2"), findsOneWidget);
+      expect(find.text("+ 1 pack Week 2"), findsOneWidget);
       expect(find.textContaining("short"), findsNothing);
     });
   });

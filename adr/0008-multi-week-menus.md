@@ -17,6 +17,10 @@ Key design choices:
 - **Independent generation**: Each additional week is generated independently with its own seed, reusing the same `MenuConfiguration` settings. This means each week gets a different menu while respecting the same time constraints.
 - **Backward-compatible persistence**: The `loadMultiWeekMenu` method detects whether a `.tsm` file contains the new `MultiWeekMenu` format (has "weeks" key) or the old single-`Menu` format, and wraps old files in a single-week `MultiWeekMenu`.
 - **Minimum one week invariant**: The default Freezed constructor allows empty weeks (needed for JSON deserialization). Production code uses `MultiWeekMenu.validated(weeks: ...)` which throws `ArgumentError` on empty lists. `removeLastWeek()` also guards against going below one week.
+- **Optional start date**: `MultiWeekMenu.startDate` holds the real calendar date of menu day 0. It is optional. The planning math never reads it: every calculation stays in absolute day offsets (`weekIndex * 7 + weekDay.value`). The date only translates an offset into a real date for the user. The functions in `lib/menu/menu_dates.dart` do that translation and are the one home for it.
+- **Day order comes from the start date**: the `WeekDay` enum value is the day offset inside the week, so the grid always renders offset 0 to 6 in that order. The start date changes only the name and the date of each column. A menu that starts on a Wednesday reads Wednesday to Tuesday. No meal moves, because no meal is re-keyed.
+- **The start date survives regeneration**: the start date is user configuration, not generator output. `MenuGenerator` knows nothing about dates, so `MenuPage` re-applies the date to the regenerated menu.
+- **Date-less menus keep the old wording**: a `.tsm` file without `startDate` loads with a null date. Then the day names come from the `WeekDay` enum, which starts at Saturday, and no date is shown. The shopping trip label falls back to "Week N".
 - **UI navigation**: Week switching uses left/right chevrons in the app bar. Add/remove week uses +/- circle buttons. When only one week exists, the navigation arrows are hidden.
 
 ## Consequences
@@ -24,6 +28,7 @@ Key design choices:
 - `MenuPage` now receives `MultiWeekMenu` instead of `Menu`. All per-week edits (recipe swap, people count) go through `MultiWeekMenu.updateWeekAt()`.
 - `ShoppingPage` receives `MultiWeekMenu` and uses its aggregated `allIngredients(recipes:)` method.
 - `Persistency.saveMenu` and `loadMultiWeekMenu` handle the new format. Old `.tsm` files remain loadable.
+- `startDate` is written to `.tsm` as an ISO-8601 string, and is left out of the file when it is null. `Persistency._parseMenuFromJson` keeps the loaded date while it strips meals that reference a missing recipe.
 - Yield calculation spans weeks via `MultiWeekMenu.copyWithUpdatedYields`. A recipe cooked late in week N can serve as leftovers in early week N+1, provided the gap is within the recipe's `maxStorageDays`. Carry-over cook events are tracked as absolute day indices across the full multi-week timeline.
 - `MenuProvider.generateMenu` now returns `MultiWeekMenu` (single week). `MenuProvider.generateAdditionalWeek` generates a standalone `Menu` for appending.
 - `MenuPage` remains the source of truth for the menu it renders, but as of ADR 0016 it also mirrors every change into `MenuProvider.setMultiWeekMenu()` so other pages (recipe deletion) can inspect the active menu even after `MenuPage` is closed. The mirror is best-effort: it persists after `MenuPage` closes and is only replaced the next time a menu is opened in `MenuPage`; nothing ever resets it to `null`.

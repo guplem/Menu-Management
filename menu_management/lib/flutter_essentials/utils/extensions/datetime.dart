@@ -1,5 +1,13 @@
+/// Short month names, indexed by `month - 1`.
+const List<String> _shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 /// Extensions on [DateTime] for common date comparison and calculation operations.
 extension DateTimeExtensions on DateTime {
+  /// Returns a short date such as "6 Aug". It ignores the time of day.
+  String toShortDateString() {
+    return "$day ${_shortMonthNames[month - 1]}";
+  }
+
   /// Returns true if this date is the same calendar day as [other] (defaults to now).
   bool isSameDay([DateTime? other]) {
     other ??= DateTime.now();
