@@ -22,7 +22,7 @@ part "menu_pdf_document.freezed.dart";
 /// reader sees that the recipe needs something and can ask for it.
 const String unknownIngredientName = "Unknown ingredient";
 
-/// The dish name of a meal with no recipe, and of a meal whose recipe is deleted.
+/// The dish name of a meal with no recipe, and of a meal whose recipe is deleted (ADR 0016).
 /// The clipboard text writes the same dash, so both exports read the same.
 const String emptyDishName = "-";
 
@@ -141,9 +141,9 @@ abstract class MenuPdfDocument with _$MenuPdfDocument {
 MenuPdfDocument buildMenuPdfDocument({required MultiWeekMenu multiWeekMenu, required List<Recipe> recipes, required List<Ingredient> ingredients}) {
   final List<MenuPdfWeekSection> weekSections = [];
 
-  // The servings to cook of each recipe, keyed by recipe id. The insertion order is the order of
-  // the first meal that eats the recipe, which is the order of the recipe sections.
-  final Map<String, int> servingsByRecipeId = {};
+  // The id of every recipe that the menu eats, in the order of the first meal that eats it, which
+  // is the order of the recipe sections. A recipe enters the list once.
+  final List<String> recipeIdsInMenuOrder = [];
 
   for (int weekIndex = 0; weekIndex < multiWeekMenu.weeks.length; weekIndex++) {
     final Menu week = multiWeekMenu.weeks[weekIndex];
@@ -167,12 +167,16 @@ MenuPdfDocument buildMenuPdfDocument({required MultiWeekMenu multiWeekMenu, requ
           }
 
           final Recipe? recipe = recipes.firstWhereOrNull((Recipe candidate) => candidate.id == cooking.recipeId);
-          if (recipe != null) servingsByRecipeId.putIfAbsent(recipe.id, () => 0);
+          if (recipe == null) {
+            // The menu points at a deleted recipe (ADR 0016). The PDF holds no section to cook
+            // from, so the cell asks for no work and reads like an empty slot.
+            dishes.add(MenuPdfDish(recipeName: emptyDishName, people: subMeal.people, source: MenuPdfDishSource.empty, servingsToCook: 0));
+            continue;
+          }
+          if (!recipeIdsInMenuOrder.contains(recipe.id)) recipeIdsInMenuOrder.add(recipe.id);
 
           if (cooking.yield <= 0) {
-            dishes.add(
-              MenuPdfDish(recipeName: recipe?.name ?? emptyDishName, people: subMeal.people, source: MenuPdfDishSource.leftovers, servingsToCook: 0),
-            );
+            dishes.add(MenuPdfDish(recipeName: recipe.name, people: subMeal.people, source: MenuPdfDishSource.leftovers, servingsToCook: 0));
             continue;
           }
 
@@ -182,15 +186,7 @@ MenuPdfDocument buildMenuPdfDocument({required MultiWeekMenu multiWeekMenu, requ
             subMealIndex: subMealIndex,
             recipes: recipes,
           );
-          if (recipe != null) servingsByRecipeId[recipe.id] = servingsByRecipeId[recipe.id]! + servings;
-          dishes.add(
-            MenuPdfDish(
-              recipeName: recipe?.name ?? emptyDishName,
-              people: subMeal.people,
-              source: MenuPdfDishSource.cooked,
-              servingsToCook: servings,
-            ),
-          );
+          dishes.add(MenuPdfDish(recipeName: recipe.name, people: subMeal.people, source: MenuPdfDishSource.cooked, servingsToCook: servings));
         }
 
         slots.add(MenuPdfSlot(mealType: MealType.values[mealTypeIndex], dishes: dishes));
@@ -209,11 +205,13 @@ MenuPdfDocument buildMenuPdfDocument({required MultiWeekMenu multiWeekMenu, requ
   }
 
   final List<MenuPdfRecipeSection> recipeSections = [];
-  for (MapEntry<String, int> entry in servingsByRecipeId.entries) {
-    final Recipe recipe = recipes.firstWhere((Recipe candidate) => candidate.id == entry.key);
-    // A recipe that the menu only eats as leftovers has no cook event of its own, so the walk
-    // above counted zero servings for it. The people of its meals say how much it must make.
-    final int servings = entry.value > 0 ? entry.value : multiWeekMenu.totalServingsForRecipe(recipe.id);
+  for (String recipeId in recipeIdsInMenuOrder) {
+    final Recipe recipe = recipes.firstWhere((Recipe candidate) => candidate.id == recipeId);
+    // The section feeds every person that eats the recipe, over every week.
+    // `totalServingsForRecipe` folds the people of each sub-meal once, so it never counts a
+    // person twice. The sum of the cook events does: a recipe that keeps no leftovers gets one
+    // cook event per meal, and each event already counts the people of every meal of that day.
+    final int servings = multiWeekMenu.totalServingsForRecipe(recipe.id);
     recipeSections.add(_buildRecipeSection(recipe: recipe, servings: servings, ingredients: ingredients));
   }
 
@@ -222,7 +220,10 @@ MenuPdfDocument buildMenuPdfDocument({required MultiWeekMenu multiWeekMenu, requ
 
 /// Names the document after the days that it covers, for example "Menu 6 Aug - 19 Aug".
 /// A menu with no first day is named "Menu", because it holds no date to write.
+/// A menu with no week is named "Menu" too: it covers no day, so a range would end before it
+/// starts.
 String _documentTitle(MultiWeekMenu multiWeekMenu) {
+  if (multiWeekMenu.weeks.isEmpty) return "Menu";
   final DateTime? firstDay = menuDateForDay(startDate: multiWeekMenu.startDate, dayOffset: 0);
   final DateTime? lastDay = menuDateForDay(startDate: multiWeekMenu.startDate, dayOffset: multiWeekMenu.weeks.length * 7 - 1);
   if (firstDay == null || lastDay == null) return "Menu";

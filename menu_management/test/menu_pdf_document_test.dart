@@ -94,6 +94,15 @@ void main() {
       expect(document.weeks.map((MenuPdfWeekSection week) => week.title).toList(), ["Week 1"]);
     });
 
+    test("titles a menu that holds no week 'Menu', because such a menu covers no day", () {
+      MultiWeekMenu menu = MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: const []);
+
+      MenuPdfDocument document = buildMenuPdfDocument(multiWeekMenu: menu, recipes: [], ingredients: []);
+
+      expect(document.title, "Menu");
+      expect(document.weeks, isEmpty);
+    });
+
     test("writes one row per day, in the order of the week, with the real date of each day", () {
       Recipe pasta = _recipe(id: "r1", name: "Pasta");
       MultiWeekMenu menu = MultiWeekMenu(
@@ -215,8 +224,10 @@ void main() {
       MenuPdfDocument document = buildMenuPdfDocument(multiWeekMenu: menu, recipes: [], ingredients: []);
 
       expect(document.weeks.single.days.first.slots[1].dishes, const [
-        MenuPdfDish(recipeName: "-", people: 2, source: MenuPdfDishSource.cooked, servingsToCook: 2),
+        MenuPdfDish(recipeName: "-", people: 2, source: MenuPdfDishSource.empty, servingsToCook: 0),
       ]);
+      // The cell must ask for no work: the reader has no recipe to cook from.
+      expect(document.weeks.single.days.first.slots[1].dishes.single.note, "");
       expect(document.recipes, isEmpty);
     });
 
@@ -295,6 +306,38 @@ void main() {
         MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "500 grams"),
         MenuPdfIngredientLine(ingredientName: "Egg", amounts: "5 pieces"),
       ]);
+    });
+
+    test("counts every eater once when the menu cooks the same fresh recipe twice on one day", () {
+      // A recipe that keeps no leftovers (maxStorageDays: 0) gets one cook event per meal. The
+      // ingredient list must buy for the four people that eat, not for eight.
+      Recipe pasta = _recipe(
+        id: "r1",
+        name: "Pasta",
+        maxStorageDays: 0,
+        instructions: [
+          _instruction(
+            id: "i1",
+            description: "Boil the pasta.",
+            ingredientsUsed: [_usage(ingredientId: "n1", amount: 100)],
+          ),
+        ],
+      );
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipeId: "r1", people: 2),
+              _meal(weekDay: WeekDay.saturday, mealType: MealType.dinner, recipeId: "r1", people: 2),
+            ],
+          ),
+        ],
+      );
+
+      MenuPdfDocument document = buildMenuPdfDocument(multiWeekMenu: menu, recipes: [pasta], ingredients: [_ingredient(id: "n1", name: "Noodles")]);
+
+      expect(document.recipes.single.servings, 4);
+      expect(document.recipes.single.ingredients, const [MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "400 grams")]);
     });
 
     test("numbers the instructions and keeps the times and the ingredients of each one", () {
