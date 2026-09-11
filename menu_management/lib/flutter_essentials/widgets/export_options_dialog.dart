@@ -70,9 +70,9 @@ typedef SaveBytesCall =
 /// An [ExportOption] that writes a file through a save dialog.
 ///
 /// It is the file counterpart of [ClipboardExportOption]. The class holds no knowledge of any
-/// page: the caller passes the bytes, the kind of file, the file name and every message. The
-/// caller also passes the two file calls, so this library imports nothing outside itself
-/// (ADR 0007).
+/// page: the caller passes the bytes, the kind of file, the file name, the icon and every
+/// message. The caller also passes the two file calls, so this library imports nothing outside
+/// itself (ADR 0007).
 class FileExportOption extends ExportOption {
   const FileExportOption({
     required super.label,
@@ -83,9 +83,9 @@ class FileExportOption extends ExportOption {
     required this.buildConfirmation,
     required this.saveBytes,
     required this.supportsFileSaving,
-    this.extension = "pdf",
-    this.unavailableMessage = defaultUnavailableMessage,
-    super.icon = Icons.picture_as_pdf_rounded,
+    required this.extension,
+    required this.unavailableMessage,
+    required super.icon,
     super.failureNote = "No file was written.",
   });
 
@@ -115,11 +115,10 @@ class FileExportOption extends ExportOption {
 
   /// What the row reports on iOS and on Android, where `FilePicker` has no save dialog
   /// (ADR 0003). It names the way out, so the user still gets the data out of the app.
-  /// Every page that exports something else than the menu passes its own words.
+  ///
+  /// The caller writes it, and this class holds no default for it. A default would name one page,
+  /// and every other page would then tell the user to copy something that the page does not hold.
   final String unavailableMessage;
-
-  /// The message of the menu export, which is the only file export of the app today.
-  static const String defaultUnavailableMessage = "This device cannot save a file. Copy the menu as text instead.";
 
   /// Writes the file and returns the snackbar text.
   ///
