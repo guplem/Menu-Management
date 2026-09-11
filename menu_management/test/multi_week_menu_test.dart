@@ -245,6 +245,52 @@ void main() {
       expect(output.contains("Week 1"), true);
       expect(output.contains("Week 2"), true);
     });
+
+    test("names the days by the WeekDay enum when the menu has no start date", () {
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Saturday"), true);
+      expect(output.contains("Aug"), false);
+    });
+
+    test("gives every day its real date when the menu has a start date", () {
+      // 2025-08-06 is a Wednesday, so menu day 0 is Wednesday 6 Aug.
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          _singleMealMenu(recipe: recipe),
+          _singleMealMenu(recipe: recipe),
+        ],
+      );
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Wednesday 6 Aug"), true);
+      expect(output.contains("Tuesday 12 Aug"), true);
+      expect(output.contains("Wednesday 13 Aug"), true);
+      // The date-less name must not survive next to the dated one.
+      expect(output.contains("\nSaturday\n"), false);
+    });
+
+    test("adds the date range of each week to its header", () {
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          _singleMealMenu(recipe: recipe),
+          _singleMealMenu(recipe: recipe),
+        ],
+      );
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Week 1 (6 Aug - 12 Aug)"), true);
+      expect(output.contains("Week 2 (13 Aug - 19 Aug)"), true);
+    });
   });
 
   group("MultiWeekMenu backward-compatible JSON loading", () {
@@ -449,21 +495,49 @@ void main() {
       expect(MultiWeekMenu.fromJson(json).startDate, isNull);
     });
 
-    test("changing the start date leaves every meal where it is", () {
+    test("changing the start date leaves every meal in its own slot", () {
       Recipe recipe = _testRecipe(id: "r1", name: "Soup");
-      MultiWeekMenu multi = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+      MultiWeekMenu multi = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe),
+              _testMeal(weekDay: WeekDay.wednesday, mealType: MealType.dinner, recipe: recipe),
+            ],
+          ),
+        ],
+      );
 
       MultiWeekMenu dated = multi.copyWith(startDate: DateTime(2025, 8, 6));
 
+      // The weekday of each meal is the planning key. A real date must never move it.
+      expect(dated.weeks.first.meals.map((Meal meal) => meal.mealTime).toList(), [
+        const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        const MealTime(weekDay: WeekDay.wednesday, mealType: MealType.dinner),
+      ]);
       expect(dated.weeks, multi.weeks);
     });
 
-    test("the start date does not change the yield calculation", () {
-      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
-      MultiWeekMenu undated = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+    test("the start date does not change the cross-week leftover calculation", () {
+      // Thursday of week 1 (day 5) cooks. Monday of week 2 (day 9) is 4 days later, so it
+      // eats the leftovers. This is the case where a wrong date translation would show up.
+      Recipe storable = Recipe(id: "s1", name: "Stew", maxStorageDays: 6);
+      Menu week1 = Menu(
+        meals: [_testMeal(weekDay: WeekDay.thursday, mealType: MealType.lunch, recipe: storable, yield: -1)],
+      );
+      Menu week2 = Menu(
+        meals: [_testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: storable, yield: -1)],
+      );
+      MultiWeekMenu undated = MultiWeekMenu(weeks: [week1, week2]);
       MultiWeekMenu dated = undated.copyWith(startDate: DateTime(2025, 8, 6));
 
-      expect(dated.copyWithUpdatedYields(recipes: [recipe]).weeks, undated.copyWithUpdatedYields(recipes: [recipe]).weeks);
+      MultiWeekMenu updatedUndated = undated.copyWithUpdatedYields(recipes: [storable]);
+      MultiWeekMenu updatedDated = dated.copyWithUpdatedYields(recipes: [storable]);
+
+      expect(updatedUndated.weeks[0].meals[0].subMeals.first.cooking?.yield, 1);
+      expect(updatedUndated.weeks[1].meals[0].subMeals.first.cooking?.yield, 0);
+      expect(updatedDated.weeks, updatedUndated.weeks);
+      expect(updatedDated.startDate, DateTime(2025, 8, 6));
     });
 
     test("adding and removing a week keeps the start date", () {

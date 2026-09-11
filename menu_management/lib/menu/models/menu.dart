@@ -285,7 +285,9 @@ abstract class Menu with _$Menu {
     return total;
   }
 
-  String toStringBeautified({required List<Recipe> recipes}) {
+  /// [dayLabels] names each day of this week. The caller builds it, because the start date
+  /// lives on MultiWeekMenu. Without it each day keeps the date-less name of the WeekDay enum.
+  String toStringBeautified({required List<Recipe> recipes, Map<WeekDay, String>? dayLabels}) {
     // Format:
     // Weekday
     //   Breakfast: recipe (yield pp) [x people]
@@ -295,7 +297,7 @@ abstract class Menu with _$Menu {
 
     String result = "";
     for (WeekDay weekDay in WeekDay.values) {
-      result += "${weekDay.name.capitalizeFirstLetter()}\n";
+      result += "${dayLabels?[weekDay] ?? weekDay.name.capitalizeFirstLetter()}\n";
       List<Meal?> dayMeals = mealsOfDay(weekDay);
       for (int i = 0; i < dayMeals.length; i++) {
         Meal? meal = dayMeals[i];

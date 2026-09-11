@@ -1,5 +1,7 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -194,11 +196,17 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return combined;
   }
 
+  /// Writes the whole menu as text for the clipboard.
+  /// This model owns the start date, so it builds the day labels and hands them to each week.
   String toStringBeautified({required List<Recipe> recipes}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
-      result += "Week ${i + 1}\n";
-      result += "${weeks[i].toStringBeautified(recipes: recipes)}\n\n";
+      final String weekRange = menuWeekRangeLabel(startDate: startDate, weekIndex: i);
+      result += weekRange.isEmpty ? "Week ${i + 1}\n" : "Week ${i + 1} ($weekRange)\n";
+      final Map<WeekDay, String> dayLabels = {
+        for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: i, weekDay: weekDay),
+      };
+      result += "${weeks[i].toStringBeautified(recipes: recipes, dayLabels: dayLabels)}\n\n";
     }
     return result.trim();
   }
