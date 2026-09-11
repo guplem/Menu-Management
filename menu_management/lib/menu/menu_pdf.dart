@@ -109,8 +109,9 @@ pw.Widget _slotCell(MenuPdfSlot slot) {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: <pw.Widget>[
         for (MenuPdfDish dish in slot.dishes) ...<pw.Widget>[
-          // A recipe name is free text, and `pw.Text` breaks a line at a space only. A long name
-          // with no space would paint over the next column, so the cell cuts it after two lines.
+          // A recipe name is free text, and a long name wraps over many lines. A table row cannot
+          // split over two pages, so the cell caps each name at two lines. The cap bounds the
+          // height of the row, and a day of many long dishes still fits one page.
           pw.Text(dish.recipeName, style: const pw.TextStyle(fontSize: 9), maxLines: 2, overflow: pw.TextOverflow.clip),
           pw.Text(dishNoteText(dish), style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
         ],
