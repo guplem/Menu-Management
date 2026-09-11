@@ -44,26 +44,26 @@ String buildSimplifiedShoppingCopyText({
   StringBuffer buffer = StringBuffer();
   for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
     List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
-    _assertWholeAmounts(ingredient: ingredient, remaining: remaining);
+    assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
     if (!remaining.any((Quantity quantity) => quantity.amount > 0)) continue;
-    String freezeSuffix = freezeOnArrivalIngredientIds.contains(ingredient.id) ? _freezeOnArrivalSuffix : "";
-    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
+    String freezeSuffix = freezeOnArrivalIngredientIds.contains(ingredient.id) ? freezeOnArrivalSuffix : "";
+    buffer.writeln("${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix");
   }
   return buffer.toString().trimRight();
 }
 
 /// The note that tells the reader to freeze an item on the day of the trip (ADR 0015).
-/// Both copy formats write it, so one plan reads the same way in each of them.
-const String _freezeOnArrivalSuffix = " (freeze on arrival)";
+/// Both copy formats and the PDF write it, so one plan reads the same way in each of them.
+const String freezeOnArrivalSuffix = " (freeze on arrival)";
 
 /// Fails when an amount is not a whole number of its unit.
 ///
-/// Both copy builders call this, so a caller that skips [roundNeededAmount] fails in development
-/// in both formats instead of printing "0.4 grams" in one of them.
-void _assertWholeAmounts({required Ingredient ingredient, required List<Quantity> remaining}) {
+/// Every copy builder and the shopping PDF call this, so a caller that skips [roundNeededAmount]
+/// fails in development in every format instead of printing "0.4 grams" in one of them.
+void assertWholeShoppingAmounts({required Ingredient ingredient, required List<Quantity> remaining}) {
   assert(
     remaining.every((Quantity q) => q.amount == q.amount.roundToDouble()),
-    "The shopping copy got a fractional amount for ${ingredient.name}. Round it with roundNeededAmount first.",
+    "The shopping export got a fractional amount for ${ingredient.name}. Round it with roundNeededAmount first.",
   );
 }
 
@@ -93,8 +93,10 @@ Set<String> computeFreezeOnArrivalIngredientIds({
 }
 
 /// Writes the amounts of one ingredient, for example "500 grams + 2 pieces".
-/// Both copy formats call this, so one ingredient reads the same way in each of them.
-String _amountsText(List<Quantity> remaining) {
+///
+/// Both copy formats and the shopping PDF call this, so one ingredient reads the same way in each
+/// of them. It drops every amount that is zero or less, because the user buys none of those.
+String shoppingAmountsText(List<Quantity> remaining) {
   return remaining
       .where((Quantity quantity) => quantity.amount > 0)
       .map((Quantity quantity) {
@@ -207,23 +209,23 @@ String buildMultiTripCopyText({
 /// #27), so identical variants list as "one of each" instead of all packs on one variant. A
 /// variant that ends up with 0 packs is skipped.
 String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
-  _assertWholeAmounts(ingredient: ingredient, remaining: remaining);
+  assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
 
   StringBuffer buffer = StringBuffer();
 
   if (!remaining.any((Quantity q) => q.amount > 0)) return "";
 
-  String freezeSuffix = freezeOnArrival ? _freezeOnArrivalSuffix : "";
+  String freezeSuffix = freezeOnArrival ? freezeOnArrivalSuffix : "";
 
   if (ingredient.products.isEmpty) {
-    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
+    buffer.writeln("${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix");
     return buffer.toString();
   }
 
   Quantity? primaryRemaining = remaining.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
   if (primaryRemaining == null) {
     // No matching product unit -> fall back to raw amount line.
-    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
+    buffer.writeln("${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix");
     return buffer.toString();
   }
 
@@ -273,9 +275,7 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
     // The name tells the reader which product to take from the shelf, and the pack size tells how
     // much one pack holds. A product has no name field, so the name comes from the store link.
     // A link that names nothing leaves the pack size alone, as before.
-    String packSize = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
-    String? name = product.nameFromLink();
-    String label = name == null ? packSize : "$name ($packSize)";
+    String label = productShoppingLabel(product);
     String packWord = packs == 1 ? "pack" : "packs";
     buffer.writeln("  $label: $packs $packWord");
     // The link tells the reader which product to take from the shelf. A product with no link
@@ -284,4 +284,17 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
   }
 
   return buffer.toString();
+}
+
+/// Names one product of the shopping list, for example "Espaguetis (6x125grams)".
+///
+/// The name tells the reader which product to take from the shelf, and the pack size tells how
+/// much one pack holds. A product has no name field, so the name comes from the store link. A
+/// link that names nothing leaves the pack size alone.
+///
+/// The copied text and the PDF both call this, so one product reads the same way in each of them.
+String productShoppingLabel(Product product) {
+  String packSize = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
+  String? name = product.nameFromLink();
+  return name == null ? packSize : "$name ($packSize)";
 }
