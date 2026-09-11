@@ -322,8 +322,11 @@ void main() {
 
       MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
 
+      // 09:00 UTC is 6 August in Europe but 5 August in UTC-10. Read the expected day from the
+      // conversion, so the test passes in every time zone.
+      DateTime local = DateTime.parse("2025-08-06T09:00:00Z").toLocal();
       expect(menu!.startDate!.isUtc, isFalse);
-      expect(menu.startDate, DateTime(2025, 8, 6));
+      expect(menu.startDate, DateTime(local.year, local.month, local.day));
     });
 
     test("drops the time of day of a start date", () async {
