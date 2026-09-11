@@ -9,6 +9,7 @@ import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
@@ -117,10 +118,18 @@ abstract class ShoppingPdfDocument with _$ShoppingPdfDocument {
 /// [multiWeekMenu] and [recipes] serve the justification only. `ingredientMealRequirements` says
 /// which meal needs which amount of an ingredient.
 ///
-/// Known gap (issue #49): the amounts of the meals of one ingredient do not always add up to the
-/// amount to buy. A cook event that feeds a meal of the next week is counted once by
-/// `allIngredients`, which feeds the amount to buy, and once per meal by
-/// `ingredientMealRequirements`, which feeds the justification. Do not build on that difference.
+/// Known gap: the amounts of the meals of one ingredient do not always add up to the amount to
+/// buy. Three reasons cause it, and none of them is a fault:
+///
+/// 1. The amount to buy has the stock that the user already owns taken off it. The meals show the
+///    whole need, because a meal needs the food whoever paid for it.
+/// 2. A trip section shows the share of that one trip. Its meals are the meals of the weeks that
+///    the trip buys for, so the two sides cover the same weeks but not the same rounding.
+/// 3. Issue #49: a cook event that feeds a meal of the next week is counted once by
+///    `allIngredients`, which feeds the amount to buy, and once per meal by
+///    `ingredientMealRequirements`, which feeds the justification.
+///
+/// Do not build on that difference.
 ShoppingPdfDocument buildShoppingPdfDocument({
   required List<Ingredient> ingredients,
   required Map<String, List<Quantity>> remainingByIngredientId,
@@ -133,15 +142,33 @@ ShoppingPdfDocument buildShoppingPdfDocument({
   final Map<String, List<IngredientMealRequirement>> mealRequirements = multiWeekMenu.ingredientMealRequirements(recipes: recipes);
   final List<Ingredient> sorted = sortIngredientsForCopy(ingredients);
 
-  ShoppingPdfIngredientEntry? entryOf({required Ingredient ingredient, required List<Quantity> remaining, required bool freezeOnArrival}) {
+  /// Builds one line of one section. [weeks] holds the weeks that the section buys for, or null
+  /// for the section that covers the whole menu. The justification and the ranking both read it,
+  /// so the amount, the meals under it and the recommended product all cover the same weeks.
+  ShoppingPdfIngredientEntry? entryOf({
+    required Ingredient ingredient,
+    required List<Quantity> remaining,
+    required bool freezeOnArrival,
+    required Set<int>? weeks,
+  }) {
     assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
     if (!remaining.any((Quantity quantity) => quantity.amount > 0)) return null;
+    final List<CookingEvent> events = cookingTimeline[ingredient.id] ?? const [];
+    final List<IngredientMealRequirement> requirements = mealRequirements[ingredient.id] ?? const [];
     return ShoppingPdfIngredientEntry(
       ingredientName: ingredient.name,
       amounts: shoppingAmountsText(remaining),
       freezeOnArrival: freezeOnArrival,
-      products: _productOptions(ingredient: ingredient, remaining: remaining, events: cookingTimeline[ingredient.id] ?? const []),
-      meals: _mealNeeds(startDate: multiWeekMenu.startDate, requirements: mealRequirements[ingredient.id] ?? const []),
+      products: _productOptions(
+        ingredient: ingredient,
+        remaining: remaining,
+        events: weeks == null ? events : events.where((CookingEvent event) => weeks.contains(event.dayIndex ~/ 7)).toList(),
+      ),
+      meals: _mealNeeds(
+        ingredient: ingredient,
+        startDate: multiWeekMenu.startDate,
+        requirements: weeks == null ? requirements : requirements.where((IngredientMealRequirement r) => weeks.contains(r.weekIndex)).toList(),
+      ),
     );
   }
 
@@ -154,6 +181,7 @@ ShoppingPdfDocument buildShoppingPdfDocument({
         ingredient: ingredient,
         remaining: remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId),
         freezeOnArrival: false,
+        weeks: null,
       );
       if (entry != null) entries.add(entry);
     }
@@ -161,6 +189,7 @@ ShoppingPdfDocument buildShoppingPdfDocument({
     return ShoppingPdfDocument(title: _documentTitle(multiWeekMenu), trips: sections);
   }
 
+  final Map<int, Set<int>> weeksByTrip = _weeksByTrip(trips: trips, weekCount: multiWeekMenu.weeks.length);
   final Map<int, List<ShoppingPdfIngredientEntry>> entriesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
   for (Ingredient ingredient in sorted) {
     final List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
@@ -169,6 +198,7 @@ ShoppingPdfDocument buildShoppingPdfDocument({
         ingredient: ingredient,
         remaining: allocation.quantities,
         freezeOnArrival: allocation.freezeOnArrival,
+        weeks: weeksByTrip[allocation.weekIndex] ?? const <int>{},
       );
       if (entry != null) entriesByWeek[allocation.weekIndex]!.add(entry);
     }
@@ -180,7 +210,27 @@ ShoppingPdfDocument buildShoppingPdfDocument({
     sections.add(ShoppingPdfTripSection(title: tripLabel(trip), ingredients: entries));
   }
 
+  // A plan can hold trips and still leave nothing to buy, because the user owns every ingredient.
+  // The document then keeps one untitled empty section, so the renderer writes "Nothing to buy."
+  // and the reader never gets a page that holds only a title.
+  if (sections.isEmpty) sections.add(const ShoppingPdfTripSection(title: ""));
+
   return ShoppingPdfDocument(title: _documentTitle(multiWeekMenu), trips: sections);
+}
+
+/// Says which weeks of the menu each trip buys for, keyed by the week of the trip.
+///
+/// The planner puts one trip on the day before a week starts (ADR 0014). A trip therefore buys
+/// for its own week and for every week up to the next trip. The last trip buys for every week
+/// that is left.
+Map<int, Set<int>> _weeksByTrip({required List<ShoppingTrip> trips, required int weekCount}) {
+  final Map<int, Set<int>> weeks = {};
+  for (int index = 0; index < trips.length; index++) {
+    final int first = trips[index].weekIndex;
+    final int last = index + 1 < trips.length ? trips[index + 1].weekIndex - 1 : weekCount - 1;
+    weeks[first] = <int>{for (int week = first; week <= last; week++) week};
+  }
+  return weeks;
 }
 
 /// Names the document after the days that the menu covers, for example
@@ -201,9 +251,20 @@ String _documentTitle(MultiWeekMenu multiWeekMenu) {
 /// ingredient can cover. [Product.packsNeeded] then counts the packs of buying that product and
 /// no other one, which is what the reader needs when the shelf of another product is empty.
 ///
-/// The first result of [rankProducts] wastes the least, so it carries the recommendation.
+/// [rankProducts] gives every product its own waste. Every product that ties for the least waste
+/// carries the mark. This is the rule that the shopping page follows too
+/// (`isBestOption` in `shopping_ingredient.dart`), so the page and the PDF never disagree. Two
+/// equal products are a case that the app models on purpose (`productEquivalenceKey`), and the
+/// reader may take either one from the shelf.
+///
+/// [events] holds the cooking events of the weeks that this section buys for, so the mark and the
+/// amount above it are computed over the same weeks.
+///
+/// A product whose pack holds nothing is bad data: it would print "0 packs" and could carry the
+/// mark. This drops it and warns, the same way `remainingForCopy` warns on its own bad data.
+///
 /// `recommendCombination` is not used here on purpose: it picks a mix of products and drops every
-/// product that the mix leaves out, and it returns null for most amounts (issue #48).
+/// product that the mix leaves out, and it returns null for many amounts (issue #48).
 List<ShoppingPdfProductOption> _productOptions({
   required Ingredient ingredient,
   required List<Quantity> remaining,
@@ -217,23 +278,42 @@ List<ShoppingPdfProductOption> _productOptions({
   if (primary == null) return const [];
 
   final List<Product> matching = ingredient.products.where((Product product) => product.unit == primary.unit).toList();
-  final List<ProductRecommendation> ranked = rankProducts(totalNeeded: primary.amount, events: events, ingredient: ingredient, products: matching);
-  final Product? best = ranked.isEmpty ? null : ranked.first.product;
+  final List<Product> buyable = matching.where((Product product) => product.totalQuantityPerPack > 0).toList();
+  // asAssertion is false on purpose: the default form throws in a debug build, which would kill
+  // the export on the exact bad data that this function must survive.
+  Debug.logWarning(
+    buyable.length != matching.length,
+    "A product of the ingredient ${ingredient.name} (${ingredient.id}) holds nothing per pack. Left out of the shopping PDF.",
+    asAssertion: false,
+  );
+  if (buyable.isEmpty) return const [];
 
-  return matching
-      .map(
-        (Product product) => ShoppingPdfProductOption(
-          label: productShoppingLabel(product),
-          link: product.link,
-          packs: product.packsNeeded(primary.amount),
-          isRecommended: product == best,
-        ),
-      )
-      .toList();
+  final List<ProductRecommendation> ranked = rankProducts(totalNeeded: primary.amount, events: events, ingredient: ingredient, products: buyable);
+  final double? leastWaste = ranked.isEmpty
+      ? null
+      : ranked.map((ProductRecommendation recommendation) => recommendation.totalWaste).reduce((double a, double b) => a < b ? a : b);
+
+  return buyable.map((Product product) {
+    final double? waste = ranked.firstWhereOrNull((ProductRecommendation recommendation) => recommendation.product == product)?.totalWaste;
+    return ShoppingPdfProductOption(
+      label: productShoppingLabel(product),
+      link: product.link,
+      packs: product.packsNeeded(primary.amount),
+      isRecommended: waste != null && waste == leastWaste,
+    );
+  }).toList();
 }
 
 /// Writes one justification line per meal that needs the ingredient, in the order of the menu.
-List<ShoppingPdfMealNeed> _mealNeeds({required DateTime? startDate, required List<IngredientMealRequirement> requirements}) {
+///
+/// [normalizeQuantities] turns the amount of the recipe into the unit of the screen: pieces into
+/// grams, and tablespoons, teaspoons and centilitres into grams or centilitres. The amount to buy
+/// runs through the same call, so the meal line and the line above it read the same unit.
+List<ShoppingPdfMealNeed> _mealNeeds({
+  required Ingredient ingredient,
+  required DateTime? startDate,
+  required List<IngredientMealRequirement> requirements,
+}) {
   return requirements
       .map(
         (IngredientMealRequirement requirement) => ShoppingPdfMealNeed(
@@ -243,7 +323,10 @@ List<ShoppingPdfMealNeed> _mealNeeds({required DateTime? startDate, required Lis
           recipeName: requirement.recipeName,
           people: requirement.people,
           isCookEvent: requirement.isCookEvent,
-          amounts: requirement.quantities.map((Quantity quantity) => quantity.toDisplayText()).join(" + "),
+          amounts: normalizeQuantities(
+            ingredient: ingredient,
+            rawQuantities: requirement.quantities,
+          ).map((Quantity quantity) => quantity.toDisplayText()).join(" + "),
         ),
       )
       .toList();

@@ -14,6 +14,7 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/cooking_timeline.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/shopping_pdf_document.dart";
@@ -60,6 +61,31 @@ MultiWeekMenu _menu() => MultiWeekMenu(
   ],
 );
 
+/// One menu of two weeks. Each week cooks the same recipe once, so each week needs the same amount.
+MultiWeekMenu _twoWeekMenu() => MultiWeekMenu(
+  startDate: DateTime(2025, 8, 6),
+  weeks: [
+    Menu(
+      meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch)],
+    ),
+    Menu(
+      meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch)],
+    ),
+  ],
+);
+
+/// One trip per week, each trip carrying the same amount of the noodles.
+const List<ShoppingTrip> _tripPerWeek = [
+  ShoppingTrip(
+    weekIndex: 0,
+    items: [TripItem(ingredientId: "n1", amount: 250, unit: Unit.grams)],
+  ),
+  ShoppingTrip(
+    weekIndex: 1,
+    items: [TripItem(ingredientId: "n1", amount: 250, unit: Unit.grams)],
+  ),
+];
+
 /// Builds a document with the defaults that most tests share: one menu, one ingredient and no trip.
 ShoppingPdfDocument _document({
   List<Ingredient> ingredients = const [_noodles],
@@ -68,6 +94,8 @@ ShoppingPdfDocument _document({
   },
   List<ShoppingTrip> trips = const [],
   MultiWeekMenu? multiWeekMenu,
+  List<Recipe>? recipes,
+  Map<String, List<CookingEvent>> cookingTimeline = const {},
 }) {
   return buildShoppingPdfDocument(
     ingredients: ingredients,
@@ -75,8 +103,8 @@ ShoppingPdfDocument _document({
     trips: trips,
     tripLabel: (ShoppingTrip trip) => "Trip of week ${trip.weekIndex + 1}",
     multiWeekMenu: multiWeekMenu ?? _menu(),
-    recipes: [_pasta()],
-    cookingTimeline: const {},
+    recipes: recipes ?? [_pasta()],
+    cookingTimeline: cookingTimeline,
   );
 }
 
@@ -130,6 +158,19 @@ void main() {
       expect(document.trips.single.ingredients.single.amounts, "1 grams");
     });
 
+    test("writes one untitled empty section when the trips are planned but the user owns everything", () {
+      ShoppingPdfDocument document = _document(
+        trips: _tripPerWeek,
+        remaining: const {
+          "n1": [Quantity(amount: 0, unit: Unit.grams)],
+        },
+      );
+
+      expect(document.trips.length, 1);
+      expect(document.trips.single.title, "");
+      expect(document.trips.single.ingredients, isEmpty);
+    });
+
     test("names the document after the days that the menu covers", () {
       expect(_document().title, "Shopping list 6 Aug - 12 Aug");
       expect(_document(multiWeekMenu: const MultiWeekMenu(weeks: [Menu()])).title, "Shopping list");
@@ -137,7 +178,7 @@ void main() {
   });
 
   group("buildShoppingPdfDocument products", () {
-    test("lists every product that matches the unit with the packs of buying only that product, and marks the best one", () {
+    test("lists every product that matches the unit with the packs of buying only that product", () {
       Ingredient noodles = const Ingredient(
         id: "n1",
         name: "Noodles",
@@ -157,7 +198,9 @@ void main() {
           packs: 1,
           isRecommended: true,
         ),
-        ShoppingPdfProductOption(label: "250 grams/pack", link: "", packs: 2, isRecommended: false),
+        // One pack of 500 grams and two packs of 250 grams both cover 500 grams and waste nothing,
+        // so both carry the mark.
+        ShoppingPdfProductOption(label: "250 grams/pack", link: "", packs: 2, isRecommended: true),
       ]);
     });
 
@@ -166,6 +209,85 @@ void main() {
 
       expect(entry.products, isEmpty);
       expect(entry.amounts, "500 grams");
+    });
+
+    test("marks every product that ties for the least waste, the same rule that the shopping page follows", () {
+      Ingredient noodles = const Ingredient(
+        id: "n1",
+        name: "Noodles",
+        products: [
+          Product(link: "https://tienda.mercadona.es/product/1/espaguetis", quantityPerItem: 500, unit: Unit.grams),
+          Product(link: "https://tienda.mercadona.es/product/1/espaguetis", quantityPerItem: 500, unit: Unit.grams),
+        ],
+      );
+
+      ShoppingPdfDocument document = _document(ingredients: [noodles]);
+
+      expect(document.trips.single.ingredients.single.products, const [
+        ShoppingPdfProductOption(
+          label: "Espaguetis (500 grams/pack)",
+          link: "https://tienda.mercadona.es/product/1/espaguetis",
+          packs: 1,
+          isRecommended: true,
+        ),
+        ShoppingPdfProductOption(
+          label: "Espaguetis (500 grams/pack)",
+          link: "https://tienda.mercadona.es/product/1/espaguetis",
+          packs: 1,
+          isRecommended: true,
+        ),
+      ]);
+    });
+
+    test("writes no option for a product whose pack holds nothing, because 0 packs buys nothing", () {
+      Ingredient noodles = const Ingredient(
+        id: "n1",
+        name: "Noodles",
+        products: [
+          Product(link: "", quantityPerItem: 0, unit: Unit.grams),
+          Product(link: "", quantityPerItem: 500, unit: Unit.grams),
+        ],
+      );
+
+      ShoppingPdfDocument document = _document(ingredients: [noodles]);
+
+      expect(document.trips.single.ingredients.single.products, const [
+        ShoppingPdfProductOption(label: "500 grams/pack", link: "", packs: 1, isRecommended: true),
+      ]);
+    });
+
+    test("ranks the products of one trip on the cooking events of that trip alone, not on the whole menu", () {
+      Ingredient noodles = const Ingredient(
+        id: "n1",
+        name: "Noodles",
+        products: [
+          // Opened on the cooking day of week 1, this pack is past its shelf life by week 2. Over
+          // the whole menu it therefore wastes more than the bigger pack; over one trip it wastes
+          // less. The mark says which pack the reader of that one section buys.
+          Product(link: "", quantityPerItem: 300, unit: Unit.grams, shelfLifeDaysOpened: 1),
+          Product(link: "", quantityPerItem: 320, unit: Unit.grams),
+        ],
+      );
+
+      ShoppingPdfDocument document = _document(
+        ingredients: [noodles],
+        remaining: const {
+          "n1": [Quantity(amount: 500, unit: Unit.grams)],
+        },
+        trips: _tripPerWeek,
+        multiWeekMenu: _twoWeekMenu(),
+        cookingTimeline: const {
+          "n1": [
+            CookingEvent(dayIndex: 0, quantities: [Quantity(amount: 250, unit: Unit.grams)]),
+            CookingEvent(dayIndex: 7, quantities: [Quantity(amount: 250, unit: Unit.grams)]),
+          ],
+        },
+      );
+
+      expect(document.trips.first.ingredients.single.products, const [
+        ShoppingPdfProductOption(label: "300 grams/pack", link: "", packs: 1, isRecommended: true),
+        ShoppingPdfProductOption(label: "320 grams/pack", link: "", packs: 1, isRecommended: false),
+      ]);
     });
   });
 
@@ -207,6 +329,96 @@ void main() {
       );
 
       expect(document.trips.single.ingredients.single.meals.single.dayLabel, "Saturday");
+    });
+
+    test("writes the amount of a meal in the unit of the amount to buy, so the reader can compare the two", () {
+      const Recipe dressing = Recipe(
+        id: "r1",
+        name: "Dressing",
+        instructions: [
+          Instruction(
+            id: "i1",
+            description: "Pour the oil.",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "o1",
+                quantity: Quantity(amount: 3, unit: Unit.tablespoons),
+              ),
+            ],
+          ),
+        ],
+      );
+      // The screen turns 6 tablespoons into 90 millilitres, then into 81 grams through the
+      // density. The amount to buy reads grams, so the meal line must read grams too.
+      const Ingredient oil = Ingredient(
+        id: "o1",
+        name: "Olive oil",
+        density: 0.9,
+        products: [Product(link: "", quantityPerItem: 1000, unit: Unit.grams)],
+      );
+
+      ShoppingPdfDocument document = _document(
+        ingredients: const [oil],
+        remaining: const {
+          "o1": [Quantity(amount: 81, unit: Unit.grams)],
+        },
+        multiWeekMenu: MultiWeekMenu(
+          startDate: DateTime(2025, 8, 6),
+          weeks: [
+            Menu(
+              meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch)],
+            ),
+          ],
+        ),
+        recipes: const [dressing],
+      );
+
+      expect(document.trips.single.ingredients.single.amounts, "81 grams");
+      expect(document.trips.single.ingredients.single.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 1",
+          dayLabel: "Wednesday 6 Aug",
+          mealName: "Lunch",
+          recipeName: "Dressing",
+          people: 2,
+          isCookEvent: true,
+          amounts: "81 grams",
+        ),
+      ]);
+    });
+
+    test("keeps in each trip section only the meals of the weeks that the trip buys for", () {
+      ShoppingPdfDocument document = _document(
+        remaining: const {
+          "n1": [Quantity(amount: 400, unit: Unit.grams)],
+        },
+        trips: _tripPerWeek,
+        multiWeekMenu: _twoWeekMenu(),
+      );
+
+      expect(document.trips.map((ShoppingPdfTripSection section) => section.ingredients.single.amounts).toList(), ["200 grams", "200 grams"]);
+      expect(document.trips.first.ingredients.single.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 1",
+          dayLabel: "Wednesday 6 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+      ]);
+      expect(document.trips.last.ingredients.single.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 2",
+          dayLabel: "Wednesday 13 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+      ]);
     });
 
     test("writes no meal for an ingredient that no meal of the menu needs", () {
