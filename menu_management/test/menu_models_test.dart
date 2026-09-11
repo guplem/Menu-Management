@@ -36,6 +36,36 @@ Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lun
   );
 }
 
+// A recipe that uses one ingredient in two units and comes back to the first unit. The
+// order of the quantities reaches the shopping table, which joins them with " + ", so both
+// methods must keep the order of the recipe: the first unit first.
+Recipe _mixedUnitRecipe() {
+  return _recipe(
+    id: "r1",
+    name: "Salad",
+    instructions: [
+      const Instruction(
+        id: "i1",
+        description: "step",
+        ingredientsUsed: [
+          IngredientUsage(
+            ingredient: "tomato",
+            quantity: Quantity(amount: 100, unit: Unit.grams),
+          ),
+          IngredientUsage(
+            ingredient: "tomato",
+            quantity: Quantity(amount: 2, unit: Unit.pieces),
+          ),
+          IngredientUsage(
+            ingredient: "tomato",
+            quantity: Quantity(amount: 20, unit: Unit.grams),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
 /// Builds the day labels of one week the same way MultiWeekMenu builds them.
 Map<WeekDay, String> _dayLabels({DateTime? startDate, int weekIndex = 0}) {
   return {for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: weekIndex, weekDay: weekDay)};
@@ -790,6 +820,15 @@ void main() {
         const Menu menu = Menu(meals: []);
         expect(menu.allIngredients(recipes: []), isEmpty);
       });
+
+      test("keeps the unit order of the recipe when one ingredient uses two units", () {
+        Recipe recipe = _mixedUnitRecipe();
+        Menu menu = Menu(meals: [_meal(recipe: recipe, yield: 1, people: 1)]);
+
+        List<Quantity> tomato = menu.allIngredients(recipes: [recipe])["tomato"]!;
+
+        expect(tomato, const [Quantity(amount: 120, unit: Unit.grams), Quantity(amount: 2, unit: Unit.pieces)]);
+      });
     });
 
     group("ingredientSources", () {
@@ -972,6 +1011,17 @@ void main() {
       test("returns empty map for no meals", () {
         const Menu menu = Menu(meals: []);
         expect(menu.ingredientSources(recipes: []), isEmpty);
+      });
+
+      test("keeps the unit order of the recipe when one ingredient uses two units", () {
+        // Same pin as allIngredients: the shopping table joins these with " + ", so a later
+        // refactor must not flip the order.
+        Recipe recipe = _mixedUnitRecipe();
+        Menu menu = Menu(meals: [_meal(recipe: recipe, yield: 1, people: 1)]);
+
+        IngredientSource source = menu.ingredientSources(recipes: [recipe])["tomato"]!.single;
+
+        expect(source.perServingQuantities, const [Quantity(amount: 120, unit: Unit.grams), Quantity(amount: 2, unit: Unit.pieces)]);
       });
     });
 

@@ -87,13 +87,7 @@ abstract class Recipe with _$Recipe {
     Map<String, List<Quantity>> perServing = {};
     for (Instruction instruction in instructions) {
       for (IngredientUsage usage in instruction.ingredientsUsed) {
-        List<Quantity> quantities = perServing.putIfAbsent(usage.ingredient, () => <Quantity>[]);
-        int existingIndex = quantities.indexWhere((Quantity q) => q.unit == usage.quantity.unit);
-        if (existingIndex < 0) {
-          quantities.add(usage.quantity);
-        } else {
-          quantities[existingIndex] = quantities[existingIndex].copyWith(amount: quantities[existingIndex].amount + usage.quantity.amount);
-        }
+        addQuantityInto(perServing.putIfAbsent(usage.ingredient, () => <Quantity>[]), usage.quantity);
       }
     }
     return perServing;

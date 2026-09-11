@@ -5,6 +5,23 @@ import "package:menu_management/recipes/enums/unit.dart";
 part "quantity.freezed.dart";
 part "quantity.g.dart";
 
+/// Adds [quantity] into [totals], in place.
+///
+/// [totals] holds at most one entry per unit. The function adds the amount to the entry of the
+/// same unit, and keeps that entry where it is. A unit that is not there yet goes to the end.
+///
+/// This is the one merge rule for the amounts of a single ingredient. The shopping list, the
+/// per-meal breakdown, and the per-recipe totals all call it, so they can never split an
+/// ingredient in two different ways, and they always show the units in the same order.
+void addQuantityInto(List<Quantity> totals, Quantity quantity) {
+  int index = totals.indexWhere((Quantity total) => total.unit == quantity.unit);
+  if (index < 0) {
+    totals.add(quantity);
+    return;
+  }
+  totals[index] = totals[index].copyWith(amount: totals[index].amount + quantity.amount);
+}
+
 @freezed
 abstract class Quantity with _$Quantity {
   const factory Quantity({required double amount, required Unit unit}) = _Quantity;

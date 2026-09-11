@@ -6,8 +6,6 @@ import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
-import "package:menu_management/recipes/models/ingredient_usage.dart";
-import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
@@ -174,25 +172,19 @@ abstract class Menu with _$Menu {
     return result;
   }
 
+  /// Returns what the whole week needs of each ingredient, keyed by ingredient id.
+  ///
+  /// Each cooked recipe contributes its per-serving amounts, scaled by the people that eat it.
+  /// The per-recipe merge of the usages comes from [Recipe.perServingQuantities], so the shopping
+  /// list and the per-meal breakdown can never split an ingredient in two different ways.
   Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
     Map<String, List<Quantity>> ingredients = {};
 
     for (({Recipe recipe, int peopleFactor}) entry in _activeCookedRecipes(recipes: recipes)) {
-      for (Instruction instruction in entry.recipe.instructions) {
-        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-          if (ingredients[ingredientUsage.ingredient] == null) {
-            ingredients[ingredientUsage.ingredient] = [];
-          }
-          if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
-            ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
-          }
-          double amountToAdd = ingredientUsage.quantity.amount * entry.peopleFactor;
-          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
-            (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
-          );
-          Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
-          ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
-          ingredients[ingredientUsage.ingredient]!.add(newQuantity);
+      for (MapEntry<String, List<Quantity>> ingredient in entry.recipe.perServingQuantities().entries) {
+        List<Quantity> totals = ingredients.putIfAbsent(ingredient.key, () => <Quantity>[]);
+        for (Quantity perServing in ingredient.value) {
+          addQuantityInto(totals, perServing.scaledBy(entry.peopleFactor));
         }
       }
     }
@@ -215,12 +207,7 @@ abstract class Menu with _$Menu {
           IngredientSource existing = ingredientSources[existingIndex];
           List<Quantity> merged = [...existing.perServingQuantities];
           for (Quantity quantity in ingredient.value) {
-            int mergedIndex = merged.indexWhere((Quantity q) => q.unit == quantity.unit);
-            if (mergedIndex < 0) {
-              merged.add(quantity);
-            } else {
-              merged[mergedIndex] = merged[mergedIndex].copyWith(amount: merged[mergedIndex].amount + quantity.amount);
-            }
+            addQuantityInto(merged, quantity);
           }
           ingredientSources[existingIndex] = existing.copyWith(perServingQuantities: merged);
         } else {
