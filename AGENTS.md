@@ -64,7 +64,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 735 tests across 27 files |
+| Run all tests | `cd menu_management && flutter test test/` | 760 tests across 30 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -108,6 +108,7 @@ Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>
 - Data is **not** automatically saved -- users must manually save via the save button
 - On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
 - Menu configurations are **not** persisted (generated on-demand)
+- Parse every new persisted field defensively: read it with a `tryParse`-style check, drop the bad value, and warn with `Debug.logWarning`. The loaders catch every error and return null, so one bad field would otherwise cost the whole file.
 
 ## Test-Driven Development (mandatory)
 
@@ -216,6 +217,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 - `*.g.dart` and `*.freezed.dart` are committed to the repo (no build step in CI).
 - The `flutter_essentials/` library is a local package inside `lib/`, not a separate pub package.
 - Platform target is desktop-first. Mobile platforms have limited save/load support.
+- To add days to a calendar date, use the `DateTime(year, month, day + n)` constructor, never `add(Duration(days: n))`. A `Duration` counts hours, so it drifts by one hour at each daylight-saving change and can land on the wrong calendar day.
 
 ## Git Workflow
 
