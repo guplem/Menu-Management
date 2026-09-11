@@ -132,6 +132,32 @@ void main() {
     });
   });
 
+  group("MenuPage start date picker", () {
+    testWidgets("opens on a start date that is years in the past", (WidgetTester tester) async {
+      // The picker asserts that its initial date sits inside its bounds. A menu loaded from a
+      // file can carry any date, so the bounds must follow the date on screen.
+      final DateTime longAgo = DateTime(DateTime.now().year - 3, 5, 14);
+      await _pumpMenuPage(tester, MultiWeekMenu(startDate: longAgo, weeks: [_week()]));
+
+      await tester.tap(find.byIcon(Icons.event_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Select the first day of the menu"), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("opens on a start date that is years in the future", (WidgetTester tester) async {
+      final DateTime farAhead = DateTime(DateTime.now().year + 9, 5, 14);
+      await _pumpMenuPage(tester, MultiWeekMenu(startDate: farAhead, weeks: [_week()]));
+
+      await tester.tap(find.byIcon(Icons.event_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Select the first day of the menu"), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group("MenuPage start date control", () {
     testWidgets("names the first day and clears it again", (WidgetTester tester) async {
       await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: [_week()]));

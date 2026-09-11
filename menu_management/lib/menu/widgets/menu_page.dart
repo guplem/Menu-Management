@@ -59,14 +59,19 @@ class _MenuPageState extends State<MenuPage> {
   /// Asks the user for the real date of menu day 0, then stores it on the menu.
   Future<void> _pickStartDate() async {
     final DateTime today = DateTime.now();
+    final DateTime initialDate = multiWeekMenu.startDate ?? DateTime(today.year, today.month, today.day);
+    // The bounds must contain the date on screen. A menu loaded from a file can carry any
+    // date, and showDatePicker asserts that its initial date sits inside its bounds.
+    final DateTime earliest = initialDate.isBefore(today) ? initialDate : today;
+    final DateTime latest = initialDate.isAfter(today) ? initialDate : today;
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: multiWeekMenu.startDate ?? DateTime(today.year, today.month, today.day),
-      firstDate: DateTime(today.year - 1),
-      lastDate: DateTime(today.year + 5),
+      initialDate: initialDate,
+      firstDate: DateTime(earliest.year - 1, earliest.month, earliest.day),
+      lastDate: DateTime(latest.year + 5, latest.month, latest.day),
       helpText: "Select the first day of the menu",
     );
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
     setState(() {
       multiWeekMenu = multiWeekMenu.copyWith(startDate: DateTime(picked.year, picked.month, picked.day));
     });
