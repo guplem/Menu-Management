@@ -45,14 +45,19 @@ void main() {
       expect(const Quantity(amount: 2.5, unit: Unit.tablespoons).toDisplayText(), "2.50 tablespoons");
     });
 
-    test("gives the same number for the same input in both unit spellings", () {
+    test("writes the same number in both unit spellings", () {
       // Cook mode and the markdown export must never show two different numbers for one amount.
       const Quantity scaled = Quantity(amount: 0.5, unit: Unit.centiliters);
 
-      String full = scaled.toDisplayText();
-      String short = scaled.toDisplayText(abbreviateUnit: true);
+      expect(scaled.toDisplayText(), "0.50 centiliters");
+      expect(scaled.toDisplayText(abbreviateUnit: true), "0.50 cl");
+    });
 
-      expect(full.split(" ").first, short.split(" ").first);
+    test("rounds a scaled amount up instead of cutting the decimals away", () {
+      // 33.333 grams for three servings is 99.999 grams. A truncating formatter printed "99 grams".
+      const Quantity perServing = Quantity(amount: 33.333, unit: Unit.grams);
+
+      expect(perServing.scaledBy(3).toDisplayText(), "100 grams");
     });
   });
 }

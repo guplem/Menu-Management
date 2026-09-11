@@ -24,6 +24,8 @@ extension DoubleExtensions on double {
   /// If the value has meaningful decimals, it will be formatted to [desiredDecimals] places.
   /// If the value is effectively an integer (e.g., 3.0, 3.00), it omits the decimal part.
   ///
+  /// The whole-number result is the rounded value, never the cut value. 0.999 gives "1", not "0".
+  ///
   /// ```dart
   /// 3.0.toStringWithDecimalsIfNotInteger() // "3"
   /// 3.14.toStringWithDecimalsIfNotInteger() // "3.14"
@@ -32,14 +34,13 @@ extension DoubleExtensions on double {
   String toStringWithDecimalsIfNotInteger({int desiredDecimals = 2}) {
     assert(desiredDecimals >= 0, "desiredDecimals must be greater than or equal to 0");
 
-    if (this % 1 == 0) {
-      return toInt().toString();
-    }
-
     String formattedValue = toStringAsFixed(desiredDecimals);
+    double roundedValue = double.parse(formattedValue);
 
-    if (double.parse(formattedValue) % 1 == 0) {
-      return toInt().toString();
+    // Read the whole number from the rounded value. `toInt()` on the original value cuts the
+    // decimals away, so 99.999 would print "99" and 0.999 would print "0".
+    if (roundedValue % 1 == 0) {
+      return roundedValue.toInt().toString();
     }
 
     return formattedValue;
