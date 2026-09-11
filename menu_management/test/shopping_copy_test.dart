@@ -195,4 +195,27 @@ void main() {
       expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack"]);
     });
   });
+
+  group("remainingForCopy", () {
+    test("returns the amounts that the map holds for the ingredient", () {
+      const Ingredient salt = Ingredient(id: "salt", name: "Salt");
+
+      List<Quantity> remaining = remainingForCopy(
+        ingredient: salt,
+        remainingByIngredientId: const {
+          "salt": [Quantity(amount: 2, unit: Unit.teaspoons)],
+        },
+      );
+
+      expect(remaining, const [Quantity(amount: 2, unit: Unit.teaspoons)]);
+    });
+
+    test("reads an ingredient with no key as covered, and does not throw", () {
+      // The copy button must never crash on a map gap. The warning goes to the log; the caller
+      // gets an empty list, so the ingredient copies as covered.
+      const Ingredient salt = Ingredient(id: "salt", name: "Salt");
+
+      expect(remainingForCopy(ingredient: salt, remainingByIngredientId: const {}), isEmpty);
+    });
+  });
 }

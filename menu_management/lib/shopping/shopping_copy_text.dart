@@ -40,7 +40,13 @@ String buildSingleListCopyText({required List<Ingredient> ingredients, required 
 /// The warning names the ingredient, so the gap is visible in the log instead of silent.
 List<Quantity> remainingForCopy({required Ingredient ingredient, required Map<String, List<Quantity>> remainingByIngredientId}) {
   List<Quantity>? remaining = remainingByIngredientId[ingredient.id];
-  Debug.logWarning(remaining == null, "No remaining amount for the ingredient ${ingredient.name} (${ingredient.id}). Copied as covered.");
+  // asAssertion is false on purpose: the default form runs an assert and throws in a debug build,
+  // which would crash the copy button on the exact gap that this function must survive.
+  Debug.logWarning(
+    remaining == null,
+    "No remaining amount for the ingredient ${ingredient.name} (${ingredient.id}). Copied as covered.",
+    asAssertion: false,
+  );
   return remaining ?? const [];
 }
 
@@ -104,7 +110,8 @@ String buildMultiTripCopyText({
 /// Precondition: every amount in [remaining] is already a whole number of its unit. The page
 /// rounds it once with [roundNeededAmount] (`computeRemainingQuantities`), and the per-trip split
 /// ([distributeRemainingAcrossTrips]) keeps whole numbers. This function never rounds again, so
-/// the copied text can never disagree with the page.
+/// the copied text can never disagree with the page. An `assert` guards the precondition: a
+/// caller that passes a fractional amount fails in development instead of printing "0.40 units".
 ///
 /// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
 /// product's solo count: a product the mix does not pick is not listed. Where that mix contains
@@ -113,6 +120,11 @@ String buildMultiTripCopyText({
 /// #27), so identical variants list as "one of each" instead of all packs on one variant. A
 /// variant that ends up with 0 packs is skipped.
 String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
+  assert(
+    remaining.every((Quantity q) => q.amount == q.amount.roundToDouble()),
+    "buildIngredientCopyLines got a fractional amount for ${ingredient.name}. Round it with roundNeededAmount first.",
+  );
+
   StringBuffer buffer = StringBuffer();
 
   if (!remaining.any((Quantity q) => q.amount > 0)) return "";
