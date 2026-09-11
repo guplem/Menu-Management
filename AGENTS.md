@@ -64,7 +64,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 869 tests across 32 files |
+| Run all tests | `cd menu_management && flutter test test/` | 893 tests across 35 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -105,6 +105,7 @@ Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>
 
 - **`.tsr` files**: JSON with top-level `"Ingredients"` and `"Recipes"` arrays. On save, `ref_name` fields are injected into `IngredientUsage` entries for human readability.
 - **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning. A menu may also carry `startDate`, the real date of menu day 0; a file without it keeps the Saturday-first, date-less behavior. Use `menu/menu_dates.dart` to turn a day offset into a date or a label.
+- **PDF export**: `menu/menu_pdf.dart` renders the menu PDF, and `menu/models/menu_pdf_document.dart` decides what it says. The split keeps the content testable with no PDF to decode. `Persistency.saveBytes` writes any export that is not JSON, and `Persistency.supportsFileSaving()` says if the device has a save dialog.
 - Data is **not** automatically saved -- users must manually save via the save button
 - On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
 - Menu configurations are **not** persisted (generated on-demand)

@@ -5,11 +5,13 @@ import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/expiry_warnings.dart";
 import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/menu/menu_pdf.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
+import "package:menu_management/pdf_file_export_option.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -103,6 +105,14 @@ class _MenuPageState extends State<MenuPage> {
           description: "The simplified menu, plus the total time of every recipe that you cook.",
           buildText: () => multiWeekMenu.toStringBeautified(recipes: _recipes, format: MenuCopyFormat.detailed),
           confirmation: "Copied the detailed menu to the clipboard.",
+        ),
+        PdfFileExportOption(
+          label: "PDF",
+          description: "One table per week and every recipe, to print or to share.",
+          dialogTitle: "Select where to save the menu PDF",
+          defaultFileName: Persistency.defaultMenuFileName(multiWeekMenu, extension: "pdf"),
+          buildBytes: () => buildMenuPdfBytes(multiWeekMenu: multiWeekMenu, recipes: _recipes, ingredients: IngredientsProvider.instance.ingredients),
+          buildConfirmation: (String path) => "Saved the menu PDF to $path.",
         ),
       ],
     );
