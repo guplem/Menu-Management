@@ -5,6 +5,7 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
@@ -213,10 +214,10 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       ],
                     ),
                     ...widget.sources.map((IngredientSource source) {
-                      String perServing = source.perServingQuantities.map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-                      String total = source.perServingQuantities
-                          .map((q) => "${(q.amount * source.servings).toFormattedAmount()} ${q.unit.name}")
-                          .join(" + ");
+                      // Quantity owns both the scaling and the wording, so this table and the
+                      // recipe export can never show two different numbers for one amount.
+                      String perServing = source.perServingQuantities.map((Quantity q) => q.toDisplayText()).join(" + ");
+                      String total = source.perServingQuantities.map((Quantity q) => q.scaledBy(source.servings).toDisplayText()).join(" + ");
                       return TableRow(
                         children: [
                           Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text(source.recipeName)),
@@ -243,22 +244,29 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     return product.packsNeeded(remaining.amount);
   }
 
-  /// Splits a product's buy count across the planned trips, mirroring the per-week sections of
-  /// the copied list. Rounds each trip's amount to whole units before computing packs, exactly
-  /// like `_appendIngredientLines` in shopping_page.dart, so the on-screen split matches the copy.
+  /// Splits a product's buy count across the planned trips, the same split the copied list writes.
+  ///
+  /// It reads the split from [distributeRemainingAcrossTrips], the one function that spreads the
+  /// on-screen remaining across the trip weeks. The copied list calls the same function, so the
+  /// on-screen split and the copy can never show two different per-trip amounts.
+  ///
   /// Returns an empty list (single-total display) unless 2+ trips actually buy this product.
   List<ProductTripPurchase> _tripPurchasesForProduct(Product product) {
     if (widget.plannedTrips.length < 2) return const [];
     int firstWeek = widget.plannedTrips.first.weekIndex; // trips are sorted ascending by the planner
+    List<TripAllocation> allocations = distributeRemainingAcrossTrips(
+      ingredient: widget.ingredient,
+      pageRemaining: widget.calculatedRemainingQuantities,
+      trips: widget.plannedTrips,
+    );
+
     List<ProductTripPurchase> purchases = [];
-    for (ShoppingTrip trip in widget.plannedTrips) {
-      double amount = 0;
-      for (TripItem item in trip.items) {
-        if (item.ingredientId == widget.ingredient.id && item.unit == product.unit) amount += item.amount;
-      }
-      int packs = product.packsNeeded(amount.roundToDouble());
+    for (TripAllocation allocation in allocations) {
+      Quantity? forProduct = allocation.quantities.firstWhereOrNull((Quantity q) => q.unit == product.unit);
+      if (forProduct == null) continue;
+      int packs = product.packsNeeded(forProduct.amount);
       if (packs <= 0) continue;
-      purchases.add(ProductTripPurchase(weekIndex: trip.weekIndex, packs: packs, isFirstTrip: trip.weekIndex == firstWeek));
+      purchases.add(ProductTripPurchase(weekIndex: allocation.weekIndex, packs: packs, isFirstTrip: allocation.weekIndex == firstWeek));
     }
     // A row is a "split" only when 2+ trips actually buy this product.
     if (purchases.length < 2) return const [];
@@ -552,6 +560,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                       ),
                     );
                   }
+                  // calculatedRemainingQuantities arrives from computeRemainingQuantities, so every
+                  // amount is already a whole number of its unit and a sub-unit need reads as 1.
+                  // toFormattedAmount only groups the thousands, for example "1,500 grams".
                   return Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: Text(

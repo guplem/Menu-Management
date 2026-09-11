@@ -9,6 +9,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
@@ -40,22 +41,27 @@ Map<WeekDay, String> _dayLabels({DateTime? startDate, int weekIndex = 0}) {
   return {for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: weekIndex, weekDay: weekDay)};
 }
 
-/// Builds the servings of every cook event of one week, the same way MultiWeekMenu builds them.
-/// It counts the people of each sub-meal that shares the recipe, so a leftover meal adds its
-/// people to the cook event that feeds it.
-Map<(MealTime, int), int> _cookServings(Menu menu) {
+/// Builds the servings of every cook event of one week through the public API of MultiWeekMenu.
+///
+/// The production caller is `MultiWeekMenu.toStringBeautified`, which reads
+/// [MultiWeekMenu.servingsForCookEvent]. This helper reads the same method, so it respects
+/// `maxStorageDays` and the day order exactly as production does. It never reimplements the count.
+///
+/// [recipes] must hold every recipe of [menu], because servingsForCookEvent reads maxStorageDays
+/// from the recipe. A missing recipe gives a storage window of zero days.
+Map<(MealTime, int), int> _cookServings(Menu menu, {required List<Recipe> recipes}) {
+  MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [menu]);
   Map<(MealTime, int), int> servings = {};
   for (Meal meal in menu.meals) {
     for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
       Cooking? cooking = meal.subMeals[subMealIndex].cooking;
       if (cooking == null || cooking.yield <= 0) continue;
-      int people = 0;
-      for (Meal other in menu.meals) {
-        for (SubMeal subMeal in other.subMeals) {
-          if (subMeal.cooking?.recipeId == cooking.recipeId) people += subMeal.people;
-        }
-      }
-      servings[(meal.mealTime, subMealIndex)] = people;
+      servings[(meal.mealTime, subMealIndex)] = multiWeek.servingsForCookEvent(
+        cookWeekIndex: 0,
+        cookMealTime: meal.mealTime,
+        subMealIndex: subMealIndex,
+        recipes: recipes,
+      );
     }
   }
   return servings;
@@ -1063,7 +1069,11 @@ void main() {
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
         );
-        String output = menu.toStringBeautified(recipes: recipes, dayLabels: _dayLabels(), cookServings: _cookServings(menu));
+        String output = menu.toStringBeautified(
+          recipes: recipes,
+          dayLabels: _dayLabels(),
+          cookServings: _cookServings(menu, recipes: [recipe]),
+        );
         expect(output.contains("Saturday"), true);
         expect(output.contains("Sunday"), true);
         expect(output.contains("Friday"), true);
@@ -1077,7 +1087,7 @@ void main() {
         String output = menu.toStringBeautified(
           recipes: [recipe],
           dayLabels: _dayLabels(startDate: DateTime(2025, 8, 6)),
-          cookServings: _cookServings(menu),
+          cookServings: _cookServings(menu, recipes: [recipe]),
         );
         expect(output.contains("Wednesday 6 Aug"), true);
       });
@@ -1092,7 +1102,11 @@ void main() {
         Map<WeekDay, String> partialLabels = <WeekDay, String>{WeekDay.saturday: "Saturday"};
 
         expect(
-          () => menu.toStringBeautified(recipes: [recipe], dayLabels: partialLabels, cookServings: _cookServings(menu)),
+          () => menu.toStringBeautified(
+            recipes: [recipe],
+            dayLabels: partialLabels,
+            cookServings: _cookServings(menu, recipes: [recipe]),
+          ),
           throwsA(isA<TypeError>()),
         );
       });
@@ -1166,7 +1180,10 @@ void main() {
       test("writes only a dash for a slot that holds one sub-meal without a recipe", () {
         Menu menu = const Menu(
           meals: [
-            Meal(mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), subMeals: [SubMeal(people: 2)]),
+            Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [SubMeal(people: 2)],
+            ),
           ],
         );
 
@@ -1222,7 +1239,11 @@ void main() {
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, people: 4)],
         );
-        String output = menu.toStringBeautified(recipes: [recipe], dayLabels: _dayLabels(), cookServings: _cookServings(menu));
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(),
+          cookServings: _cookServings(menu, recipes: [recipe]),
+        );
 
         expect(output.contains("[4p]"), true);
       });
