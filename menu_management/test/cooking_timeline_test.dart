@@ -43,6 +43,15 @@ Meal _meal({required WeekDay weekDay, required MealType mealType, String? recipe
   );
 }
 
+/// Writes the timeline as text, because CookingEvent has no value equality.
+List<String> _describeTimeline(Map<String, List<CookingEvent>> timeline) {
+  return [
+    for (MapEntry<String, List<CookingEvent>> entry in timeline.entries)
+      for (CookingEvent event in entry.value)
+        "${entry.key} day ${event.dayIndex}: ${event.quantities.map((Quantity quantity) => "${quantity.amount}${quantity.unit.name}").join(", ")}",
+  ];
+}
+
 void main() {
   group("buildCookingTimeline", () {
     test("single recipe in single week produces one event", () {
@@ -314,6 +323,37 @@ void main() {
       Quantity clQ = quantities.firstWhere((q) => q.unit == Unit.centiliters);
       expect(gramsQ.amount, 200); // 100 * 2 people
       expect(clQ.amount, 4); // 2 * 2 people
+    });
+
+    test("the start date of the menu does not change the timeline", () {
+      // The timeline counts day offsets, never calendar dates. A real date must not touch it.
+      Recipe recipe = _recipe(
+        id: "r1",
+        name: "Pasta",
+        instructions: [_instruction(ingredientId: "tomato", amount: 150)],
+      );
+      List<Menu> weeks = [
+        Menu(
+          meals: [_meal(weekDay: WeekDay.thursday, mealType: MealType.lunch, recipeId: "r1")],
+        ),
+        Menu(
+          meals: [_meal(weekDay: WeekDay.monday, mealType: MealType.dinner, recipeId: "r1")],
+        ),
+      ];
+
+      Map<String, List<CookingEvent>> undated = buildCookingTimeline(
+        multiWeekMenu: MultiWeekMenu(weeks: weeks),
+        recipes: [recipe],
+      );
+      Map<String, List<CookingEvent>> dated = buildCookingTimeline(
+        multiWeekMenu: MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: weeks),
+        recipes: [recipe],
+      );
+
+      expect(undated["tomato"]!.map((CookingEvent event) => event.dayIndex).toList(), [5, 9]);
+      expect(dated.keys, undated.keys);
+      // CookingEvent has no value equality, so compare a text form of the fields that the planner reads.
+      expect(_describeTimeline(dated), _describeTimeline(undated));
     });
   });
 }
