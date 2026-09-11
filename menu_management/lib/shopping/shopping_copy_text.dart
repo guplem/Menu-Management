@@ -1,3 +1,9 @@
+// The shopping side gives each copy format its own builder, while the menu side switches formats
+// with the MenuCopyFormat enum. That difference is deliberate. The two menu formats write the same
+// lines with one extra piece of text, so one function with a flag keeps them in step. The two
+// shopping formats write different lines from different inputs: the detailed one needs the trip
+// plan and the packs, the simplified one needs neither. One function with a flag would take
+// parameters that half of its callers must leave empty.
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
@@ -23,14 +29,62 @@ List<Ingredient> sortIngredientsForCopy(List<Ingredient> ingredients) {
 /// trip section, no pack line, and no store link. Use [buildMultiTripCopyText] for those.
 ///
 /// An ingredient that the user already owns writes no line.
-String buildSimplifiedShoppingCopyText({required List<Ingredient> ingredients, required Map<String, List<Quantity>> remainingByIngredientId}) {
+///
+/// [freezeOnArrivalIngredientIds] names the ingredients that the user must freeze on the day of
+/// the trip (ADR 0015). Each of them keeps the same "(freeze on arrival)" suffix that the detailed
+/// text writes. Without the suffix the one-trip plan cannot be followed safely, because the plan
+/// assumes the freezer. Build the set with [freezeOnArrivalIngredientIds].
+///
+/// Precondition: every amount is already a whole number of its unit, as in [buildIngredientCopyLines].
+String buildSimplifiedShoppingCopyText({
+  required List<Ingredient> ingredients,
+  required Map<String, List<Quantity>> remainingByIngredientId,
+  Set<String> freezeOnArrivalIngredientIds = const {},
+}) {
   StringBuffer buffer = StringBuffer();
   for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
     List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
+    _assertWholeAmounts(ingredient: ingredient, remaining: remaining);
     if (!remaining.any((Quantity quantity) => quantity.amount > 0)) continue;
-    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}");
+    String freezeSuffix = freezeOnArrivalIngredientIds.contains(ingredient.id) ? _freezeOnArrivalSuffix : "";
+    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
   }
   return buffer.toString().trimRight();
+}
+
+/// The note that tells the reader to freeze an item on the day of the trip (ADR 0015).
+/// Both copy formats write it, so one plan reads the same way in each of them.
+const String _freezeOnArrivalSuffix = " (freeze on arrival)";
+
+/// Fails when an amount is not a whole number of its unit.
+///
+/// Both copy builders call this, so a caller that skips [roundNeededAmount] fails in development
+/// in both formats instead of printing "0.4 grams" in one of them.
+void _assertWholeAmounts({required Ingredient ingredient, required List<Quantity> remaining}) {
+  assert(
+    remaining.every((Quantity q) => q.amount == q.amount.roundToDouble()),
+    "The shopping copy got a fractional amount for ${ingredient.name}. Round it with roundNeededAmount first.",
+  );
+}
+
+/// Returns the ids of the ingredients that the user must freeze on the day of the trip.
+///
+/// Pure: takes the same input as the copy builders plus the planned trips. It reads the same
+/// per-ingredient split as [buildMultiTripCopyText], so the two formats can never disagree about
+/// which ingredient the plan freezes.
+Set<String> freezeOnArrivalIngredientIds({
+  required List<Ingredient> ingredients,
+  required Map<String, List<Quantity>> remainingByIngredientId,
+  required List<ShoppingTrip> trips,
+}) {
+  Set<String> frozen = {};
+  if (trips.isEmpty) return frozen;
+  for (Ingredient ingredient in ingredients) {
+    List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
+    List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
+    if (allocations.any((TripAllocation allocation) => allocation.freezeOnArrival)) frozen.add(ingredient.id);
+  }
+  return frozen;
 }
 
 /// Writes the amounts of one ingredient, for example "500 grams + 2 pieces".
@@ -148,16 +202,13 @@ String buildMultiTripCopyText({
 /// #27), so identical variants list as "one of each" instead of all packs on one variant. A
 /// variant that ends up with 0 packs is skipped.
 String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
-  assert(
-    remaining.every((Quantity q) => q.amount == q.amount.roundToDouble()),
-    "buildIngredientCopyLines got a fractional amount for ${ingredient.name}. Round it with roundNeededAmount first.",
-  );
+  _assertWholeAmounts(ingredient: ingredient, remaining: remaining);
 
   StringBuffer buffer = StringBuffer();
 
   if (!remaining.any((Quantity q) => q.amount > 0)) return "";
 
-  String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
+  String freezeSuffix = freezeOnArrival ? _freezeOnArrivalSuffix : "";
 
   if (ingredient.products.isEmpty) {
     buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
@@ -214,7 +265,12 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
     cursorByKey[key] = cursor + 1;
     int packs = sharesByKey[key]![cursor];
     if (packs <= 0) continue;
-    String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
+    // The name tells the reader which product to take from the shelf, and the pack size tells how
+    // much one pack holds. A product has no name field, so the name comes from the store link.
+    // A link that names nothing leaves the pack size alone, as before.
+    String packSize = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
+    String? name = product.nameFromLink();
+    String label = name == null ? packSize : "$name ($packSize)";
     String packWord = packs == 1 ? "pack" : "packs";
     buffer.writeln("  $label: $packs $packWord");
     // The link tells the reader which product to take from the shelf. A product with no link

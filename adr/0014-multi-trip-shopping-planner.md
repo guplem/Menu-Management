@@ -57,7 +57,9 @@ The copy no longer prints the planner's raw amounts. For each ingredient it take
 
 `ShoppingPage` originally exposed a single boolean `_splitByFreshness` and an `IconButton` action in the AppBar: when ON, a small banner under the AppBar reported the trip count and weeks involved, and the floating copy button emitted a sectioned text output (`Week 1\n--------\n...\n\nWeek 2\n--------\n...`). When OFF, the copy output was a flat list ignoring shelf life.
 
-ADR 0015 supersedes this UI: the OFF mode (flat list, ignore shelf life) was dropped, and the toggle was renamed `_useFreezerStrategy`. Both modes now produce sectioned, freshness-aware copy output. OFF is the original ON behavior (multi-trip, no freezing). ON is the new freezer-aware mode where freezable items ride trip 0 with a `(freeze on arrival)` suffix and only non-freezable perishables can force later trips. The on-screen list is still not sectioned; the toggle is still purely a copy-format switch plus a short status banner.
+ADR 0015 supersedes this UI: the OFF mode (flat list, ignore shelf life) was dropped, and the toggle was renamed `_useFreezerStrategy`. Both modes now produce sectioned, freshness-aware output in the detailed export. OFF is the original ON behavior (multi-trip, no freezing). ON is the new freezer-aware mode where freezable items ride trip 0 with a `(freeze on arrival)` suffix and only non-freezable perishables can force later trips.
+
+One floating Export button replaced the floating copy button. It opens `showExportOptionsDialog`, which offers one row per format: Simplified (one line per ingredient) and Detailed (one section per trip, with the packs and the links). The on-screen list is still not sectioned; the toggle is still purely a format switch for the detailed export, plus a short status banner. The simplified export ignores the trips and the packs, but it keeps the `(freeze on arrival)` note, because the one-trip plan only works when the user freezes those items on the day of the trip.
 
 ## Consequences
 
