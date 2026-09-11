@@ -334,7 +334,11 @@ void main() {
         ],
       );
 
-      MenuPdfDocument document = buildMenuPdfDocument(multiWeekMenu: menu, recipes: [pasta], ingredients: [_ingredient(id: "n1", name: "Noodles")]);
+      MenuPdfDocument document = buildMenuPdfDocument(
+        multiWeekMenu: menu,
+        recipes: [pasta],
+        ingredients: [_ingredient(id: "n1", name: "Noodles")],
+      );
 
       expect(document.recipes.single.servings, 4);
       expect(document.recipes.single.ingredients, const [MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "400 grams")]);

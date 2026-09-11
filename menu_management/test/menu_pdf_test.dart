@@ -117,7 +117,10 @@ void main() {
         days: [
           MenuPdfDayRow(
             dayLabel: "Saturday",
-            slots: [MenuPdfSlot(mealType: MealType.lunch), MenuPdfSlot(mealType: MealType.dinner)],
+            slots: [
+              MenuPdfSlot(mealType: MealType.lunch),
+              MenuPdfSlot(mealType: MealType.dinner),
+            ],
           ),
         ],
       );
