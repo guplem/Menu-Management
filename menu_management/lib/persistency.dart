@@ -391,12 +391,27 @@ class Persistency {
     return loaded ? LoadOutcome.success : LoadOutcome.failed;
   }
 
-  /// Builds the file name that the save dialog proposes.
+  /// Builds the file name that the save dialog of the menu proposes.
   /// It uses the first day of the menu. Without one it falls back to the next Saturday.
   /// [today] is the reference day. It defaults to the real today and exists for the tests.
   /// [extension] names the kind of file: "tsm" for the menu itself, "pdf" for the export.
   /// Both files carry the same name, so the user finds them together in one folder.
   static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today, String extension = "tsm"}) {
+    return "Menu-${_menuFileDate(multiWeekMenu, today: today)}.$extension";
+  }
+
+  /// Builds the file name that the save dialog of the shopping list PDF proposes.
+  ///
+  /// It carries the same day as [defaultMenuFileName], so the menu and its shopping list sort
+  /// next to each other in one folder. The name says which of the two files the user opens.
+  static String defaultShoppingListFileName(MultiWeekMenu multiWeekMenu, {DateTime? today, String extension = "pdf"}) {
+    return "Shopping-list-${_menuFileDate(multiWeekMenu, today: today)}.$extension";
+  }
+
+  /// Writes the day of a menu file name as "2025-08-06".
+  /// It is the first day of the menu. Without one it falls back to the next Saturday.
+  /// [today] is the reference day. It defaults to the real today and exists for the tests.
+  static String _menuFileDate(MultiWeekMenu multiWeekMenu, {DateTime? today}) {
     DateTime reference = today ?? DateTime.now();
     // DateTime.weekday is 6 on a Saturday, so the wrap keeps a Sunday looking forward
     // (6 days ahead) instead of backward to yesterday.
@@ -404,7 +419,7 @@ class Persistency {
     DateTime date = multiWeekMenu.startDate ?? DateTime(reference.year, reference.month, reference.day + daysToSaturday);
     String month = date.month.toString().padLeft(2, "0");
     String day = date.day.toString().padLeft(2, "0");
-    return "Menu-${date.year}-$month-$day.$extension";
+    return "${date.year}-$month-$day";
   }
 
   // ============================================================
