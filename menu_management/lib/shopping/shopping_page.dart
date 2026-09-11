@@ -212,8 +212,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
   /// Offers the text formats of the shopping list and copies the one that the user picks.
   /// The reader of the text shops without the app, so each format stands on its own.
-  void _showExportDialog() {
-    showExportOptionsDialog(
+  ///
+  /// The dialog reports a failed export, so this awaits it. Without the await the failure would
+  /// land in a future that nobody reads.
+  Future<void> _showExportDialog() async {
+    await showExportOptionsDialog(
       context: context,
       title: "Export shopping list",
       options: [
@@ -225,7 +228,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
         ),
         ClipboardExportOption(
           label: "Detailed",
-          description: "One section per shop trip, with the packs to buy and the link of every product.",
+          // "each pack" and not "every product": the text lists only the packs of the waste-minimal
+          // mix, so a product that the mix does not pick writes no line and no link.
+          description: "One section per shop trip, with the packs to buy and the link of each pack.",
           buildText: _buildDetailedCopyText,
           confirmation: "Copied the detailed shopping list to the clipboard.",
         ),
@@ -234,9 +239,20 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 
   /// The simplified text: the ingredient and the amount, with no trip section and no pack line.
+  ///
+  /// It keeps the "(freeze on arrival)" note of the detailed text. In one-trip mode the plan only
+  /// works if the user freezes those items on the day of the trip, so the note is not a detail.
   String _buildSimplifiedCopyText() {
     ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
-    return buildSimplifiedShoppingCopyText(ingredients: input.ingredients, remainingByIngredientId: input.remainingByIngredientId);
+    return buildSimplifiedShoppingCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      freezeOnArrivalIngredientIds: freezeOnArrivalIngredientIds(
+        ingredients: input.ingredients,
+        remainingByIngredientId: input.remainingByIngredientId,
+        trips: _planTrips(),
+      ),
+    );
   }
 
   /// The detailed text: one section per planned shop trip, with the packs and the product links.
