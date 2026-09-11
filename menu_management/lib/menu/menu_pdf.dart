@@ -77,8 +77,8 @@ pw.Widget _weekTable(MenuPdfWeekSection week) {
         repeat: true,
         decoration: const pw.BoxDecoration(color: PdfColors.grey300),
         children: <pw.Widget>[
-          _headerCell("Day"),
-          for (MealType mealType in MealType.values) _headerCell(mealType.name.capitalizeFirstLetter() ?? mealType.name),
+          _headerCell(dayColumnHeaderText),
+          for (MealType mealType in weekTableMealTypes(week)) _headerCell(mealTypeHeaderText(mealType)),
         ],
       ),
       for (MenuPdfDayRow day in week.days)
@@ -102,25 +102,46 @@ pw.Widget _headerCell(String text) {
 /// The note says "cook 5 servings" or "leftovers", so the reader sees at one glance which meals
 /// ask for work on that day. A slot with no meal writes a dash.
 pw.Widget _slotCell(MenuPdfSlot slot) {
-  if (slot.dishes.isEmpty) return _cell(pw.Text("-", style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600)));
+  if (slot.dishes.isEmpty) return _cell(pw.Text(emptySlotText, style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600)));
 
   return _cell(
     pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: <pw.Widget>[
         for (MenuPdfDish dish in slot.dishes) ...<pw.Widget>[
-          pw.Text(dish.recipeName, style: const pw.TextStyle(fontSize: 9)),
-          pw.Text(_dishNote(dish), style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
+          // A recipe name is free text, and `pw.Text` breaks a line at a space only. A long name
+          // with no space would paint over the next column, so the cell cuts it after two lines.
+          pw.Text(dish.recipeName, style: const pw.TextStyle(fontSize: 9), maxLines: 2, overflow: pw.TextOverflow.clip),
+          pw.Text(dishNoteText(dish), style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
         ],
       ],
     ),
   );
 }
 
+/// The text of a slot that holds no meal. It is the dash of a dish with no recipe, so an empty
+/// slot and an empty dish read the same.
+const String emptySlotText = emptyDishName;
+
+/// The name of the first column of a week table, which holds the day.
+const String dayColumnHeaderText = "Day";
+
+/// Names one meal column of a week table, for example "Breakfast".
+String mealTypeHeaderText(MealType mealType) => mealType.name.capitalizeFirstLetter() ?? mealType.name;
+
+/// The meal columns of a week table, taken from the slots of its first day.
+///
+/// The header and the cells then come from one source. A week that holds no day writes the three
+/// meals of the clock.
+List<MealType> weekTableMealTypes(MenuPdfWeekSection week) {
+  if (week.days.isEmpty) return MealType.values;
+  return week.days.first.slots.map((MenuPdfSlot slot) => slot.mealType).toList();
+}
+
 /// Writes the second line of a dish, for example "2p - cook 5 servings".
 /// A dish with no recipe keeps its people count, because an empty slot for two people is a gap
 /// that the reader has to see.
-String _dishNote(MenuPdfDish dish) {
+String dishNoteText(MenuPdfDish dish) {
   final String people = "${dish.people}p";
   return dish.note.isEmpty ? people : "$people - ${dish.note}";
 }
@@ -134,16 +155,12 @@ pw.Widget _cell(pw.Widget child) {
 List<pw.Widget> _recipeWidgets(MenuPdfRecipeSection recipe) {
   return <pw.Widget>[
     pw.Text(recipe.recipeName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
-    pw.Text(
-      "${recipe.servings} ${recipe.servings == 1 ? "serving" : "servings"} - "
-      "${recipe.totalTimeMinutes} min (${recipe.workingTimeMinutes} min of work, ${recipe.cookingTimeMinutes} min of cooking)",
-      style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
-    ),
+    pw.Text(recipeSummaryText(recipe), style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
     pw.SizedBox(height: 4),
     if (recipe.ingredients.isNotEmpty) ...<pw.Widget>[
       pw.Text("Ingredients", style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
       for (MenuPdfIngredientLine line in recipe.ingredients)
-        pw.Bullet(text: "${line.ingredientName}: ${line.amounts}", style: const pw.TextStyle(fontSize: 9), bulletSize: 1.5),
+        pw.Bullet(text: ingredientLineText(line), style: const pw.TextStyle(fontSize: 9), bulletSize: 1.5),
       pw.SizedBox(height: 4),
     ],
     for (MenuPdfStep step in recipe.steps) ..._stepWidgets(step),
@@ -155,12 +172,31 @@ List<pw.Widget> _recipeWidgets(MenuPdfRecipeSection recipe) {
 /// that step.
 List<pw.Widget> _stepWidgets(MenuPdfStep step) {
   return <pw.Widget>[
-    pw.Text("${step.number}. ${step.description}", style: const pw.TextStyle(fontSize: 9)),
-    pw.Text(
-      "   ${step.workingTimeMinutes} min of work, ${step.cookingTimeMinutes} min of cooking"
-      "${step.ingredients.isEmpty ? "" : " - ${step.ingredients.map((MenuPdfIngredientLine line) => "${line.ingredientName}: ${line.amounts}").join(", ")}"}",
-      style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
-    ),
+    pw.Text(stepTitleText(step), style: const pw.TextStyle(fontSize: 9)),
+    pw.Text(stepDetailsText(step), style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700)),
     pw.SizedBox(height: 3),
   ];
+}
+
+/// Writes the summary line of a recipe, for example
+/// "5 servings - 19 min (7 min of work, 12 min of cooking)".
+String recipeSummaryText(MenuPdfRecipeSection recipe) {
+  final String servings = "${recipe.servings} ${recipe.servings == 1 ? "serving" : "servings"}";
+  return "$servings - ${recipe.totalTimeMinutes} min (${recipe.workingTimeMinutes} min of work, ${recipe.cookingTimeMinutes} min of cooking)";
+}
+
+/// Writes one ingredient line, for example "Noodles: 500 grams".
+String ingredientLineText(MenuPdfIngredientLine line) => "${line.ingredientName}: ${line.amounts}";
+
+/// Writes the numbered line of one step, for example "1. Boil the pasta.".
+String stepTitleText(MenuPdfStep step) => "${step.number}. ${step.description}";
+
+/// Writes the times of one step and the ingredients that it uses, for example
+/// "   5 min of work, 12 min of cooking - Noodles: 500 grams".
+/// The three spaces indent the line under the number of the step.
+String stepDetailsText(MenuPdfStep step) {
+  final String times = "   ${step.workingTimeMinutes} min of work, ${step.cookingTimeMinutes} min of cooking";
+  if (step.ingredients.isEmpty) return times;
+  final String ingredients = step.ingredients.map(ingredientLineText).join(", ");
+  return "$times - $ingredients";
 }
