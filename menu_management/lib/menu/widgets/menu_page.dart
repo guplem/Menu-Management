@@ -115,7 +115,9 @@ class _MenuPageState extends State<MenuPage> {
                       initialSeed: DateTime.now().millisecondsSinceEpoch,
                       recipes: RecipesProvider.instance.recipes,
                     );
-                    multiWeekMenu = regenerated;
+                    // The first day is user configuration, not a result of the generator.
+                    // Regeneration only replaces the recipes, so the date must survive it.
+                    multiWeekMenu = regenerated.copyWith(startDate: multiWeekMenu.startDate);
                     currentWeekIndex = 0;
                   });
                 },

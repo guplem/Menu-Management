@@ -8,6 +8,41 @@ import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/menu/widgets/menu_page.dart";
+import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/recipes/recipes_provider.dart";
+
+Recipe _breakfastRecipe(String id) {
+  return Recipe(
+    id: id,
+    name: "Breakfast $id",
+    type: RecipeType.breakfast,
+    lunch: false,
+    dinner: false,
+    instructions: [Instruction(id: "${id}_i", description: "make it", workingTimeMinutes: 10, cookingTimeMinutes: 0)],
+  );
+}
+
+Recipe _mealRecipe(String id) {
+  return Recipe(
+    id: id,
+    name: "Meal $id",
+    type: RecipeType.meal,
+    lunch: true,
+    dinner: true,
+    carbs: true,
+    instructions: [Instruction(id: "${id}_i", description: "cook it", workingTimeMinutes: 20, cookingTimeMinutes: 0)],
+  );
+}
+
+/// The generator needs enough recipes to fill every slot, so it does not warn.
+void _seedRecipes() {
+  RecipesProvider.instance.setData([
+    for (int i = 0; i < 10; i++) _breakfastRecipe("b$i"),
+    for (int i = 0; i < 20; i++) _mealRecipe("m$i"),
+  ], ingredients: []);
+}
 
 Menu _week() {
   return Menu(
@@ -30,6 +65,8 @@ Future<void> _pumpMenuPage(WidgetTester tester, MultiWeekMenu menu) async {
 }
 
 void main() {
+  setUp(_seedRecipes);
+
   group("MenuPage day columns", () {
     testWidgets("starts at Saturday and shows no dates when the menu has no start date", (WidgetTester tester) async {
       await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
@@ -79,6 +116,19 @@ void main() {
 
       expect(find.text("Week 1 / 2"), findsOneWidget);
       expect(find.textContaining(" - "), findsNothing);
+    });
+  });
+
+  group("MenuPage regeneration", () {
+    testWidgets("keeps the start date when the user regenerates the menu", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: [_week()]));
+
+      await tester.tap(find.byIcon(Icons.refresh_rounded));
+      await tester.pump();
+
+      expect(find.text("Wednesday 6 Aug"), findsOneWidget);
+      expect(find.text("6 Aug"), findsOneWidget);
+      expect(find.text("Set first day"), findsNothing);
     });
   });
 
