@@ -16,6 +16,34 @@ List<Ingredient> sortIngredientsForCopy(List<Ingredient> ingredients) {
   return sorted;
 }
 
+/// Builds the simplified shopping list: one line per ingredient, with the amount and nothing else.
+///
+/// Pure: takes the ingredients and what the user must still buy of each one, keyed by ingredient
+/// id, and returns the text. The reader of this text shops without the app, so the text holds no
+/// trip section, no pack line, and no store link. Use [buildMultiTripCopyText] for those.
+///
+/// An ingredient that the user already owns writes no line.
+String buildSimplifiedShoppingCopyText({required List<Ingredient> ingredients, required Map<String, List<Quantity>> remainingByIngredientId}) {
+  StringBuffer buffer = StringBuffer();
+  for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
+    List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
+    if (!remaining.any((Quantity quantity) => quantity.amount > 0)) continue;
+    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}");
+  }
+  return buffer.toString().trimRight();
+}
+
+/// Writes the amounts of one ingredient, for example "500 grams + 2 pieces".
+/// Both copy formats call this, so one ingredient reads the same way in each of them.
+String _amountsText(List<Quantity> remaining) {
+  return remaining
+      .where((Quantity quantity) => quantity.amount > 0)
+      .map((Quantity quantity) {
+        return "${quantity.amount.toFormattedAmount()} ${quantity.unit.name}";
+      })
+      .join(" + ");
+}
+
 /// Builds the copied shopping list as one single list, with no trip sections.
 ///
 /// Pure: takes the ingredients and what the user must still buy of each one, keyed by ingredient
@@ -132,16 +160,14 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
   String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
 
   if (ingredient.products.isEmpty) {
-    String amounts = remaining.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
+    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
     return buffer.toString();
   }
 
   Quantity? primaryRemaining = remaining.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
   if (primaryRemaining == null) {
     // No matching product unit -> fall back to raw amount line.
-    String amounts = remaining.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
+    buffer.writeln("${ingredient.name}: ${_amountsText(remaining)}$freezeSuffix");
     return buffer.toString();
   }
 
@@ -191,6 +217,9 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
     String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
     String packWord = packs == 1 ? "pack" : "packs";
     buffer.writeln("  $label: $packs $packWord");
+    // The link tells the reader which product to take from the shelf. A product with no link
+    // writes no line, because an empty line helps nobody.
+    if (product.link.isNotEmpty) buffer.writeln("    ${product.link}");
   }
 
   return buffer.toString();

@@ -192,7 +192,7 @@ void main() {
         },
       );
 
-      expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack"]);
+      expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack", "    a"]);
     });
   });
 
@@ -216,6 +216,76 @@ void main() {
       const Ingredient salt = Ingredient(id: "salt", name: "Salt");
 
       expect(remainingForCopy(ingredient: salt, remainingByIngredientId: const {}), isEmpty);
+    });
+  });
+
+  group("buildSimplifiedShoppingCopyText", () {
+    test("writes one line per ingredient with the amount and nothing else", () {
+      Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("a")]);
+      Ingredient apple = const Ingredient(id: "apple", name: "Apple");
+
+      String text = buildSimplifiedShoppingCopyText(
+        ingredients: [pizza, apple],
+        remainingByIngredientId: const {
+          "pizza": [Quantity(amount: 500, unit: Unit.grams)],
+          "apple": [Quantity(amount: 3, unit: Unit.pieces)],
+        },
+      );
+
+      // The list is sorted by name and holds no pack line: the amount is all it shows.
+      expect(text.split("\n"), const ["Apple: 3 pieces", "Pizza: 500 grams"]);
+    });
+
+    test("joins the two units of one ingredient in one line", () {
+      const Ingredient milk = Ingredient(id: "milk", name: "Milk");
+
+      String text = buildSimplifiedShoppingCopyText(
+        ingredients: const [milk],
+        remainingByIngredientId: const {
+          "milk": [Quantity(amount: 500, unit: Unit.centiliters), Quantity(amount: 2, unit: Unit.pieces)],
+        },
+      );
+
+      expect(text.split("\n"), const ["Milk: 500 centiliters + 2 pieces"]);
+    });
+
+    test("leaves out an ingredient that the user already owns", () {
+      const Ingredient milk = Ingredient(id: "milk", name: "Milk");
+      const Ingredient rice = Ingredient(id: "rice", name: "Rice");
+
+      String text = buildSimplifiedShoppingCopyText(
+        ingredients: const [milk, rice],
+        remainingByIngredientId: const {
+          "milk": [Quantity(amount: 0, unit: Unit.centiliters)],
+          "rice": [Quantity(amount: 200, unit: Unit.grams)],
+        },
+      );
+
+      expect(text.split("\n"), const ["Rice: 200 grams"]);
+    });
+  });
+
+  group("buildIngredientCopyLines product link", () {
+    test("writes the store link under the pack line of the product", () {
+      Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("https://shop.example/pizza")]);
+
+      String text = buildIngredientCopyLines(
+        ingredient: pizza,
+        remaining: const [Quantity(amount: 500, unit: Unit.grams)],
+      );
+
+      expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack", "    https://shop.example/pizza", ""]);
+    });
+
+    test("writes no link line for a product without a link", () {
+      Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("")]);
+
+      String text = buildIngredientCopyLines(
+        ingredient: pizza,
+        remaining: const [Quantity(amount: 500, unit: Unit.grams)],
+      );
+
+      expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack", ""]);
     });
   });
 }
