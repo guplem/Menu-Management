@@ -16,6 +16,8 @@ class MenuConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The page borrows the date of the active menu. Read it once: it is the same for every column.
+    final DateTime? startDate = MenuProvider.listenableMultiWeekMenuOf(context)?.startDate;
     final WidgetStateProperty<Icon?> switchIcon = WidgetStateProperty.resolveWith<Icon?>((states) {
       if (states.contains(WidgetState.selected)) {
         return const Icon(Icons.fastfood_rounded);
@@ -59,7 +61,6 @@ class MenuConfigurationPage extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: 7,
         itemBuilder: (context, weekDayValue) {
-          final DateTime? startDate = MenuProvider.listenableStartDateOf(context);
           return Card(
             child: Column(
               mainAxisSize: MainAxisSize.min,

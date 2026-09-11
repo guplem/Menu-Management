@@ -43,18 +43,17 @@ class _RecipesPageState extends State<RecipesPage> {
     final Recipe toRemove = RecipesProvider.instance.get(selectedRecipeId!);
     final MultiWeekMenu? menu = MenuProvider.instance.multiWeekMenu;
     final List<({int weekIndex, MealTime mealTime})> referencingMeals = menu?.findReferencingMeals(toRemove.id) ?? [];
-    if (referencingMeals.isNotEmpty) {
+    // A meal can only reference the recipe when a menu exists, so both steps share one branch.
+    if (menu != null && referencingMeals.isNotEmpty) {
       bool confirmed = await showDeleteConfirmationDialog(
         context: context,
         title: 'Delete recipe "${toRemove.name}"?',
         message: "It is planned in the current menu. Deleting it will clear these meal slots:",
         affectedItems: referencingMeals
-            .map((({int weekIndex, MealTime mealTime}) reference) => _mealSlotLabel(reference, startDate: menu?.startDate))
+            .map((({int weekIndex, MealTime mealTime}) reference) => _mealSlotLabel(reference, startDate: menu.startDate))
             .toList(),
       );
       if (!confirmed || !context.mounted) return;
-    }
-    if (referencingMeals.isNotEmpty && menu != null) {
       MenuProvider.setMultiWeekMenu(menu.copyWithClearedRecipe(recipeId: toRemove.id, recipes: RecipesProvider.instance.recipes));
     }
     RecipesProvider.remove(recipeId: toRemove.id);
