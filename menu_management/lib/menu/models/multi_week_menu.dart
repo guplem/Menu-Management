@@ -215,7 +215,9 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   ///
   /// Note: the total of the entries of one ingredient can be above the total that [allIngredients]
   /// reports, because [allIngredients] counts the people of each week on its own and misses a
-  /// leftover meal of the next week.
+  /// leftover meal of the next week. That gap makes the shopping list under-buy. It is a bug of
+  /// [allIngredients], not of this method, and issue #49 tracks the fix. Do not align this method
+  /// to [allIngredients]: the entries here are correct.
   Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes}) {
     Map<String, List<IngredientMealRequirement>> requirements = {};
 

@@ -244,11 +244,16 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     return product.packsNeeded(remaining.amount);
   }
 
-  /// Splits a product's buy count across the planned trips, the same split the copied list writes.
+  /// Splits a product's buy count across the planned trips.
   ///
   /// It reads the split from [distributeRemainingAcrossTrips], the one function that spreads the
   /// on-screen remaining across the trip weeks. The copied list calls the same function, so the
-  /// on-screen split and the copy can never show two different per-trip amounts.
+  /// page and the copy can never show two different per-trip **amounts**.
+  ///
+  /// The packs can still differ. This method turns one trip's amount into packs of this one
+  /// product on its own, while the copy runs [recommendCombination] over every product of the
+  /// same unit and prints the waste-minimal mix. An ingredient with two products of the same unit
+  /// can therefore read differently on the page and in the copy.
   ///
   /// Returns an empty list (single-total display) unless 2+ trips actually buy this product.
   List<ProductTripPurchase> _tripPurchasesForProduct(Product product) {
