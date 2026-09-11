@@ -186,7 +186,7 @@ void main() {
   });
 
   group("ShoppingPage export button", () {
-    testWidgets("opens the export dialog with both shopping formats", (WidgetTester tester) async {
+    testWidgets("opens the export dialog with the two text formats and the PDF", (WidgetTester tester) async {
       await _pumpShoppingPage(tester, _menu());
 
       await tester.tap(find.byTooltip("Export shopping list"));
@@ -195,6 +195,7 @@ void main() {
       expect(find.text("Export shopping list"), findsOneWidget);
       expect(find.text("Simplified"), findsOneWidget);
       expect(find.text("Detailed"), findsOneWidget);
+      expect(find.text("PDF"), findsOneWidget);
     });
 
     testWidgets("offers the export button as the only way to copy the list", (WidgetTester tester) async {
