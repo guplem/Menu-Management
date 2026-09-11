@@ -404,8 +404,11 @@ class Persistency {
   ///
   /// It carries the same day as [defaultMenuFileName], so the menu and its shopping list sort
   /// next to each other in one folder. The name says which of the two files the user opens.
-  static String defaultShoppingListFileName(MultiWeekMenu multiWeekMenu, {DateTime? today, String extension = "pdf"}) {
-    return "Shopping-list-${_menuFileDate(multiWeekMenu, today: today)}.$extension";
+  ///
+  /// The kind of file is always "pdf". [defaultMenuFileName] takes it as a parameter, because the
+  /// menu has two kinds. The shopping list has one.
+  static String defaultShoppingListFileName(MultiWeekMenu multiWeekMenu, {DateTime? today}) {
+    return "Shopping-list-${_menuFileDate(multiWeekMenu, today: today)}.pdf";
   }
 
   /// Writes the day of a menu file name as "2025-08-06".

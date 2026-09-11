@@ -272,9 +272,6 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
     cursorByKey[key] = cursor + 1;
     int packs = sharesByKey[key]![cursor];
     if (packs <= 0) continue;
-    // The name tells the reader which product to take from the shelf, and the pack size tells how
-    // much one pack holds. A product has no name field, so the name comes from the store link.
-    // A link that names nothing leaves the pack size alone, as before.
     String label = productShoppingLabel(product);
     String packWord = packs == 1 ? "pack" : "packs";
     buffer.writeln("  $label: $packs $packWord");
