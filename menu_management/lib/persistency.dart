@@ -201,10 +201,24 @@ class Persistency {
     recipesProvider.setData(recipes, ingredients: ingredients);
   }
 
+  /// Drops a "startDate" that is not a valid date, so one bad field never costs the whole menu.
+  ///
+  /// `MultiWeekMenu.fromJson` calls `DateTime.parse`, which throws on a value such as
+  /// "6 Aug 2025" or a number. The loaders catch every error and return null, so the user
+  /// would lose all the meals. The menu loads date-less instead, with a warning.
+  static Map<String, dynamic> _dropInvalidStartDate(Map<String, dynamic> json) {
+    Object? rawStartDate = json["startDate"];
+    if (rawStartDate == null) return json;
+    if (rawStartDate is String && DateTime.tryParse(rawStartDate) != null) return json;
+
+    Debug.logWarning(true, 'Menu loaded without its first day: "$rawStartDate" is not a valid date.', asAssertion: false);
+    return Map<String, dynamic>.from(json)..remove("startDate");
+  }
+
   /// Parses .tsm JSON content into a MultiWeekMenu. Supports both multi-week and single-week formats.
   /// Validates that all referenced recipeIds exist in [recipes]. Missing recipes are nullified with a warning.
   static MultiWeekMenu _parseMenuFromJson(String data, {required List<Recipe> recipes}) {
-    Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(data));
+    Map<String, dynamic> json = _dropInvalidStartDate(Map<String, dynamic>.from(jsonDecode(data)));
 
     MultiWeekMenu rawMenu;
     if (json.containsKey("weeks")) {
@@ -362,8 +376,13 @@ class Persistency {
 
   /// Builds the file name that the save dialog proposes.
   /// It uses the first day of the menu. Without one it falls back to the next Saturday.
-  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu) {
-    DateTime date = multiWeekMenu.startDate ?? DateTime.now().add(Duration(days: 6 - DateTime.now().weekday));
+  /// [today] is the reference day. It defaults to the real today and exists for the tests.
+  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today}) {
+    DateTime reference = today ?? DateTime.now();
+    // DateTime.weekday is 6 on a Saturday, so the wrap keeps a Sunday looking forward
+    // (6 days ahead) instead of backward to yesterday.
+    int daysToSaturday = (6 - reference.weekday) % 7;
+    DateTime date = multiWeekMenu.startDate ?? DateTime(reference.year, reference.month, reference.day + daysToSaturday);
     String month = date.month.toString().padLeft(2, "0");
     String day = date.day.toString().padLeft(2, "0");
     return "Menu-${date.year}-$month-$day.tsm";

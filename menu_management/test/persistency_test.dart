@@ -246,6 +246,45 @@ void main() {
       expect(menu!.startDate, DateTime(2025, 8, 6));
     });
 
+    test("keeps every meal when the start date in the file is not a date", () async {
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      File tsmFile = File("${tempDir.path}/broken_start_date.tsm");
+      tsmFile.writeAsStringSync(jsonEncode({"startDate": "6 Aug 2025", "weeks": jsonDecode(_validTsmContent())["weeks"]}));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
+
+      expect(menu, isNotNull);
+      expect(menu!.startDate, isNull);
+      expect(menu.weeks.first.meals.length, 2);
+    });
+
+    test("keeps every meal when the start date in the file is not text", () async {
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      File tsmFile = File("${tempDir.path}/numeric_start_date.tsm");
+      tsmFile.writeAsStringSync(jsonEncode({"startDate": 20250806, "weeks": jsonDecode(_validTsmContent())["weeks"]}));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
+
+      expect(menu, isNotNull);
+      expect(menu!.startDate, isNull);
+      expect(menu.weeks.first.meals.length, 2);
+    });
+
+    test("keeps every meal when the start date in the file is empty", () async {
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      File tsmFile = File("${tempDir.path}/empty_start_date.tsm");
+      tsmFile.writeAsStringSync(jsonEncode({"startDate": "", "weeks": jsonDecode(_validTsmContent())["weeks"]}));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
+
+      expect(menu, isNotNull);
+      expect(menu!.startDate, isNull);
+      expect(menu.weeks.first.meals.length, 2);
+    });
+
     test("loads old single-week format and wraps in MultiWeekMenu", () async {
       Recipe r1 = _recipe();
       List<Recipe> recipes = [r1];
@@ -452,8 +491,29 @@ void main() {
         ],
       );
 
-      expect(Persistency.defaultMenuFileName(menu), startsWith("Menu-"));
-      expect(Persistency.defaultMenuFileName(menu), endsWith(".tsm"));
+      // 2025-08-06 is a Wednesday, so the next Saturday is 2025-08-09.
+      expect(Persistency.defaultMenuFileName(menu, today: DateTime(2025, 8, 6)), "Menu-2025-08-09.tsm");
+    });
+
+    test("falls back to today when today is already a Saturday", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      expect(Persistency.defaultMenuFileName(menu, today: DateTime(2025, 8, 9)), "Menu-2025-08-09.tsm");
+    });
+
+    test("falls back to the Saturday ahead on a Sunday, never to yesterday", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      // 2025-08-10 is a Sunday. The next Saturday is six days later, not the day before.
+      expect(Persistency.defaultMenuFileName(menu, today: DateTime(2025, 8, 10)), "Menu-2025-08-16.tsm");
     });
   });
 
