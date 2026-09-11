@@ -198,6 +198,8 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
 
   /// Writes the whole menu as text for the clipboard.
   /// This model owns the start date, so it builds the day labels and hands them to each week.
+  /// It also owns the cross-week leftovers, so it counts the servings of each cook event and
+  /// hands them to the week too.
   String toStringBeautified({required List<Recipe> recipes}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
@@ -206,8 +208,33 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
       final Map<WeekDay, String> dayLabels = {
         for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: i, weekDay: weekDay),
       };
-      result += "${weeks[i].toStringBeautified(recipes: recipes, dayLabels: dayLabels)}\n\n";
+      result +=
+          "${weeks[i].toStringBeautified(
+            recipes: recipes,
+            dayLabels: dayLabels,
+            cookServings: _cookServingsOfWeek(weekIndex: i, recipes: recipes),
+          )}\n\n";
     }
     return result.trim();
+  }
+
+  /// Counts the servings of every cook event of one week, keyed by the meal slot and the index of
+  /// the sub-meal. The grid of the menu page shows the same numbers, because both read
+  /// [servingsForCookEvent]. A sub-meal that eats leftovers has no entry.
+  Map<(MealTime, int), int> _cookServingsOfWeek({required int weekIndex, required List<Recipe> recipes}) {
+    Map<(MealTime, int), int> servings = {};
+    for (Meal meal in weeks[weekIndex].meals) {
+      for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
+        SubMeal subMeal = meal.subMeals[subMealIndex];
+        if (subMeal.cooking == null || subMeal.cooking!.yield <= 0) continue;
+        servings[(meal.mealTime, subMealIndex)] = servingsForCookEvent(
+          cookWeekIndex: weekIndex,
+          cookMealTime: meal.mealTime,
+          subMealIndex: subMealIndex,
+          recipes: recipes,
+        );
+      }
+    }
+    return servings;
   }
 }

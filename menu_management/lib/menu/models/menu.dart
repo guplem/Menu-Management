@@ -289,12 +289,22 @@ abstract class Menu with _$Menu {
   /// because the start date lives on MultiWeekMenu. That function owns the date-less wording
   /// too, so this method never needs a name of its own. The map must hold all seven days.
   /// A missing day throws, so a partial map fails at the caller, not in the clipboard text.
-  String toStringBeautified({required List<Recipe> recipes, required Map<WeekDay, String> dayLabels}) {
+  ///
+  /// [cookServings] says how many servings each cook event makes, keyed by the meal slot and the
+  /// index of the sub-meal. The caller builds it with `MultiWeekMenu.servingsForCookEvent`,
+  /// because a cook event can also feed a meal of the next week. The map must hold every
+  /// sub-meal whose `Cooking.yield` is above zero. A missing cook event throws, for the same
+  /// reason as a missing day label.
+  String toStringBeautified({
+    required List<Recipe> recipes,
+    required Map<WeekDay, String> dayLabels,
+    required Map<(MealTime, int), int> cookServings,
+  }) {
     // Format:
     // Weekday
-    //   Breakfast: recipe (yield pp) [x people]
-    //   Lunch: recipe (yield pp) [x people]
-    //   Dinner: recipe (yield pp) [x people]
+    //   Breakfast: recipe [x p] (cook n servings)
+    //   Lunch: recipe [x p] (leftovers)
+    //   Dinner: -
     // NOTE: If a meal has no sub-meals or no recipe, it will be displayed as "-"
 
     String result = "";
@@ -307,22 +317,38 @@ abstract class Menu with _$Menu {
         if (meal == null || meal.subMeals.isEmpty) {
           result += "  $mealType: -\n";
         } else if (meal.subMeals.length == 1) {
-          SubMeal subMeal = meal.subMeals.first;
-          String recipeName = (subMeal.cooking != null ? recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId)?.name : null) ?? "-";
-          recipeName += subMeal.cooking == null ? "" : " (${subMeal.cooking!.yield} pp)";
-          result += "  $mealType: $recipeName\n";
+          result += "  $mealType: ${_subMealText(meal: meal, subMealIndex: 0, recipes: recipes, cookServings: cookServings)}\n";
         } else {
           result += "  $mealType:\n";
           for (int si = 0; si < meal.subMeals.length; si++) {
-            SubMeal subMeal = meal.subMeals[si];
-            String recipeName = (subMeal.cooking != null ? recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId)?.name : null) ?? "-";
-            recipeName += subMeal.cooking == null ? "" : " (${subMeal.cooking!.yield} pp)";
-            result += "    ${si + 1}. $recipeName [${subMeal.people}p]\n";
+            result += "    ${si + 1}. ${_subMealText(meal: meal, subMealIndex: si, recipes: recipes, cookServings: cookServings)}\n";
           }
         }
       }
       result += "\n";
     }
     return result.trim();
+  }
+
+  /// Writes one sub-meal of [toStringBeautified], for example "Pasta [2p] (cook 4 servings)".
+  ///
+  /// A sub-meal with no recipe reads only "-", because there is nothing to eat and nobody to
+  /// count. Every other sub-meal shows its people count, and then says if the cook makes the food
+  /// at that meal or if the meal eats leftovers of an earlier cook.
+  String _subMealText({
+    required Meal meal,
+    required int subMealIndex,
+    required List<Recipe> recipes,
+    required Map<(MealTime, int), int> cookServings,
+  }) {
+    SubMeal subMeal = meal.subMeals[subMealIndex];
+    Cooking? cooking = subMeal.cooking;
+    if (cooking == null) return "-";
+
+    String recipeName = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId)?.name ?? "-";
+    if (cooking.yield <= 0) return "$recipeName [${subMeal.people}p] (leftovers)";
+
+    int servings = cookServings[(meal.mealTime, subMealIndex)]!;
+    return "$recipeName [${subMeal.people}p] (cook $servings ${servings == 1 ? "serving" : "servings"})";
   }
 }

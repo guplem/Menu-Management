@@ -291,6 +291,46 @@ void main() {
       expect(output.contains("Week 1 (6 Aug - 12 Aug)"), true);
       expect(output.contains("Week 2 (13 Aug - 19 Aug)"), true);
     });
+
+    test("counts the leftover meals in the servings of the cook event", () {
+      // The raw Cooking.yield only counts the meals, not the people. The grid shows the real
+      // servings through servingsForCookEvent, and the text must show the same number.
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2, people: 3),
+              _testMeal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2),
+            ],
+          ),
+        ],
+      );
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Lunch: Pasta [3p] (cook 5 servings)"), true);
+      expect(output.contains("Lunch: Pasta [2p] (leftovers)"), true);
+    });
+
+    test("counts a leftover meal of the next week in the servings of the cook event", () {
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.friday, mealType: MealType.dinner, recipe: recipe, yield: 2, people: 2)],
+          ),
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2)],
+          ),
+        ],
+      );
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Dinner: Pasta [2p] (cook 4 servings)"), true);
+      expect(output.contains("Lunch: Pasta [2p] (leftovers)"), true);
+    });
   });
 
   group("MultiWeekMenu backward-compatible JSON loading", () {
