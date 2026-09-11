@@ -64,7 +64,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 600 tests across 20 files |
+| Run all tests | `cd menu_management && flutter test test/` | 734 tests across 27 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -104,7 +104,7 @@ Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>
 `persistency.dart` handles file I/O. Fully parameterized: all public methods receive data as parameters (ingredients, recipes, lookup maps), never accessing provider singletons internally. Save is unavailable on iOS/Android due to `FilePicker` limitations. See [ADR 0003](adr/0003-tsr-file-persistence.md) and [ADR 0009](adr/0009-cooking-recipe-id-reference.md).
 
 - **`.tsr` files**: JSON with top-level `"Ingredients"` and `"Recipes"` arrays. On save, `ref_name` fields are injected into `IngredientUsage` entries for human readability.
-- **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning.
+- **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning. A menu may also carry `startDate`, the real date of menu day 0; a file without it keeps the Saturday-first, date-less behavior. Use `menu/menu_dates.dart` to turn a day offset into a date or a label.
 - Data is **not** automatically saved -- users must manually save via the save button
 - On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
 - Menu configurations are **not** persisted (generated on-demand)
