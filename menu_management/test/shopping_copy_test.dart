@@ -419,7 +419,10 @@ void main() {
         ],
       );
 
-      String text = buildIngredientCopyLines(ingredient: milk, remaining: const [Quantity(amount: 800, unit: Unit.centiliters)]);
+      String text = buildIngredientCopyLines(
+        ingredient: milk,
+        remaining: const [Quantity(amount: 800, unit: Unit.centiliters)],
+      );
 
       expect(text.split("\n"), const [
         "Leche desnatada sin lactosa",
