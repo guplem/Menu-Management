@@ -81,21 +81,33 @@ List<pw.Widget> _tripWidgets(ShoppingPdfTripSection trip) {
 
 /// Draws one ingredient: the amount to buy, then the products, then the meals that need it.
 ///
-/// The block never splits over two pages. The reader stands in the shop and compares the products
-/// of one ingredient, so a block cut in half costs more than a page that ends early.
+/// The name and the products stay on one page, inside a [pw.Inseparable]. The reader stands in
+/// the shop and compares the products of one ingredient, so a name cut from its products costs
+/// more than a page that ends early.
+///
+/// The list of meals can continue on the next page, and it does so for a staple of a long menu: a
+/// test measured 80 meal lines over two pages. The meals justify the amount and the reader does
+/// not compare them, so a break there costs little. A [pw.Inseparable] around the whole block
+/// would instead fail the export as soon as the block is taller than one page.
 pw.Widget _ingredientWidget(ShoppingPdfIngredientEntry entry) {
   return pw.Container(
     margin: const pw.EdgeInsets.only(bottom: 8),
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: <pw.Widget>[
-        pw.Text(shoppingIngredientHeadingText(entry), style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-        for (ShoppingPdfProductOption product in entry.products) _productWidget(product),
+        pw.Inseparable(
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: <pw.Widget>[
+              pw.Text(shoppingIngredientHeadingText(entry), style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
+              for (ShoppingPdfProductOption product in entry.products) _productWidget(product),
+            ],
+          ),
+        ),
         if (entry.meals.isNotEmpty) ...<pw.Widget>[
           pw.SizedBox(height: 2),
           pw.Text(mealNeedsHeadingText, style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700)),
-          for (ShoppingPdfMealNeed meal in entry.meals)
-            pw.Text("   ${mealNeedText(meal)}", style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700)),
+          for (ShoppingPdfMealNeed meal in entry.meals) pw.Text(mealNeedText(meal), style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700)),
         ],
       ],
     ),
@@ -107,9 +119,13 @@ pw.Widget _ingredientWidget(ShoppingPdfIngredientEntry entry) {
 /// A product with a store link is a real PDF link: a tap opens the page of the product in the
 /// browser of the reader. The app itself opens a link with a Windows-only call, so the PDF is the
 /// one place where a link works on every device.
+///
+/// A link that is not an address reads as plain text. `Product.link` takes any text that the user
+/// types, and a blue underlined line that opens nothing is worse than no link: the reader taps it
+/// in the shop and gets an error. `Product.nameFromLink` guards the same field the same way.
 pw.Widget _productWidget(ShoppingPdfProductOption product) {
-  final String text = "   ${productOptionText(product)}";
-  if (product.link.isEmpty) return pw.Text(text, style: const pw.TextStyle(fontSize: 9));
+  final String text = productOptionText(product);
+  if (Uri.tryParse(product.link)?.hasScheme != true) return pw.Text(text, style: const pw.TextStyle(fontSize: 9));
   return pw.UrlLink(
     destination: product.link,
     child: pw.Text(
@@ -126,24 +142,33 @@ String shoppingIngredientHeadingText(ShoppingPdfIngredientEntry entry) {
   return "${entry.ingredientName}: ${entry.amounts}$suffix";
 }
 
-/// Writes one product line, for example "Espaguetis (500 grams/pack): 2 packs - recommended".
+/// Writes one product line, for example "   Espaguetis (500 grams/pack): 2 packs - recommended".
 ///
 /// Every product that fits the ingredient gets a line, so the reader who finds an empty shelf
-/// takes the next line and still buys enough. The mark says which one the app picks first.
+/// takes the next line and still buys enough. The mark says which products waste the least, and
+/// two products that tie both carry it.
+///
+/// The line starts with the indent that sets it under its ingredient. The indent is part of the
+/// line, so the string that a test reads is the string that the page holds.
 String productOptionText(ShoppingPdfProductOption product) {
   final String packs = "${product.packs} ${product.packs == 1 ? "pack" : "packs"}";
-  return "${product.label}: $packs${product.isRecommended ? " - recommended" : ""}";
+  return "$_indent${product.label}: $packs${product.isRecommended ? " - recommended" : ""}";
 }
 
+/// Sets a product line and a meal line under the ingredient that holds them.
+const String _indent = "   ";
+
 /// Writes one justification line, for example
-/// "Week 1, Wednesday 6 Aug, Lunch - Pasta for 2 people: 200 grams".
+/// "   Week 1, Wednesday 6 Aug, Lunch - Pasta for 2 people: 200 grams".
 ///
 /// A meal that eats leftovers carries "(leftovers)" after the people. It needs the food too, and
 /// the cook event of an earlier day buys it, so the reader sees why the amount is above one meal.
+///
+/// The line starts with the same indent that [productOptionText] writes.
 String mealNeedText(ShoppingPdfMealNeed meal) {
   final String people = "${meal.people} ${meal.people == 1 ? "person" : "people"}";
   final String leftovers = meal.isCookEvent ? "" : " (leftovers)";
-  return "${meal.weekLabel}, ${meal.dayLabel}, ${meal.mealName} - ${meal.recipeName} for $people$leftovers: ${meal.amounts}";
+  return "$_indent${meal.weekLabel}, ${meal.dayLabel}, ${meal.mealName} - ${meal.recipeName} for $people$leftovers: ${meal.amounts}";
 }
 
 /// Names the block of meals under an ingredient.
