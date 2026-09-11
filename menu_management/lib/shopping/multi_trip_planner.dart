@@ -23,7 +23,7 @@ class TripItem {
 /// A single shopping trip scheduled the day before week [weekIndex] starts.
 ///
 /// Trip with [weekIndex] = 0 happens on day -1 (the day before menu day 0).
-/// Trip with [weekIndex] = N happens on day `N * 7 - 1`.
+/// [dayForWeek] gives the day of any trip.
 class ShoppingTrip {
   const ShoppingTrip({required this.weekIndex, required this.items});
 
@@ -229,7 +229,7 @@ List<_PlanEvent> _buildPlanEvents({
 
 /// Computes [_PlanEvent.earliestWeek] and [_PlanEvent.latestWeek] in place.
 ///
-/// Trip W happens on day `W * 7 - 1`. Item is fresh on event day D when
+/// [ShoppingTrip.dayForWeek] gives the day of trip W. Item is fresh on event day D when
 /// `D - tripDay < shelfLifeDaysClosed`. When no trip can satisfy freshness,
 /// fall back to the closest trip on or before the event day. [maxWeekIndex]
 /// caps the latest trip so an N-week menu never produces more than N trips.
@@ -244,7 +244,7 @@ void _attachTripWindow(_PlanEvent event, {required int maxWeekIndex}) {
     earliestWeek = 0;
   } else {
     earliestWeek = 0;
-    while (earliestWeek * 7 - 1 + shelfLife <= event.dayIndex) {
+    while (ShoppingTrip.dayForWeek(earliestWeek) + shelfLife <= event.dayIndex) {
       earliestWeek++;
     }
     if (earliestWeek > latestWeek) earliestWeek = latestWeek;
