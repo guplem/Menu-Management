@@ -237,8 +237,12 @@ class Persistency {
     if (json.containsKey("weeks")) {
       rawMenu = MultiWeekMenu.fromJson(json);
     } else {
+      // An old single-week file holds one Menu at the top level. A "startDate" beside it is
+      // still the first day of the menu, so carry it onto the wrapper.
       Menu singleWeek = Menu.fromJson(json);
-      rawMenu = MultiWeekMenu.validated(weeks: [singleWeek]);
+      Object? rawStartDate = json["startDate"];
+      DateTime? startDate = rawStartDate is String ? DateTime.parse(rawStartDate) : null;
+      rawMenu = MultiWeekMenu.validated(weeks: [singleWeek], startDate: startDate);
     }
 
     // Validate: warn and strip sub-meals with missing recipe IDs

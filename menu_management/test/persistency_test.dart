@@ -299,6 +299,19 @@ void main() {
       expect(menu.weeks.first.meals.length, 1);
     });
 
+    test("keeps the start date of an old single-week file", () async {
+      Recipe r1 = _recipe();
+      File tsmFile = File("${tempDir.path}/old_format_start_date.tsm");
+      Map<String, dynamic> json = Map<String, dynamic>.from(jsonDecode(_validSingleWeekTsmContent()));
+      json["startDate"] = "2025-08-06T00:00:00.000";
+      tsmFile.writeAsStringSync(jsonEncode(json));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1]);
+
+      expect(menu!.startDate, DateTime(2025, 8, 6));
+      expect(menu.weekCount, 1);
+    });
+
     test("reads a start date written in UTC as the same local day", () async {
       // DateTime.parse keeps the UTC flag of a "Z" value. The chip, the date picker and the
       // grid all read the same field, so the loader normalizes it to a local midnight.
