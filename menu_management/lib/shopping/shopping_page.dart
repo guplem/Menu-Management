@@ -4,6 +4,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -175,6 +176,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
             ownedProductCounts: ownedProductCounts[ingredientId] ?? const {},
             sources: ingredientSources[ingredientId] ?? [],
             plannedTrips: plannedTrips,
+            startDate: widget.multiWeekMenu.startDate,
             onOwnedChanged: (double amount, OwnedUnit unit) {
               setState(() {
                 ownedAmounts[ingredientId] = amount;
@@ -214,7 +216,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     String prefix = _useFreezerStrategy ? "One-trip mode" : "Multi-trip mode";
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
-    String weeksText = trips.map((ShoppingTrip t) => "Week ${t.weekIndex + 1}").join(", ");
+    String weeksText = trips.map((ShoppingTrip t) => shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: t.weekIndex)).join(", ");
     return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
@@ -259,7 +261,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
       if (wroteSection) buffer.writeln();
       wroteSection = true;
-      buffer.writeln("Week ${trip.weekIndex + 1}");
+      buffer.writeln(shoppingTripLabel(startDate: widget.multiWeekMenu.startDate, weekIndex: trip.weekIndex));
       buffer.writeln("--------");
       for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
         _appendIngredientLines(

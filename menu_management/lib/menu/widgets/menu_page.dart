@@ -4,6 +4,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/expiry_warnings.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -50,6 +51,33 @@ class _MenuPageState extends State<MenuPage> {
 
   Menu get currentWeek => multiWeekMenu.weeks[currentWeekIndex];
 
+  /// Real date of the column at [weekDayValue] in the week on screen. Null when the menu has no start date.
+  DateTime? _columnDate(int weekDayValue) {
+    return menuDateForDay(startDate: multiWeekMenu.startDate, dayOffset: currentWeekIndex * 7 + weekDayValue);
+  }
+
+  /// Asks the user for the real date of menu day 0, then stores it on the menu.
+  Future<void> _pickStartDate() async {
+    final DateTime today = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: multiWeekMenu.startDate ?? DateTime(today.year, today.month, today.day),
+      firstDate: DateTime(today.year - 1),
+      lastDate: DateTime(today.year + 5),
+      helpText: "Select the first day of the menu",
+    );
+    if (picked == null) return;
+    setState(() {
+      multiWeekMenu = multiWeekMenu.copyWith(startDate: DateTime(picked.year, picked.month, picked.day));
+    });
+  }
+
+  void _clearStartDate() {
+    setState(() {
+      multiWeekMenu = multiWeekMenu.copyWith(startDate: null);
+    });
+  }
+
   void _addWeek() {
     setState(() {
       Menu newWeek = MenuProvider.generateAdditionalWeek(seed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
@@ -72,26 +100,32 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Text("Menu"),
-            IconButton(
-              tooltip: "Regenerate Menu",
-              icon: const Icon(Icons.refresh_rounded),
-              onPressed: () {
-                setState(() {
-                  MultiWeekMenu regenerated = MenuProvider.generateMenu(
-                    initialSeed: DateTime.now().millisecondsSinceEpoch,
-                    recipes: RecipesProvider.instance.recipes,
-                  );
-                  multiWeekMenu = regenerated;
-                  currentWeekIndex = 0;
-                });
-              },
-            ),
-            const SizedBox(width: 16),
-            _buildWeekNavigator(),
-          ],
+        // The title holds several controls. It scrolls sideways so a narrow window never overflows it.
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              const Text("Menu"),
+              IconButton(
+                tooltip: "Regenerate Menu",
+                icon: const Icon(Icons.refresh_rounded),
+                onPressed: () {
+                  setState(() {
+                    MultiWeekMenu regenerated = MenuProvider.generateMenu(
+                      initialSeed: DateTime.now().millisecondsSinceEpoch,
+                      recipes: RecipesProvider.instance.recipes,
+                    );
+                    multiWeekMenu = regenerated;
+                    currentWeekIndex = 0;
+                  });
+                },
+              ),
+              const SizedBox(width: 16),
+              _buildStartDateControl(),
+              const SizedBox(width: 16),
+              _buildWeekNavigator(),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -140,9 +174,16 @@ class _MenuPageState extends State<MenuPage> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(15),
-                            child: DefaultTextStyle(
-                              style: Theme.of(context).textTheme.titleLarge!,
-                              child: Text(WeekDay.fromValue(weekDayValue).name.capitalizeFirstLetter() ?? "null"),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                DefaultTextStyle(
+                                  style: Theme.of(context).textTheme.titleLarge!,
+                                  child: Text(menuDayName(startDate: multiWeekMenu.startDate, dayOffset: currentWeekIndex * 7 + weekDayValue)),
+                                ),
+                                if (_columnDate(weekDayValue) != null)
+                                  Text(formatShortDate(_columnDate(weekDayValue)!), style: Theme.of(context).textTheme.bodySmall),
+                              ],
                             ),
                           ),
                           ...currentWeek.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((Meal? meal) {
@@ -449,7 +490,24 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
+  /// Shows the first day of the menu, opens the date picker, and clears the date again.
+  Widget _buildStartDateControl() {
+    final DateTime? startDate = multiWeekMenu.startDate;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextButton.icon(
+          icon: const Icon(Icons.event_rounded),
+          label: Text(startDate == null ? "Set first day" : "${menuDayName(startDate: startDate, dayOffset: 0)} ${formatShortDate(startDate)}"),
+          onPressed: _pickStartDate,
+        ),
+        if (startDate != null) IconButton(tooltip: "Clear the first day", icon: const Icon(Icons.close_rounded), onPressed: _clearStartDate),
+      ],
+    );
+  }
+
   Widget _buildWeekNavigator() {
+    final String weekRange = menuWeekRangeLabel(startDate: multiWeekMenu.startDate, weekIndex: currentWeekIndex);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -466,6 +524,7 @@ class _MenuPageState extends State<MenuPage> {
             onPressed: currentWeekIndex < multiWeekMenu.weekCount - 1 ? () => setState(() => currentWeekIndex++) : null,
           ),
         ],
+        if (weekRange.isNotEmpty) Text(weekRange, style: Theme.of(context).textTheme.bodyMedium),
         IconButton(tooltip: "Add another week", icon: const Icon(Icons.add_circle_outline), onPressed: _addWeek),
       ],
     );

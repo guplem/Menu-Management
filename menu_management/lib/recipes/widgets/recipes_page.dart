@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
@@ -31,9 +32,11 @@ class _RecipesPageState extends State<RecipesPage> {
     PlayRecipePage.show(context: context, recipe: recipe);
   }
 
-  String _mealSlotLabel(({int weekIndex, MealTime mealTime}) reference) {
-    String weekDay = reference.mealTime.weekDay.name.capitalizeFirstLetter() ?? reference.mealTime.weekDay.name;
-    return "Week ${reference.weekIndex + 1} - $weekDay ${reference.mealTime.mealType.name}";
+  /// Names one meal slot of the menu, such as "Week 1 - Saturday lunch".
+  /// With a menu start date the day also carries its real date, such as "Week 1 - Wednesday 6 Aug lunch".
+  String _mealSlotLabel(({int weekIndex, MealTime mealTime}) reference, {required DateTime? startDate}) {
+    String day = menuDayLabel(startDate: startDate, weekIndex: reference.weekIndex, weekDay: reference.mealTime.weekDay);
+    return "Week ${reference.weekIndex + 1} - $day ${reference.mealTime.mealType.name}";
   }
 
   Future<void> _deleteSelectedRecipe() async {
@@ -45,7 +48,9 @@ class _RecipesPageState extends State<RecipesPage> {
         context: context,
         title: 'Delete recipe "${toRemove.name}"?',
         message: "It is planned in the current menu. Deleting it will clear these meal slots:",
-        affectedItems: referencingMeals.map(_mealSlotLabel).toList(),
+        affectedItems: referencingMeals
+            .map((({int weekIndex, MealTime mealTime}) reference) => _mealSlotLabel(reference, startDate: menu?.startDate))
+            .toList(),
       );
       if (!confirmed || !context.mounted) return;
     }

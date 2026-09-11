@@ -81,6 +81,7 @@ class ShoppingIngredient extends StatefulWidget {
     required this.onProductOwnedChanged,
     required this.sources,
     required this.plannedTrips,
+    this.startDate,
     this.combinationRecommendations = const [],
   });
 
@@ -108,6 +109,10 @@ class ShoppingIngredient extends StatefulWidget {
   /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
   /// each product row shows the per-trip buy split instead of a single total.
   final List<ShoppingTrip> plannedTrips;
+
+  /// First day of the menu. It turns the per-trip buy lines into real shopping dates.
+  /// Null when the menu has no start date.
+  final DateTime? startDate;
 
   @override
   State<ShoppingIngredient> createState() => _ShoppingIngredientState();
@@ -414,6 +419,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             // The one-of-each cycle already splits an equivalent group; a per-trip split on top
             // would show the wrong (solo) counts, so it is only used for standalone products.
             tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),
+            startDate: widget.startDate,
             ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
             onOwnedCountChanged: (double count) => widget.onProductOwnedChanged(productIndex, count),
           ),

@@ -143,6 +143,10 @@ class MenuProvider extends ChangeNotifier {
   MultiWeekMenu? _multiWeekMenu;
   MultiWeekMenu? get multiWeekMenu => _multiWeekMenu;
 
+  /// The start date of the mirrored menu, or null when no menu is loaded or the menu has no date.
+  /// The configuration page uses it to label its day columns like the menu page does.
+  static DateTime? listenableStartDateOf(BuildContext context) => getProvider<MenuProvider>(context, listen: true).multiWeekMenu?.startDate;
+
   static MenuConfiguration listenableOf(BuildContext context, {required WeekDay weekDay, required MealType mealType}) =>
       getProvider<MenuProvider>(context, listen: true).get(mealType: mealType, weekDay: weekDay);
 
