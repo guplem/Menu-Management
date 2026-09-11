@@ -2,6 +2,7 @@ import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -200,22 +201,64 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   /// Returns, for each ingredient, the meals of the whole menu that need it.
   ///
   /// [ingredientSources] merges the entries of every week by recipe, so it loses the week, the
-  /// day and the meal slot. This method keeps them: it writes one entry per sub-meal, and it
-  /// tags each entry with the week that holds the meal.
+  /// day and the meal slot. This method keeps them: it writes one entry per sub-meal that eats a
+  /// recipe, cook meals and leftover meals alike, with the amount that this one meal needs.
+  ///
+  /// The walk covers the whole menu, not one week at a time. A cook event late in one week feeds
+  /// leftover meals of the next week, the same way [servingsForCookEvent] counts them. A week-local
+  /// walk would write no entry for such a leftover meal, because that week cooks nothing.
+  ///
+  /// A meal whose recipe is not in [recipes] gets no entry, the same rule the rest of the menu
+  /// code follows for a deleted recipe.
+  ///
+  /// The entries are ordered by week, then by the clock, then by the index of the sub-meal.
+  ///
+  /// Note: the total of the entries of one ingredient can be above the total that [allIngredients]
+  /// reports, because [allIngredients] counts the people of each week on its own and misses a
+  /// leftover meal of the next week.
   Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes}) {
-    Map<String, List<IngredientMealRequirement>> combined = {};
+    Map<String, List<IngredientMealRequirement>> requirements = {};
 
     for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
-      Map<String, List<IngredientMealRequirement>> weekRequirements = weeks[weekIndex].ingredientMealRequirements(
-        recipes: recipes,
-        weekIndex: weekIndex,
-      );
-      for (MapEntry<String, List<IngredientMealRequirement>> entry in weekRequirements.entries) {
-        combined.putIfAbsent(entry.key, () => <IngredientMealRequirement>[]).addAll(entry.value);
+      for (Meal meal in weeks[weekIndex].meals) {
+        for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
+          SubMeal subMeal = meal.subMeals[subMealIndex];
+          Cooking? cooking = subMeal.cooking;
+          if (cooking == null) continue;
+
+          Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
+          if (recipe == null) continue;
+
+          for (MapEntry<String, List<Quantity>> ingredient in recipe.perServingQuantities().entries) {
+            requirements
+                .putIfAbsent(ingredient.key, () => <IngredientMealRequirement>[])
+                .add(
+                  IngredientMealRequirement(
+                    weekIndex: weekIndex,
+                    mealTime: meal.mealTime,
+                    subMealIndex: subMealIndex,
+                    recipeId: recipe.id,
+                    recipeName: recipe.name,
+                    people: subMeal.people,
+                    isCookEvent: cooking.yield > 0,
+                    quantities: ingredient.value.map((Quantity q) => q.scaledBy(subMeal.people)).toList(),
+                  ),
+                );
+          }
+        }
       }
     }
 
-    return combined;
+    // The meals of one week arrive in the order the generator wrote them, so order them at the end.
+    for (List<IngredientMealRequirement> mealRequirements in requirements.values) {
+      mealRequirements.sort((IngredientMealRequirement a, IngredientMealRequirement b) {
+        if (a.weekIndex != b.weekIndex) return a.weekIndex.compareTo(b.weekIndex);
+        if (a.mealTime.isSameTime(b.mealTime)) return a.subMealIndex.compareTo(b.subMealIndex);
+        return a.mealTime.goesBefore(b.mealTime) ? -1 : 1;
+      });
+    }
+
+    return requirements;
   }
 
   /// Writes the whole menu as text for the clipboard.
