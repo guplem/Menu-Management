@@ -1,6 +1,7 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
@@ -281,10 +282,13 @@ abstract class Menu with _$Menu {
   /// because a cook event can also feed a meal of the next week. The map must hold every
   /// sub-meal whose `Cooking.yield` is above zero. A missing cook event throws, for the same
   /// reason as a missing day label.
+  ///
+  /// [format] sets how much of each meal line the text writes. See [MenuCopyFormat].
   String toStringBeautified({
     required List<Recipe> recipes,
     required Map<WeekDay, String> dayLabels,
     required Map<(MealTime, int), int> cookServings,
+    MenuCopyFormat format = MenuCopyFormat.simplified,
   }) {
     // Format:
     // Weekday
@@ -303,11 +307,11 @@ abstract class Menu with _$Menu {
         if (meal == null || meal.subMeals.isEmpty) {
           result += "  $mealType: -\n";
         } else if (meal.subMeals.length == 1) {
-          result += "  $mealType: ${_subMealText(meal: meal, subMealIndex: 0, recipes: recipes, cookServings: cookServings)}\n";
+          result += "  $mealType: ${_subMealText(meal: meal, subMealIndex: 0, recipes: recipes, cookServings: cookServings, format: format)}\n";
         } else {
           result += "  $mealType:\n";
           for (int si = 0; si < meal.subMeals.length; si++) {
-            result += "    ${si + 1}. ${_subMealText(meal: meal, subMealIndex: si, recipes: recipes, cookServings: cookServings)}\n";
+            result += "    ${si + 1}. ${_subMealText(meal: meal, subMealIndex: si, recipes: recipes, cookServings: cookServings, format: format)}\n";
           }
         }
       }
@@ -317,6 +321,7 @@ abstract class Menu with _$Menu {
   }
 
   /// Writes one sub-meal of [toStringBeautified], for example "Pasta [2p] (cook 4 servings)".
+  /// The detailed format writes the total time of the recipe too: "Pasta [2p] (cook 4 servings, 45 min)".
   ///
   /// A sub-meal with no recipe reads "-". In a slot that holds two or more sub-meals it also keeps
   /// its people count, as "- [2p]": a slot where two people have nothing to eat is a gap that the
@@ -331,15 +336,20 @@ abstract class Menu with _$Menu {
     required int subMealIndex,
     required List<Recipe> recipes,
     required Map<(MealTime, int), int> cookServings,
+    required MenuCopyFormat format,
   }) {
     SubMeal subMeal = meal.subMeals[subMealIndex];
     Cooking? cooking = subMeal.cooking;
     if (cooking == null) return meal.subMeals.length > 1 ? "- [${subMeal.people}p]" : "-";
 
-    String recipeName = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId)?.name ?? "-";
+    Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
+    String recipeName = recipe?.name ?? "-";
     if (cooking.yield <= 0) return "$recipeName [${subMeal.people}p] (leftovers)";
 
     int servings = cookServings[(meal.mealTime, subMealIndex)]!;
-    return "$recipeName [${subMeal.people}p] (cook $servings ${servings == 1 ? "serving" : "servings"})";
+    // The detailed format adds the time that the cook needs for the whole recipe. A cook event
+    // whose recipe is gone gets no time, because the deleted recipe holds the instructions.
+    String time = format == MenuCopyFormat.detailed && recipe != null ? ", ${recipe.totalTimeMinutes} min" : "";
+    return "$recipeName [${subMeal.people}p] (cook $servings ${servings == 1 ? "serving" : "servings"}$time)";
   }
 }
