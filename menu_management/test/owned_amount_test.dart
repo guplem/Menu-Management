@@ -170,6 +170,31 @@ void main() {
       expect(remaining.first.amount, 101);
     });
 
+    test("keeps a need below one unit instead of rounding it away", () {
+      // A need of 0.4 teaspoons is still a need. The old rounding turned it into 0, so the
+      // ingredient disappeared from the page and from the copied list.
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: salt,
+        requiredQuantities: const [Quantity(amount: 0.4, unit: Unit.teaspoons)],
+        owned: const OwnedStock(amount: 0, unit: Unit.teaspoons),
+      );
+
+      expect(remaining.first.amount, 1);
+    });
+
+    test("keeps a need of zero at zero", () {
+      // The owned stock covers the whole need, so the page must still say the user needs nothing.
+      Ingredient flour = const Ingredient(id: "flour", name: "Flour");
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: flour,
+        requiredQuantities: const [Quantity(amount: 100, unit: Unit.grams)],
+        owned: const OwnedStock(amount: 100, unit: Unit.grams),
+      );
+
+      expect(remaining.first.amount, 0);
+    });
+
     test("does not subtract a single owned stock more than once when the need spans two units", () {
       // Garlic is needed as 4 pieces AND 50 g. It has gramsPerPiece = 25 and a pieces product,
       // so the normalizer keeps pieces and grams as two separate lines. The user owns 100 g.

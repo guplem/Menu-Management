@@ -184,5 +184,15 @@ class OwnedStockConsumer {
 /// either stock shape (single-form or per-product); both resolve through the same single pool.
 List<Quantity> computeRemainingQuantities({required Ingredient ingredient, required List<Quantity> requiredQuantities, required OwnedStock owned}) {
   OwnedStockConsumer consumer = OwnedStockConsumer(ingredient: ingredient, owned: owned);
-  return requiredQuantities.map((Quantity q) => Quantity(amount: max(0, consumer.consumeRemaining(q)).roundToDouble(), unit: q.unit)).toList();
+  return requiredQuantities.map((Quantity q) => Quantity(amount: roundNeededAmount(consumer.consumeRemaining(q)), unit: q.unit)).toList();
+}
+
+/// Rounds an amount that the user must still buy to a whole unit.
+///
+/// A need above zero never becomes zero. The user cannot buy 0.4 teaspoons, but a pinch of salt
+/// is still a need, so the smallest need is one unit. The page and the copied list both round
+/// here, so they always show the same number.
+double roundNeededAmount(double amount) {
+  if (amount <= 0) return 0;
+  return max(1, amount.round()).toDouble();
 }
