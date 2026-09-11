@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
@@ -120,10 +121,33 @@ Future<void> _pumpShoppingPage(WidgetTester tester, MultiWeekMenu menu) async {
   await tester.pump();
 }
 
+/// The texts that the page copied to the clipboard, in the order of the copies.
+late List<String> _copiedTexts;
+
+/// Opens the export dialog of the shopping page and picks one format.
+Future<void> _pumpAndCopy(WidgetTester tester, {required String format}) async {
+  await _pumpShoppingPage(tester, _menu());
+  await tester.tap(find.byTooltip("Export shopping list"));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(format));
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() {
     IngredientsProvider.instance.setData([_rice]);
     RecipesProvider.instance.setData([_riceRecipe()], ingredients: [_rice]);
+    _copiedTexts = [];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (MethodCall call) async {
+      if (call.method == "Clipboard.setData") _copiedTexts.add((call.arguments as Map<Object?, Object?>)["text"]! as String);
+      return null;
+    });
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null);
   });
 
   group("ShoppingPage trip banner", () {
@@ -158,15 +182,37 @@ void main() {
       await tester.tap(find.byTooltip("Export shopping list"));
       await tester.pumpAndSettle();
 
-      expect(find.text("Export shopping list"), findsWidgets);
+      expect(find.text("Export shopping list"), findsOneWidget);
       expect(find.text("Simplified"), findsOneWidget);
       expect(find.text("Detailed"), findsOneWidget);
     });
 
-    testWidgets("holds no direct copy button any more", (WidgetTester tester) async {
+    testWidgets("offers the export button as the only way to copy the list", (WidgetTester tester) async {
+      // The two fixed-format copy buttons are gone. The export button replaces both of them.
       await _pumpShoppingPage(tester, _menu());
 
-      expect(find.byTooltip("Copy to clipboard"), findsNothing);
+      expect(find.byTooltip("Export shopping list"), findsOneWidget);
+      expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
+    });
+  });
+
+  group("ShoppingPage export formats", () {
+    testWidgets("copies the detailed list, with the trip section and the packs", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Detailed");
+
+      expect(_copiedTexts.single.split("\n"), const ["now", "---", "Rice", "  500 grams/pack: 1 pack", "    https://example.com/rice"]);
+    });
+
+    testWidgets("copies the simplified list, with no trip section and no pack", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Simplified");
+
+      expect(_copiedTexts.single.split("\n"), const ["Rice: 400 grams"]);
+    });
+
+    testWidgets("names the copied format in the snackbar", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Detailed");
+
+      expect(find.text("Copied the detailed shopping list to the clipboard."), findsOneWidget);
     });
   });
 }
