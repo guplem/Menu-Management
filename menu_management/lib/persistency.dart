@@ -201,24 +201,37 @@ class Persistency {
     recipesProvider.setData(recipes, ingredients: ingredients);
   }
 
-  /// Drops a "startDate" that is not a valid date, so one bad field never costs the whole menu.
+  /// Normalizes the "startDate" field, and drops it when it is not a valid date.
   ///
-  /// `MultiWeekMenu.fromJson` calls `DateTime.parse`, which throws on a value such as
-  /// "6 Aug 2025" or a number. The loaders catch every error and return null, so the user
-  /// would lose all the meals. The menu loads date-less instead, with a warning.
-  static Map<String, dynamic> _dropInvalidStartDate(Map<String, dynamic> json) {
+  /// Two problems are handled here, at the one boundary where the file becomes data:
+  ///
+  /// 1. `MultiWeekMenu.fromJson` calls `DateTime.parse`, which throws on a value such as
+  ///    "6 Aug 2025" or a number. The loaders catch every error and return null, so the user
+  ///    would lose all the meals. The menu loads date-less instead, with a warning.
+  /// 2. `DateTime.parse` keeps the UTC flag of a value such as "2025-08-06T23:00:00Z", and it
+  ///    keeps the time of day. The date chip, the date picker and the day grid each read the
+  ///    field in a different way, so a UTC value can render one day off. This function converts
+  ///    the value to local time and strips the time, which is the exact shape the date picker
+  ///    writes.
+  static Map<String, dynamic> _normalizeStartDate(Map<String, dynamic> json) {
     Object? rawStartDate = json["startDate"];
     if (rawStartDate == null) return json;
-    if (rawStartDate is String && DateTime.tryParse(rawStartDate) != null) return json;
 
-    Debug.logWarning(true, 'Menu loaded without its first day: "$rawStartDate" is not a valid date.', asAssertion: false);
-    return Map<String, dynamic>.from(json)..remove("startDate");
+    DateTime? parsed = rawStartDate is String ? DateTime.tryParse(rawStartDate) : null;
+    if (parsed == null) {
+      Debug.logWarning(true, 'Menu loaded without its first day: "$rawStartDate" is not a valid date.', asAssertion: false);
+      return Map<String, dynamic>.from(json)..remove("startDate");
+    }
+
+    DateTime local = parsed.isUtc ? parsed.toLocal() : parsed;
+    DateTime normalized = DateTime(local.year, local.month, local.day);
+    return Map<String, dynamic>.from(json)..["startDate"] = normalized.toIso8601String();
   }
 
   /// Parses .tsm JSON content into a MultiWeekMenu. Supports both multi-week and single-week formats.
   /// Validates that all referenced recipeIds exist in [recipes]. Missing recipes are nullified with a warning.
   static MultiWeekMenu _parseMenuFromJson(String data, {required List<Recipe> recipes}) {
-    Map<String, dynamic> json = _dropInvalidStartDate(Map<String, dynamic>.from(jsonDecode(data)));
+    Map<String, dynamic> json = _normalizeStartDate(Map<String, dynamic>.from(jsonDecode(data)));
 
     MultiWeekMenu rawMenu;
     if (json.containsKey("weeks")) {

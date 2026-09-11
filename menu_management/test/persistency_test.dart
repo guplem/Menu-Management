@@ -299,6 +299,31 @@ void main() {
       expect(menu.weeks.first.meals.length, 1);
     });
 
+    test("reads a start date written in UTC as the same local day", () async {
+      // DateTime.parse keeps the UTC flag of a "Z" value. The chip, the date picker and the
+      // grid all read the same field, so the loader normalizes it to a local midnight.
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      File tsmFile = File("${tempDir.path}/utc_start_date.tsm");
+      tsmFile.writeAsStringSync(jsonEncode({"startDate": "2025-08-06T09:00:00Z", "weeks": jsonDecode(_validTsmContent())["weeks"]}));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
+
+      expect(menu!.startDate!.isUtc, isFalse);
+      expect(menu.startDate, DateTime(2025, 8, 6));
+    });
+
+    test("drops the time of day of a start date", () async {
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      File tsmFile = File("${tempDir.path}/timed_start_date.tsm");
+      tsmFile.writeAsStringSync(jsonEncode({"startDate": "2025-08-06T17:30:00.000", "weeks": jsonDecode(_validTsmContent())["weeks"]}));
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
+
+      expect(menu!.startDate, DateTime(2025, 8, 6));
+    });
+
     test("returns null for non-existent file", () async {
       MultiWeekMenu? menu = await Persistency.loadMenuFromPath("${tempDir.path}/nonexistent.tsm", recipes: []);
       expect(menu, isNull);
