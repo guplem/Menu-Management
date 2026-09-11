@@ -237,6 +237,7 @@ void main() {
 
       expect(find.byTooltip("Export menu"), findsOneWidget);
       expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
+      expect(find.byTooltip("Copy to clipboard"), findsNothing);
     });
   });
 

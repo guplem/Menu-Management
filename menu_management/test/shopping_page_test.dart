@@ -76,6 +76,16 @@ Recipe _milkRecipe() {
   );
 }
 
+// The same milk, but a product that the user may freeze. The freezer mode then buys the milk of
+// both weeks on the first trip and asks the user to freeze it.
+const Ingredient _freezableMilk = Ingredient(
+  id: "milk",
+  name: "Milk",
+  products: [
+    Product(link: "https://example.com/milk", quantityPerItem: 1000, itemsPerPack: 1, unit: Unit.grams, shelfLifeDaysClosed: 3, canBeFrozen: true),
+  ],
+);
+
 /// A two-week menu that cooks the milk recipe on the Monday of each week.
 MultiWeekMenu _twoWeekMilkMenu({required DateTime startDate}) {
   const Menu week = Menu(
@@ -193,6 +203,7 @@ void main() {
 
       expect(find.byTooltip("Export shopping list"), findsOneWidget);
       expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
+      expect(find.byTooltip("Copy to clipboard"), findsNothing);
     });
   });
 
@@ -207,6 +218,23 @@ void main() {
       await _pumpAndCopy(tester, format: "Simplified");
 
       expect(_copiedTexts.single.split("\n"), const ["Rice: 400 grams"]);
+    });
+
+    testWidgets("keeps the freeze note of the trip plan in the simplified list", (WidgetTester tester) async {
+      // The page must hand the freeze note of the trip plan to the simplified text. Without it the
+      // one-trip plan cannot be followed: the milk of the second week waits a week in the fridge.
+      IngredientsProvider.instance.setData([_freezableMilk]);
+      RecipesProvider.instance.setData([_milkRecipe()], ingredients: [_freezableMilk]);
+      await _pumpShoppingPage(tester, _twoWeekMilkMenu(startDate: DateTime(2025, 8, 6)));
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Simplified"));
+      await tester.pumpAndSettle();
+
+      expect(_copiedTexts.single.split("\n"), const ["Milk: 1,200 grams (freeze on arrival)"]);
     });
 
     testWidgets("names the copied format in the snackbar", (WidgetTester tester) async {
