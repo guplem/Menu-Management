@@ -623,5 +623,17 @@ void main() {
       expect(_product(link: "https://shop.example/pizza").nameFromLink(), isNull);
       expect(_product(link: "not a url at all").nameFromLink(), isNull);
     });
+
+    test("returns null for a host that only ends with the Mercadona name", () {
+      // "notmercadona.es" is another store. A suffix test alone accepts it, so the host must
+      // match the domain itself or a subdomain of it.
+      expect(_product(link: "https://notmercadona.es/product/1/pan-de-molde").nameFromLink(), isNull);
+    });
+
+    test("returns null for a slug that holds a broken percent escape", () {
+      // A Spanish slug can carry a latin-1 escape such as %E9, which is not valid UTF-8.
+      // The decode of the path throws on it. One bad link must not fail the whole export.
+      expect(_product(link: "https://tienda.mercadona.es/product/123/caf%E9-molido").nameFromLink(), isNull);
+    });
   });
 }

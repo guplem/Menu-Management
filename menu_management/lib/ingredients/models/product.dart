@@ -68,11 +68,20 @@ abstract class Product with _$Product {
   ///
   /// Returns null for an empty link, for a link with no slug after the id, and for a link of
   /// another store, because only the Mercadona link format is known.
+  ///
+  /// Returns null too for a link that holds a broken percent escape. A Spanish slug can carry a
+  /// latin-1 escape such as `%E9`, which is not valid UTF-8, and the decode of the path throws on
+  /// it. The export shows no name for that one product, instead of a failure of the whole list.
   String? nameFromLink() {
     final Uri? uri = Uri.tryParse(link);
-    if (uri == null || !uri.host.endsWith("mercadona.es")) return null;
+    if (uri == null || (uri.host != "mercadona.es" && !uri.host.endsWith(".mercadona.es"))) return null;
 
-    final List<String> segments = uri.pathSegments;
+    final List<String> segments;
+    try {
+      segments = uri.pathSegments;
+    } on FormatException {
+      return null;
+    }
     final int productIndex = segments.indexOf("product");
     if (productIndex < 0 || segments.length <= productIndex + 2) return null;
 
