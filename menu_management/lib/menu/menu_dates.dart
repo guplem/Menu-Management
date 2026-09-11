@@ -69,7 +69,8 @@ String shoppingTripLabel({required DateTime? startDate, required int weekIndex, 
 /// Returns the capitalized [WeekDay] name at [dayOffset].
 ///
 /// Dart returns a value in 0..6 for `%` with a positive divisor, also for a negative
-/// [dayOffset]. So day -1 wraps to Friday, the day before Saturday.
+/// [dayOffset]. The wrap for a negative [dayOffset] is defensive only: no production caller
+/// reaches it, because [shoppingTripLabel] returns "Week N" for a date-less menu first.
 String _weekDayName(int dayOffset) {
   return WeekDay.fromValue(dayOffset % 7).name.capitalizeFirstLetter() ?? "";
 }

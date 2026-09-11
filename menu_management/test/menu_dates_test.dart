@@ -44,7 +44,9 @@ void main() {
     });
 
     test("wraps the enum order for a negative offset", () {
-      // The shopping trip of week 0 happens on day -1, which is the day before Saturday.
+      // No production caller reaches this case: shoppingTripLabel returns "Week N" for a
+      // date-less menu before it can ask for the name of a negative day. The wrap is a
+      // defensive guard, and this test locks its result.
       expect(menuDayName(startDate: null, dayOffset: -1), "Friday");
       expect(menuDayName(startDate: null, dayOffset: -8), "Friday");
     });
