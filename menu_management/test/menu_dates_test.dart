@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/shopping/multi_trip_planner.dart";
 
 void main() {
   // 2025-08-06 is a Wednesday.
@@ -42,17 +43,24 @@ void main() {
       expect(menuDayName(startDate: null, dayOffset: 8), "Sunday");
     });
 
+    test("wraps the enum order for a negative offset", () {
+      // The shopping trip of week 0 happens on day -1, which is the day before Saturday.
+      expect(menuDayName(startDate: null, dayOffset: -1), "Friday");
+      expect(menuDayName(startDate: null, dayOffset: -8), "Friday");
+    });
+
     test("uses the real weekday of the start date", () {
       expect(menuDayName(startDate: wednesday6Aug2025, dayOffset: 0), "Wednesday");
       expect(menuDayName(startDate: wednesday6Aug2025, dayOffset: 6), "Tuesday");
       expect(menuDayName(startDate: wednesday6Aug2025, dayOffset: 7), "Wednesday");
     });
-  });
 
-  group("formatShortDate", () {
-    test("writes the day number and the short month name", () {
-      expect(formatShortDate(DateTime(2025, 8, 6)), "6 Aug");
-      expect(formatShortDate(DateTime(2025, 12, 31)), "31 Dec");
+    test("names every weekday of one real week", () {
+      // 2025-08-06 is a Wednesday, so the seven offsets cover the seven names.
+      expect(
+        [for (int offset = 0; offset < 7; offset++) menuDayName(startDate: wednesday6Aug2025, dayOffset: offset)],
+        ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday"],
+      );
     });
   });
 
@@ -82,13 +90,18 @@ void main() {
 
   group("shoppingTripLabel", () {
     test("falls back to the week number when there is no start date", () {
-      expect(shoppingTripLabel(startDate: null, weekIndex: 0), "Week 1");
-      expect(shoppingTripLabel(startDate: null, weekIndex: 1), "Week 2");
+      expect(shoppingTripLabel(startDate: null, weekIndex: 0, tripDay: -1), "Week 1");
+      expect(shoppingTripLabel(startDate: null, weekIndex: 1, tripDay: 6), "Week 2");
     });
 
-    test("names the day before the week starts", () {
-      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 0), "Tuesday 5 Aug");
-      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1), "Tuesday 12 Aug");
+    test("names the trip day that the caller gives", () {
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 0, tripDay: -1), "Tuesday 5 Aug");
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: 6), "Tuesday 12 Aug");
+    });
+
+    test("uses the trip day of the planner, not the week index", () {
+      // ShoppingTrip.dayForWeek owns the rule. The label must follow the day that it gives.
+      expect(shoppingTripLabel(startDate: wednesday6Aug2025, weekIndex: 1, tripDay: ShoppingTrip.dayForWeek(1)), "Tuesday 12 Aug");
     });
   });
 }

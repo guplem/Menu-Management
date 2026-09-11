@@ -168,6 +168,7 @@ class _MenuPageState extends State<MenuPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: List.generate(7, (int weekDayValue) {
+                  final DateTime? columnDate = _columnDate(weekDayValue);
                   return SizedBox(
                     width: columnWidth,
                     child: Card(
@@ -183,8 +184,7 @@ class _MenuPageState extends State<MenuPage> {
                                   style: Theme.of(context).textTheme.titleLarge!,
                                   child: Text(menuDayName(startDate: multiWeekMenu.startDate, dayOffset: currentWeekIndex * 7 + weekDayValue)),
                                 ),
-                                if (_columnDate(weekDayValue) != null)
-                                  Text(formatShortDate(_columnDate(weekDayValue)!), style: Theme.of(context).textTheme.bodySmall),
+                                if (columnDate != null) Text(columnDate.toShortDateString(), style: Theme.of(context).textTheme.bodySmall),
                               ],
                             ),
                           ),
@@ -500,7 +500,7 @@ class _MenuPageState extends State<MenuPage> {
       children: [
         TextButton.icon(
           icon: const Icon(Icons.event_rounded),
-          label: Text(startDate == null ? "Set first day" : "${menuDayName(startDate: startDate, dayOffset: 0)} ${formatShortDate(startDate)}"),
+          label: Text(startDate == null ? "Set first day" : "${menuDayName(startDate: startDate, dayOffset: 0)} ${startDate.toShortDateString()}"),
           onPressed: _pickStartDate,
         ),
         if (startDate != null) IconButton(tooltip: "Clear the first day", icon: const Icon(Icons.close_rounded), onPressed: _clearStartDate),

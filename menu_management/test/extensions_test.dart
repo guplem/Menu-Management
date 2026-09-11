@@ -551,6 +551,22 @@ void main() {
         expect(end.minute, 59);
       });
     });
+
+    group("toShortDateString", () {
+      test("writes the day number and the short month name", () {
+        expect(DateTime(2025, 8, 6).toShortDateString(), "6 Aug");
+        expect(DateTime(2025, 12, 31).toShortDateString(), "31 Dec");
+      });
+
+      test("writes the first and the last month of the year", () {
+        expect(DateTime(2025, 1, 1).toShortDateString(), "1 Jan");
+        expect(DateTime(2025, 12, 1).toShortDateString(), "1 Dec");
+      });
+
+      test("ignores the time of day", () {
+        expect(DateTime(2025, 8, 6, 23, 59).toShortDateString(), "6 Aug");
+      });
+    });
   });
 
   // ── Map ──
