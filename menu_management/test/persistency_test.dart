@@ -1,6 +1,8 @@
 import "dart:convert";
 import "dart:io";
+import "dart:typed_data";
 
+import "package:file_picker/file_picker.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
@@ -21,6 +23,24 @@ import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+
+/// A save dialog that picks no file of its own, so a test says what the dialog returns.
+/// `FilePicker.platform` accepts any subclass of [FilePicker], and only `saveFile` is used here.
+class _FakeFilePicker extends FilePicker {
+  /// What the fake save dialog returns. Null stands for a dialog that the user closed.
+  static String? pickedPath;
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) async => pickedPath;
+}
 
 // ── Test helpers ──
 
@@ -555,6 +575,101 @@ void main() {
 
       // 2025-08-10 is a Sunday. The next Saturday is six days later, not the day before.
       expect(Persistency.defaultMenuFileName(menu, today: DateTime(2025, 8, 10)), "Menu-2025-08-16.tsm");
+    });
+
+    test("names the PDF of the menu after the same day as the menu file", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      expect(Persistency.defaultMenuFileName(menu, extension: "pdf"), "Menu-2025-08-06.pdf");
+    });
+  });
+
+  // ── saveBytesToPath ──
+
+  group("saveBytesToPath", () {
+    test("writes the bytes that it receives, so the file holds the PDF and nothing else", () async {
+      String path = "${tempDir.path}/bytes_test.pdf";
+
+      String written = await Persistency.saveBytesToPath(path: path, bytes: const [37, 80, 68, 70]);
+
+      expect(written, path);
+      expect(await File(path).readAsBytes(), const [37, 80, 68, 70]);
+    });
+
+    test("writes the name that the user picked, and touches no other file, when the name has no extension", () async {
+      String path = "${tempDir.path}/no_extension";
+      // The save dialog asked the user about "no_extension", so only that file may change.
+      await File("$path.pdf").writeAsBytes(const [1, 2, 3]);
+
+      String written = await Persistency.saveBytesToPath(path: path, bytes: const [37]);
+
+      expect(written, path);
+      expect(await File(path).readAsBytes(), const [37]);
+      expect(await File("$path.pdf").readAsBytes(), const [1, 2, 3]);
+    });
+
+    test("reports the write that it cannot do, so the export never claims a file that it did not write", () async {
+      String path = "${tempDir.path}/missing_folder/file.pdf";
+
+      expect(Persistency.saveBytesToPath(path: path, bytes: const [37]), throwsA(isA<FileSystemException>()));
+    });
+  });
+
+  // ── saveBytes ──
+
+  group("saveBytes", () {
+    setUp(() => FilePicker.platform = _FakeFilePicker());
+    tearDown(() => _FakeFilePicker.pickedPath = null);
+
+    test("writes the file where the user picked, and returns that path", () async {
+      String path = "${tempDir.path}/picked.pdf";
+      _FakeFilePicker.pickedPath = path;
+
+      String? written = await Persistency.saveBytes(bytes: const [37, 80], dialogTitle: "Save", fileName: "picked.pdf", extension: "pdf");
+
+      expect(written, path);
+      expect(await File(path).readAsBytes(), const [37, 80]);
+    });
+
+    test("writes nothing when the user closes the save dialog", () async {
+      _FakeFilePicker.pickedPath = null;
+
+      String? written = await Persistency.saveBytes(bytes: const [37], dialogTitle: "Save", fileName: "picked.pdf", extension: "pdf");
+
+      expect(written, null);
+    });
+
+    test("drops the spaces around the name, so the file lands where the name points", () async {
+      // The guard below reads the name without the spaces. The write has to read the same name,
+      // or a path with a leading space names a folder that does not exist.
+      String path = "${tempDir.path}/padded.pdf";
+      _FakeFilePicker.pickedPath = "  $path  ";
+
+      String? written = await Persistency.saveBytes(bytes: const [37], dialogTitle: "Save", fileName: "padded.pdf", extension: "pdf");
+
+      expect(written, path);
+      expect(await File(path).readAsBytes(), const [37]);
+    });
+
+    test("writes nothing when the save dialog returns an empty name, so no file lands in an unknown folder", () async {
+      _FakeFilePicker.pickedPath = "   ";
+
+      String? written = await Persistency.saveBytes(bytes: const [37], dialogTitle: "Save", fileName: "picked.pdf", extension: "pdf");
+
+      expect(written, null);
+    });
+  });
+
+  // ── supportsFileSaving ──
+
+  group("supportsFileSaving", () {
+    test("reports that this device can save a file, because the tests run on a desktop", () {
+      expect(Persistency.supportsFileSaving(), true);
     });
   });
 

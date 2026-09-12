@@ -5,6 +5,7 @@ import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/expiry_warnings.dart";
 import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/menu/menu_pdf.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -103,6 +104,21 @@ class _MenuPageState extends State<MenuPage> {
           description: "The simplified menu, plus the total time of every recipe that you cook.",
           buildText: () => multiWeekMenu.toStringBeautified(recipes: _recipes, format: MenuCopyFormat.detailed),
           confirmation: "Copied the detailed menu to the clipboard.",
+        ),
+        FileExportOption(
+          label: "PDF",
+          description: "One table per week and every recipe, to print or to share.",
+          dialogTitle: "Select where to save the menu PDF",
+          defaultFileName: Persistency.defaultMenuFileName(multiWeekMenu, extension: "pdf"),
+          extension: "pdf",
+          // iOS and Android have no save dialog (ADR 0003). This page holds the menu, so it
+          // points the user at the text formats above.
+          unavailableMessage: "This device cannot save a file. Copy the menu as text instead.",
+          icon: Icons.picture_as_pdf_rounded,
+          buildBytes: () => buildMenuPdfBytes(multiWeekMenu: multiWeekMenu, recipes: _recipes, ingredients: IngredientsProvider.instance.ingredients),
+          buildConfirmation: (String path) => "Saved the menu PDF to $path.",
+          saveBytes: Persistency.saveBytes,
+          supportsFileSaving: Persistency.supportsFileSaving,
         ),
       ],
     );

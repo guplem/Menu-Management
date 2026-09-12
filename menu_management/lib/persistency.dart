@@ -394,7 +394,9 @@ class Persistency {
   /// Builds the file name that the save dialog proposes.
   /// It uses the first day of the menu. Without one it falls back to the next Saturday.
   /// [today] is the reference day. It defaults to the real today and exists for the tests.
-  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today}) {
+  /// [extension] names the kind of file: "tsm" for the menu itself, "pdf" for the export.
+  /// Both files carry the same name, so the user finds them together in one folder.
+  static String defaultMenuFileName(MultiWeekMenu multiWeekMenu, {DateTime? today, String extension = "tsm"}) {
     DateTime reference = today ?? DateTime.now();
     // DateTime.weekday is 6 on a Saturday, so the wrap keeps a Sunday looking forward
     // (6 days ahead) instead of backward to yesterday.
@@ -402,7 +404,68 @@ class Persistency {
     DateTime date = multiWeekMenu.startDate ?? DateTime(reference.year, reference.month, reference.day + daysToSaturday);
     String month = date.month.toString().padLeft(2, "0");
     String day = date.day.toString().padLeft(2, "0");
-    return "Menu-${date.year}-$month-$day.tsm";
+    return "Menu-${date.year}-$month-$day.$extension";
+  }
+
+  // ============================================================
+  // Save bytes (exports that are not JSON)
+  // ============================================================
+
+  /// True when this device can show a save-file dialog.
+  ///
+  /// `FilePicker` has no save dialog on iOS and on Android (ADR 0003). [FileExportOption] asks
+  /// this before it builds any byte, and tells the user instead of failing without a word.
+  static bool supportsFileSaving() => !Platform.isIOS && !Platform.isAndroid;
+
+  /// Writes [bytes] to [path] and returns the path of the file that it wrote.
+  ///
+  /// The write is binary, because a PDF is not text. It writes the name that the user picked, and
+  /// adds no extension to it. The save dialog asks the user before it overwrites a file, and it
+  /// asks about the name that the user typed. A name changed after that question could destroy a
+  /// file that the user never saw. The `allowedExtensions` of the dialog and the proposed file
+  /// name carry the extension instead.
+  ///
+  /// This method writes no last-session entry. The last session points at the file that the app
+  /// reloads at startup, and the app cannot read a PDF back.
+  static Future<String> saveBytesToPath({required String path, required List<int> bytes}) async {
+    try {
+      await File(path).writeAsBytes(bytes);
+    } catch (error, stackTrace) {
+      Debug.logError("Could not write the file $path: $error", stack: stackTrace, asException: false);
+      rethrow;
+    }
+    return path;
+  }
+
+  /// Asks the user where to save, then writes [bytes] there.
+  /// Returns the path of the written file, or null when the user closes the dialog.
+  ///
+  /// [extension] names the kind of file, for example "pdf". The dialog uses it to filter the
+  /// folder and to complete the name that the user types.
+  static Future<String?> saveBytes({
+    required List<int> bytes,
+    required String dialogTitle,
+    required String fileName,
+    required String extension,
+  }) async {
+    String? outputFile = await FilePicker.platform.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      allowedExtensions: [extension],
+      type: FileType.custom,
+    );
+
+    if (outputFile == null) return null;
+    // One rule for the check and for the write: the name is the text without the spaces around
+    // it. A leading space names a folder that does not exist, so the write would fail.
+    final String path = outputFile.trim();
+    // An empty name has no folder in it, so the file would land in the working directory of the
+    // app and the user would never find it. Report nothing instead.
+    if (path.isEmpty) {
+      Debug.logWarning(true, "The save dialog returned an empty file name. No file was written.", asAssertion: false);
+      return null;
+    }
+    return saveBytesToPath(path: path, bytes: bytes);
   }
 
   static Future<void> saveMenu(MultiWeekMenu multiWeekMenu, {required List<Recipe> recipes}) async {

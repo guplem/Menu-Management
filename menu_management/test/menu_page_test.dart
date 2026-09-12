@@ -231,6 +231,17 @@ void main() {
       expect(find.text("Detailed"), findsOneWidget);
     });
 
+    testWidgets("offers the PDF beside the two text formats", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      await tester.tap(find.byTooltip("Export menu"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("PDF"), findsOneWidget);
+      expect(find.text("One table per week and every recipe, to print or to share."), findsOneWidget);
+      expect(find.byIcon(Icons.picture_as_pdf_rounded), findsOneWidget);
+    });
+
     testWidgets("offers the export button as the only way to copy the menu", (WidgetTester tester) async {
       // The two fixed-format copy buttons are gone. The export button replaces both of them.
       await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
