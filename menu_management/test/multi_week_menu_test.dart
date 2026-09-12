@@ -2,6 +2,7 @@ import "dart:convert";
 
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
@@ -12,8 +13,9 @@ import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
-import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 
 /// Helper to create a minimal recipe for testing
@@ -291,6 +293,317 @@ void main() {
       expect(output.contains("Week 1 (6 Aug - 12 Aug)"), true);
       expect(output.contains("Week 2 (13 Aug - 19 Aug)"), true);
     });
+
+    test("counts the leftover meals in the servings of the cook event", () {
+      // The raw Cooking.yield only counts the meals, not the people. The grid shows the real
+      // servings through servingsForCookEvent, and the text must show the same number.
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2, people: 3),
+              _testMeal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2),
+            ],
+          ),
+        ],
+      );
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Lunch: Pasta [3p] (cook 5 servings)"), true);
+      expect(output.contains("Lunch: Pasta [2p] (leftovers)"), true);
+    });
+
+    test("counts a leftover meal of the next week in the servings of the cook event", () {
+      final Recipe recipe = _testRecipe(id: "r1", name: "Pasta");
+      final MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.friday, mealType: MealType.dinner, recipe: recipe, yield: 2, people: 2)],
+          ),
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2)],
+          ),
+        ],
+      );
+
+      final String output = multiWeek.toStringBeautified(recipes: [recipe]);
+
+      expect(output.contains("Dinner: Pasta [2p] (cook 4 servings)"), true);
+      expect(output.contains("Lunch: Pasta [2p] (leftovers)"), true);
+    });
+  });
+
+  group("MultiWeekMenu ingredientMealRequirements", () {
+    /// A recipe that uses 100 grams of rice for one serving.
+    Recipe riceRecipe({String id = "r1", String name = "Rice bowl"}) {
+      return _testRecipe(
+        id: id,
+        name: name,
+        instructions: const [
+          Instruction(
+            id: "i1",
+            description: "cook the rice",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "rice",
+                quantity: Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    test("records the week, the day, the meal slot and the recipe of every meal that needs the ingredient", () {
+      Recipe recipe = riceRecipe();
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          const Menu(),
+          const Menu(),
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, people: 3)],
+          ),
+        ],
+      );
+
+      Map<String, List<IngredientMealRequirement>> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe]);
+
+      expect(requirements.keys, ["rice"]);
+      IngredientMealRequirement requirement = requirements["rice"]!.single;
+      expect(requirement.weekIndex, 2);
+      expect(requirement.mealTime, const MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch));
+      expect(requirement.subMealIndex, 0);
+      expect(requirement.recipeId, "r1");
+      expect(requirement.recipeName, "Rice bowl");
+      expect(requirement.people, 3);
+      expect(requirement.isCookEvent, isTrue);
+      expect(requirement.quantities, const [Quantity(amount: 300, unit: Unit.grams)]);
+    });
+
+    test("keeps one entry per meal instead of one entry per recipe", () {
+      // IngredientSource dedups by recipe, so it cannot say which day needs the ingredient.
+      Recipe recipe = riceRecipe();
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: 2),
+              _testMeal(weekDay: WeekDay.tuesday, mealType: MealType.dinner, recipe: recipe, yield: 0),
+            ],
+          ),
+        ],
+      );
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe])["rice"]!;
+
+      expect(requirements.length, 2);
+      expect(requirements.map((IngredientMealRequirement r) => r.mealTime.weekDay), [WeekDay.monday, WeekDay.tuesday]);
+      expect(requirements.map((IngredientMealRequirement r) => r.mealTime.mealType), [MealType.lunch, MealType.dinner]);
+      expect(requirements.map((IngredientMealRequirement r) => r.isCookEvent), [true, false]);
+    });
+
+    test("lists the meals in chronological order", () {
+      Recipe recipe = riceRecipe();
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(weekDay: WeekDay.tuesday, mealType: MealType.dinner, recipe: recipe, yield: 0),
+              _testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: 2),
+            ],
+          ),
+        ],
+      );
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe])["rice"]!;
+
+      expect(requirements.map((IngredientMealRequirement r) => r.mealTime.weekDay), [WeekDay.monday, WeekDay.tuesday]);
+    });
+
+    test("sums to the same total as allIngredients when every meal of a cook event is in one week", () {
+      // The per-meal breakdown justifies the shopping total, so it must never disagree with it.
+      Recipe recipe = riceRecipe();
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, yield: 2, people: 2),
+              _testMeal(weekDay: WeekDay.tuesday, mealType: MealType.dinner, recipe: recipe, yield: 0, people: 3),
+            ],
+          ),
+        ],
+      );
+
+      double total = multiWeek
+          .ingredientMealRequirements(recipes: [recipe])["rice"]!
+          .expand((IngredientMealRequirement r) => r.quantities)
+          .fold(0.0, (double sum, Quantity q) => sum + q.amount);
+
+      expect(total, multiWeek.allIngredients(recipes: [recipe])["rice"]!.single.amount);
+    });
+
+    test("ignores a meal whose recipe is unknown", () {
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [
+              _testMeal(
+                weekDay: WeekDay.monday,
+                mealType: MealType.lunch,
+                recipe: _testRecipe(id: "missing", name: "Gone"),
+              ),
+            ],
+          ),
+        ],
+      );
+
+      expect(multiWeek.ingredientMealRequirements(recipes: []), isEmpty);
+    });
+
+    test("tags each entry with the week that needs the ingredient", () {
+      Recipe recipe = riceRecipe();
+      Menu week = Menu(
+        meals: [_testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe)],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week, week]);
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe])["rice"]!;
+
+      expect(requirements.map((IngredientMealRequirement r) => r.weekIndex), [0, 1]);
+    });
+
+    test("returns nothing for a menu without meals", () {
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [const Menu(), const Menu()]);
+
+      expect(multiWeek.ingredientMealRequirements(recipes: []), isEmpty);
+    });
+
+    test("writes an entry for a leftover meal of the next week", () {
+      // The cook event is the last meal of week 0. The leftover meal is the first meal of week 1.
+      // A walk that runs one week at a time misses it, because week 1 cooks nothing.
+      Recipe recipe = riceRecipe();
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.friday, mealType: MealType.dinner, recipe: recipe, yield: 2, people: 2)],
+          ),
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 0, people: 2)],
+          ),
+        ],
+      );
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe])["rice"]!;
+
+      expect(requirements.length, 2);
+      expect(requirements.map((IngredientMealRequirement r) => r.weekIndex), [0, 1]);
+      expect(requirements.map((IngredientMealRequirement r) => r.isCookEvent), [true, false]);
+      expect(requirements.last.mealTime, const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch));
+      expect(requirements.last.quantities, const [Quantity(amount: 200, unit: Unit.grams)]);
+    });
+
+    test("adds up the same unit that two instructions of one recipe use", () {
+      Recipe recipe = _testRecipe(
+        id: "r1",
+        name: "Rice bowl",
+        instructions: const [
+          Instruction(
+            id: "i1",
+            description: "boil the rice",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "rice",
+                quantity: Quantity(amount: 100, unit: Unit.grams),
+              ),
+            ],
+          ),
+          Instruction(
+            id: "i2",
+            description: "fry the rice",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "rice",
+                quantity: Quantity(amount: 20, unit: Unit.grams),
+              ),
+            ],
+          ),
+        ],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, people: 2)],
+          ),
+        ],
+      );
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe])["rice"]!;
+
+      expect(requirements.single.quantities, const [Quantity(amount: 240, unit: Unit.grams)]);
+    });
+
+    test("keeps one quantity per unit when one recipe needs two units of one ingredient", () {
+      Recipe recipe = _testRecipe(
+        id: "r1",
+        name: "Garlic bread",
+        instructions: const [
+          Instruction(
+            id: "i1",
+            description: "rub the bread",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "garlic",
+                quantity: Quantity(amount: 2, unit: Unit.pieces),
+              ),
+              IngredientUsage(
+                ingredient: "garlic",
+                quantity: Quantity(amount: 5, unit: Unit.grams),
+              ),
+            ],
+          ),
+        ],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_testMeal(weekDay: WeekDay.monday, mealType: MealType.lunch, recipe: recipe, people: 2)],
+          ),
+        ],
+      );
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [recipe])["garlic"]!;
+
+      expect(requirements.single.quantities, const [Quantity(amount: 4, unit: Unit.pieces), Quantity(amount: 10, unit: Unit.grams)]);
+    });
+
+    test("writes one entry per sub-meal when two recipes of one slot need the same ingredient", () {
+      Recipe rice = riceRecipe(id: "r1", name: "Rice bowl");
+      Recipe pudding = riceRecipe(id: "r2", name: "Rice pudding");
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        weeks: [
+          const Menu(
+            meals: [
+              Meal(
+                mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+                subMeals: [
+                  SubMeal(cooking: Cooking(recipeId: "r2", yield: 1), people: 1),
+                  SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      List<IngredientMealRequirement> requirements = multiWeek.ingredientMealRequirements(recipes: [rice, pudding])["rice"]!;
+
+      // Both entries share the meal slot, so the sub-meal index alone decides the order.
+      expect(requirements.map((IngredientMealRequirement r) => r.subMealIndex), [0, 1]);
+      expect(requirements.map((IngredientMealRequirement r) => r.recipeName), ["Rice pudding", "Rice bowl"]);
+      expect(requirements.map((IngredientMealRequirement r) => r.quantities.single.amount), [100, 200]);
+    });
   });
 
   group("MultiWeekMenu backward-compatible JSON loading", () {
@@ -551,6 +864,121 @@ void main() {
 
       expect(grown.startDate, DateTime(2025, 8, 6));
       expect(grown.removeLastWeek().startDate, DateTime(2025, 8, 6));
+    });
+  });
+
+  group("MultiWeekMenu toStringBeautified detailed format", () {
+    /// The days that hold no meal. The detailed format keeps the shape of the simplified one, so
+    /// the expected text of a small menu still lists every day of the week.
+    List<String> emptyDays(List<String> dayNames) {
+      return [
+        for (String dayName in dayNames) ...[dayName, "  Breakfast: -", "  Lunch: -", "  Dinner: -", ""],
+      ];
+    }
+
+    test("adds the total time of the recipe to every cook event", () {
+      Recipe pasta = _testRecipe(
+        id: "r1",
+        name: "Pasta",
+        instructions: const [Instruction(id: "i1", description: "Boil", workingTimeMinutes: 15, cookingTimeMinutes: 30)],
+      );
+      Menu week = Menu(
+        meals: [
+          _testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pasta),
+          _testMeal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: pasta, yield: 0),
+        ],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 4 servings, 45 min)",
+        "  Dinner: -",
+        "",
+        "Sunday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (leftovers)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    test("writes no time for a cook event whose recipe is gone", () {
+      Recipe pasta = _testRecipe(id: "r1", name: "Pasta");
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: const [], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: - [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    test("writes no time for a recipe that holds no time", () {
+      // The recipe is in the list, so this is not the "recipe is gone" branch. It holds no
+      // instruction, so its total is 0 minutes. ", 0 min" would read as an instant dish.
+      Recipe pasta = _testRecipe(id: "r1", name: "Pasta");
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    test("keeps the simplified format free of the time", () {
+      Recipe pasta = _testRecipe(
+        id: "r1",
+        name: "Pasta",
+        instructions: const [Instruction(id: "i1", description: "Boil", workingTimeMinutes: 15, cookingTimeMinutes: 30)],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.simplified);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
     });
   });
 }

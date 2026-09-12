@@ -309,21 +309,36 @@ void main() {
       expect(find.text("Need: 300 grams"), findsNothing);
     });
 
-    testWidgets("skips trips whose rounded amount yields 0 packs, avoiding a false split", (WidgetTester tester) async {
-      // Only week 0 has a real amount; the other two round to 0 packs and are skipped.
+    testWidgets("shows a single total when a trip's share of the page total rounds away", (WidgetTester tester) async {
+      // Week 1 needs less than one gram, so the shared split gives it none of the 600 grams.
       await _pumpIngredient(
         tester,
         remainingGrams: 600,
         plannedTrips: [
           _trip(0, [_item(amount: 600)]),
           _trip(1, [_item(amount: 0.4)]),
-          _trip(2, [_item(amount: 0.3)]),
         ],
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
       expect(find.textContaining("week"), findsNothing);
       expect(find.textContaining("now"), findsNothing);
+    });
+
+    testWidgets("splits the page total the same way the copied list splits it", (WidgetTester tester) async {
+      // The page and the copy both read distributeRemainingAcrossTrips, so they show the same
+      // packs per trip. shopping_copy_test pins the matching copied lines.
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(amount: 500)]),
+          _trip(1, [_item(amount: 100)]),
+        ],
+      );
+
+      expect(find.text("Buy 5 packs now"), findsOneWidget);
+      expect(find.text("+ 1 pack Week 2"), findsOneWidget);
     });
   });
 

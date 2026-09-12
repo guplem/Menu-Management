@@ -33,6 +33,7 @@ The people who read your output may read English as a second language and may be
 - **No `-ing` verb form as a noun or as a sentence opener.** Write "Use the skill to create a branch", not "Creating a branch is done with the skill".
 - **About 20 words per sentence at most** (25 in descriptive text).
 - **Leave out no word that guards the meaning.** Write "the file that you changed" when "the file you changed" could be misread.
+- **Claim in a comment only what the code does.** Never write that something is "the one place", that it "never" happens, or that a caller is "the only" one, unless you checked every other site and the compiler or a test holds the claim. Write what this code does, not what the codebase promises.
 
 Both layers cover prose only. Neither covers code identifiers or text you quote word for word.
 
@@ -64,7 +65,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 771 tests across 30 files |
+| Run all tests | `cd menu_management && flutter test test/` | 938 tests across 37 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -105,6 +106,7 @@ Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>
 
 - **`.tsr` files**: JSON with top-level `"Ingredients"` and `"Recipes"` arrays. On save, `ref_name` fields are injected into `IngredientUsage` entries for human readability.
 - **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning. A menu may also carry `startDate`, the real date of menu day 0; a file without it keeps the Saturday-first, date-less behavior. Use `menu/menu_dates.dart` to turn a day offset into a date or a label.
+- **PDF export**: each PDF is two files. `<feature>_pdf_document.dart` decides what the PDF says, and `<feature>_pdf.dart` renders it and exposes its composed strings as public pure functions. The split keeps the content testable with no PDF to decode. The two PDFs are `menu/menu_pdf.dart` and `shopping/shopping_pdf.dart`. `Persistency.saveBytes` writes any export that is not JSON, and `Persistency.supportsFileSaving()` says if the device has a save dialog.
 - Data is **not** automatically saved -- users must manually save via the save button
 - On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
 - Menu configurations are **not** persisted (generated on-demand)
@@ -121,6 +123,8 @@ All changes must follow red-green TDD:
 Tests live in `menu_management/test/`. Run with `cd menu_management && flutter test test/<file>.dart`.
 
 This applies to new features, bug fixes, and refactors. Do not write production code without a failing test driving it.
+
+**A test must fail when the behavior breaks.** Assert the full expected output, never a substring, an index comparison (`indexOf(a) < indexOf(b)` passes when a line is missing), or a value compared with itself.
 
 CI runs the format check, `flutter analyze`, and the full test suite on every PR (see Git Workflow); the repo ruleset "Requirements for merge" blocks merging until the `analyze-and-test` check is green.
 

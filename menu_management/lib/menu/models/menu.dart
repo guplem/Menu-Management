@@ -1,13 +1,12 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
-import "package:menu_management/recipes/models/ingredient_usage.dart";
-import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
@@ -174,25 +173,19 @@ abstract class Menu with _$Menu {
     return result;
   }
 
+  /// Returns what the whole week needs of each ingredient, keyed by ingredient id.
+  ///
+  /// Each cooked recipe contributes its per-serving amounts, scaled by the people that eat it.
+  /// The per-recipe merge of the usages comes from [Recipe.perServingQuantities], so the shopping
+  /// list and the per-meal breakdown can never split an ingredient in two different ways.
   Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
     Map<String, List<Quantity>> ingredients = {};
 
     for (({Recipe recipe, int peopleFactor}) entry in _activeCookedRecipes(recipes: recipes)) {
-      for (Instruction instruction in entry.recipe.instructions) {
-        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-          if (ingredients[ingredientUsage.ingredient] == null) {
-            ingredients[ingredientUsage.ingredient] = [];
-          }
-          if (!ingredients[ingredientUsage.ingredient]!.any((registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit)) {
-            ingredients[ingredientUsage.ingredient]!.add(Quantity(amount: 0 /*placeholder*/, unit: ingredientUsage.quantity.unit));
-          }
-          double amountToAdd = ingredientUsage.quantity.amount * entry.peopleFactor;
-          Quantity oldQuantity = ingredients[ingredientUsage.ingredient]!.firstWhere(
-            (registeredQuantity) => registeredQuantity.unit == ingredientUsage.quantity.unit,
-          );
-          Quantity newQuantity = oldQuantity.copyWith(amount: amountToAdd + oldQuantity.amount);
-          ingredients[ingredientUsage.ingredient]!.remove(oldQuantity);
-          ingredients[ingredientUsage.ingredient]!.add(newQuantity);
+      for (MapEntry<String, List<Quantity>> ingredient in entry.recipe.perServingQuantities().entries) {
+        List<Quantity> totals = ingredients.putIfAbsent(ingredient.key, () => <Quantity>[]);
+        for (Quantity perServing in ingredient.value) {
+          addQuantityInto(totals, perServing.scaledBy(entry.peopleFactor));
         }
       }
     }
@@ -206,28 +199,22 @@ abstract class Menu with _$Menu {
     Map<String, List<IngredientSource>> sources = {};
 
     for (({Recipe recipe, int peopleFactor}) entry in _activeCookedRecipes(recipes: recipes)) {
-      for (Instruction instruction in entry.recipe.instructions) {
-        for (IngredientUsage ingredientUsage in instruction.ingredientsUsed) {
-          sources[ingredientUsage.ingredient] ??= [];
-
-          // Find or create the source entry for this recipe
-          int existingIndex = sources[ingredientUsage.ingredient]!.indexWhere((s) => s.recipeName == entry.recipe.name);
-          if (existingIndex >= 0) {
-            IngredientSource existing = sources[ingredientUsage.ingredient]![existingIndex];
-            List<Quantity> updatedQuantities = [...existing.perServingQuantities];
-            Quantity? existingQty = updatedQuantities.firstWhereOrNull((q) => q.unit == ingredientUsage.quantity.unit);
-            if (existingQty != null) {
-              updatedQuantities.remove(existingQty);
-              updatedQuantities.add(existingQty.copyWith(amount: existingQty.amount + ingredientUsage.quantity.amount));
-            } else {
-              updatedQuantities.add(ingredientUsage.quantity);
-            }
-            sources[ingredientUsage.ingredient]![existingIndex] = existing.copyWith(perServingQuantities: updatedQuantities);
-          } else {
-            sources[ingredientUsage.ingredient]!.add(
-              IngredientSource(recipeName: entry.recipe.name, perServingQuantities: [ingredientUsage.quantity], servings: entry.peopleFactor),
-            );
+      Map<String, List<Quantity>> perServing = entry.recipe.perServingQuantities();
+      for (MapEntry<String, List<Quantity>> ingredient in perServing.entries) {
+        List<IngredientSource> ingredientSources = sources.putIfAbsent(ingredient.key, () => <IngredientSource>[]);
+        int existingIndex = ingredientSources.indexWhere((IngredientSource s) => s.recipeName == entry.recipe.name);
+        if (existingIndex >= 0) {
+          // Two recipes of the menu share a name. Keep one row and add the amounts together.
+          IngredientSource existing = ingredientSources[existingIndex];
+          List<Quantity> merged = [...existing.perServingQuantities];
+          for (Quantity quantity in ingredient.value) {
+            addQuantityInto(merged, quantity);
           }
+          ingredientSources[existingIndex] = existing.copyWith(perServingQuantities: merged);
+        } else {
+          ingredientSources.add(
+            IngredientSource(recipeName: entry.recipe.name, perServingQuantities: ingredient.value, servings: entry.peopleFactor),
+          );
         }
       }
     }
@@ -289,12 +276,25 @@ abstract class Menu with _$Menu {
   /// because the start date lives on MultiWeekMenu. That function owns the date-less wording
   /// too, so this method never needs a name of its own. The map must hold all seven days.
   /// A missing day throws, so a partial map fails at the caller, not in the clipboard text.
-  String toStringBeautified({required List<Recipe> recipes, required Map<WeekDay, String> dayLabels}) {
+  ///
+  /// [cookServings] says how many servings each cook event makes, keyed by the meal slot and the
+  /// index of the sub-meal. The caller builds it with `MultiWeekMenu.servingsForCookEvent`,
+  /// because a cook event can also feed a meal of the next week. The map must hold every
+  /// sub-meal whose `Cooking.yield` is above zero. A missing cook event throws, for the same
+  /// reason as a missing day label.
+  ///
+  /// [format] sets how much of each meal line the text writes. See [MenuCopyFormat].
+  String toStringBeautified({
+    required List<Recipe> recipes,
+    required Map<WeekDay, String> dayLabels,
+    required Map<(MealTime, int), int> cookServings,
+    MenuCopyFormat format = MenuCopyFormat.simplified,
+  }) {
     // Format:
     // Weekday
-    //   Breakfast: recipe (yield pp) [x people]
-    //   Lunch: recipe (yield pp) [x people]
-    //   Dinner: recipe (yield pp) [x people]
+    //   Breakfast: recipe [x p] (cook n servings)
+    //   Lunch: recipe [x p] (leftovers)
+    //   Dinner: -
     // NOTE: If a meal has no sub-meals or no recipe, it will be displayed as "-"
 
     String result = "";
@@ -307,22 +307,51 @@ abstract class Menu with _$Menu {
         if (meal == null || meal.subMeals.isEmpty) {
           result += "  $mealType: -\n";
         } else if (meal.subMeals.length == 1) {
-          SubMeal subMeal = meal.subMeals.first;
-          String recipeName = (subMeal.cooking != null ? recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId)?.name : null) ?? "-";
-          recipeName += subMeal.cooking == null ? "" : " (${subMeal.cooking!.yield} pp)";
-          result += "  $mealType: $recipeName\n";
+          result += "  $mealType: ${_subMealText(meal: meal, subMealIndex: 0, recipes: recipes, cookServings: cookServings, format: format)}\n";
         } else {
           result += "  $mealType:\n";
           for (int si = 0; si < meal.subMeals.length; si++) {
-            SubMeal subMeal = meal.subMeals[si];
-            String recipeName = (subMeal.cooking != null ? recipes.firstWhereOrNull((r) => r.id == subMeal.cooking!.recipeId)?.name : null) ?? "-";
-            recipeName += subMeal.cooking == null ? "" : " (${subMeal.cooking!.yield} pp)";
-            result += "    ${si + 1}. $recipeName [${subMeal.people}p]\n";
+            result += "    ${si + 1}. ${_subMealText(meal: meal, subMealIndex: si, recipes: recipes, cookServings: cookServings, format: format)}\n";
           }
         }
       }
       result += "\n";
     }
     return result.trim();
+  }
+
+  /// Writes one sub-meal of [toStringBeautified], for example "Pasta [2p] (cook 4 servings)".
+  /// The detailed format writes the total time of the recipe too: "Pasta [2p] (cook 4 servings, 45 min)".
+  ///
+  /// A sub-meal with no recipe reads "-". In a slot that holds two or more sub-meals it also keeps
+  /// its people count, as "- [2p]": a slot where two people have nothing to eat is a gap that the
+  /// text must show. Every other sub-meal shows its people count, and then says if the cook makes
+  /// the food at that meal or if the meal eats leftovers of an earlier cook.
+  ///
+  /// A sub-meal whose recipe is not in [recipes] reads "-" as its dish name and keeps the rest of
+  /// the line. ADR 0016 allows a menu that still points at a deleted recipe, and the user has to
+  /// see which meal lost its dish.
+  String _subMealText({
+    required Meal meal,
+    required int subMealIndex,
+    required List<Recipe> recipes,
+    required Map<(MealTime, int), int> cookServings,
+    required MenuCopyFormat format,
+  }) {
+    SubMeal subMeal = meal.subMeals[subMealIndex];
+    Cooking? cooking = subMeal.cooking;
+    if (cooking == null) return meal.subMeals.length > 1 ? "- [${subMeal.people}p]" : "-";
+
+    Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
+    String recipeName = recipe?.name ?? "-";
+    if (cooking.yield <= 0) return "$recipeName [${subMeal.people}p] (leftovers)";
+
+    int servings = cookServings[(meal.mealTime, subMealIndex)]!;
+    // The detailed format adds the time that the cook needs for the whole recipe. A cook event
+    // whose recipe is gone gets no time, because the deleted recipe holds the instructions. A
+    // recipe of 0 minutes gets no time either: ", 0 min" reads as a claim that the dish is instant,
+    // but it only means that the recipe holds no time yet.
+    String time = format == MenuCopyFormat.detailed && recipe != null && recipe.totalTimeMinutes > 0 ? ", ${recipe.totalTimeMinutes} min" : "";
+    return "$recipeName [${subMeal.people}p] (cook $servings ${servings == 1 ? "serving" : "servings"}$time)";
   }
 }

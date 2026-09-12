@@ -2,8 +2,10 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
 class ExportRecipeToMarkdown extends StatefulWidget {
@@ -56,24 +58,17 @@ class _ExportRecipeToMarkdownState extends State<ExportRecipeToMarkdown> {
     markdown.writeln("- Cooking Time: ${widget.recipe.cookingTimeMinutes} minutes");
     markdown.writeln();
 
-    // Collect all ingredients across all instructions
-    final Map<String, Map<String, double>> ingredientsByUnit = {};
+    // Collect all ingredients across all instructions, scaled to the servings that the user asks
+    // for. Quantity.scaledBy does the math, so cook mode and this export never disagree.
+    final Map<String, Map<Unit, Quantity>> ingredientsByUnit = {};
 
     for (final Instruction instruction in widget.recipe.instructions) {
       for (final IngredientUsage usage in instruction.ingredientsUsed) {
         final String ingredientId = usage.ingredient;
-        final String unit = usage.quantity.unit.name;
-        final double amount = usage.quantity.amount * servings;
-
-        if (!ingredientsByUnit.containsKey(ingredientId)) {
-          ingredientsByUnit[ingredientId] = {};
-        }
-
-        if (!ingredientsByUnit[ingredientId]!.containsKey(unit)) {
-          ingredientsByUnit[ingredientId]![unit] = 0;
-        }
-
-        ingredientsByUnit[ingredientId]![unit] = ingredientsByUnit[ingredientId]![unit]! + amount;
+        final Quantity scaled = usage.quantity.scaledBy(servings);
+        final Map<Unit, Quantity> unitAmounts = ingredientsByUnit.putIfAbsent(ingredientId, () => <Unit, Quantity>{});
+        final Quantity? existing = unitAmounts[scaled.unit];
+        unitAmounts[scaled.unit] = existing == null ? scaled : existing.copyWith(amount: existing.amount + scaled.amount);
       }
     }
 
@@ -82,13 +77,9 @@ class _ExportRecipeToMarkdownState extends State<ExportRecipeToMarkdown> {
       markdown.writeln("## Ingredients");
       markdown.writeln();
 
-      ingredientsByUnit.forEach((String ingredientId, Map<String, double> unitAmounts) {
+      ingredientsByUnit.forEach((String ingredientId, Map<Unit, Quantity> unitAmounts) {
         final String ingredientName = IngredientsProvider.instance.get(ingredientId).name;
-        final List<String> amounts = unitAmounts.entries.map((entry) {
-          final double amount = entry.value;
-          final String unit = entry.key;
-          return "$amount $unit";
-        }).toList();
+        final List<String> amounts = unitAmounts.values.map((Quantity quantity) => quantity.toDisplayText()).toList();
 
         markdown.writeln("- $ingredientName: ${amounts.join(' + ')}");
       });
@@ -114,9 +105,7 @@ class _ExportRecipeToMarkdownState extends State<ExportRecipeToMarkdown> {
           markdown.writeln("**Ingredients for this step:**");
           for (final IngredientUsage usage in instruction.ingredientsUsed) {
             final String ingredientName = IngredientsProvider.instance.get(usage.ingredient).name;
-            final double amount = usage.quantity.amount * servings;
-            final String unit = usage.quantity.unit.name;
-            markdown.writeln("- $ingredientName: $amount $unit");
+            markdown.writeln("- $ingredientName: ${usage.quantity.scaledBy(servings).toDisplayText()}");
           }
           markdown.writeln();
         }

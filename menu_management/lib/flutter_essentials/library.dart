@@ -34,6 +34,7 @@ export "package:menu_management/flutter_essentials/widgets/center_column_dynamic
 export "package:menu_management/flutter_essentials/widgets/clickable_surface.dart";
 export "package:menu_management/flutter_essentials/widgets/delete_confirmation_dialog.dart";
 export "package:menu_management/flutter_essentials/widgets/error_dialog.dart";
+export "package:menu_management/flutter_essentials/widgets/export_options_dialog.dart";
 export "package:menu_management/flutter_essentials/widgets/floating_button_visibility.dart";
 export "package:menu_management/flutter_essentials/widgets/gap.dart";
 export "package:menu_management/flutter_essentials/widgets/loading_spinner_indicator.dart";

@@ -10,6 +10,59 @@ Product _product({required Unit unit, double quantityPerItem = 100, int itemsPer
 }
 
 void main() {
+  group("roundNeededAmount", () {
+    test("rounds a whole-unit need to the nearest unit", () {
+      expect(roundNeededAmount(1.4), 1);
+      expect(roundNeededAmount(1.5), 2);
+    });
+
+    test("lifts a real need below one unit up to one unit", () {
+      // The user cannot buy 0.4 teaspoons, but a pinch of salt is still a need.
+      expect(roundNeededAmount(0.4), 1);
+    });
+
+    test("gives nothing for a need of zero", () {
+      expect(roundNeededAmount(0), 0);
+      expect(roundNeededAmount(-3), 0);
+    });
+
+    test("gives nothing for the residue that a subtraction of doubles leaves", () {
+      // 0.1 + 0.2 - 0.3 leaves 4e-17. That is arithmetic noise, not food to buy.
+      expect(roundNeededAmount(4e-17), 0);
+    });
+
+    test("gives nothing for the residue that a unit conversion leaves", () {
+      // 100 grams minus 3 pieces of 33.33 grams leaves 0.01 grams. Still not food to buy.
+      expect(roundNeededAmount(0.01), 0);
+    });
+  });
+
+  group("computeRemainingQuantities rounding residue", () {
+    test("asks for nothing when the owned stock covers the need apart from a double residue", () {
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: salt,
+        requiredQuantities: const [Quantity(amount: 0.1 + 0.2, unit: Unit.teaspoons)],
+        owned: const OwnedStock(amount: 0.3, unit: Unit.teaspoons),
+      );
+
+      expect(remaining.single.amount, 0);
+    });
+
+    test("asks for nothing when the owned pieces cover the grams need apart from a conversion residue", () {
+      Ingredient garlic = const Ingredient(id: "garlic", name: "Garlic", gramsPerPiece: 33.33);
+
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: garlic,
+        requiredQuantities: const [Quantity(amount: 100, unit: Unit.grams)],
+        owned: const OwnedStock(amount: 3, unit: Unit.pieces),
+      );
+
+      expect(remaining.single.amount, 0);
+    });
+  });
+
   group("ownedAmountInUnit", () {
     test("returns 0 for a non-positive owned amount", () {
       Ingredient flour = const Ingredient(id: "flour", name: "Flour");
@@ -168,6 +221,31 @@ void main() {
       );
 
       expect(remaining.first.amount, 101);
+    });
+
+    test("keeps a need below one unit instead of rounding it away", () {
+      // A need of 0.4 teaspoons is still a need. The old rounding turned it into 0, so the
+      // ingredient disappeared from the page and from the copied list.
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: salt,
+        requiredQuantities: const [Quantity(amount: 0.4, unit: Unit.teaspoons)],
+        owned: const OwnedStock(amount: 0, unit: Unit.teaspoons),
+      );
+
+      expect(remaining.first.amount, 1);
+    });
+
+    test("keeps a need of zero at zero", () {
+      // The owned stock covers the whole need, so the page must still say the user needs nothing.
+      Ingredient flour = const Ingredient(id: "flour", name: "Flour");
+      List<Quantity> remaining = computeRemainingQuantities(
+        ingredient: flour,
+        requiredQuantities: const [Quantity(amount: 100, unit: Unit.grams)],
+        owned: const OwnedStock(amount: 100, unit: Unit.grams),
+      );
+
+      expect(remaining.first.amount, 0);
     });
 
     test("does not subtract a single owned stock more than once when the need spans two units", () {

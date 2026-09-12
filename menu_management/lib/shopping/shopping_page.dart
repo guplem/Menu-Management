@@ -1,11 +1,13 @@
+import "dart:typed_data";
+
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -14,8 +16,9 @@ import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
+import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
-import "package:menu_management/shopping/trip_amount_distributor.dart";
+import "package:menu_management/shopping/shopping_pdf.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
 class ShoppingPage extends StatefulWidget {
@@ -131,7 +134,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(tooltip: "Copy to clipboard", onPressed: _copyToClipboard, child: const Icon(Icons.copy_rounded)),
+      floatingActionButton: FloatingActionButton(
+        tooltip: "Export shopping list",
+        onPressed: _showExportDialog,
+        child: const Icon(Icons.ios_share_rounded),
+      ),
       body: ListView.builder(
         itemCount: ingredientsRequired.length,
         itemBuilder: (context, index) {
@@ -207,9 +214,93 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  void _copyToClipboard() {
-    String text = _buildMultiTripCopyText();
-    Clipboard.setData(ClipboardData(text: text));
+  /// Offers the text formats of the shopping list and copies the one that the user picks.
+  /// The reader of the text shops without the app, so each format stands on its own.
+  ///
+  /// The dialog itself reports a failed export, so this function reads no result of it.
+  Future<void> _showExportDialog() async {
+    await showExportOptionsDialog(
+      context: context,
+      title: "Export shopping list",
+      options: [
+        ClipboardExportOption(
+          label: "Simplified",
+          description: "One line per ingredient, with the amount to buy.",
+          buildText: _buildSimplifiedCopyText,
+          confirmation: "Copied the simplified shopping list to the clipboard.",
+        ),
+        ClipboardExportOption(
+          label: "Detailed",
+          // "each pack" and not "every product": the text lists only the packs of the waste-minimal
+          // mix, so a product that the mix does not pick writes no line and no link.
+          description: "One section per shop trip, with the packs to buy and the link of each pack.",
+          buildText: _buildDetailedCopyText,
+          confirmation: "Copied the detailed shopping list to the clipboard.",
+        ),
+        FileExportOption(
+          label: "PDF",
+          description: "One section per shop trip, every product with its link, and the meals that need each ingredient.",
+          dialogTitle: "Select where to save the shopping list PDF",
+          defaultFileName: Persistency.defaultShoppingListFileName(widget.multiWeekMenu),
+          buildBytes: _buildPdfBytes,
+          buildConfirmation: (String path) => "Saved the shopping list PDF to $path.",
+          saveBytes: Persistency.saveBytes,
+          supportsFileSaving: Persistency.supportsFileSaving,
+          extension: "pdf",
+          unavailableMessage: "This device cannot save a file. Copy the shopping list as text instead.",
+          icon: Icons.picture_as_pdf_rounded,
+        ),
+      ],
+    );
+  }
+
+  /// Builds the PDF: the same ingredients, amounts and trips that the detailed text writes, plus
+  /// every product of each ingredient and the meals that need it.
+  ///
+  /// This is the one place that reads the providers for the PDF. The document builder itself is
+  /// pure, so a test calls it with no widget (ADR 0009).
+  Future<Uint8List> _buildPdfBytes() {
+    List<ShoppingTrip> trips = _planTrips();
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    return buildShoppingPdfBytes(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
+      multiWeekMenu: widget.multiWeekMenu,
+      recipes: RecipesProvider.instance.recipes,
+      cookingTimeline: cookingTimeline,
+    );
+  }
+
+  /// The simplified text: the ingredient and the amount, with no trip section and no pack line.
+  ///
+  /// It keeps the "(freeze on arrival)" note of the detailed text. In one-trip mode the plan only
+  /// works if the user freezes those items on the day of the trip, so the note is not a detail.
+  String _buildSimplifiedCopyText() {
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    return buildSimplifiedShoppingCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      freezeOnArrivalIngredientIds: computeFreezeOnArrivalIngredientIds(
+        ingredients: input.ingredients,
+        remainingByIngredientId: input.remainingByIngredientId,
+        trips: _planTrips(),
+      ),
+    );
+  }
+
+  /// The detailed text: one section per planned shop trip, with the packs and the product links.
+  /// The trip mode switch of the app bar decides how many trips the planner writes.
+  String _buildDetailedCopyText() {
+    List<ShoppingTrip> trips = _planTrips();
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    return buildMultiTripCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
+    );
   }
 
   /// Names one trip of [trips]. [shoppingTripLabel] owns the rule that decides when the
@@ -229,73 +320,20 @@ class _ShoppingPageState extends State<ShoppingPage> {
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
     String weeksText = trips.map((ShoppingTrip t) => _tripLabel(trip: t, trips: trips)).join(", ");
-    return "$prefix: copy will split into $tripCountText ($weeksText).";
+    return "$prefix: the detailed export splits into $tripCountText ($weeksText).";
   }
 
-  String _buildSingleListCopyText() {
-    StringBuffer buffer = StringBuffer();
-
-    for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
-      String ingredientId = entry.key;
-      Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
-      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-
-      _appendIngredientLines(buffer: buffer, ingredient: ingredient, remaining: remaining);
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  String _buildMultiTripCopyText() {
-    List<ShoppingTrip> trips = _planTrips();
-    if (trips.isEmpty) return _buildSingleListCopyText();
-
-    // Spread each ingredient's on-screen remaining across the trip weeks in the on-screen unit, so
-    // the copied per-trip amounts sum to exactly what the page shows (same unit, no rounding drift).
-    // Bucket the resulting lines by week, then print the sections in the planner's trip order.
-    Map<int, List<({Ingredient ingredient, TripAllocation allocation})>> linesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
-
+  /// Collects the ingredients of the list and what the user must still buy of each one.
+  /// Both copy builders read the same two values, so they can never start from different data.
+  ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) _copyInput() {
+    List<Ingredient> ingredients = [];
+    Map<String, List<Quantity>> remainingByIngredientId = {};
     for (String ingredientId in ingredientsRequired.keys) {
       Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
-      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-      List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
-      for (TripAllocation allocation in allocations) {
-        linesByWeek[allocation.weekIndex]!.add((ingredient: ingredient, allocation: allocation));
-      }
+      ingredients.add(ingredient);
+      remainingByIngredientId[ingredientId] = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
     }
-
-    StringBuffer buffer = StringBuffer();
-    bool wroteSection = false;
-    for (ShoppingTrip trip in trips) {
-      List<({Ingredient ingredient, TripAllocation allocation})> lines = linesByWeek[trip.weekIndex]!;
-      if (lines.isEmpty) continue;
-      lines.sort((a, b) => a.ingredient.name.toLowerCase().compareTo(b.ingredient.name.toLowerCase()));
-
-      if (wroteSection) buffer.writeln();
-      wroteSection = true;
-      String header = _tripLabel(trip: trip, trips: trips);
-      buffer.writeln(header);
-      buffer.writeln("-" * header.length);
-      for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
-        _appendIngredientLines(
-          buffer: buffer,
-          ingredient: line.ingredient,
-          remaining: line.allocation.quantities,
-          freezeOnArrival: line.allocation.freezeOnArrival,
-        );
-      }
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  void _appendIngredientLines({
-    required StringBuffer buffer,
-    required Ingredient ingredient,
-    required List<Quantity> remaining,
-    bool freezeOnArrival = false,
-  }) {
-    buffer.write(buildIngredientCopyLines(ingredient: ingredient, remaining: remaining, freezeOnArrival: freezeOnArrival));
+    return (ingredients: ingredients, remainingByIngredientId: remainingByIngredientId);
   }
 
   List<ShoppingTrip> _planTrips() {
@@ -322,89 +360,4 @@ class _ShoppingPageState extends State<ShoppingPage> {
       assumeFreezerForFreezable: _useFreezerStrategy,
     );
   }
-}
-
-/// Builds the copied shopping-list text for one ingredient (one trip's worth of [remaining]).
-///
-/// Pure: takes the ingredient and its still-needed quantities, returns the lines as text
-/// (empty when nothing is needed). Amounts are rounded to whole units so sub-1-unit residuals
-/// drop out instead of rendering as "0 teaspoons".
-///
-/// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
-/// product's solo count: a product the mix does not pick is not listed. Where that mix contains
-/// two or more equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the
-/// same size), the group's packs are spread one-of-each via [distributeEquivalentPacks] (issue
-/// #27), so identical variants list as "one of each" instead of all packs on one variant. A
-/// variant that ends up with 0 packs is skipped.
-String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
-  StringBuffer buffer = StringBuffer();
-
-  List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
-  if (!rounded.any((q) => q.amount > 0)) return "";
-
-  String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
-
-  if (ingredient.products.isEmpty) {
-    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-    return buffer.toString();
-  }
-
-  Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
-  if (primaryRemaining == null) {
-    // No matching product unit -> fall back to raw amount line.
-    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-    return buffer.toString();
-  }
-
-  buffer.writeln("${ingredient.name}$freezeSuffix");
-
-  // Products matching the primary unit, in configured order.
-  List<Product> matching = ingredient.products.where((Product p) => p.unit == primaryRemaining.unit).toList();
-
-  // Pick the waste-minimal mix of packs for this amount (issue #26): the copy shows that mix, not
-  // every product's solo count. Events are empty: each trip is already a shelf-life-safe bucket, so
-  // the mix only needs to minimize pack-granularity over-buy for the amount bought on this trip.
-  CombinationRecommendation? combination = recommendCombination(
-    totalNeeded: primaryRemaining.amount,
-    events: const [],
-    ingredient: ingredient,
-    products: matching,
-  );
-  if (combination == null) return buffer.toString();
-
-  // Total packs the mix buys per equivalence group. Equivalent variants share one key, so the
-  // solver may load them all onto one representative; summing per key recovers the group's total.
-  Map<String, int> packsByKey = {};
-  for (PackSelection selection in combination.selections) {
-    String key = productEquivalenceKey(selection.product);
-    packsByKey[key] = (packsByKey[key] ?? 0) + selection.packs;
-  }
-
-  // Spread each group's packs one-of-each across its equivalent variants (issue #27), so identical
-  // variants in the recommendation list as "one of each" instead of all packs on one variant.
-  Map<String, List<int>> sharesByKey = {};
-  Map<String, int> cursorByKey = {};
-  Map<String, List<Product>> groups = {};
-  for (Product product in matching) {
-    groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
-  }
-  for (MapEntry<String, List<Product>> group in groups.entries) {
-    int total = packsByKey[group.key] ?? 0;
-    sharesByKey[group.key] = distributeEquivalentPacks(totalPacks: total, groupSize: group.value.length);
-  }
-
-  for (Product product in matching) {
-    String key = productEquivalenceKey(product);
-    int cursor = cursorByKey[key] ?? 0;
-    cursorByKey[key] = cursor + 1;
-    int packs = sharesByKey[key]![cursor];
-    if (packs <= 0) continue;
-    String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
-    String packWord = packs == 1 ? "pack" : "packs";
-    buffer.writeln("  $label: $packs $packWord");
-  }
-
-  return buffer.toString();
 }

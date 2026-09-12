@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
@@ -64,8 +66,53 @@ Future<void> _pumpMenuPage(WidgetTester tester, MultiWeekMenu menu) async {
   await tester.pump();
 }
 
+/// A week that cooks the meal recipe "m0" for two people on the Saturday lunch.
+/// The recipe holds 20 minutes of work, so the detailed text must write ", 20 min".
+Menu _cookingWeek() {
+  return const Menu(
+    meals: [
+      Meal(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "m0", yield: 1), people: 2)],
+      ),
+    ],
+  );
+}
+
+/// The days that hold no meal. Every format writes all seven days of the week.
+List<String> _emptyDays(List<String> dayNames) {
+  return [
+    for (String dayName in dayNames) ...[dayName, "  Breakfast: -", "  Lunch: -", "  Dinner: -", ""],
+  ];
+}
+
+/// The texts that the page copied to the clipboard, in the order of the copies.
+late List<String> _copiedTexts;
+
+/// Opens the export dialog of the menu page and picks one format.
+Future<void> _pumpAndCopy(WidgetTester tester, {required String format}) async {
+  await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_cookingWeek()]));
+  await tester.tap(find.byTooltip("Export menu"));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(format));
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  setUp(_seedRecipes);
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    _seedRecipes();
+    _copiedTexts = [];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (MethodCall call) async {
+      if (call.method == "Clipboard.setData") _copiedTexts.add((call.arguments as Map<Object?, Object?>)["text"]! as String);
+      return null;
+    });
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null);
+  });
 
   group("MenuPage day columns", () {
     testWidgets("starts at Saturday and shows no dates when the menu has no start date", (WidgetTester tester) async {
@@ -169,6 +216,83 @@ void main() {
 
       expect(find.text("Set first day"), findsOneWidget);
       expect(find.text("Saturday"), findsOneWidget);
+    });
+  });
+
+  group("MenuPage export button", () {
+    testWidgets("opens the export dialog with both menu formats", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      await tester.tap(find.byTooltip("Export menu"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Export menu"), findsOneWidget);
+      expect(find.text("Simplified"), findsOneWidget);
+      expect(find.text("Detailed"), findsOneWidget);
+    });
+
+    testWidgets("offers the PDF beside the two text formats", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      await tester.tap(find.byTooltip("Export menu"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("PDF"), findsOneWidget);
+      expect(find.text("One table per week and every recipe, to print or to share."), findsOneWidget);
+      expect(find.byIcon(Icons.picture_as_pdf_rounded), findsOneWidget);
+    });
+
+    testWidgets("offers the export button as the only way to copy the menu", (WidgetTester tester) async {
+      // The two fixed-format copy buttons are gone. The export button replaces both of them.
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      expect(find.byTooltip("Export menu"), findsOneWidget);
+      expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
+      expect(find.byTooltip("Copy to clipboard"), findsNothing);
+    });
+  });
+
+  group("MenuPage export formats", () {
+    testWidgets("copies the detailed menu, with the time of the recipe", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Detailed");
+
+      expect(_copiedTexts.single.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Meal m0 [2p] (cook 2 servings, 20 min)",
+        "  Dinner: -",
+        "",
+        ..._emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    testWidgets("copies the simplified menu, with no time", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Simplified");
+
+      expect(_copiedTexts.single.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Meal m0 [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ..._emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    testWidgets("names the copied format in the snackbar", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Detailed");
+
+      expect(find.text("Copied the detailed menu to the clipboard."), findsOneWidget);
     });
   });
 }

@@ -1,13 +1,16 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/menu_dates.dart";
+import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 
 part "multi_week_menu.freezed.dart";
@@ -196,9 +199,78 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return combined;
   }
 
+  /// Returns, for each ingredient, the meals of the whole menu that need it.
+  ///
+  /// [ingredientSources] merges the entries of every week by recipe, so it loses the week, the
+  /// day and the meal slot. This method keeps them: it writes one entry per sub-meal that eats a
+  /// recipe, cook meals and leftover meals alike, with the amount that this one meal needs.
+  ///
+  /// The walk covers the whole menu, not one week at a time. A cook event late in one week feeds
+  /// leftover meals of the next week, the same way [servingsForCookEvent] counts them. A week-local
+  /// walk would write no entry for such a leftover meal, because that week cooks nothing.
+  ///
+  /// A meal whose recipe is not in [recipes] gets no entry, the same rule the rest of the menu
+  /// code follows for a deleted recipe.
+  ///
+  /// The entries are ordered by week, then by the clock, then by the index of the sub-meal.
+  ///
+  /// Note: the total of the entries of one ingredient can be above the total that [allIngredients]
+  /// reports, because [allIngredients] counts the people of each week on its own and misses a
+  /// leftover meal of the next week. That gap makes the shopping list under-buy. It is a bug of
+  /// [allIngredients], not of this method, and issue #49 tracks the fix. Do not align this method
+  /// to [allIngredients]: the entries here are correct.
+  Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes}) {
+    Map<String, List<IngredientMealRequirement>> requirements = {};
+
+    for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+      for (Meal meal in weeks[weekIndex].meals) {
+        for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
+          SubMeal subMeal = meal.subMeals[subMealIndex];
+          Cooking? cooking = subMeal.cooking;
+          if (cooking == null) continue;
+
+          Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
+          if (recipe == null) continue;
+
+          for (MapEntry<String, List<Quantity>> ingredient in recipe.perServingQuantities().entries) {
+            requirements
+                .putIfAbsent(ingredient.key, () => <IngredientMealRequirement>[])
+                .add(
+                  IngredientMealRequirement(
+                    weekIndex: weekIndex,
+                    mealTime: meal.mealTime,
+                    subMealIndex: subMealIndex,
+                    recipeId: recipe.id,
+                    recipeName: recipe.name,
+                    people: subMeal.people,
+                    isCookEvent: cooking.yield > 0,
+                    quantities: ingredient.value.map((Quantity q) => q.scaledBy(subMeal.people)).toList(),
+                  ),
+                );
+          }
+        }
+      }
+    }
+
+    // The meals of one week arrive in the order the generator wrote them, so order them at the end.
+    for (List<IngredientMealRequirement> mealRequirements in requirements.values) {
+      mealRequirements.sort((IngredientMealRequirement a, IngredientMealRequirement b) {
+        if (a.weekIndex != b.weekIndex) return a.weekIndex.compareTo(b.weekIndex);
+        if (a.mealTime.isSameTime(b.mealTime)) return a.subMealIndex.compareTo(b.subMealIndex);
+        return a.mealTime.goesBefore(b.mealTime) ? -1 : 1;
+      });
+    }
+
+    return requirements;
+  }
+
   /// Writes the whole menu as text for the clipboard.
   /// This model owns the start date, so it builds the day labels and hands them to each week.
-  String toStringBeautified({required List<Recipe> recipes}) {
+  /// It also owns the cross-week leftovers, so it counts the servings of each cook event and
+  /// hands them to the week too.
+  ///
+  /// [format] sets how much of each meal line the text writes. See [MenuCopyFormat].
+  String toStringBeautified({required List<Recipe> recipes, MenuCopyFormat format = MenuCopyFormat.simplified}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
       final String weekRange = menuWeekRangeLabel(startDate: startDate, weekIndex: i);
@@ -206,8 +278,34 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
       final Map<WeekDay, String> dayLabels = {
         for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: i, weekDay: weekDay),
       };
-      result += "${weeks[i].toStringBeautified(recipes: recipes, dayLabels: dayLabels)}\n\n";
+      result +=
+          "${weeks[i].toStringBeautified(
+            recipes: recipes,
+            dayLabels: dayLabels,
+            cookServings: _cookServingsOfWeek(weekIndex: i, recipes: recipes),
+            format: format,
+          )}\n\n";
     }
     return result.trim();
+  }
+
+  /// Counts the servings of every cook event of one week, keyed by the meal slot and the index of
+  /// the sub-meal. The grid of the menu page shows the same numbers, because both read
+  /// [servingsForCookEvent]. A sub-meal that eats leftovers has no entry.
+  Map<(MealTime, int), int> _cookServingsOfWeek({required int weekIndex, required List<Recipe> recipes}) {
+    Map<(MealTime, int), int> servings = {};
+    for (Meal meal in weeks[weekIndex].meals) {
+      for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
+        SubMeal subMeal = meal.subMeals[subMealIndex];
+        if (subMeal.cooking == null || subMeal.cooking!.yield <= 0) continue;
+        servings[(meal.mealTime, subMealIndex)] = servingsForCookEvent(
+          cookWeekIndex: weekIndex,
+          cookMealTime: meal.mealTime,
+          subMealIndex: subMealIndex,
+          recipes: recipes,
+        );
+      }
+    }
+    return servings;
   }
 }

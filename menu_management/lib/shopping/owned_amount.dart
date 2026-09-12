@@ -184,5 +184,30 @@ class OwnedStockConsumer {
 /// either stock shape (single-form or per-product); both resolve through the same single pool.
 List<Quantity> computeRemainingQuantities({required Ingredient ingredient, required List<Quantity> requiredQuantities, required OwnedStock owned}) {
   OwnedStockConsumer consumer = OwnedStockConsumer(ingredient: ingredient, owned: owned);
-  return requiredQuantities.map((Quantity q) => Quantity(amount: max(0, consumer.consumeRemaining(q)).roundToDouble(), unit: q.unit)).toList();
+  return requiredQuantities.map((Quantity q) => Quantity(amount: roundNeededAmount(consumer.consumeRemaining(q)), unit: q.unit)).toList();
+}
+
+/// A need at or below this many units is arithmetic noise, not food to buy.
+///
+/// The subtraction of the owned stock runs on doubles and crosses unit conversions, so a fully
+/// covered need rarely lands on an exact 0. It leaves a residue: 4e-17 for `0.1 + 0.2 - 0.3`, or
+/// 0.01 grams for 100 grams minus 3 pieces of 33.33 grams. Without this margin every such residue
+/// would become a whole unit to buy. The margin stays far below the smallest real need, which is
+/// a fraction of a teaspoon.
+///
+/// Every place that decides whether a need is real reads this one constant: [roundNeededAmount]
+/// for the page and the copied list, and the multi-trip planner for the decision to plan a trip.
+/// A planner with its own threshold would plan a trip for a residue that the page shows as
+/// covered, and the copied list would then hold an empty trip section.
+const double negligibleNeed = 0.05;
+
+/// Rounds an amount that the user must still buy to a whole unit.
+///
+/// A real need never becomes zero. The user cannot buy 0.4 teaspoons, but a pinch of salt is
+/// still a need, so the smallest need is one unit. An amount at or below [negligibleNeed] is
+/// not a real need, so it becomes zero. The page and the copied list both round here, so they
+/// always show the same number.
+double roundNeededAmount(double amount) {
+  if (amount <= negligibleNeed) return 0;
+  return max(1, amount.round()).toDouble();
 }

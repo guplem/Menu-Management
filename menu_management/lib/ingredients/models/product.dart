@@ -1,4 +1,5 @@
 import "package:freezed_annotation/freezed_annotation.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 
 part "product.freezed.dart";
@@ -55,6 +56,38 @@ abstract class Product with _$Product {
       return "${itemsPerPack}x${quantityPerItem.toStringAsFixed(0)}${unit.name}";
     }
     return null;
+  }
+
+  /// Returns a readable name of the product, taken from the slug of [link], or null when the link
+  /// holds no slug.
+  ///
+  /// [Product] holds no name field. The store link carries one: a Mercadona product link reads
+  /// `https://tienda.mercadona.es/product/{id}/{slug}` (see `mercadona-api.md`), and the slug is
+  /// the name of the product with a dash between each word. This turns the slug back into words,
+  /// so the shopping list names the product that the reader must take from the shelf.
+  ///
+  /// Returns null for an empty link, for a link with no slug after the id, and for a link of
+  /// another store, because only the Mercadona link format is known.
+  ///
+  /// Returns null too for a link that holds a broken percent escape. A Spanish slug can carry a
+  /// latin-1 escape such as `%E9`, which is not valid UTF-8, and the decode of the path throws on
+  /// it. The export shows no name for that one product, instead of a failure of the whole list.
+  String? nameFromLink() {
+    final Uri? uri = Uri.tryParse(link);
+    if (uri == null || (uri.host != "mercadona.es" && !uri.host.endsWith(".mercadona.es"))) return null;
+
+    final List<String> segments;
+    try {
+      segments = uri.pathSegments;
+    } on FormatException {
+      return null;
+    }
+    final int productIndex = segments.indexOf("product");
+    if (productIndex < 0 || segments.length <= productIndex + 2) return null;
+
+    final String words = segments[productIndex + 2].replaceAll("-", " ").trim();
+    if (words.isEmpty) return null;
+    return words.capitalizeFirstLetter();
   }
 
   int packsNeeded(double requiredAmount) {
