@@ -1,3 +1,5 @@
+import "dart:typed_data";
+
 import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
@@ -5,6 +7,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -15,6 +18,7 @@ import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
+import "package:menu_management/shopping/shopping_pdf.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
 class ShoppingPage extends StatefulWidget {
@@ -233,7 +237,39 @@ class _ShoppingPageState extends State<ShoppingPage> {
           buildText: _buildDetailedCopyText,
           confirmation: "Copied the detailed shopping list to the clipboard.",
         ),
+        FileExportOption(
+          label: "PDF",
+          description: "One section per shop trip, every product with its link, and the meals that need each ingredient.",
+          dialogTitle: "Select where to save the shopping list PDF",
+          defaultFileName: Persistency.defaultShoppingListFileName(widget.multiWeekMenu),
+          buildBytes: _buildPdfBytes,
+          buildConfirmation: (String path) => "Saved the shopping list PDF to $path.",
+          saveBytes: Persistency.saveBytes,
+          supportsFileSaving: Persistency.supportsFileSaving,
+          extension: "pdf",
+          unavailableMessage: "This device cannot save a file. Copy the shopping list as text instead.",
+          icon: Icons.picture_as_pdf_rounded,
+        ),
       ],
+    );
+  }
+
+  /// Builds the PDF: the same ingredients, amounts and trips that the detailed text writes, plus
+  /// every product of each ingredient and the meals that need it.
+  ///
+  /// This is the one place that reads the providers for the PDF. The document builder itself is
+  /// pure, so a test calls it with no widget (ADR 0009).
+  Future<Uint8List> _buildPdfBytes() {
+    List<ShoppingTrip> trips = _planTrips();
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    return buildShoppingPdfBytes(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
+      multiWeekMenu: widget.multiWeekMenu,
+      recipes: RecipesProvider.instance.recipes,
+      cookingTimeline: cookingTimeline,
     );
   }
 

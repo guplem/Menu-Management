@@ -589,6 +589,32 @@ void main() {
     });
   });
 
+  // ── defaultShoppingListFileName ──
+
+  group("defaultShoppingListFileName", () {
+    test("names the shopping list after the same day as the menu, so both files sort together", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      expect(Persistency.defaultShoppingListFileName(menu), "Shopping-list-2025-08-06.pdf");
+    });
+
+    test("falls back to the next Saturday when the menu has no first day", () {
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(meals: [_meal()]),
+        ],
+      );
+
+      // 2025-08-06 is a Wednesday, so the next Saturday is 2025-08-09.
+      expect(Persistency.defaultShoppingListFileName(menu, today: DateTime(2025, 8, 6)), "Shopping-list-2025-08-09.pdf");
+    });
+  });
+
   // ── saveBytesToPath ──
 
   group("saveBytesToPath", () {
