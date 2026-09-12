@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/expiry_warnings.dart";
 import "package:menu_management/menu/menu_dates.dart";
@@ -83,6 +83,31 @@ class _MenuPageState extends State<MenuPage> {
     });
   }
 
+  /// Offers the text formats of the menu and copies the one that the user picks.
+  /// The reader of the text follows the menu without the app, so each format stands on its own.
+  ///
+  /// The dialog itself reports a failed export, so this function reads no result of it.
+  Future<void> _showExportDialog() async {
+    await showExportOptionsDialog(
+      context: context,
+      title: "Export menu",
+      options: [
+        ClipboardExportOption(
+          label: "Simplified",
+          description: "The dish of every meal, with the people and the servings to cook.",
+          buildText: () => multiWeekMenu.toStringBeautified(recipes: _recipes),
+          confirmation: "Copied the simplified menu to the clipboard.",
+        ),
+        ClipboardExportOption(
+          label: "Detailed",
+          description: "The simplified menu, plus the total time of every recipe that you cook.",
+          buildText: () => multiWeekMenu.toStringBeautified(recipes: _recipes, format: MenuCopyFormat.detailed),
+          confirmation: "Copied the detailed menu to the clipboard.",
+        ),
+      ],
+    );
+  }
+
   void _addWeek() {
     setState(() {
       Menu newWeek = MenuProvider.generateAdditionalWeek(seed: DateTime.now().millisecondsSinceEpoch, recipes: RecipesProvider.instance.recipes);
@@ -147,14 +172,7 @@ class _MenuPageState extends State<MenuPage> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            tooltip: "Copy to clipboard",
-            child: const Icon(Icons.copy_rounded),
-            onPressed: () {
-              final String menuString = multiWeekMenu.toStringBeautified(recipes: _recipes);
-              Clipboard.setData(ClipboardData(text: menuString));
-            },
-          ),
+          FloatingActionButton(tooltip: "Export menu", onPressed: _showExportDialog, child: const Icon(Icons.ios_share_rounded)),
           const SizedBox(height: 10),
           FloatingActionButton(
             tooltip: "Save Menu",

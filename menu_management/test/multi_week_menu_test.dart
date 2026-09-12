@@ -2,6 +2,7 @@ import "dart:convert";
 
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
@@ -863,6 +864,121 @@ void main() {
 
       expect(grown.startDate, DateTime(2025, 8, 6));
       expect(grown.removeLastWeek().startDate, DateTime(2025, 8, 6));
+    });
+  });
+
+  group("MultiWeekMenu toStringBeautified detailed format", () {
+    /// The days that hold no meal. The detailed format keeps the shape of the simplified one, so
+    /// the expected text of a small menu still lists every day of the week.
+    List<String> emptyDays(List<String> dayNames) {
+      return [
+        for (String dayName in dayNames) ...[dayName, "  Breakfast: -", "  Lunch: -", "  Dinner: -", ""],
+      ];
+    }
+
+    test("adds the total time of the recipe to every cook event", () {
+      Recipe pasta = _testRecipe(
+        id: "r1",
+        name: "Pasta",
+        instructions: const [Instruction(id: "i1", description: "Boil", workingTimeMinutes: 15, cookingTimeMinutes: 30)],
+      );
+      Menu week = Menu(
+        meals: [
+          _testMeal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: pasta),
+          _testMeal(weekDay: WeekDay.sunday, mealType: MealType.lunch, recipe: pasta, yield: 0),
+        ],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [week]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 4 servings, 45 min)",
+        "  Dinner: -",
+        "",
+        "Sunday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (leftovers)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    test("writes no time for a cook event whose recipe is gone", () {
+      Recipe pasta = _testRecipe(id: "r1", name: "Pasta");
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: const [], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: - [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    test("writes no time for a recipe that holds no time", () {
+      // The recipe is in the list, so this is not the "recipe is gone" branch. It holds no
+      // instruction, so its total is 0 minutes. ", 0 min" would read as an instant dish.
+      Recipe pasta = _testRecipe(id: "r1", name: "Pasta");
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.detailed);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
+    });
+
+    test("keeps the simplified format free of the time", () {
+      Recipe pasta = _testRecipe(
+        id: "r1",
+        name: "Pasta",
+        instructions: const [Instruction(id: "i1", description: "Boil", workingTimeMinutes: 15, cookingTimeMinutes: 30)],
+      );
+      MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [_singleMealMenu(recipe: pasta)]);
+
+      String output = multiWeek.toStringBeautified(recipes: [pasta], format: MenuCopyFormat.simplified);
+
+      expect(output.split("\n"), [
+        "Week 1",
+        "Saturday",
+        "  Breakfast: -",
+        "  Lunch: Pasta [2p] (cook 2 servings)",
+        "  Dinner: -",
+        "",
+        ...emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
+        "Friday",
+        "  Breakfast: -",
+        "  Lunch: -",
+        "  Dinner: -",
+      ]);
     });
   });
 }

@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
@@ -131,7 +130,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(tooltip: "Copy to clipboard", onPressed: _copyToClipboard, child: const Icon(Icons.copy_rounded)),
+      floatingActionButton: FloatingActionButton(
+        tooltip: "Export shopping list",
+        onPressed: _showExportDialog,
+        child: const Icon(Icons.ios_share_rounded),
+      ),
       body: ListView.builder(
         itemCount: ingredientsRequired.length,
         itemBuilder: (context, index) {
@@ -207,16 +210,61 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  void _copyToClipboard() {
+  /// Offers the text formats of the shopping list and copies the one that the user picks.
+  /// The reader of the text shops without the app, so each format stands on its own.
+  ///
+  /// The dialog itself reports a failed export, so this function reads no result of it.
+  Future<void> _showExportDialog() async {
+    await showExportOptionsDialog(
+      context: context,
+      title: "Export shopping list",
+      options: [
+        ClipboardExportOption(
+          label: "Simplified",
+          description: "One line per ingredient, with the amount to buy.",
+          buildText: _buildSimplifiedCopyText,
+          confirmation: "Copied the simplified shopping list to the clipboard.",
+        ),
+        ClipboardExportOption(
+          label: "Detailed",
+          // "each pack" and not "every product": the text lists only the packs of the waste-minimal
+          // mix, so a product that the mix does not pick writes no line and no link.
+          description: "One section per shop trip, with the packs to buy and the link of each pack.",
+          buildText: _buildDetailedCopyText,
+          confirmation: "Copied the detailed shopping list to the clipboard.",
+        ),
+      ],
+    );
+  }
+
+  /// The simplified text: the ingredient and the amount, with no trip section and no pack line.
+  ///
+  /// It keeps the "(freeze on arrival)" note of the detailed text. In one-trip mode the plan only
+  /// works if the user freezes those items on the day of the trip, so the note is not a detail.
+  String _buildSimplifiedCopyText() {
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    return buildSimplifiedShoppingCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      freezeOnArrivalIngredientIds: computeFreezeOnArrivalIngredientIds(
+        ingredients: input.ingredients,
+        remainingByIngredientId: input.remainingByIngredientId,
+        trips: _planTrips(),
+      ),
+    );
+  }
+
+  /// The detailed text: one section per planned shop trip, with the packs and the product links.
+  /// The trip mode switch of the app bar decides how many trips the planner writes.
+  String _buildDetailedCopyText() {
     List<ShoppingTrip> trips = _planTrips();
     ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
-    String text = buildMultiTripCopyText(
+    return buildMultiTripCopyText(
       ingredients: input.ingredients,
       remainingByIngredientId: input.remainingByIngredientId,
       trips: trips,
       tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
     );
-    Clipboard.setData(ClipboardData(text: text));
   }
 
   /// Names one trip of [trips]. [shoppingTripLabel] owns the rule that decides when the
@@ -236,7 +284,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
     String weeksText = trips.map((ShoppingTrip t) => _tripLabel(trip: t, trips: trips)).join(", ");
-    return "$prefix: copy will split into $tripCountText ($weeksText).";
+    return "$prefix: the detailed export splits into $tripCountText ($weeksText).";
   }
 
   /// Collects the ingredients of the list and what the user must still buy of each one.

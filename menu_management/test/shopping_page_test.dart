@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
@@ -75,6 +76,16 @@ Recipe _milkRecipe() {
   );
 }
 
+// The same milk, but a product that the user may freeze. The freezer mode then buys the milk of
+// both weeks on the first trip and asks the user to freeze it.
+const Ingredient _freezableMilk = Ingredient(
+  id: "milk",
+  name: "Milk",
+  products: [
+    Product(link: "https://example.com/milk", quantityPerItem: 1000, itemsPerPack: 1, unit: Unit.grams, shelfLifeDaysClosed: 3, canBeFrozen: true),
+  ],
+);
+
 /// A two-week menu that cooks the milk recipe on the Monday of each week.
 MultiWeekMenu _twoWeekMilkMenu({required DateTime startDate}) {
   const Menu week = Menu(
@@ -120,17 +131,40 @@ Future<void> _pumpShoppingPage(WidgetTester tester, MultiWeekMenu menu) async {
   await tester.pump();
 }
 
+/// The texts that the page copied to the clipboard, in the order of the copies.
+late List<String> _copiedTexts;
+
+/// Opens the export dialog of the shopping page and picks one format.
+Future<void> _pumpAndCopy(WidgetTester tester, {required String format}) async {
+  await _pumpShoppingPage(tester, _menu());
+  await tester.tap(find.byTooltip("Export shopping list"));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(format));
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() {
     IngredientsProvider.instance.setData([_rice]);
     RecipesProvider.instance.setData([_riceRecipe()], ingredients: [_rice]);
+    _copiedTexts = [];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (MethodCall call) async {
+      if (call.method == "Clipboard.setData") _copiedTexts.add((call.arguments as Map<Object?, Object?>)["text"]! as String);
+      return null;
+    });
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null);
   });
 
   group("ShoppingPage trip banner", () {
     testWidgets("says now for the only trip when the menu has no first day", (WidgetTester tester) async {
       await _pumpShoppingPage(tester, _menu());
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (now)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: the detailed export splits into 1 trip (now)."), findsOneWidget);
     });
 
     testWidgets("says now for the only trip when the menu has a first day", (WidgetTester tester) async {
@@ -138,7 +172,7 @@ void main() {
       // The banner must match the product row, which calls that same trip "now".
       await _pumpShoppingPage(tester, _menu(startDate: DateTime(2025, 8, 6)));
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 1 trip (now)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: the detailed export splits into 1 trip (now)."), findsOneWidget);
     });
 
     testWidgets("keeps the real date of a later trip", (WidgetTester tester) async {
@@ -147,7 +181,66 @@ void main() {
       // The menu starts on Wednesday 6 Aug 2025. The second trip happens on day 6, 12 Aug.
       await _pumpShoppingPage(tester, _twoWeekMilkMenu(startDate: DateTime(2025, 8, 6)));
 
-      expect(find.textContaining("Multi-trip mode: copy will split into 2 trips (now, Tuesday 12 Aug)."), findsOneWidget);
+      expect(find.textContaining("Multi-trip mode: the detailed export splits into 2 trips (now, Tuesday 12 Aug)."), findsOneWidget);
+    });
+  });
+
+  group("ShoppingPage export button", () {
+    testWidgets("opens the export dialog with both shopping formats", (WidgetTester tester) async {
+      await _pumpShoppingPage(tester, _menu());
+
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Export shopping list"), findsOneWidget);
+      expect(find.text("Simplified"), findsOneWidget);
+      expect(find.text("Detailed"), findsOneWidget);
+    });
+
+    testWidgets("offers the export button as the only way to copy the list", (WidgetTester tester) async {
+      // The two fixed-format copy buttons are gone. The export button replaces both of them.
+      await _pumpShoppingPage(tester, _menu());
+
+      expect(find.byTooltip("Export shopping list"), findsOneWidget);
+      expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
+      expect(find.byTooltip("Copy to clipboard"), findsNothing);
+    });
+  });
+
+  group("ShoppingPage export formats", () {
+    testWidgets("copies the detailed list, with the trip section and the packs", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Detailed");
+
+      expect(_copiedTexts.single.split("\n"), const ["now", "---", "Rice", "  500 grams/pack: 1 pack", "    https://example.com/rice"]);
+    });
+
+    testWidgets("copies the simplified list, with no trip section and no pack", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Simplified");
+
+      expect(_copiedTexts.single.split("\n"), const ["Rice: 400 grams"]);
+    });
+
+    testWidgets("keeps the freeze note of the trip plan in the simplified list", (WidgetTester tester) async {
+      // The page must hand the freeze note of the trip plan to the simplified text. Without it the
+      // one-trip plan cannot be followed: the milk of the second week waits a week in the fridge.
+      IngredientsProvider.instance.setData([_freezableMilk]);
+      RecipesProvider.instance.setData([_milkRecipe()], ingredients: [_freezableMilk]);
+      await _pumpShoppingPage(tester, _twoWeekMilkMenu(startDate: DateTime(2025, 8, 6)));
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Simplified"));
+      await tester.pumpAndSettle();
+
+      expect(_copiedTexts.single.split("\n"), const ["Milk: 1,200 grams (freeze on arrival)"]);
+    });
+
+    testWidgets("names the copied format in the snackbar", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Detailed");
+
+      expect(find.text("Copied the detailed shopping list to the clipboard."), findsOneWidget);
     });
   });
 }

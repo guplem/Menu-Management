@@ -1,5 +1,6 @@
 import "package:freezed_annotation/freezed_annotation.dart";
 import "package:menu_management/flutter_essentials/library.dart";
+import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/cooking.dart";
@@ -267,7 +268,9 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   /// This model owns the start date, so it builds the day labels and hands them to each week.
   /// It also owns the cross-week leftovers, so it counts the servings of each cook event and
   /// hands them to the week too.
-  String toStringBeautified({required List<Recipe> recipes}) {
+  ///
+  /// [format] sets how much of each meal line the text writes. See [MenuCopyFormat].
+  String toStringBeautified({required List<Recipe> recipes, MenuCopyFormat format = MenuCopyFormat.simplified}) {
     String result = "";
     for (int i = 0; i < weeks.length; i++) {
       final String weekRange = menuWeekRangeLabel(startDate: startDate, weekIndex: i);
@@ -280,6 +283,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
             recipes: recipes,
             dayLabels: dayLabels,
             cookServings: _cookServingsOfWeek(weekIndex: i, recipes: recipes),
+            format: format,
           )}\n\n";
     }
     return result.trim();

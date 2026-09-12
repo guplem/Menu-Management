@@ -591,4 +591,49 @@ void main() {
       expect(restored.canBeFrozen, isFalse);
     });
   });
+
+  group("Product nameFromLink", () {
+    test("reads the name out of the slug of a store link", () {
+      // The slug is the last path segment of a Mercadona product link (see mercadona-api.md).
+      Product product = _product(
+        link: "https://tienda.mercadona.es/product/20559/media-hogaza-integral-avena-semillas-girasol-sesamo-rebanado-paquete",
+      );
+
+      expect(product.nameFromLink(), "Media hogaza integral avena semillas girasol sesamo rebanado paquete");
+    });
+
+    test("keeps a slug that holds one word", () {
+      Product product = _product(link: "https://tienda.mercadona.es/product/12345/aceite");
+
+      expect(product.nameFromLink(), "Aceite");
+    });
+
+    test("returns null for a link that holds no slug", () {
+      // The id alone names nothing that a person can read in the shop.
+      expect(_product(link: "https://tienda.mercadona.es/product/20559").nameFromLink(), isNull);
+      expect(_product(link: "https://tienda.mercadona.es/product/20559/").nameFromLink(), isNull);
+    });
+
+    test("returns null for an empty link", () {
+      expect(_product(link: "").nameFromLink(), isNull);
+    });
+
+    test("returns null for a link of another store", () {
+      // Only the Mercadona link format is known, so another store gets no guessed name.
+      expect(_product(link: "https://shop.example/pizza").nameFromLink(), isNull);
+      expect(_product(link: "not a url at all").nameFromLink(), isNull);
+    });
+
+    test("returns null for a host that only ends with the Mercadona name", () {
+      // "notmercadona.es" is another store. A suffix test alone accepts it, so the host must
+      // match the domain itself or a subdomain of it.
+      expect(_product(link: "https://notmercadona.es/product/1/pan-de-molde").nameFromLink(), isNull);
+    });
+
+    test("returns null for a slug that holds a broken percent escape", () {
+      // A Spanish slug can carry a latin-1 escape such as %E9, which is not valid UTF-8.
+      // The decode of the path throws on it. One bad link must not fail the whole export.
+      expect(_product(link: "https://tienda.mercadona.es/product/123/caf%E9-molido").nameFromLink(), isNull);
+    });
+  });
 }
