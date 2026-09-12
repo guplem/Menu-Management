@@ -14,8 +14,8 @@ import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/quantity_normalizer.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
+import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
-import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
 class ShoppingPage extends StatefulWidget {
@@ -208,7 +208,14 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 
   void _copyToClipboard() {
-    String text = _buildMultiTripCopyText();
+    List<ShoppingTrip> trips = _planTrips();
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    String text = buildMultiTripCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
+    );
     Clipboard.setData(ClipboardData(text: text));
   }
 
@@ -232,70 +239,17 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return "$prefix: copy will split into $tripCountText ($weeksText).";
   }
 
-  String _buildSingleListCopyText() {
-    StringBuffer buffer = StringBuffer();
-
-    for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
-      String ingredientId = entry.key;
-      Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
-      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-
-      _appendIngredientLines(buffer: buffer, ingredient: ingredient, remaining: remaining);
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  String _buildMultiTripCopyText() {
-    List<ShoppingTrip> trips = _planTrips();
-    if (trips.isEmpty) return _buildSingleListCopyText();
-
-    // Spread each ingredient's on-screen remaining across the trip weeks in the on-screen unit, so
-    // the copied per-trip amounts sum to exactly what the page shows (same unit, no rounding drift).
-    // Bucket the resulting lines by week, then print the sections in the planner's trip order.
-    Map<int, List<({Ingredient ingredient, TripAllocation allocation})>> linesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
-
+  /// Collects the ingredients of the list and what the user must still buy of each one.
+  /// Both copy builders read the same two values, so they can never start from different data.
+  ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) _copyInput() {
+    List<Ingredient> ingredients = [];
+    Map<String, List<Quantity>> remainingByIngredientId = {};
     for (String ingredientId in ingredientsRequired.keys) {
       Ingredient ingredient = IngredientsProvider.instance.get(ingredientId);
-      List<Quantity> remaining = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
-      List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
-      for (TripAllocation allocation in allocations) {
-        linesByWeek[allocation.weekIndex]!.add((ingredient: ingredient, allocation: allocation));
-      }
+      ingredients.add(ingredient);
+      remainingByIngredientId[ingredientId] = _remainingAmounts(ingredientId: ingredientId, ingredient: ingredient);
     }
-
-    StringBuffer buffer = StringBuffer();
-    bool wroteSection = false;
-    for (ShoppingTrip trip in trips) {
-      List<({Ingredient ingredient, TripAllocation allocation})> lines = linesByWeek[trip.weekIndex]!;
-      if (lines.isEmpty) continue;
-      lines.sort((a, b) => a.ingredient.name.toLowerCase().compareTo(b.ingredient.name.toLowerCase()));
-
-      if (wroteSection) buffer.writeln();
-      wroteSection = true;
-      String header = _tripLabel(trip: trip, trips: trips);
-      buffer.writeln(header);
-      buffer.writeln("-" * header.length);
-      for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
-        _appendIngredientLines(
-          buffer: buffer,
-          ingredient: line.ingredient,
-          remaining: line.allocation.quantities,
-          freezeOnArrival: line.allocation.freezeOnArrival,
-        );
-      }
-    }
-
-    return buffer.toString().trimRight();
-  }
-
-  void _appendIngredientLines({
-    required StringBuffer buffer,
-    required Ingredient ingredient,
-    required List<Quantity> remaining,
-    bool freezeOnArrival = false,
-  }) {
-    buffer.write(buildIngredientCopyLines(ingredient: ingredient, remaining: remaining, freezeOnArrival: freezeOnArrival));
+    return (ingredients: ingredients, remainingByIngredientId: remainingByIngredientId);
   }
 
   List<ShoppingTrip> _planTrips() {
@@ -322,89 +276,4 @@ class _ShoppingPageState extends State<ShoppingPage> {
       assumeFreezerForFreezable: _useFreezerStrategy,
     );
   }
-}
-
-/// Builds the copied shopping-list text for one ingredient (one trip's worth of [remaining]).
-///
-/// Pure: takes the ingredient and its still-needed quantities, returns the lines as text
-/// (empty when nothing is needed). Amounts are rounded to whole units so sub-1-unit residuals
-/// drop out instead of rendering as "0 teaspoons".
-///
-/// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
-/// product's solo count: a product the mix does not pick is not listed. Where that mix contains
-/// two or more equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the
-/// same size), the group's packs are spread one-of-each via [distributeEquivalentPacks] (issue
-/// #27), so identical variants list as "one of each" instead of all packs on one variant. A
-/// variant that ends up with 0 packs is skipped.
-String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
-  StringBuffer buffer = StringBuffer();
-
-  List<Quantity> rounded = remaining.map((Quantity q) => Quantity(amount: q.amount.roundToDouble(), unit: q.unit)).toList();
-  if (!rounded.any((q) => q.amount > 0)) return "";
-
-  String freezeSuffix = freezeOnArrival ? " (freeze on arrival)" : "";
-
-  if (ingredient.products.isEmpty) {
-    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-    return buffer.toString();
-  }
-
-  Quantity? primaryRemaining = rounded.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
-  if (primaryRemaining == null) {
-    // No matching product unit -> fall back to raw amount line.
-    String amounts = rounded.where((q) => q.amount > 0).map((q) => "${q.amount.toFormattedAmount()} ${q.unit.name}").join(" + ");
-    buffer.writeln("${ingredient.name}: $amounts$freezeSuffix");
-    return buffer.toString();
-  }
-
-  buffer.writeln("${ingredient.name}$freezeSuffix");
-
-  // Products matching the primary unit, in configured order.
-  List<Product> matching = ingredient.products.where((Product p) => p.unit == primaryRemaining.unit).toList();
-
-  // Pick the waste-minimal mix of packs for this amount (issue #26): the copy shows that mix, not
-  // every product's solo count. Events are empty: each trip is already a shelf-life-safe bucket, so
-  // the mix only needs to minimize pack-granularity over-buy for the amount bought on this trip.
-  CombinationRecommendation? combination = recommendCombination(
-    totalNeeded: primaryRemaining.amount,
-    events: const [],
-    ingredient: ingredient,
-    products: matching,
-  );
-  if (combination == null) return buffer.toString();
-
-  // Total packs the mix buys per equivalence group. Equivalent variants share one key, so the
-  // solver may load them all onto one representative; summing per key recovers the group's total.
-  Map<String, int> packsByKey = {};
-  for (PackSelection selection in combination.selections) {
-    String key = productEquivalenceKey(selection.product);
-    packsByKey[key] = (packsByKey[key] ?? 0) + selection.packs;
-  }
-
-  // Spread each group's packs one-of-each across its equivalent variants (issue #27), so identical
-  // variants in the recommendation list as "one of each" instead of all packs on one variant.
-  Map<String, List<int>> sharesByKey = {};
-  Map<String, int> cursorByKey = {};
-  Map<String, List<Product>> groups = {};
-  for (Product product in matching) {
-    groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
-  }
-  for (MapEntry<String, List<Product>> group in groups.entries) {
-    int total = packsByKey[group.key] ?? 0;
-    sharesByKey[group.key] = distributeEquivalentPacks(totalPacks: total, groupSize: group.value.length);
-  }
-
-  for (Product product in matching) {
-    String key = productEquivalenceKey(product);
-    int cursor = cursorByKey[key] ?? 0;
-    cursorByKey[key] = cursor + 1;
-    int packs = sharesByKey[key]![cursor];
-    if (packs <= 0) continue;
-    String label = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
-    String packWord = packs == 1 ? "pack" : "packs";
-    buffer.writeln("  $label: $packs $packWord");
-  }
-
-  return buffer.toString();
 }

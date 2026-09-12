@@ -179,7 +179,11 @@ List<_PlanEvent> _buildPlanEvents({
     for (CookingEvent event in events) {
       for (Quantity quantity in event.quantities) {
         double remainingNeed = consumer == null ? quantity.amount : consumer.consumeRemaining(quantity);
-        if (remainingNeed <= 0) continue;
+        // The same threshold that roundNeededAmount applies for the page. The subtraction runs on
+        // doubles and crosses unit conversions, so a fully covered need leaves a tiny residue (for
+        // example 0.01 g). Without this margin that residue would plan a whole shopping trip for an
+        // ingredient that the page shows as covered.
+        if (remainingNeed <= negligibleNeed) continue;
 
         // Any-match across same-unit variants: the user can pick the longest-shelf-life
         // and/or freezable variant at the store, so the planner uses the most permissive

@@ -371,9 +371,13 @@ void main() {
       });
 
       test("rounds and omits if result is integer", () {
-        // toStringAsFixed(1) rounds 3.999 to "4.0", then toInt() returns 3 (truncation)
-        // So the code returns "3" because this % 1 != 0 but toInt() truncates
-        expect(3.999.toStringWithDecimalsIfNotInteger(desiredDecimals: 1), "3");
+        // toStringAsFixed(1) rounds 3.999 to "4.0", so the whole-number result is 4, not 3.
+        expect(3.999.toStringWithDecimalsIfNotInteger(desiredDecimals: 1), "4");
+      });
+
+      test("rounds a value below one up to one", () {
+        // A truncating version printed "0" here and lost the whole amount.
+        expect(0.999.toStringWithDecimalsIfNotInteger(), "1");
       });
 
       test("handles zero", () {

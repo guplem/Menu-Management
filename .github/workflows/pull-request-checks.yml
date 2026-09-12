@@ -1,15 +1,15 @@
 name: Pull request checks
 
 # Runs the format check, static analysis, and the test suite on every pull
-# request targeting main and on pushes to main. The repo ruleset
-# "Requirements for merge" requires the analyze-and-test check, so a PR
-# cannot merge unless this passes. Generated *.freezed.dart / *.g.dart files
-# are committed, so no build_runner step is needed here.
+# request, whatever branch the pull request targets, and on pushes to main.
+# A stacked pull request targets the branch below it, not main, so a filter on
+# the target branch would leave it with no check at all. The repo ruleset
+# "Requirements for merge" requires the analyze-and-test check, so a pull
+# request cannot merge unless this passes. Generated *.freezed.dart / *.g.dart
+# files are committed, so no build_runner step is needed here.
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     branches:
       - main

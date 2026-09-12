@@ -5,7 +5,6 @@ import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
-import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
@@ -207,24 +206,11 @@ class _PlayRecipePageState extends State<PlayRecipePage> {
     return leave ?? false;
   }
 
-  String _formatUnit(Unit unit) {
-    switch (unit) {
-      case Unit.grams:
-        return "g";
-      case Unit.centiliters:
-        return "cl";
-      case Unit.pieces:
-        return "pcs";
-      case Unit.tablespoons:
-        return "tbsp";
-      case Unit.teaspoons:
-        return "tsp";
-    }
-  }
-
+  /// Scales one serving of the recipe to the servings that the user cooks, then writes it with
+  /// the short unit name. The markdown export scales and writes the same way, so both screens
+  /// always show the same number.
   String _formatQuantity(Quantity quantity) {
-    final double adjusted = quantity.amount * _servings;
-    return "${adjusted.toStringWithDecimalsIfNotInteger()} ${_formatUnit(quantity.unit)}";
+    return quantity.scaledBy(_servings).toDisplayText(abbreviateUnit: true);
   }
 
   @override

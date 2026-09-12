@@ -9,6 +9,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/menu_configuration.dart";
+import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
@@ -35,9 +36,65 @@ Meal _meal({WeekDay weekDay = WeekDay.saturday, MealType mealType = MealType.lun
   );
 }
 
+// A recipe that uses one ingredient in two units and comes back to the first unit. The
+// order of the quantities reaches the shopping table, which joins them with " + ", so both
+// methods must keep the order of the recipe: the first unit first.
+Recipe _mixedUnitRecipe() {
+  return _recipe(
+    id: "r1",
+    name: "Salad",
+    instructions: [
+      const Instruction(
+        id: "i1",
+        description: "step",
+        ingredientsUsed: [
+          IngredientUsage(
+            ingredient: "tomato",
+            quantity: Quantity(amount: 100, unit: Unit.grams),
+          ),
+          IngredientUsage(
+            ingredient: "tomato",
+            quantity: Quantity(amount: 2, unit: Unit.pieces),
+          ),
+          IngredientUsage(
+            ingredient: "tomato",
+            quantity: Quantity(amount: 20, unit: Unit.grams),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
 /// Builds the day labels of one week the same way MultiWeekMenu builds them.
 Map<WeekDay, String> _dayLabels({DateTime? startDate, int weekIndex = 0}) {
   return {for (WeekDay weekDay in WeekDay.values) weekDay: menuDayLabel(startDate: startDate, weekIndex: weekIndex, weekDay: weekDay)};
+}
+
+/// Builds the servings of every cook event of one week through the public API of MultiWeekMenu.
+///
+/// The production caller is `MultiWeekMenu.toStringBeautified`, which reads
+/// [MultiWeekMenu.servingsForCookEvent]. This helper reads the same method, so it respects
+/// `maxStorageDays` and the day order exactly as production does. It never reimplements the count.
+///
+/// [recipes] must hold every recipe of [menu], because servingsForCookEvent reads maxStorageDays
+/// from the recipe. A missing recipe gives a storage window of zero days.
+Map<(MealTime, int), int> _cookServings(Menu menu, {required List<Recipe> recipes}) {
+  MultiWeekMenu multiWeek = MultiWeekMenu(weeks: [menu]);
+  Map<(MealTime, int), int> servings = {};
+  for (Meal meal in menu.meals) {
+    for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
+      Cooking? cooking = meal.subMeals[subMealIndex].cooking;
+      if (cooking == null || cooking.yield <= 0) continue;
+      servings[(meal.mealTime, subMealIndex)] = multiWeek.servingsForCookEvent(
+        cookWeekIndex: 0,
+        cookMealTime: meal.mealTime,
+        subMealIndex: subMealIndex,
+        recipes: recipes,
+      );
+    }
+  }
+  return servings;
 }
 
 void main() {
@@ -763,6 +820,15 @@ void main() {
         const Menu menu = Menu(meals: []);
         expect(menu.allIngredients(recipes: []), isEmpty);
       });
+
+      test("keeps the unit order of the recipe when one ingredient uses two units", () {
+        Recipe recipe = _mixedUnitRecipe();
+        Menu menu = Menu(meals: [_meal(recipe: recipe, yield: 1, people: 1)]);
+
+        List<Quantity> tomato = menu.allIngredients(recipes: [recipe])["tomato"]!;
+
+        expect(tomato, const [Quantity(amount: 120, unit: Unit.grams), Quantity(amount: 2, unit: Unit.pieces)]);
+      });
     });
 
     group("ingredientSources", () {
@@ -946,6 +1012,17 @@ void main() {
         const Menu menu = Menu(meals: []);
         expect(menu.ingredientSources(recipes: []), isEmpty);
       });
+
+      test("keeps the unit order of the recipe when one ingredient uses two units", () {
+        // Same pin as allIngredients: the shopping table joins these with " + ", so a later
+        // refactor must not flip the order.
+        Recipe recipe = _mixedUnitRecipe();
+        Menu menu = Menu(meals: [_meal(recipe: recipe, yield: 1, people: 1)]);
+
+        IngredientSource source = menu.ingredientSources(recipes: [recipe])["tomato"]!.single;
+
+        expect(source.perServingQuantities, const [Quantity(amount: 120, unit: Unit.grams), Quantity(amount: 2, unit: Unit.pieces)]);
+      });
     });
 
     // Parity tests pinning the shared selection/dedup/people-summing behavior of allIngredients and
@@ -1042,7 +1119,11 @@ void main() {
         Menu menu = Menu(
           meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
         );
-        String output = menu.toStringBeautified(recipes: recipes, dayLabels: _dayLabels());
+        String output = menu.toStringBeautified(
+          recipes: recipes,
+          dayLabels: _dayLabels(),
+          cookServings: _cookServings(menu, recipes: [recipe]),
+        );
         expect(output.contains("Saturday"), true);
         expect(output.contains("Sunday"), true);
         expect(output.contains("Friday"), true);
@@ -1056,6 +1137,7 @@ void main() {
         String output = menu.toStringBeautified(
           recipes: [recipe],
           dayLabels: _dayLabels(startDate: DateTime(2025, 8, 6)),
+          cookServings: _cookServings(menu, recipes: [recipe]),
         );
         expect(output.contains("Wednesday 6 Aug"), true);
       });
@@ -1069,24 +1151,175 @@ void main() {
         );
         Map<WeekDay, String> partialLabels = <WeekDay, String>{WeekDay.saturday: "Saturday"};
 
-        expect(() => menu.toStringBeautified(recipes: [recipe], dayLabels: partialLabels), throwsA(isA<TypeError>()));
-      });
-
-      test("shows dash for missing meals", () {
-        const Menu menu = Menu(meals: []);
-        String output = menu.toStringBeautified(recipes: [], dayLabels: _dayLabels());
-        expect(output.contains("-"), true);
-      });
-
-      test("shows recipe name and yield for assigned meals", () {
-        Recipe recipe = _recipe(name: "Pasta");
-        List<Recipe> recipes = [recipe];
-        Menu menu = Menu(
-          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2)],
+        expect(
+          () => menu.toStringBeautified(
+            recipes: [recipe],
+            dayLabels: partialLabels,
+            cookServings: _cookServings(menu, recipes: [recipe]),
+          ),
+          throwsA(isA<TypeError>()),
         );
-        String output = menu.toStringBeautified(recipes: recipes, dayLabels: _dayLabels());
-        expect(output.contains("Pasta"), true);
-        expect(output.contains("2 pp"), true);
+      });
+
+      test("throws when a cook event has no servings", () {
+        // Same rule as the day labels: a partial map is a mistake of the caller.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe)],
+        );
+
+        expect(() => menu.toStringBeautified(recipes: [recipe], dayLabels: _dayLabels(), cookServings: const {}), throwsA(isA<TypeError>()));
+      });
+
+      test("shows a dash in all 21 slots of a menu without meals", () {
+        const Menu menu = Menu(meals: []);
+
+        String output = menu.toStringBeautified(recipes: [], dayLabels: _dayLabels(), cookServings: const {});
+
+        List<String> mealLines = output.split("\n").where((String line) => line.startsWith("  ")).toList();
+        expect(mealLines.length, 21);
+        expect(mealLines.toSet(), {"  Breakfast: -", "  Lunch: -", "  Dinner: -"});
+      });
+
+      test("names a deleted recipe with a dash and still promises the servings", () {
+        // ADR 0016 allows a menu that still points at a deleted recipe. The text must not hide
+        // the cook event, because the user has to see which meal lost its dish.
+        Menu menu = const Menu(
+          meals: [
+            Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [SubMeal(cooking: Cooking(recipeId: "deleted", yield: 2), people: 2)],
+            ),
+          ],
+        );
+
+        String output = menu.toStringBeautified(
+          recipes: const [],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 4},
+        );
+
+        expect(output.contains("Lunch: - [2p] (cook 4 servings)"), true);
+      });
+
+      test("keeps the people count of a sub-meal without a recipe in a shared slot", () {
+        // A slot where two people have nothing to eat is exactly the gap the text must surface.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = const Menu(
+          meals: [
+            Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [
+                SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 3),
+                SubMeal(people: 2),
+              ],
+            ),
+          ],
+        );
+
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 3},
+        );
+
+        expect(output.contains("1. Pasta [3p] (cook 3 servings)"), true);
+        expect(output.contains("2. - [2p]"), true);
+      });
+
+      test("writes only a dash for a slot that holds one sub-meal without a recipe", () {
+        Menu menu = const Menu(
+          meals: [
+            Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [SubMeal(people: 2)],
+            ),
+          ],
+        );
+
+        String output = menu.toStringBeautified(recipes: const [], dayLabels: _dayLabels(), cookServings: const {});
+
+        expect(output.contains("Lunch: -\n"), true);
+        expect(output.contains("Lunch: - ["), false);
+      });
+
+      test("says the meal is cooked and how many servings it makes", () {
+        // The servings come from the caller, which counts the leftover meals the cook event feeds.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, yield: 2, people: 3)],
+        );
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 6},
+        );
+
+        expect(output.contains("Lunch: Pasta [3p] (cook 6 servings)"), true);
+      });
+
+      test("writes one serving in the singular", () {
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, people: 1)],
+        );
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 1},
+        );
+
+        expect(output.contains("(cook 1 serving)"), true);
+      });
+
+      test("says the meal eats leftovers instead of printing zero servings", () {
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.sunday, mealType: MealType.dinner, recipe: recipe, yield: 0, people: 2)],
+        );
+        String output = menu.toStringBeautified(recipes: [recipe], dayLabels: _dayLabels(), cookServings: const {});
+
+        expect(output.contains("Dinner: Pasta [2p] (leftovers)"), true);
+        expect(output.contains("0 pp"), false);
+      });
+
+      test("shows the people count of a slot that holds a single sub-meal", () {
+        // The old text showed the people count only for slots with two or more sub-meals.
+        Recipe recipe = _recipe(name: "Pasta");
+        Menu menu = Menu(
+          meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: recipe, people: 4)],
+        );
+        String output = menu.toStringBeautified(
+          recipes: [recipe],
+          dayLabels: _dayLabels(),
+          cookServings: _cookServings(menu, recipes: [recipe]),
+        );
+
+        expect(output.contains("[4p]"), true);
+      });
+
+      test("shows the people count and the cook wording of every sub-meal of a shared slot", () {
+        Recipe pasta = _recipe(id: "r1", name: "Pasta");
+        Recipe salad = _recipe(id: "r2", name: "Salad");
+        Menu menu = Menu(
+          meals: [
+            const Meal(
+              mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+              subMeals: [
+                SubMeal(cooking: Cooking(recipeId: "r1", yield: 1), people: 2),
+                SubMeal(cooking: Cooking(recipeId: "r2", yield: 0), people: 1),
+              ],
+            ),
+          ],
+        );
+        String output = menu.toStringBeautified(
+          recipes: [pasta, salad],
+          dayLabels: _dayLabels(),
+          cookServings: {(const MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch), 0): 2},
+        );
+
+        expect(output.contains("1. Pasta [2p] (cook 2 servings)"), true);
+        expect(output.contains("2. Salad [1p] (leftovers)"), true);
       });
     });
   });

@@ -64,7 +64,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 771 tests across 30 files |
+| Run all tests | `cd menu_management && flutter test test/` | 824 tests across 31 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -121,6 +121,8 @@ All changes must follow red-green TDD:
 Tests live in `menu_management/test/`. Run with `cd menu_management && flutter test test/<file>.dart`.
 
 This applies to new features, bug fixes, and refactors. Do not write production code without a failing test driving it.
+
+**A test must fail when the behavior breaks.** Assert the full expected output, never a substring, an index comparison (`indexOf(a) < indexOf(b)` passes when a line is missing), or a value compared with itself.
 
 CI runs the format check, `flutter analyze`, and the full test suite on every PR (see Git Workflow); the repo ruleset "Requirements for merge" blocks merging until the `analyze-and-test` check is green.
 

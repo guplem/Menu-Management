@@ -3,7 +3,9 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
-import "package:menu_management/shopping/shopping_page.dart";
+import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
+import "package:menu_management/shopping/shopping_copy_text.dart";
 
 // 500 grams per pack (2 items x 250 grams). Different links -> variety variants of the same size.
 Product _equivProduct(String link) => Product(link: link, quantityPerItem: 250, itemsPerPack: 2, unit: Unit.grams);
@@ -53,6 +55,167 @@ void main() {
 
       expect(text.contains("2x250grams: 1 pack"), isTrue);
       expect(text.contains("3x250grams: 1 pack"), isTrue);
+    });
+
+    test("lists the one unit that the page already rounded a sub-unit need up to", () {
+      // A pinch of salt is still on the shopping list. computeRemainingQuantities rounds 0.4
+      // teaspoons up to 1 before the copy runs, so this function only writes the whole number.
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+
+      String text = buildIngredientCopyLines(
+        ingredient: salt,
+        remaining: [Quantity(amount: roundNeededAmount(0.4), unit: Unit.teaspoons)],
+      );
+
+      expect(text, "Salt: 1 teaspoons\n");
+    });
+
+    test("writes nothing for an ingredient that the user already owns", () {
+      Ingredient salt = const Ingredient(id: "salt", name: "Salt");
+
+      String text = buildIngredientCopyLines(
+        ingredient: salt,
+        remaining: const [Quantity(amount: 0, unit: Unit.teaspoons)],
+      );
+
+      expect(text, "");
+    });
+  });
+
+  group("copy text ingredient order", () {
+    // Four ingredients with no products, given in an order that is not alphabetical. The mixed
+    // upper and lower case proves the sort ignores case.
+    List<Ingredient> unsortedIngredients() => const [
+      Ingredient(id: "zucchini", name: "zucchini"),
+      Ingredient(id: "apple", name: "Apple"),
+      Ingredient(id: "banana", name: "banana"),
+      Ingredient(id: "carrot", name: "Carrot"),
+    ];
+
+    Map<String, List<Quantity>> remainingPerIngredient() => const {
+      "zucchini": [Quantity(amount: 200, unit: Unit.grams)],
+      "apple": [Quantity(amount: 100, unit: Unit.grams)],
+      "banana": [Quantity(amount: 300, unit: Unit.grams)],
+      "carrot": [Quantity(amount: 400, unit: Unit.grams)],
+    };
+
+    List<String> expectedLines() => const ["Apple: 100 grams", "banana: 300 grams", "Carrot: 400 grams", "zucchini: 200 grams"];
+
+    List<ShoppingTrip> singleTrip() => const [
+      ShoppingTrip(
+        weekIndex: 0,
+        items: [
+          TripItem(ingredientId: "zucchini", amount: 200, unit: Unit.grams),
+          TripItem(ingredientId: "apple", amount: 100, unit: Unit.grams),
+          TripItem(ingredientId: "banana", amount: 300, unit: Unit.grams),
+          TripItem(ingredientId: "carrot", amount: 400, unit: Unit.grams),
+        ],
+      ),
+    ];
+
+    test("the single list writes every ingredient once, sorted by name", () {
+      String text = buildSingleListCopyText(ingredients: unsortedIngredients(), remainingByIngredientId: remainingPerIngredient());
+
+      expect(text.split("\n"), expectedLines());
+    });
+
+    test("the per-trip list writes every ingredient once under its trip header, sorted by name", () {
+      String text = buildMultiTripCopyText(
+        ingredients: unsortedIngredients(),
+        remainingByIngredientId: remainingPerIngredient(),
+        trips: singleTrip(),
+        tripLabel: (ShoppingTrip trip) => "Week ${trip.weekIndex}",
+      );
+
+      expect(text.split("\n"), ["Week 0", "------", ...expectedLines()]);
+    });
+
+    test("both paths order the same menu the same way", () {
+      // One menu must never produce two different ingredient orders.
+      String single = buildSingleListCopyText(ingredients: unsortedIngredients(), remainingByIngredientId: remainingPerIngredient());
+      String perTrip = buildMultiTripCopyText(
+        ingredients: unsortedIngredients(),
+        remainingByIngredientId: remainingPerIngredient(),
+        trips: singleTrip(),
+        tripLabel: (ShoppingTrip trip) => "Week ${trip.weekIndex}",
+      );
+
+      // Only a top-level line names an ingredient. A pack line starts with two spaces.
+      List<String> namesOf(String text) => text
+          .split("\n")
+          .where((String line) => !line.startsWith(" ") && line.contains(":"))
+          .map((String line) => line.split(":").first.trim())
+          .toList();
+
+      expect(namesOf(single), const ["Apple", "banana", "Carrot", "zucchini"]);
+      expect(namesOf(perTrip), namesOf(single));
+    });
+
+    test("writes the same per-trip packs the page shows", () {
+      // Pairs with "splits the page total the same way the copied list splits it" in
+      // shopping_ingredient_test. Both read distributeRemainingAcrossTrips, so the numbers match.
+      Ingredient beans = const Ingredient(
+        id: "beans",
+        name: "Beans",
+        products: [Product(link: "", quantityPerItem: 50, itemsPerPack: 2, unit: Unit.grams)],
+      );
+
+      String text = buildMultiTripCopyText(
+        ingredients: [beans],
+        remainingByIngredientId: const {
+          "beans": [Quantity(amount: 600, unit: Unit.grams)],
+        },
+        trips: const [
+          ShoppingTrip(
+            weekIndex: 0,
+            items: [TripItem(ingredientId: "beans", amount: 500, unit: Unit.grams)],
+          ),
+          ShoppingTrip(
+            weekIndex: 1,
+            items: [TripItem(ingredientId: "beans", amount: 100, unit: Unit.grams)],
+          ),
+        ],
+        tripLabel: (ShoppingTrip trip) => "Week ${trip.weekIndex}",
+      );
+
+      expect(text.split("\n"), const ["Week 0", "------", "Beans", "  2x50grams: 5 packs", "", "Week 1", "------", "Beans", "  2x50grams: 1 pack"]);
+    });
+
+    test("the name filter of the order test does not count a pack line as a name", () {
+      // Guards the namesOf helper above: a product line is indented and must not read as a name.
+      Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("a")]);
+
+      String text = buildSingleListCopyText(
+        ingredients: [pizza],
+        remainingByIngredientId: const {
+          "pizza": [Quantity(amount: 500, unit: Unit.grams)],
+        },
+      );
+
+      expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack"]);
+    });
+  });
+
+  group("remainingForCopy", () {
+    test("returns the amounts that the map holds for the ingredient", () {
+      const Ingredient salt = Ingredient(id: "salt", name: "Salt");
+
+      List<Quantity> remaining = remainingForCopy(
+        ingredient: salt,
+        remainingByIngredientId: const {
+          "salt": [Quantity(amount: 2, unit: Unit.teaspoons)],
+        },
+      );
+
+      expect(remaining, const [Quantity(amount: 2, unit: Unit.teaspoons)]);
+    });
+
+    test("reads an ingredient with no key as covered, and does not throw", () {
+      // The copy button must never crash on a map gap. The warning goes to the log; the caller
+      // gets an empty list, so the ingredient copies as covered.
+      const Ingredient salt = Ingredient(id: "salt", name: "Salt");
+
+      expect(remainingForCopy(ingredient: salt, remainingByIngredientId: const {}), isEmpty);
     });
   });
 }

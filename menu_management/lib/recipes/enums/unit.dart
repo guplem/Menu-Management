@@ -11,4 +11,20 @@ enum Unit {
   factory Unit.fromValue(int value) {
     return Unit.values.firstWhere((x) => x.value == value);
   }
+
+  /// Short name of the unit, for places with little room such as the cook mode step list.
+  String get abbreviation {
+    switch (this) {
+      case Unit.grams:
+        return "g";
+      case Unit.centiliters:
+        return "cl";
+      case Unit.pieces:
+        return "pcs";
+      case Unit.tablespoons:
+        return "tbsp";
+      case Unit.teaspoons:
+        return "tsp";
+    }
+  }
 }

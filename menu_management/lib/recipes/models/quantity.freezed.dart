@@ -209,8 +209,8 @@ return $default(_that.amount,_that.unit);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _Quantity implements Quantity {
-  const _Quantity({required this.amount, required this.unit});
+class _Quantity extends Quantity {
+  const _Quantity({required this.amount, required this.unit}): super._();
   factory _Quantity.fromJson(Map<String, dynamic> json) => _$QuantityFromJson(json);
 
 @override final  double amount;

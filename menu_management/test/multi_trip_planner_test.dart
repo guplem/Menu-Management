@@ -276,6 +276,25 @@ void main() {
       expect(trips.first.items.first.unit, Unit.grams);
     });
 
+    test("a negligible conversion residue plans no trip", () {
+      // 3 pieces of 33.33 g cover 99.99 g of a 100 g need. The 0.01 g left is arithmetic noise,
+      // not food to buy. The page rounds that residue to 0, so the planner must plan no trip.
+      // A trip here would put an empty section in the copied list and send the user to the shop
+      // for nothing.
+      Ingredient banana = _ingredient(id: "banana", gramsPerPiece: 33.33);
+      Map<String, List<CookingEvent>> timeline = {
+        "banana": [_event(day: 0, amount: 100, unit: Unit.grams)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [banana],
+        ownedAmounts: const {"banana": OwnedStock(amount: 3, unit: Unit.pieces)},
+      );
+
+      expect(trips, isEmpty);
+    });
+
     test("owned amount in a different unit subtracts via density conversion", () {
       // Recipe uses 100 centiliters; owned is 400 grams; density = 0.8.
       // 400 g -> 50 cl, so the trip lists 50 cl.

@@ -5,6 +5,7 @@ import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/result.dart";
 
 part "recipe.freezed.dart";
@@ -74,6 +75,22 @@ abstract class Recipe with _$Recipe {
       }
     }
     return true;
+  }
+
+  /// Returns what one serving of this recipe needs, keyed by ingredient id.
+  ///
+  /// The instructions hold the amounts, so one ingredient can appear in two instructions and in
+  /// two units. This method adds the amounts of one unit together and keeps a separate quantity
+  /// for each other unit. It is the one place that merges the usages of a recipe, so the shopping
+  /// list and the per-meal breakdown can never split an ingredient in two different ways.
+  Map<String, List<Quantity>> perServingQuantities() {
+    Map<String, List<Quantity>> perServing = {};
+    for (Instruction instruction in instructions) {
+      for (IngredientUsage usage in instruction.ingredientsUsed) {
+        addQuantityInto(perServing.putIfAbsent(usage.ingredient, () => <Quantity>[]), usage.quantity);
+      }
+    }
+    return perServing;
   }
 
   /// Returns a copy of this recipe with every usage of [ingredientId] removed from all instructions.
