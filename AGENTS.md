@@ -65,7 +65,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 950 tests across 37 files |
+| Run all tests | `cd menu_management && flutter test test/` | 954 tests across 37 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -221,6 +221,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 - `*.g.dart` and `*.freezed.dart` are committed to the repo (no build step in CI).
 - The `flutter_essentials/` library is a local package inside `lib/`, not a separate pub package.
 - Platform target is desktop-first. Mobile platforms have limited save/load support.
+- CI installs the latest stable Flutter and pins no version, on purpose. When `flutter analyze` or a test compile fails on code that `main` already merged with a green check, your local SDK is too old. Run `flutter upgrade`. Never change the code to fit an old SDK.
 - To add days to a calendar date, use the `DateTime(year, month, day + n)` constructor, never `add(Duration(days: n))`. A `Duration` counts hours, so it drifts by one hour at each daylight-saving change and can land on the wrong calendar day.
 
 ## Git Workflow

@@ -1,5 +1,9 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_provider.dart";
+import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
 import "package:menu_management/recipes/models/instruction.dart";
@@ -433,6 +437,29 @@ void main() {
         expect(RecipesProvider.instance.recipes.length, 2);
         expect(RecipesProvider.instance.recipes.first.id, "new1");
       });
+    });
+  });
+
+  // ── MenuProvider ──
+
+  group("MenuProvider default configurations", () {
+    int availableMinutesFor(WeekDay weekDay, MealType mealType) {
+      MenuConfiguration configuration = MenuProvider.instance.configurations.firstWhere(
+        (MenuConfiguration config) => config.mealTime.weekDay == weekDay && config.mealTime.mealType == mealType,
+      );
+      return configuration.availableCookingTimeMinutes;
+    }
+
+    test("covers every meal of every week day once", () {
+      expect(MenuProvider.instance.configurations.length, WeekDay.values.length * MealType.values.length);
+    });
+
+    test("Saturday dinner allows 25 minutes", () {
+      expect(availableMinutesFor(WeekDay.saturday, MealType.dinner), 25);
+    });
+
+    test("Friday dinner allows 15 minutes", () {
+      expect(availableMinutesFor(WeekDay.friday, MealType.dinner), 15);
     });
   });
 }
