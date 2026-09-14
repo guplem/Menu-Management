@@ -35,7 +35,7 @@ class MenuProvider extends ChangeNotifier {
     ),
     const MenuConfiguration(
       mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner),
-      availableCookingTimeMinutes: 60,
+      availableCookingTimeMinutes: 25,
       requiresMeal: true,
     ),
     // SUNDAY
@@ -131,7 +131,7 @@ class MenuProvider extends ChangeNotifier {
     ),
     const MenuConfiguration(
       mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.dinner),
-      availableCookingTimeMinutes: 10,
+      availableCookingTimeMinutes: 15,
       requiresMeal: true,
     ),
   ];
