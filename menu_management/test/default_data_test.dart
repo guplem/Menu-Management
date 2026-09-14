@@ -5,7 +5,11 @@ import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/menu/models/cooking.dart";
+import "package:menu_management/menu/enums/meal_type.dart";
+import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -231,6 +235,40 @@ void main() {
       for (Recipe recipe in RecipesProvider.instance.recipes) {
         List<String> ids = recipe.instructions.map((i) => i.id).toList();
         expect(ids.toSet().length, ids.length, reason: "Recipe '${recipe.name}' has duplicate instruction IDs");
+      }
+    });
+
+    test("no lunch or dinner recipe repeats on two days in a row, including across week boundaries", () async {
+      List<Recipe> recipes = await loadRecipesAndGetList();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
+
+      // Day 0 is week 1 Saturday and day 20 is week 3 Friday, so the last day of a week and the
+      // first day of the next week are next to each other. Breakfasts are left out because the
+      // default menu repeats the same breakfast every weekday on purpose.
+      Map<int, Set<String>> recipeIdsPerDay = {};
+      for (int w = 0; w < menu.weekCount; w++) {
+        for (Meal meal in menu.weeks[w].meals) {
+          if (meal.mealTime.mealType == MealType.breakfast) {
+            continue;
+          }
+          int dayIndex = w * WeekDay.values.length + meal.mealTime.weekDay.value;
+          for (SubMeal subMeal in meal.subMeals) {
+            if (subMeal.cooking != null) {
+              recipeIdsPerDay.putIfAbsent(dayIndex, () => <String>{}).add(subMeal.cooking!.recipeId);
+            }
+          }
+        }
+      }
+
+      Map<String, String> recipeNameById = {for (Recipe recipe in recipes) recipe.id: recipe.name};
+      int lastDayIndex = menu.weekCount * WeekDay.values.length - 1;
+      for (int day = 0; day < lastDayIndex; day++) {
+        Set<String> repeated = (recipeIdsPerDay[day] ?? <String>{}).intersection(recipeIdsPerDay[day + 1] ?? <String>{});
+        expect(
+          repeated,
+          isEmpty,
+          reason: "Day $day and day ${day + 1} both serve ${repeated.map((String id) => recipeNameById[id] ?? id).join(", ")}",
+        );
       }
     });
 

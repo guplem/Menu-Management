@@ -802,9 +802,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "dde64fa9-379a-4c26-8f3c-98c40f708b16",
+                "recipeId": "53aa9937-9882-45fd-aae3-6b0048d1cde1",
                 "yield": 1,
-                "ref_name": "Sopa maravilla"
+                "ref_name": "Revuelto de huevos con patatas al microondas"
               },
               "people": 2
             }
