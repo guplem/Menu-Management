@@ -237,6 +237,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
           buildText: _buildDetailedCopyText,
           confirmation: "Copied the detailed shopping list to the clipboard.",
         ),
+        ClipboardExportOption(
+          label: "Checklist",
+          description: "One section per shop trip, one line per pack, ready to paste into a checklist app.",
+          buildText: _buildChecklistCopyText,
+          confirmation: "Copied the shopping checklist to the clipboard.",
+        ),
         FileExportOption(
           label: "PDF",
           description: "One section per shop trip, every product with its link, and the meals that need each ingredient.",
@@ -296,6 +302,19 @@ class _ShoppingPageState extends State<ShoppingPage> {
     List<ShoppingTrip> trips = _planTrips();
     ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
     return buildMultiTripCopyText(
+      ingredients: input.ingredients,
+      remainingByIngredientId: input.remainingByIngredientId,
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
+    );
+  }
+
+  /// The checklist text: the same trip sections and the same packs as the detailed text, on one
+  /// line per pack and with no store link. A checklist app turns each line into one item.
+  String _buildChecklistCopyText() {
+    List<ShoppingTrip> trips = _planTrips();
+    ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
+    return buildChecklistCopyText(
       ingredients: input.ingredients,
       remainingByIngredientId: input.remainingByIngredientId,
       trips: trips,

@@ -186,7 +186,7 @@ void main() {
   });
 
   group("ShoppingPage export button", () {
-    testWidgets("opens the export dialog with the two text formats and the PDF", (WidgetTester tester) async {
+    testWidgets("opens the export dialog with the three text formats and the PDF", (WidgetTester tester) async {
       await _pumpShoppingPage(tester, _menu());
 
       await tester.tap(find.byTooltip("Export shopping list"));
@@ -195,6 +195,7 @@ void main() {
       expect(find.text("Export shopping list"), findsOneWidget);
       expect(find.text("Simplified"), findsOneWidget);
       expect(find.text("Detailed"), findsOneWidget);
+      expect(find.text("Checklist"), findsOneWidget);
       expect(find.text("PDF"), findsOneWidget);
     });
 
@@ -213,6 +214,12 @@ void main() {
       await _pumpAndCopy(tester, format: "Detailed");
 
       expect(_copiedTexts.single.split("\n"), const ["now", "---", "Rice", "  500 grams/pack: 1 pack", "    https://example.com/rice"]);
+    });
+
+    testWidgets("copies the checklist, with the trip section and one line per pack", (WidgetTester tester) async {
+      await _pumpAndCopy(tester, format: "Checklist");
+
+      expect(_copiedTexts.single.split("\n"), const ["now", "---", "Rice - 500 grams/pack: 1 pack"]);
     });
 
     testWidgets("copies the simplified list, with no trip section and no pack", (WidgetTester tester) async {
