@@ -1942,6 +1942,46 @@
           "shelfLifeDaysClosed": null
         }
       ]
+    },
+    {
+      "id": "7b2c91a0-5f84-1ef0-9cbf-85317f03e969",
+      "name": "Postre Lácteo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/86087/postre-lacteo-con-fruta-hacendado-0-mg-0-sin-azucares-anadidos-2-manzana-2-mango-2-pina-2-fresa-pack-8",
+          "itemsPerPack": 8,
+          "quantityPerItem": 125.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 30
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/21061/natillas-con-chocolate-proteinas-hacendado-13-g-mg-10-g-proteinas-pack-4",
+          "itemsPerPack": 4,
+          "quantityPerItem": 120.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 30
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/86087/postre-lacteo-con-fruta-hacendado-0-mg-0-sin-azucares-anadidos-2-manzana-2-mango-2-pina-2-fresa-pack-8",
+          "itemsPerPack": 8,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 30
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/21061/natillas-con-chocolate-proteinas-hacendado-13-g-mg-10-g-proteinas-pack-4",
+          "itemsPerPack": 4,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 30
+        }
+      ],
+      "density": 1.05,
+      "gramsPerPiece": 125.0
     }
   ],
   "Recipes": [
@@ -2643,7 +2683,7 @@
             {
               "ingredient": "b82ac5f0-7faf-1ec0-9c83-05811f7c00d6",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Pizza (Pre-Made)"
@@ -2656,6 +2696,24 @@
           "inputs": [
             "019fdb40-927d-1e99-9cbf-85317f03e969"
           ]
+        },
+        {
+          "id": "3c1a7d20-5f84-1ef0-9cbf-85317f03e969",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7b2c91a0-5f84-1ef0-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Postre Lácteo"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Serve a dairy dessert",
+          "outputs": [],
+          "inputs": []
         }
       ],
       "carbs": true,
