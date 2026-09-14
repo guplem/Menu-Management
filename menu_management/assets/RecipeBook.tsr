@@ -2643,7 +2643,7 @@
             {
               "ingredient": "b82ac5f0-7faf-1ec0-9c83-05811f7c00d6",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Pizza (Pre-Made)"
