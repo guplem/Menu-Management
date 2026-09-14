@@ -6681,6 +6681,128 @@
       "dinner": false,
       "maxStorageDays": 4,
       "includeInMenuGeneration": true
+    },
+    {
+      "id": "53aa9937-9882-45fd-aae3-6b0048d1cde1",
+      "name": "Revuelto de huevos con patatas al microondas",
+      "instructions": [
+        {
+          "id": "c666a861-8087-4f58-a4fe-2c51697b0277",
+          "ingredientsUsed": [
+            {
+              "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Patata"
+            }
+          ],
+          "workingTimeMinutes": 6,
+          "cookingTimeMinutes": 0,
+          "description": "Pelar las patatas y cortarlas en dados pequeños (de 1 cm aprox., para que se hagan rápido)",
+          "outputs": [
+            {
+              "id": "0f17a5f3-2b5e-4b8e-9c2f-3a1d9e5c4b71",
+              "description": "Patatas peladas y cortadas en dados"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "5f2b8d14-6c39-4a7e-8b52-91d4e0f7a3c6",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "grams"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.2,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            },
+            {
+              "ingredient": "fc2a1cb0-6df8-11ef-bbaf-9d5832b648f8",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimentón/Paprika"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 7,
+          "description": "Poner los dados en un bol con el aceite, la sal, la pimienta y el pimentón. Mezclar, tapar y cocinar en el microondas a máxima potencia. Remover a la mitad del tiempo",
+          "outputs": [
+            {
+              "id": "7c4e1a92-8d63-4f57-b0aa-2e6f1c8d3a55",
+              "description": "Patatas cocinadas al microondas"
+            }
+          ],
+          "inputs": [
+            "0f17a5f3-2b5e-4b8e-9c2f-3a1d9e5c4b71"
+          ]
+        },
+        {
+          "id": "a3d97e08-4b15-4c62-9f83-6e2a5b1d7c40",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.3,
+                "unit": "centiliters"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 3.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "grams"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 4,
+          "description": "Verter las patatas en una sartén con un poco de aceite, cascar los huevos encima y remover a fuego medio hasta que el huevo cuaje y quede revuelto con las patatas",
+          "outputs": [],
+          "inputs": [
+            "7c4e1a92-8d63-4f57-b0aa-2e6f1c8d3a55"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
     }
   ]
 }
