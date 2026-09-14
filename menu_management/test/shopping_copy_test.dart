@@ -495,4 +495,218 @@ void main() {
       expect(text.split("\n"), const ["Pizza", "  2x250grams: 1 pack", ""]);
     });
   });
+
+  group("buildIngredientChecklistLines", () {
+    test("writes the ingredient, the pack size and the pack count on one line, with no link", () {
+      // The reader pastes this text into a checklist app, and each line becomes one item. A link
+      // on its own line would become an item that the reader cannot tick off in a shop.
+      const Ingredient banana = Ingredient(
+        id: "banana",
+        name: "Banana",
+        products: [Product(link: "https://shop.example/banana", quantityPerItem: 1, unit: Unit.pieces)],
+      );
+
+      String text = buildIngredientChecklistLines(
+        ingredient: banana,
+        remaining: const [Quantity(amount: 5, unit: Unit.pieces)],
+      );
+
+      expect(text.split("\n"), const ["Banana - 1 piece/pack: 5 packs", ""]);
+    });
+
+    test("names the product before its pack size, the same way the detailed list does", () {
+      const Ingredient bread = Ingredient(
+        id: "bread",
+        name: "Bread",
+        products: [Product(link: "https://tienda.mercadona.es/product/20559/pan-de-molde-integral", quantityPerItem: 1000, unit: Unit.grams)],
+      );
+
+      String text = buildIngredientChecklistLines(
+        ingredient: bread,
+        remaining: const [Quantity(amount: 1000, unit: Unit.grams)],
+      );
+
+      expect(text.split("\n"), const ["Bread - Pan de molde integral (1,000 grams/pack): 1 pack", ""]);
+    });
+
+    test("writes one line per equivalent variant, so each variant is its own checklist item", () {
+      Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("a"), _equivProduct("b"), _equivProduct("c")]);
+
+      // Need 1500 g -> 3 packs total -> 1 pack per variant.
+      String text = buildIngredientChecklistLines(
+        ingredient: pizza,
+        remaining: const [Quantity(amount: 1500, unit: Unit.grams)],
+      );
+
+      expect(text.split("\n"), const ["Pizza - 2x250grams: 1 pack", "Pizza - 2x250grams: 1 pack", "Pizza - 2x250grams: 1 pack", ""]);
+    });
+
+    test("writes the raw amount for an ingredient with no product", () {
+      const Ingredient salt = Ingredient(id: "salt", name: "Salt");
+
+      String text = buildIngredientChecklistLines(
+        ingredient: salt,
+        remaining: const [Quantity(amount: 2, unit: Unit.teaspoons)],
+      );
+
+      expect(text.split("\n"), const ["Salt: 2 teaspoons", ""]);
+    });
+
+    test("writes the raw amount when no product matches the unit that is left to buy", () {
+      const Ingredient rice = Ingredient(
+        id: "rice",
+        name: "Rice",
+        products: [Product(link: "https://shop.example/rice", quantityPerItem: 500, unit: Unit.grams)],
+      );
+
+      String text = buildIngredientChecklistLines(
+        ingredient: rice,
+        remaining: const [Quantity(amount: 3, unit: Unit.teaspoons)],
+      );
+
+      expect(text.split("\n"), const ["Rice: 3 teaspoons", ""]);
+    });
+
+    test("writes nothing for an ingredient that the user already owns", () {
+      const Ingredient rice = Ingredient(
+        id: "rice",
+        name: "Rice",
+        products: [Product(link: "https://shop.example/rice", quantityPerItem: 500, unit: Unit.grams)],
+      );
+
+      expect(
+        buildIngredientChecklistLines(
+          ingredient: rice,
+          remaining: const [Quantity(amount: 0, unit: Unit.grams)],
+        ),
+        "",
+      );
+    });
+
+    test("puts the freeze note at the end of every pack line", () {
+      // The note rides on the line itself, because that line is the checklist item that the
+      // reader ticks off. A note on a separate header line would be lost in a checklist app.
+      const Ingredient milk = Ingredient(
+        id: "milk",
+        name: "Milk",
+        products: [Product(link: "https://shop.example/milk", quantityPerItem: 500, unit: Unit.grams)],
+      );
+
+      String text = buildIngredientChecklistLines(
+        ingredient: milk,
+        remaining: const [Quantity(amount: 1000, unit: Unit.grams)],
+        freezeOnArrival: true,
+      );
+
+      expect(text.split("\n"), const ["Milk - 500 grams/pack: 2 packs (freeze on arrival)", ""]);
+    });
+
+    test("throws on a fractional amount, the same way the detailed list does", () {
+      const Ingredient rice = Ingredient(id: "rice", name: "Rice");
+
+      expect(
+        () => buildIngredientChecklistLines(
+          ingredient: rice,
+          remaining: const [Quantity(amount: 0.4, unit: Unit.grams)],
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+  });
+
+  group("buildChecklistCopyText", () {
+    test("writes one section per trip, with the same header the detailed list writes", () {
+      const Ingredient banana = Ingredient(
+        id: "banana",
+        name: "Banana",
+        products: [Product(link: "https://shop.example/banana", quantityPerItem: 1, unit: Unit.pieces)],
+      );
+      const Ingredient lettuce = Ingredient(
+        id: "lettuce",
+        name: "Lechuga Iceberg",
+        products: [Product(link: "https://shop.example/lettuce", quantityPerItem: 1, unit: Unit.pieces)],
+      );
+
+      String text = buildChecklistCopyText(
+        ingredients: const [banana, lettuce],
+        remainingByIngredientId: const {
+          "banana": [Quantity(amount: 11, unit: Unit.pieces)],
+          "lettuce": [Quantity(amount: 6, unit: Unit.pieces)],
+        },
+        trips: const [
+          ShoppingTrip(
+            weekIndex: 0,
+            items: [
+              TripItem(ingredientId: "banana", amount: 5, unit: Unit.pieces),
+              TripItem(ingredientId: "lettuce", amount: 2, unit: Unit.pieces),
+            ],
+          ),
+          ShoppingTrip(
+            weekIndex: 1,
+            items: [
+              TripItem(ingredientId: "banana", amount: 6, unit: Unit.pieces),
+              TripItem(ingredientId: "lettuce", amount: 4, unit: Unit.pieces),
+            ],
+          ),
+        ],
+        tripLabel: (ShoppingTrip trip) => trip.weekIndex == 0 ? "Friday 18 Sep" : "Friday 25 Sep",
+      );
+
+      expect(text.split("\n"), const [
+        "Friday 18 Sep",
+        "-------------",
+        "Banana - 1 piece/pack: 5 packs",
+        "Lechuga Iceberg - 1 piece/pack: 2 packs",
+        "",
+        "Friday 25 Sep",
+        "-------------",
+        "Banana - 1 piece/pack: 6 packs",
+        "Lechuga Iceberg - 1 piece/pack: 4 packs",
+      ]);
+    });
+
+    test("writes one flat list with no header when the planner planned no trip", () {
+      const Ingredient banana = Ingredient(
+        id: "banana",
+        name: "Banana",
+        products: [Product(link: "https://shop.example/banana", quantityPerItem: 1, unit: Unit.pieces)],
+      );
+
+      String text = buildChecklistCopyText(
+        ingredients: const [banana],
+        remainingByIngredientId: const {
+          "banana": [Quantity(amount: 3, unit: Unit.pieces)],
+        },
+        trips: const [],
+        tripLabel: (ShoppingTrip trip) => "unused",
+      );
+
+      expect(text.split("\n"), const ["Banana - 1 piece/pack: 3 packs"]);
+    });
+
+    test("sorts the ingredients of each section by name, ignoring case", () {
+      const Ingredient apple = Ingredient(id: "apple", name: "apple");
+      const Ingredient beet = Ingredient(id: "beet", name: "Beet");
+
+      String text = buildChecklistCopyText(
+        ingredients: const [beet, apple],
+        remainingByIngredientId: const {
+          "apple": [Quantity(amount: 1, unit: Unit.pieces)],
+          "beet": [Quantity(amount: 2, unit: Unit.pieces)],
+        },
+        trips: const [
+          ShoppingTrip(
+            weekIndex: 0,
+            items: [
+              TripItem(ingredientId: "apple", amount: 1, unit: Unit.pieces),
+              TripItem(ingredientId: "beet", amount: 2, unit: Unit.pieces),
+            ],
+          ),
+        ],
+        tripLabel: (ShoppingTrip trip) => "Week 0",
+      );
+
+      expect(text.split("\n"), const ["Week 0", "------", "apple: 1 pieces", "Beet: 2 pieces"]);
+    });
+  });
 }

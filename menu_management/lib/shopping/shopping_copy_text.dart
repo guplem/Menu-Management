@@ -1,12 +1,13 @@
 // The shopping side gives each copy format its own builder, while the menu side switches formats
 // with the MenuCopyFormat enum. That difference is deliberate. The two menu formats write the same
 // lines with one extra piece of text, so one function with a flag keeps them in step. The shopping
-// formats write different lines: the simplified one needs neither the trip plan nor the packs.
-// One function with a flag would take parameters that some of its callers must leave empty.
+// formats write different lines: the simplified one needs neither the trip plan nor the packs, and
+// the detailed and the checklist ones write a different shape from the same input. One function
+// with a flag would take parameters that some of its callers must leave empty.
 //
-// A format that reads the same input as the detailed one shares the parts that must never drift
-// apart: the trip sections ([_buildTripSections]) and the pack mix ([shoppingPackSelection]).
-// Only the per-line shape belongs to the format itself.
+// The detailed and the checklist formats read the same input, so they share the parts that must
+// never drift apart: the trip sections ([_buildTripSections]) and the pack mix
+// ([shoppingPackSelection]). Only the per-line shape differs.
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
@@ -18,8 +19,8 @@ import "package:menu_management/shopping/waste_optimizer.dart";
 
 /// Writes the copied text of one ingredient, for one trip's worth of [remaining].
 ///
-/// [buildIngredientCopyLines] matches this shape. The shared builders below take any function of
-/// this shape and write the same sections around it, so a second format only writes its own lines.
+/// [buildIngredientCopyLines] and [buildIngredientChecklistLines] both match this shape, so the
+/// shared builders below take either of them and write the same sections around it.
 typedef IngredientLinesBuilder = String Function({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival});
 
 /// Sorts the ingredients of the copied list by name, ignoring upper and lower case.
@@ -163,7 +164,7 @@ List<Quantity> remainingForCopy({required Ingredient ingredient, required Map<St
 /// a function that names one trip. Falls back to the single list when there is no trip to plan.
 ///
 /// Each ingredient writes a name line, an indented pack line per pack of the mix, and the store
-/// link under each pack line.
+/// link under each pack line. Use [buildChecklistCopyText] for the flat one-line-per-pack shape.
 String buildMultiTripCopyText({
   required List<Ingredient> ingredients,
   required Map<String, List<Quantity>> remainingByIngredientId,
@@ -176,6 +177,30 @@ String buildMultiTripCopyText({
     trips: trips,
     tripLabel: tripLabel,
     buildLines: buildIngredientCopyLines,
+  );
+}
+
+/// Builds the copied shopping list as a checklist: one line per pack, under one header per trip.
+///
+/// Pure: takes the same input as [buildMultiTripCopyText] and writes the same trip sections, so
+/// both formats split one menu the same way.
+///
+/// The reader pastes this text into a checklist app, which turns each line into one item. Every
+/// line therefore stands on its own: it names the ingredient, the pack and the pack count, and it
+/// carries no indent and no store link. A link on its own line would become an item that the
+/// reader cannot tick off in a shop. Use [buildMultiTripCopyText] when the reader wants the links.
+String buildChecklistCopyText({
+  required List<Ingredient> ingredients,
+  required Map<String, List<Quantity>> remainingByIngredientId,
+  required List<ShoppingTrip> trips,
+  required String Function(ShoppingTrip trip) tripLabel,
+}) {
+  return _buildTripSections(
+    ingredients: ingredients,
+    remainingByIngredientId: remainingByIngredientId,
+    trips: trips,
+    tripLabel: tripLabel,
+    buildLines: buildIngredientChecklistLines,
   );
 }
 
@@ -262,6 +287,37 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
   return buffer.toString();
 }
 
+/// Builds the checklist text for one ingredient (one trip's worth of [remaining]).
+///
+/// Pure, and it takes the same input and holds the same precondition as [buildIngredientCopyLines].
+/// It writes the same pack mix, on one line per pack: "Banana - 1 piece/pack: 5 packs". Each line
+/// is one checklist item, so the ingredient name repeats on every line of the same ingredient and
+/// the store link is left out.
+///
+/// The freeze note rides on each pack line, not on a header line, for the same reason.
+///
+/// An ingredient with no pack to write falls back to the raw amount, for example "Salt: 2
+/// teaspoons". That happens when the ingredient has no product, when no product matches the unit
+/// that is left to buy, and when the pack solver finds no mix. The detailed text writes the bare
+/// ingredient name in that last case; the checklist writes the amount instead, because a checklist
+/// item with no amount tells the reader nothing.
+String buildIngredientChecklistLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
+  assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
+
+  if (!remaining.any((Quantity q) => q.amount > 0)) return "";
+
+  String freezeSuffix = freezeOnArrival ? freezeOnArrivalSuffix : "";
+
+  List<({Product product, int packs})>? selection = shoppingPackSelection(ingredient: ingredient, remaining: remaining);
+  if (selection == null || selection.isEmpty) return "${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix\n";
+
+  StringBuffer buffer = StringBuffer();
+  for (({Product product, int packs}) line in selection) {
+    buffer.writeln("${ingredient.name} - ${productShoppingLabel(line.product)}: ${line.packs} ${_packWord(line.packs)}$freezeSuffix");
+  }
+  return buffer.toString();
+}
+
 /// Names the unit of [packs]: "pack" for one, "packs" for any other count.
 String _packWord(int packs) => packs == 1 ? "pack" : "packs";
 
@@ -277,8 +333,8 @@ String _packWord(int packs) => packs == 1 ? "pack" : "packs";
 /// [distributeEquivalentPacks] (issue #27), so identical variants read as "one of each" instead of
 /// all packs on one variant. A variant that ends up with 0 packs is left out.
 ///
-/// Every format that writes packs calls this, so two formats can never recommend two different
-/// pack mixes for the same ingredient.
+/// The detailed text and the checklist text both call this, so they can never recommend two
+/// different pack mixes for the same ingredient.
 List<({Product product, int packs})>? shoppingPackSelection({required Ingredient ingredient, required List<Quantity> remaining}) {
   if (ingredient.products.isEmpty) return null;
 
