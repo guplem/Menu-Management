@@ -1,9 +1,12 @@
 // The shopping side gives each copy format its own builder, while the menu side switches formats
 // with the MenuCopyFormat enum. That difference is deliberate. The two menu formats write the same
-// lines with one extra piece of text, so one function with a flag keeps them in step. The two
-// shopping formats write different lines from different inputs: the detailed one needs the trip
-// plan and the packs, the simplified one needs neither. One function with a flag would take
-// parameters that half of its callers must leave empty.
+// lines with one extra piece of text, so one function with a flag keeps them in step. The shopping
+// formats write different lines: the simplified one needs neither the trip plan nor the packs.
+// One function with a flag would take parameters that some of its callers must leave empty.
+//
+// A format that reads the same input as the detailed one shares the parts that must never drift
+// apart: the trip sections ([_buildTripSections]) and the pack mix ([shoppingPackSelection]).
+// Only the per-line shape belongs to the format itself.
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
@@ -13,9 +16,15 @@ import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
+/// Writes the copied text of one ingredient, for one trip's worth of [remaining].
+///
+/// [buildIngredientCopyLines] matches this shape. The shared builders below take any function of
+/// this shape and write the same sections around it, so a second format only writes its own lines.
+typedef IngredientLinesBuilder = String Function({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival});
+
 /// Sorts the ingredients of the copied list by name, ignoring upper and lower case.
 ///
-/// Both copy builders call this, so one menu can never produce two different ingredient orders.
+/// Every copy builder calls this, so one menu can never produce two different ingredient orders.
 List<Ingredient> sortIngredientsForCopy(List<Ingredient> ingredients) {
   List<Ingredient> sorted = [...ingredients];
   sorted.sort((Ingredient a, Ingredient b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
@@ -53,7 +62,7 @@ String buildSimplifiedShoppingCopyText({
 }
 
 /// The note that tells the reader to freeze an item on the day of the trip (ADR 0015).
-/// Both copy formats and the PDF write it, so one plan reads the same way in each of them.
+/// Every copy format and the PDF write it, so one plan reads the same way in each of them.
 const String freezeOnArrivalSuffix = " (freeze on arrival)";
 
 /// Fails when an amount is not a whole number of its unit.
@@ -94,7 +103,7 @@ Set<String> computeFreezeOnArrivalIngredientIds({
 
 /// Writes the amounts of one ingredient, for example "500 grams + 2 pieces".
 ///
-/// Both copy formats and the shopping PDF call this, so one ingredient reads the same way in each
+/// Every copy format and the shopping PDF call this, so one ingredient reads the same way in each
 /// of them. It drops every amount that is zero or less, because the user buys none of those.
 String shoppingAmountsText(List<Quantity> remaining) {
   return remaining
@@ -110,10 +119,19 @@ String shoppingAmountsText(List<Quantity> remaining) {
 /// Pure: takes the ingredients and what the user must still buy of each one, keyed by ingredient
 /// id, and returns the text. Used when the planner finds no trip to plan.
 String buildSingleListCopyText({required List<Ingredient> ingredients, required Map<String, List<Quantity>> remainingByIngredientId}) {
+  return _buildFlatList(ingredients: ingredients, remainingByIngredientId: remainingByIngredientId, buildLines: buildIngredientCopyLines);
+}
+
+/// Writes one ingredient after another, sorted by name, with no trip header.
+String _buildFlatList({
+  required List<Ingredient> ingredients,
+  required Map<String, List<Quantity>> remainingByIngredientId,
+  required IngredientLinesBuilder buildLines,
+}) {
   StringBuffer buffer = StringBuffer();
   for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
     buffer.write(
-      buildIngredientCopyLines(
+      buildLines(
         ingredient: ingredient,
         remaining: remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId),
       ),
@@ -144,17 +162,37 @@ List<Quantity> remainingForCopy({required Ingredient ingredient, required Map<St
 /// Pure: takes the ingredients, what the user must still buy of each one, the planned trips, and
 /// a function that names one trip. Falls back to the single list when there is no trip to plan.
 ///
-/// It spreads the on-screen remaining of each ingredient across the trip weeks in the on-screen
-/// unit, so the copied per-trip amounts sum to exactly what the page shows (same unit, no
-/// rounding drift). It buckets the resulting lines by week, then writes the sections in the
-/// trip order of the planner.
+/// Each ingredient writes a name line, an indented pack line per pack of the mix, and the store
+/// link under each pack line.
 String buildMultiTripCopyText({
   required List<Ingredient> ingredients,
   required Map<String, List<Quantity>> remainingByIngredientId,
   required List<ShoppingTrip> trips,
   required String Function(ShoppingTrip trip) tripLabel,
 }) {
-  if (trips.isEmpty) return buildSingleListCopyText(ingredients: ingredients, remainingByIngredientId: remainingByIngredientId);
+  return _buildTripSections(
+    ingredients: ingredients,
+    remainingByIngredientId: remainingByIngredientId,
+    trips: trips,
+    tripLabel: tripLabel,
+    buildLines: buildIngredientCopyLines,
+  );
+}
+
+/// Writes one section per planned trip, and lets [buildLines] shape the lines inside it.
+///
+/// It spreads the on-screen remaining of each ingredient across the trip weeks in the on-screen
+/// unit, so the copied per-trip amounts sum to exactly what the page shows (same unit, no
+/// rounding drift). It buckets the resulting lines by week, then writes the sections in the
+/// trip order of the planner. A section header gets a row of dashes of its own length.
+String _buildTripSections({
+  required List<Ingredient> ingredients,
+  required Map<String, List<Quantity>> remainingByIngredientId,
+  required List<ShoppingTrip> trips,
+  required String Function(ShoppingTrip trip) tripLabel,
+  required IngredientLinesBuilder buildLines,
+}) {
+  if (trips.isEmpty) return _buildFlatList(ingredients: ingredients, remainingByIngredientId: remainingByIngredientId, buildLines: buildLines);
 
   Map<int, List<({Ingredient ingredient, TripAllocation allocation})>> linesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
 
@@ -178,13 +216,7 @@ String buildMultiTripCopyText({
     buffer.writeln(header);
     buffer.writeln("-" * header.length);
     for (({Ingredient ingredient, TripAllocation allocation}) line in lines) {
-      buffer.write(
-        buildIngredientCopyLines(
-          ingredient: line.ingredient,
-          remaining: line.allocation.quantities,
-          freezeOnArrival: line.allocation.freezeOnArrival,
-        ),
-      );
+      buffer.write(buildLines(ingredient: line.ingredient, remaining: line.allocation.quantities, freezeOnArrival: line.allocation.freezeOnArrival));
     }
   }
 
@@ -202,12 +234,8 @@ String buildMultiTripCopyText({
 /// the copied text can never disagree with the page. An `assert` guards the precondition: a
 /// caller that passes a fractional amount fails in development instead of printing "0.40 units".
 ///
-/// The lines show the waste-minimal pack mix from [recommendCombination] (issue #26), not every
-/// product's solo count: a product the mix does not pick is not listed. Where that mix contains
-/// two or more equivalent products (same [productEquivalenceKey], e.g. two pizza flavors of the
-/// same size), the group's packs are spread one-of-each via [distributeEquivalentPacks] (issue
-/// #27), so identical variants list as "one of each" instead of all packs on one variant. A
-/// variant that ends up with 0 packs is skipped.
+/// The lines show the waste-minimal pack mix from [shoppingPackSelection] (issue #26), not every
+/// product's solo count: a product the mix does not pick is not listed.
 String buildIngredientCopyLines({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
   assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
 
@@ -217,33 +245,59 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
 
   String freezeSuffix = freezeOnArrival ? freezeOnArrivalSuffix : "";
 
-  if (ingredient.products.isEmpty) {
-    buffer.writeln("${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix");
-    return buffer.toString();
-  }
-
-  Quantity? primaryRemaining = remaining.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
-  if (primaryRemaining == null) {
-    // No matching product unit -> fall back to raw amount line.
+  List<({Product product, int packs})>? selection = shoppingPackSelection(ingredient: ingredient, remaining: remaining);
+  if (selection == null) {
     buffer.writeln("${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix");
     return buffer.toString();
   }
 
   buffer.writeln("${ingredient.name}$freezeSuffix");
+  for (({Product product, int packs}) line in selection) {
+    buffer.writeln("  ${productShoppingLabel(line.product)}: ${line.packs} ${_packWord(line.packs)}");
+    // The link tells the reader which product to take from the shelf. A product with no link
+    // writes no line, because an empty line helps nobody.
+    if (line.product.link.isNotEmpty) buffer.writeln("    ${line.product.link}");
+  }
+
+  return buffer.toString();
+}
+
+/// Names the unit of [packs]: "pack" for one, "packs" for any other count.
+String _packWord(int packs) => packs == 1 ? "pack" : "packs";
+
+/// Picks the packs to buy of one ingredient for one trip's worth of [remaining].
+///
+/// Returns null when no pack line is possible: the ingredient has no product, or no product uses
+/// the unit that the user must still buy. The caller then writes the raw amount instead.
+///
+/// Returns the packs of the waste-minimal mix from [recommendCombination] (issue #26), not every
+/// product's solo count: a product that the mix does not pick is not in the result. Where that mix
+/// holds two or more equivalent products (same [productEquivalenceKey], for example two pizza
+/// flavors of the same size), the group's packs are spread one-of-each via
+/// [distributeEquivalentPacks] (issue #27), so identical variants read as "one of each" instead of
+/// all packs on one variant. A variant that ends up with 0 packs is left out.
+///
+/// Every format that writes packs calls this, so two formats can never recommend two different
+/// pack mixes for the same ingredient.
+List<({Product product, int packs})>? shoppingPackSelection({required Ingredient ingredient, required List<Quantity> remaining}) {
+  if (ingredient.products.isEmpty) return null;
+
+  Quantity? primaryRemaining = remaining.firstWhereOrNull((q) => q.amount > 0 && ingredient.products.any((p) => p.unit == q.unit));
+  if (primaryRemaining == null) return null;
 
   // Products matching the primary unit, in configured order.
   List<Product> matching = ingredient.products.where((Product p) => p.unit == primaryRemaining.unit).toList();
 
-  // Pick the waste-minimal mix of packs for this amount (issue #26): the copy shows that mix, not
-  // every product's solo count. Events are empty: each trip is already a shelf-life-safe bucket, so
-  // the mix only needs to minimize pack-granularity over-buy for the amount bought on this trip.
+  // Pick the waste-minimal mix of packs for this amount. Events are empty: each trip is already a
+  // shelf-life-safe bucket, so the mix only needs to minimize pack-granularity over-buy for the
+  // amount bought on this trip.
   CombinationRecommendation? combination = recommendCombination(
     totalNeeded: primaryRemaining.amount,
     events: const [],
     ingredient: ingredient,
     products: matching,
   );
-  if (combination == null) return buffer.toString();
+  if (combination == null) return const [];
 
   // Total packs the mix buys per equivalence group. Equivalent variants share one key, so the
   // solver may load them all onto one representative; summing per key recovers the group's total.
@@ -253,34 +307,27 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
     packsByKey[key] = (packsByKey[key] ?? 0) + selection.packs;
   }
 
-  // Spread each group's packs one-of-each across its equivalent variants (issue #27), so identical
-  // variants in the recommendation list as "one of each" instead of all packs on one variant.
-  Map<String, List<int>> sharesByKey = {};
-  Map<String, int> cursorByKey = {};
   Map<String, List<Product>> groups = {};
   for (Product product in matching) {
     groups.putIfAbsent(productEquivalenceKey(product), () => <Product>[]).add(product);
   }
+  Map<String, List<int>> sharesByKey = {};
   for (MapEntry<String, List<Product>> group in groups.entries) {
     int total = packsByKey[group.key] ?? 0;
     sharesByKey[group.key] = distributeEquivalentPacks(totalPacks: total, groupSize: group.value.length);
   }
 
+  List<({Product product, int packs})> lines = [];
+  Map<String, int> cursorByKey = {};
   for (Product product in matching) {
     String key = productEquivalenceKey(product);
     int cursor = cursorByKey[key] ?? 0;
     cursorByKey[key] = cursor + 1;
     int packs = sharesByKey[key]![cursor];
     if (packs <= 0) continue;
-    String label = productShoppingLabel(product);
-    String packWord = packs == 1 ? "pack" : "packs";
-    buffer.writeln("  $label: $packs $packWord");
-    // The link tells the reader which product to take from the shelf. A product with no link
-    // writes no line, because an empty line helps nobody.
-    if (product.link.isNotEmpty) buffer.writeln("    ${product.link}");
+    lines.add((product: product, packs: packs));
   }
-
-  return buffer.toString();
+  return lines;
 }
 
 /// Names one product of the shopping list, for example "Espaguetis (6x125grams)".
@@ -289,7 +336,7 @@ String buildIngredientCopyLines({required Ingredient ingredient, required List<Q
 /// much one pack holds. A product has no name field, so the name comes from the store link. A
 /// link that names nothing leaves the pack size alone.
 ///
-/// The copied text and the PDF both call this, so one product reads the same way in each of them.
+/// Every copy format and the PDF call this, so one product reads the same way in each of them.
 String productShoppingLabel(Product product) {
   String packSize = product.packLabel() ?? "${product.totalQuantityPerPack.toFormattedAmount()} ${product.unit.name}/pack";
   String? name = product.nameFromLink();
