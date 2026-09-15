@@ -61,7 +61,8 @@ class OwnedStock {
 /// Returns the text that an "Owned" input shows for [amount].
 ///
 /// An amount at or below 0 gives an empty string. An untouched field stays blank and does not
-/// read "0". A whole amount drops the decimals. Any other amount keeps every decimal it has.
+/// read "0". A whole amount drops the decimals. Any other amount keeps the shortest decimals
+/// that still parse back to it.
 ///
 /// The text parses back to [amount] exactly, which no rounded text can promise. These fields are
 /// inputs: the page stores what the user typed, and the unit dropdown reads the amount back out of

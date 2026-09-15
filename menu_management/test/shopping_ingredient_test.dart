@@ -37,6 +37,7 @@ Future<void> _pumpProducts(
   OwnedUnit ownedUnit = const OwnedUnit(),
   List<Quantity> quantitiesDesired = const [Quantity(amount: 1500, unit: Unit.grams)],
   Map<int, double> ownedProductCounts = const {},
+  double ownedAmount = 0,
   void Function(double amount, OwnedUnit unit)? onOwnedChanged,
 }) async {
   await tester.pumpWidget(
@@ -54,7 +55,7 @@ Future<void> _pumpProducts(
           quantitiesDesired: quantitiesDesired,
           calculatedRemainingQuantities: [Quantity(amount: remainingGrams, unit: Unit.grams)],
           productRecommendations: recommendations,
-          ownedAmount: 0,
+          ownedAmount: ownedAmount,
           ownedUnit: ownedUnit,
           onOwnedChanged: onOwnedChanged ?? (double amount, OwnedUnit unit) {},
           ownedProductCounts: ownedProductCounts,
@@ -421,8 +422,8 @@ void main() {
     });
 
     testWidgets("keeps a second decimal digit as the user typed it", (WidgetTester tester) async {
-      // The field shows one decimal place, so a re-seed of 0.75 would write "0.8". The page keeps
-      // 0.75, so the field would then show a number that the shopping list does not use.
+      // The field shows the exact stored amount, so the re-seed must not shorten "0.75". A shorter
+      // text would show a number that the shopping list does not use.
       await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
 
       Finder ownedField = find.widgetWithText(TextField, "Owned");
@@ -515,8 +516,8 @@ void main() {
     });
 
     testWidgets("auto-fill reports the amount that it writes into the field", (WidgetTester tester) async {
-      // The field shows two decimal places, so a longer amount is rounded on screen. The button must
-      // report the rounded number, or the page would keep an amount that the field does not show.
+      // The button shortens the need to two decimals, then writes that number and reports it, so
+      // the field and the page can never disagree.
       await tester.binding.setSurfaceSize(const Size(1400, 600));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -533,8 +534,62 @@ void main() {
       await tester.tap(find.byTooltip("Auto-fill with needed amount"));
       await tester.pump();
 
-      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "0.125");
-      expect(captured, 0.125);
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "0.13");
+      expect(captured, 0.13);
+    });
+
+    testWidgets("auto-fill writes a short number, not the float noise of the need", (WidgetTester tester) async {
+      // The needed amount comes out of the unit conversions, which multiply doubles, so it can carry
+      // a long tail: 2 spoons at density 0.92 give 27.599999999999998. The 120-pixel field cannot
+      // show that, and the user never typed it.
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      double? captured;
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a")],
+        remainingGrams: 500,
+        quantitiesDesired: const [Quantity(amount: 27.599999999999998, unit: Unit.pieces)],
+        ownedUnit: const OwnedUnit(unit: Unit.pieces),
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      await tester.tap(find.byTooltip("Auto-fill with needed amount"));
+      await tester.pump();
+
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "27.6");
+      // The page must store the number the field shows, or the two disagree again.
+      expect(captured, 27.6);
+    });
+
+    testWidgets("a unit switch keeps the stored amount when the field text does not parse", (WidgetTester tester) async {
+      // The dropdown used to re-read the field text, so text the parser rejects stored 0 and wiped
+      // an owned amount that the page still held.
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      double? captured;
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a")],
+        remainingGrams: 500,
+        quantitiesDesired: const [Quantity(amount: 3, unit: Unit.pieces)],
+        ownedAmount: 5,
+        ownedUnit: const OwnedUnit(unit: Unit.pieces),
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      // A stray character: the input reports nothing for it, so the page still holds 5.
+      await tester.enterText(find.widgetWithText(TextField, "Owned"), "5a");
+      await tester.pump();
+
+      await tester.tap(find.byType(DropdownButtonFormField<OwnedUnit>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("grams").last);
+      await tester.pumpAndSettle();
+
+      expect(captured, 5);
     });
 
     testWidgets("auto-fill counts one pack for two equivalents that need only one (no over-fill)", (WidgetTester tester) async {

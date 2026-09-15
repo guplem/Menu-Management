@@ -342,8 +342,14 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       autoValue = desired?.amount ?? 0;
     }
 
-    setState(() => _controller.text = ownedFieldText(autoValue));
-    widget.onOwnedChanged(autoValue, selectedUnit);
+    // The need comes out of the unit conversions, which multiply doubles, so it can carry a long
+    // tail such as 27.599999999999998. Shorten it here, before the field and the page both take it,
+    // so the two still hold the same number. `ownedFieldText` itself stays exact, because it also
+    // writes what the user typed.
+    double filledAmount = double.parse(autoValue.toStringAsFixed(2));
+
+    setState(() => _controller.text = ownedFieldText(filledAmount));
+    widget.onOwnedChanged(filledAmount, selectedUnit);
   }
 
   /// Highlighted line describing a recommended mixed-pack purchase, e.g.
@@ -586,8 +592,10 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                         items: availableUnits.map((OwnedUnit u) => DropdownMenuItem<OwnedUnit>(value: u, child: Text(u.label))).toList(),
                         onChanged: (OwnedUnit? newUnit) {
                           if (newUnit == null) return;
-                          double currentAmount = double.tryParse(_controller.text) ?? 0;
-                          widget.onOwnedChanged(currentAmount, newUnit);
+                          // Keep the stored amount and change only its unit. The page already holds
+                          // every keystroke that parses, so a re-read of the field text could only
+                          // lose the amount when that text carries a stray character.
+                          widget.onOwnedChanged(widget.ownedAmount, newUnit);
                         },
                       ),
                     ),
