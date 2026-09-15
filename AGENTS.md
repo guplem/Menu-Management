@@ -65,7 +65,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 954 tests across 37 files |
+| Run all tests | `cd menu_management && flutter test test/` | 958 tests across 37 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -125,6 +125,8 @@ Tests live in `menu_management/test/`. Run with `cd menu_management && flutter t
 This applies to new features, bug fixes, and refactors. Do not write production code without a failing test driving it.
 
 **A test must fail when the behavior breaks.** Assert the full expected output, never a substring, an index comparison (`indexOf(a) < indexOf(b)` passes when a line is missing), or a value compared with itself.
+
+**Prove that each new test pins its rule.** Change the production line that the test targets back to the old behavior, run the file, and confirm that only that test fails. A test can pass through a second code path that gives the same output, for example a fallback that renders the same row.
 
 CI runs the format check, `flutter analyze`, and the full test suite on every PR (see Git Workflow); the repo ruleset "Requirements for merge" blocks merging until the `analyze-and-test` check is green.
 

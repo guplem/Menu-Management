@@ -70,7 +70,7 @@ Record: which areas the PR touches (the feature domains under `menu_management/l
 
 ## 3. Parallel deep analysis (all modes)
 
-Spawn these as subagents. **Launch them all in one message, one block of parallel Agent calls, never one at a time.** Wait for all of them before phase 4. Give each analysis agent the PR number and tell it: you cannot spawn further subagents; do all searching yourself; output only the report described, with each finding carrying `File`, `Line(s)`, `Finding`, `Why it matters`, and `Suggestion`.
+Spawn these as subagents. **Launch them all in one message, one block of parallel Agent calls, never one at a time.** Wait for all of them before phase 4. Give each analysis agent the PR number and tell it: you cannot spawn further subagents; do all searching yourself; change no file of the working tree, and write no probe test file (a probe file or a temporary edit makes a test run that happens at the same time report failures that are not real); output only the report described, with each finding carrying `File`, `Line(s)`, `Finding`, `Why it matters`, and `Suggestion`.
 
 Always spawn these four analysis agents:
 
