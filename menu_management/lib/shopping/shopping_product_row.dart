@@ -5,6 +5,7 @@ import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
@@ -63,7 +64,7 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: _textForCount(widget.ownedCount));
+    _controller = TextEditingController(text: ownedFieldText(widget.ownedCount));
   }
 
   @override
@@ -72,7 +73,7 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
     // Re-seed the field when the owned count is changed from outside (e.g. reset by the parent),
     // so the shown text never goes stale against the widget's value.
     if (widget.ownedCount != oldWidget.ownedCount) {
-      String newText = _textForCount(widget.ownedCount);
+      String newText = ownedFieldText(widget.ownedCount);
       if (_controller.text != newText) _controller.text = newText;
     }
   }
@@ -82,10 +83,6 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
     _controller.dispose();
     super.dispose();
   }
-
-  String _textForCount(double count) => count > 0 ? _formatCount(count) : "";
-
-  String _formatCount(double value) => value.toStringAsFixed(value == value.roundToDouble() ? 0 : 1);
 
   /// Singular/plural unit word: pieces for single-item packs, packs otherwise.
   String _packWord(int count) => widget.product.itemsPerPack == 1 ? (count == 1 ? "piece" : "pieces") : (count == 1 ? "pack" : "packs");

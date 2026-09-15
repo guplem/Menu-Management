@@ -58,6 +58,15 @@ class OwnedStock {
   }
 }
 
+/// Returns the text that an "Owned" input shows for [amount].
+///
+/// An amount of 0 gives an empty string, so an untouched field stays blank and does not read "0".
+/// A whole amount drops the decimals; any other amount keeps one decimal place.
+///
+/// Both owned inputs read their text from here: the header input of `ShoppingIngredient` and the
+/// per-product input of `ShoppingProductRow`. The two fields therefore write one amount the same way.
+String ownedFieldText(double amount) => amount > 0 ? amount.toStringAsFixed(amount == amount.roundToDouble() ? 0 : 1) : "";
+
 /// Converts an owned [count] of a single [product] of [ingredient] into [targetUnit].
 ///
 /// The count is a number of packs of that product. It is first turned into an amount in the

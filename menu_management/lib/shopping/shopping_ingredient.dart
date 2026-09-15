@@ -5,6 +5,7 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
@@ -330,7 +331,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       autoValue = desired?.amount ?? 0;
     }
 
-    setState(() => _controller.text = autoValue.toStringAsFixed(autoValue == autoValue.roundToDouble() ? 0 : 1));
+    setState(() => _controller.text = ownedFieldText(autoValue));
     widget.onOwnedChanged(autoValue, selectedUnit);
   }
 
