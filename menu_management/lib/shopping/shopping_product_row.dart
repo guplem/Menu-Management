@@ -70,11 +70,8 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
   @override
   void didUpdateWidget(ShoppingProductRow oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-seed the field when the owned count is changed from outside (e.g. reset by the parent),
-    // so the shown text never goes stale against the widget's value.
-    if (widget.ownedCount != oldWidget.ownedCount) {
-      String newText = ownedFieldText(widget.ownedCount);
-      if (_controller.text != newText) _controller.text = newText;
+    if (ownedFieldNeedsReseed(fieldText: _controller.text, amount: widget.ownedCount, previousAmount: oldWidget.ownedCount)) {
+      _controller.text = ownedFieldText(widget.ownedCount);
     }
   }
 

@@ -68,6 +68,19 @@ class OwnedStock {
 /// Every "Owned" input reads its text from here, so all of them write one amount the same way.
 String ownedFieldText(double amount) => amount > 0 ? amount.toStringWithDecimalsIfNotInteger(desiredDecimals: 1) : "";
 
+/// Whether an "Owned" input must replace [fieldText] with the text of [amount].
+///
+/// A field is re-seeded only when the amount changed from outside and the text on screen means a
+/// different amount. The second test guards the user who is typing: each keystroke reports an
+/// amount to the parent, which builds the field again. Without it, "1.5" cut back to "1." would
+/// lose its dot, and "0.75" would snap to the one decimal place that [ownedFieldText] writes,
+/// while the parent keeps 0.75. Text that parses to no number counts as 0, which is what the
+/// input reports for it.
+bool ownedFieldNeedsReseed({required String fieldText, required double amount, required double previousAmount}) {
+  if (amount == previousAmount) return false;
+  return (double.tryParse(fieldText) ?? 0) != amount;
+}
+
 /// Converts an owned [count] of a single [product] of [ingredient] into [targetUnit].
 ///
 /// The count is a number of packs of that product. It is first turned into an amount in the

@@ -33,6 +33,29 @@ void main() {
     });
   });
 
+  group("ownedFieldNeedsReseed", () {
+    test("leaves the field alone when the amount did not change", () {
+      expect(ownedFieldNeedsReseed(fieldText: "1.", amount: 1, previousAmount: 1), isFalse);
+    });
+
+    test("leaves the field alone when its text already means the new amount", () {
+      // The user types, so each keystroke reports a new amount and builds the field again.
+      expect(ownedFieldNeedsReseed(fieldText: "1.", amount: 1, previousAmount: 1.5), isFalse);
+      expect(ownedFieldNeedsReseed(fieldText: "0.75", amount: 0.75, previousAmount: 0.7), isFalse);
+    });
+
+    test("replaces text that means another amount", () {
+      // The parent changed the amount on its own, for example a reset or an auto-fill.
+      expect(ownedFieldNeedsReseed(fieldText: "2", amount: 5, previousAmount: 2), isTrue);
+      expect(ownedFieldNeedsReseed(fieldText: "2", amount: 0, previousAmount: 2), isTrue);
+    });
+
+    test("counts text that parses to no number as zero", () {
+      expect(ownedFieldNeedsReseed(fieldText: "", amount: 0, previousAmount: 3), isFalse);
+      expect(ownedFieldNeedsReseed(fieldText: "abc", amount: 4, previousAmount: 0), isTrue);
+    });
+  });
+
   group("roundNeededAmount", () {
     test("rounds a whole-unit need to the nearest unit", () {
       expect(roundNeededAmount(1.4), 1);

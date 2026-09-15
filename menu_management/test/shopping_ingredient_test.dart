@@ -379,6 +379,16 @@ void main() {
       expect(tester.widget<TextField>(ownedField).controller?.text, "");
     });
 
+    testWidgets("empties the field when the parent drops the owned amount to nothing", (WidgetTester tester) async {
+      // The downward direction of the re-seed. An empty first build cannot prove it, because an
+      // empty field is also what the old code showed for every amount.
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 2);
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 0);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller?.text, "");
+    });
+
     testWidgets("keeps a half-typed decimal while the user types", (WidgetTester tester) async {
       // Each keystroke reports the amount to the parent, which pumps the card again. The re-seed must
       // not rewrite the text under the user: "1." parses to 1.0, the same amount as "1".
@@ -394,6 +404,32 @@ void main() {
       await tester.enterText(ownedField, "1.5");
       await tester.pump();
       expect(tester.widget<TextField>(ownedField).controller?.text, "1.5");
+    });
+
+    testWidgets("keeps the dot while the user deletes a decimal digit", (WidgetTester tester) async {
+      // "1.5" back to "1." changes the amount from 1.5 to 1.0, so an amount-only guard would write
+      // "1" and take away the dot that the user is still editing.
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1.5");
+      await tester.pump();
+      await tester.enterText(ownedField, "1.");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1.");
+    });
+
+    testWidgets("keeps a second decimal digit as the user typed it", (WidgetTester tester) async {
+      // The field shows one decimal place, so a re-seed of 0.75 would write "0.8". The page keeps
+      // 0.75, so the field would then show a number that the shopping list does not use.
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "0.75");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller?.text, "0.75");
     });
   });
 
@@ -474,6 +510,8 @@ void main() {
       await tester.pump();
 
       expect(captured, 3.0);
+      // The button also writes the amount into the field, so the user reads what it filled in.
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "3");
     });
 
     testWidgets("auto-fill counts one pack for two equivalents that need only one (no over-fill)", (WidgetTester tester) async {
