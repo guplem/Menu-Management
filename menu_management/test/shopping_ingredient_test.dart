@@ -102,10 +102,17 @@ Future<void> _pumpIngredient(
   );
 }
 
+/// Pumps a [ShoppingIngredient] that hosts owned inputs.
+///
+/// [ownedAmount] seeds the single header input, which renders only when the ingredient shows no
+/// per-product inputs (see [usesPerProductOwnedInputs]). Pump twice with a different [ownedAmount]
+/// to drive the widget's `didUpdateWidget`: the second pump updates the same [State] object,
+/// because the widget keeps its type and holds no key.
 Future<void> _pumpForOwnedInputs(
   WidgetTester tester, {
   required Ingredient ingredient,
   required List<Quantity> quantitiesDesired,
+  double ownedAmount = 0,
   void Function(int productIndex, double count)? onProductOwnedChanged,
 }) async {
   await tester.pumpWidget(
@@ -116,7 +123,7 @@ Future<void> _pumpForOwnedInputs(
           quantitiesDesired: quantitiesDesired,
           calculatedRemainingQuantities: const [Quantity(amount: 100, unit: Unit.grams)],
           productRecommendations: const [],
-          ownedAmount: 0,
+          ownedAmount: ownedAmount,
           ownedUnit: const OwnedUnit(unit: Unit.grams),
           onOwnedChanged: (double amount, OwnedUnit unit) {},
           ownedProductCounts: const {},
@@ -340,6 +347,53 @@ void main() {
 
       expect(find.text("Buy 5 packs now"), findsOneWidget);
       expect(find.text("+ 1 pack Week 2"), findsOneWidget);
+    });
+  });
+
+  group("ShoppingIngredient header owned input", () {
+    // An ingredient with no products, so the card renders the single header owned input.
+    const Ingredient spice = Ingredient(id: "spice", name: "Spice");
+    const List<Quantity> desiredGrams = [Quantity(amount: 10, unit: Unit.grams)];
+
+    testWidgets("shows the stored owned amount on the first build", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 2);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(ownedField, findsOneWidget);
+      expect(tester.widget<TextField>(ownedField).controller?.text, "2");
+    });
+
+    testWidgets("shows the new owned amount when the parent changes it", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 2);
+      // The second pump keeps the same State object, so only `didUpdateWidget` can refresh the text.
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 5);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller?.text, "5");
+    });
+
+    testWidgets("shows an empty field when the user owns nothing", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller?.text, "");
+    });
+
+    testWidgets("keeps a half-typed decimal while the user types", (WidgetTester tester) async {
+      // Each keystroke reports the amount to the parent, which pumps the card again. The re-seed must
+      // not rewrite the text under the user: "1." parses to 1.0, the same amount as "1".
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1");
+      await tester.pump();
+      await tester.enterText(ownedField, "1.");
+      await tester.pump();
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1.");
+
+      await tester.enterText(ownedField, "1.5");
+      await tester.pump();
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1.5");
     });
   });
 

@@ -167,7 +167,23 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _controller = TextEditingController(text: ownedFieldText(widget.ownedAmount));
+  }
+
+  @override
+  void didUpdateWidget(ShoppingIngredient oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-seed the field when the owned amount is changed from outside, so the shown text never goes
+    // stale against the widget's value. `ShoppingPage` keeps the amount and rebuilds this card from a
+    // ListView.builder, which disposes a card that scrolls far away and builds a new State on return.
+    //
+    // The guard compares the two amounts, so a keystroke that does not change the amount leaves the
+    // text alone. The user can therefore type "1." (which parses to the same 1.0 as "1") and keep
+    // the dot. `ShoppingProductRow` guards its own field the same way.
+    if (widget.ownedAmount != oldWidget.ownedAmount) {
+      String newText = ownedFieldText(widget.ownedAmount);
+      if (_controller.text != newText) _controller.text = newText;
+    }
   }
 
   @override
