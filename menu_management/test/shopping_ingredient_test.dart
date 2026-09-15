@@ -36,6 +36,7 @@ Future<void> _pumpProducts(
   List<ProductRecommendation> recommendations = const [],
   OwnedUnit ownedUnit = const OwnedUnit(),
   List<Quantity> quantitiesDesired = const [Quantity(amount: 1500, unit: Unit.grams)],
+  Map<int, double> ownedProductCounts = const {},
   void Function(double amount, OwnedUnit unit)? onOwnedChanged,
 }) async {
   await tester.pumpWidget(
@@ -56,7 +57,7 @@ Future<void> _pumpProducts(
           ownedAmount: 0,
           ownedUnit: ownedUnit,
           onOwnedChanged: onOwnedChanged ?? (double amount, OwnedUnit unit) {},
-          ownedProductCounts: const {},
+          ownedProductCounts: ownedProductCounts,
           onProductOwnedChanged: (int productIndex, double count) {},
           sources: const [],
           plannedTrips: const [],
@@ -461,6 +462,47 @@ void main() {
       expect(find.text("Buy 1 pack"), findsOneWidget);
       expect(find.text("Covered"), findsNothing);
       expect(find.text("and"), findsNothing);
+      expect(find.text("or"), findsNothing);
+    });
+
+    testWidgets("keeps one 'Owned' input when two equivalents need nothing", (WidgetTester tester) async {
+      // Two equivalent 500 g variants with nothing left to buy -> both shares are 0. Hiding both
+      // rows would take away every "Owned" input of the card, so the first member still renders.
+      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 0);
+
+      Finder ownedFields = find.widgetWithText(TextField, "Owned");
+      expect(ownedFields, findsOneWidget);
+      expect(tester.widget<TextField>(ownedFields).controller?.text, "");
+      expect(find.text("Covered"), findsOneWidget);
+      expect(find.text("and"), findsNothing);
+      expect(find.text("or"), findsNothing);
+    });
+
+    testWidgets("keeps the typed owned count visible after it covers the whole need", (WidgetTester tester) async {
+      // The user typed 2 owned packs on the first variant, which covers the whole need. The row
+      // must stay on screen with its value, so the user can correct or undo the amount.
+      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 0, ownedProductCounts: const {0: 2});
+
+      Finder ownedFields = find.widgetWithText(TextField, "Owned");
+      expect(ownedFields, findsOneWidget);
+      expect(tester.widget<TextField>(ownedFields).controller?.text, "2");
+      expect(find.text("Covered"), findsOneWidget);
+      expect(find.text("and"), findsNothing);
+      expect(find.text("or"), findsNothing);
+    });
+
+    testWidgets("renders a zero-share equivalent that holds an owned count", (WidgetTester tester) async {
+      // Need 500 g -> 1 pack total, cycled to [1, 0]. The second variant buys nothing, but it holds
+      // 3 owned packs, so its row stays visible and its value stays editable.
+      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 500, ownedProductCounts: const {1: 3});
+
+      Finder ownedFields = find.widgetWithText(TextField, "Owned");
+      expect(ownedFields, findsNWidgets(2));
+      expect(tester.widget<TextField>(ownedFields.at(0)).controller?.text, "");
+      expect(tester.widget<TextField>(ownedFields.at(1)).controller?.text, "3");
+      expect(find.text("Buy 1 pack"), findsOneWidget);
+      expect(find.text("Covered"), findsOneWidget);
+      expect(find.text("and"), findsOneWidget);
       expect(find.text("or"), findsNothing);
     });
   });
