@@ -278,6 +278,33 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     return purchases;
   }
 
+  /// Returns the indexes inside [group] of the equivalent members whose row renders.
+  ///
+  /// A member renders when it buys packs ([cycledShares] holds its share of the group's cover), or
+  /// when it holds an owned count. A share reaches 0 from the one-of-each cycle or from owned
+  /// stock. The owned rule keeps a typed amount visible and editable in both cases.
+  ///
+  /// When both rules leave the group with no member, the first member renders. The group then keeps
+  /// one "Owned" input, so the user can still correct the owned amount of a fully covered
+  /// ingredient.
+  ///
+  /// The copied list drops every member that buys no pack (`shoppingPackSelection` in
+  /// `shopping_copy_text.dart`), so a member that only an owned count keeps here writes no line
+  /// there. The copy says what to buy; this row hosts the owned input.
+  ///
+  /// [cycledShares] must hold one share per member of [group].
+  List<int> _visibleMemberIndexes({required List<MapEntry<int, Product>> group, required List<int> cycledShares}) {
+    assert(cycledShares.length == group.length, "Each member of the group needs its own share.");
+    List<int> visibleMembers = [];
+    for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
+      bool buysPacks = cycledShares[memberIndex] > 0;
+      bool holdsOwnedStock = (widget.ownedProductCounts[group[memberIndex].key] ?? 0) > 0;
+      if (buysPacks || holdsOwnedStock) visibleMembers.add(memberIndex);
+    }
+    if (visibleMembers.isEmpty) visibleMembers.add(0);
+    return visibleMembers;
+  }
+
   void _autoFillOwned() {
     // Auto-fill with the total desired amount in the currently selected unit
     OwnedUnit selectedUnit = widget.ownedUnit;
@@ -410,8 +437,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
         Product product = group[memberIndex].value;
         int packsToBuy = isCombinedGroup ? cycledShares[memberIndex] : _packsToBuyForProduct(product);
         // Skip the members of a combined group that [_visibleMemberIndexes] leaves out, so no
-        // "... and Covered" row and no dangling "and" divider appear. If this leaves one visible
-        // member, it renders as a normal single row.
+        // dangling "and" divider appears. If this leaves one visible member, it renders as a
+        // normal single row.
         if (isCombinedGroup && !visibleMembers.contains(memberIndex)) continue;
 
         ProductRecommendation recommendation = widget.productRecommendations.firstWhere(
@@ -445,26 +472,6 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       }
     }
     return rows;
-  }
-
-  /// Returns the indexes inside [group] of the equivalent members whose row renders.
-  ///
-  /// A member renders when it buys packs ([cycledShares] holds its share of the group's cover), or
-  /// when it holds an owned count. The owned rule keeps the amount that the user typed visible and
-  /// editable, because that amount is what drove the share down to 0.
-  ///
-  /// When both rules leave the group with no member, the first member renders. The group then keeps
-  /// one "Owned" input, so the user can still correct the owned amount of a fully covered
-  /// ingredient.
-  List<int> _visibleMemberIndexes({required List<MapEntry<int, Product>> group, required List<int> cycledShares}) {
-    List<int> visibleMembers = [];
-    for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
-      bool buysPacks = cycledShares[memberIndex] > 0;
-      bool holdsOwnedStock = (widget.ownedProductCounts[group[memberIndex].key] ?? 0) > 0;
-      if (buysPacks || holdsOwnedStock) visibleMembers.add(memberIndex);
-    }
-    if (visibleMembers.isEmpty) visibleMembers.add(0);
-    return visibleMembers;
   }
 
   Widget _separatorDivider(BuildContext context, String label) {
