@@ -479,14 +479,29 @@ void main() {
     });
 
     testWidgets("keeps the typed owned count visible after it covers the whole need", (WidgetTester tester) async {
-      // The user typed 2 owned packs on the first variant, which covers the whole need. The row
-      // must stay on screen with its value, so the user can correct or undo the amount.
-      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 0, ownedProductCounts: const {0: 2});
+      // The user typed 2 owned packs on the second variant, which covers the whole need. That row
+      // must stay on screen with its value, so the user can correct or undo the amount. The count
+      // sits on the second variant on purpose: the first one renders anyway as the last-resort row,
+      // so a count there would pass even with no owned rule. The text "2" proves the surviving row
+      // is the second variant, because the first one's field is empty.
+      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 0, ownedProductCounts: const {1: 2});
 
       Finder ownedFields = find.widgetWithText(TextField, "Owned");
       expect(ownedFields, findsOneWidget);
       expect(tester.widget<TextField>(ownedFields).controller?.text, "2");
       expect(find.text("Covered"), findsOneWidget);
+      expect(find.text("and"), findsNothing);
+      expect(find.text("or"), findsNothing);
+    });
+
+    testWidgets("hides a zero-share equivalent again once its owned count is cleared", (WidgetTester tester) async {
+      // Need 500 g -> 1 pack total, cycled to [1, 0]. The second variant holds a cleared count of 0,
+      // which is no owned stock, so its row stays hidden and the card reads as a single buy row.
+      await _pumpProducts(tester, products: [_equivProduct("a"), _equivProduct("b")], remainingGrams: 500, ownedProductCounts: const {1: 0});
+
+      expect(find.widgetWithText(TextField, "Owned"), findsOneWidget);
+      expect(find.text("Buy 1 pack"), findsOneWidget);
+      expect(find.text("Covered"), findsNothing);
       expect(find.text("and"), findsNothing);
       expect(find.text("or"), findsNothing);
     });
