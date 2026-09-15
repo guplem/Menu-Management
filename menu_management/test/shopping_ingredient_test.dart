@@ -514,6 +514,29 @@ void main() {
       expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "3");
     });
 
+    testWidgets("auto-fill reports the amount that it writes into the field", (WidgetTester tester) async {
+      // The field shows two decimal places, so a longer amount is rounded on screen. The button must
+      // report the rounded number, or the page would keep an amount that the field does not show.
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      double? captured;
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a")],
+        remainingGrams: 500,
+        quantitiesDesired: const [Quantity(amount: 0.125, unit: Unit.pieces)],
+        ownedUnit: const OwnedUnit(unit: Unit.pieces),
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      await tester.tap(find.byTooltip("Auto-fill with needed amount"));
+      await tester.pump();
+
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "0.125");
+      expect(captured, 0.125);
+    });
+
     testWidgets("auto-fill counts one pack for two equivalents that need only one (no over-fill)", (WidgetTester tester) async {
       // Header fallback (pieces recipe, grams products) so the auto-fill button renders. See the
       // test above for why the header input, not per-product inputs, shows here.

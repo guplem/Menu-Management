@@ -21,15 +21,24 @@ void main() {
       expect(ownedFieldText(1500), "1500");
     });
 
-    test("keeps one decimal place of a fractional amount", () {
+    test("keeps the decimals of a fractional amount", () {
       expect(ownedFieldText(2.5), "2.5");
-      expect(ownedFieldText(0.75), "0.8");
+      expect(ownedFieldText(0.75), "0.75");
+      expect(ownedFieldText(2.25), "2.25");
     });
 
-    test("writes an amount that rounds to a whole number without a decimal", () {
-      // 1.04 and 0.999 both round to 1 at one decimal place, so neither reads "1.0".
-      expect(ownedFieldText(1.04), "1");
-      expect(ownedFieldText(0.999), "1");
+    test("writes a small amount as a number above zero", () {
+      // A field that reads "0" for a stored 0.04 says the user owns nothing, and the unit dropdown
+      // reads the field text back, so it would store that 0.
+      expect(ownedFieldText(0.04), "0.04");
+    });
+
+    test("writes a text that parses back to the amount", () {
+      // The page stores the amount and the field shows this text. Rounded text would show one
+      // number while the shopping list subtracts another.
+      for (double amount in [0.04, 0.75, 1.04, 2.25, 0.999, 3, 1500]) {
+        expect(double.parse(ownedFieldText(amount)), amount, reason: "$amount must survive the trip through the field");
+      }
     });
   });
 

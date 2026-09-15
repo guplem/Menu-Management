@@ -168,8 +168,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   void initState() {
     super.initState();
     // Seed the field from the stored amount. `ShoppingPage` keeps that amount and builds this card
-    // in a ListView.builder. The list disposes a card that scrolls far away, then builds a new
-    // State on the way back, and that new field must show the amount again.
+    // in a ListView.builder. The list disposes a card that scrolls far away. It builds a new State
+    // on the way back, and that new field must show the amount again.
     _controller = TextEditingController(text: ownedFieldText(widget.ownedAmount));
   }
 
