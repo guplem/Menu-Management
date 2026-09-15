@@ -126,6 +126,8 @@ This applies to new features, bug fixes, and refactors. Do not write production 
 
 **A test must fail when the behavior breaks.** Assert the full expected output, never a substring, an index comparison (`indexOf(a) < indexOf(b)` passes when a line is missing), or a value compared with itself.
 
+**Prove that each new test pins its rule.** Change the production line that the test targets back to the old behavior, run the file, and confirm that only that test fails. A test can pass through a second code path that gives the same output, for example a fallback that renders the same row.
+
 CI runs the format check, `flutter analyze`, and the full test suite on every PR (see Git Workflow); the repo ruleset "Requirements for merge" blocks merging until the `analyze-and-test` check is green.
 
 ## Key Patterns
