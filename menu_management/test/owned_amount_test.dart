@@ -10,6 +10,29 @@ Product _product({required Unit unit, double quantityPerItem = 100, int itemsPer
 }
 
 void main() {
+  group("ownedFieldText", () {
+    test("writes nothing for an amount at or below zero", () {
+      expect(ownedFieldText(0), "");
+      expect(ownedFieldText(-2), "");
+    });
+
+    test("drops the decimals of a whole amount", () {
+      expect(ownedFieldText(2), "2");
+      expect(ownedFieldText(1500), "1500");
+    });
+
+    test("keeps one decimal place of a fractional amount", () {
+      expect(ownedFieldText(2.5), "2.5");
+      expect(ownedFieldText(0.75), "0.8");
+    });
+
+    test("writes an amount that rounds to a whole number without a decimal", () {
+      // 1.04 and 0.999 both round to 1 at one decimal place, so neither reads "1.0".
+      expect(ownedFieldText(1.04), "1");
+      expect(ownedFieldText(0.999), "1");
+    });
+  });
+
   group("roundNeededAmount", () {
     test("rounds a whole-unit need to the nearest unit", () {
       expect(roundNeededAmount(1.4), 1);
