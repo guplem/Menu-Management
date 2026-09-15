@@ -58,6 +58,39 @@ class OwnedStock {
   }
 }
 
+/// Returns the text that an "Owned" input shows for [amount].
+///
+/// An amount at or below 0 gives an empty string. An untouched field stays blank and does not
+/// read "0". A whole amount drops the decimals. Any other amount keeps the shortest decimals
+/// that still parse back to it.
+///
+/// The text parses back to [amount] exactly, which no rounded text can promise. These fields are
+/// inputs: the page stores what the user typed, and the unit dropdown reads the amount back out of
+/// the field. A rounded text would show one number while the shopping list subtracts another, and
+/// a unit switch would then store the rounded one. `toFormattedAmount` rounds for a label that
+/// nobody types into; this text is typed into.
+///
+/// Every "Owned" input reads its text from here, so all of them write one amount the same way.
+String ownedFieldText(double amount) {
+  if (amount <= 0) return "";
+  return amount == amount.roundToDouble() ? amount.toStringAsFixed(0) : amount.toString();
+}
+
+/// Whether an "Owned" input must replace [fieldText] with the text of [amount].
+///
+/// A field is re-seeded only when the amount changed and the text on screen means a different
+/// amount. The second test guards the user who is typing. Each keystroke reports an amount to the
+/// parent, which builds the field again. Without that test, "1.5" cut back to "1." would lose its
+/// dot, because both mean 1.0.
+///
+/// Empty text counts as 0, which is what an input reports for it. Text that parses to no number
+/// also counts as 0 here. An input reports nothing for such text, so the stored amount keeps its
+/// old value.
+bool ownedFieldNeedsReseed({required String fieldText, required double amount, required double previousAmount}) {
+  if (amount == previousAmount) return false;
+  return (double.tryParse(fieldText) ?? 0) != amount;
+}
+
 /// Converts an owned [count] of a single [product] of [ingredient] into [targetUnit].
 ///
 /// The count is a number of packs of that product. It is first turned into an amount in the

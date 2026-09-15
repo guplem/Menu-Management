@@ -10,6 +10,61 @@ Product _product({required Unit unit, double quantityPerItem = 100, int itemsPer
 }
 
 void main() {
+  group("ownedFieldText", () {
+    test("writes nothing for an amount at or below zero", () {
+      expect(ownedFieldText(0), "");
+      expect(ownedFieldText(-2), "");
+    });
+
+    test("drops the decimals of a whole amount", () {
+      expect(ownedFieldText(2), "2");
+      expect(ownedFieldText(1500), "1500");
+    });
+
+    test("keeps the decimals of a fractional amount", () {
+      expect(ownedFieldText(2.5), "2.5");
+      expect(ownedFieldText(0.75), "0.75");
+      expect(ownedFieldText(2.25), "2.25");
+    });
+
+    test("writes a small amount as a number above zero", () {
+      // A field that reads "0" for a stored 0.04 says the user owns nothing, and the unit dropdown
+      // reads the field text back, so it would store that 0.
+      expect(ownedFieldText(0.04), "0.04");
+    });
+
+    test("writes a text that parses back to the amount", () {
+      // The page stores the amount and the field shows this text. Rounded text would show one
+      // number while the shopping list subtracts another.
+      for (double amount in [0.04, 0.75, 1.04, 2.25, 0.999, 3, 1500]) {
+        expect(double.parse(ownedFieldText(amount)), amount, reason: "$amount must survive the trip through the field");
+      }
+    });
+  });
+
+  group("ownedFieldNeedsReseed", () {
+    test("leaves the field alone when the amount did not change", () {
+      expect(ownedFieldNeedsReseed(fieldText: "1.", amount: 1, previousAmount: 1), isFalse);
+    });
+
+    test("leaves the field alone when its text already means the new amount", () {
+      // The user types, so each keystroke reports a new amount and builds the field again.
+      expect(ownedFieldNeedsReseed(fieldText: "1.", amount: 1, previousAmount: 1.5), isFalse);
+      expect(ownedFieldNeedsReseed(fieldText: "0.75", amount: 0.75, previousAmount: 0.7), isFalse);
+    });
+
+    test("replaces text that means another amount", () {
+      // The parent changed the amount on its own, for example a reset or an auto-fill.
+      expect(ownedFieldNeedsReseed(fieldText: "2", amount: 5, previousAmount: 2), isTrue);
+      expect(ownedFieldNeedsReseed(fieldText: "2", amount: 0, previousAmount: 2), isTrue);
+    });
+
+    test("counts text that parses to no number as zero", () {
+      expect(ownedFieldNeedsReseed(fieldText: "", amount: 0, previousAmount: 3), isFalse);
+      expect(ownedFieldNeedsReseed(fieldText: "abc", amount: 4, previousAmount: 0), isTrue);
+    });
+  });
+
   group("roundNeededAmount", () {
     test("rounds a whole-unit need to the nearest unit", () {
       expect(roundNeededAmount(1.4), 1);

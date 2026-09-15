@@ -140,6 +140,39 @@ void main() {
       expect(tester.widget<TextField>(ownedField).controller!.text, "3");
     });
 
+    testWidgets("keeps the dot while the user deletes a decimal digit", (WidgetTester tester) async {
+      // Each keystroke reports a count to the parent, which builds the row again. "1.5" cut back to
+      // "1." means the same 1.0 as "1", so the re-seed must leave the text alone and keep the dot.
+      double owned = 0;
+      Product product = _packProduct();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return ShoppingProductRow(
+                  product: product,
+                  recommendation: _recommendation(product),
+                  isBestOption: true,
+                  packsToBuy: 9,
+                  ownedCount: owned,
+                  onOwnedCountChanged: (double value) => setState(() => owned = value),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1.5");
+      await tester.pump();
+      await tester.enterText(ownedField, "1.");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller!.text, "1.");
+    });
+
     testWidgets("uses 'piece' wording for single-item packs", (WidgetTester tester) async {
       const Product piecesProduct = Product(link: "", quantityPerItem: 1, itemsPerPack: 1, unit: Unit.pieces);
       await _pumpRow(

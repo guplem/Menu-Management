@@ -5,6 +5,7 @@ import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
+import "package:menu_management/shopping/owned_amount.dart";
 import "package:menu_management/shopping/trip_amount_distributor.dart";
 import "package:menu_management/shopping/shopping_product_row.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
@@ -166,7 +167,18 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    // Seed the field from the stored amount. `ShoppingPage` keeps that amount and builds this card
+    // in a ListView.builder. The list disposes a card that scrolls far away. It builds a new State
+    // on the way back, and that new field must show the amount again.
+    _controller = TextEditingController(text: ownedFieldText(widget.ownedAmount));
+  }
+
+  @override
+  void didUpdateWidget(ShoppingIngredient oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (ownedFieldNeedsReseed(fieldText: _controller.text, amount: widget.ownedAmount, previousAmount: oldWidget.ownedAmount)) {
+      _controller.text = ownedFieldText(widget.ownedAmount);
+    }
   }
 
   @override
@@ -330,8 +342,14 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       autoValue = desired?.amount ?? 0;
     }
 
-    setState(() => _controller.text = autoValue.toStringAsFixed(autoValue == autoValue.roundToDouble() ? 0 : 1));
-    widget.onOwnedChanged(autoValue, selectedUnit);
+    // The need comes out of the unit conversions, which multiply doubles, so it can carry a long
+    // tail such as 27.599999999999998. Shorten it here, before the field and the page both take it,
+    // so the two still hold the same number. `ownedFieldText` itself stays exact, because it also
+    // writes what the user typed.
+    double filledAmount = double.parse(autoValue.toStringAsFixed(2));
+
+    setState(() => _controller.text = ownedFieldText(filledAmount));
+    widget.onOwnedChanged(filledAmount, selectedUnit);
   }
 
   /// Highlighted line describing a recommended mixed-pack purchase, e.g.
@@ -574,8 +592,10 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                         items: availableUnits.map((OwnedUnit u) => DropdownMenuItem<OwnedUnit>(value: u, child: Text(u.label))).toList(),
                         onChanged: (OwnedUnit? newUnit) {
                           if (newUnit == null) return;
-                          double currentAmount = double.tryParse(_controller.text) ?? 0;
-                          widget.onOwnedChanged(currentAmount, newUnit);
+                          // Keep the stored amount and change only its unit. The page already holds
+                          // every keystroke that parses, so a re-read of the field text could only
+                          // lose the amount when that text carries a stray character.
+                          widget.onOwnedChanged(widget.ownedAmount, newUnit);
                         },
                       ),
                     ),

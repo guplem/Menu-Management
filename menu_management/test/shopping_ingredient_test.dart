@@ -37,6 +37,7 @@ Future<void> _pumpProducts(
   OwnedUnit ownedUnit = const OwnedUnit(),
   List<Quantity> quantitiesDesired = const [Quantity(amount: 1500, unit: Unit.grams)],
   Map<int, double> ownedProductCounts = const {},
+  double ownedAmount = 0,
   void Function(double amount, OwnedUnit unit)? onOwnedChanged,
 }) async {
   await tester.pumpWidget(
@@ -54,7 +55,7 @@ Future<void> _pumpProducts(
           quantitiesDesired: quantitiesDesired,
           calculatedRemainingQuantities: [Quantity(amount: remainingGrams, unit: Unit.grams)],
           productRecommendations: recommendations,
-          ownedAmount: 0,
+          ownedAmount: ownedAmount,
           ownedUnit: ownedUnit,
           onOwnedChanged: onOwnedChanged ?? (double amount, OwnedUnit unit) {},
           ownedProductCounts: ownedProductCounts,
@@ -102,10 +103,17 @@ Future<void> _pumpIngredient(
   );
 }
 
+/// Pumps a [ShoppingIngredient] that hosts owned inputs.
+///
+/// [ownedAmount] seeds the single header input, which renders only when the ingredient shows no
+/// per-product inputs (see [usesPerProductOwnedInputs]). Pump twice with a different [ownedAmount]
+/// to drive the widget's `didUpdateWidget`: the second pump updates the same [State] object,
+/// because the widget keeps its type and holds no key.
 Future<void> _pumpForOwnedInputs(
   WidgetTester tester, {
   required Ingredient ingredient,
   required List<Quantity> quantitiesDesired,
+  double ownedAmount = 0,
   void Function(int productIndex, double count)? onProductOwnedChanged,
 }) async {
   await tester.pumpWidget(
@@ -116,7 +124,7 @@ Future<void> _pumpForOwnedInputs(
           quantitiesDesired: quantitiesDesired,
           calculatedRemainingQuantities: const [Quantity(amount: 100, unit: Unit.grams)],
           productRecommendations: const [],
-          ownedAmount: 0,
+          ownedAmount: ownedAmount,
           ownedUnit: const OwnedUnit(unit: Unit.grams),
           onOwnedChanged: (double amount, OwnedUnit unit) {},
           ownedProductCounts: const {},
@@ -343,6 +351,89 @@ void main() {
     });
   });
 
+  group("ShoppingIngredient header owned input", () {
+    // An ingredient with no products, so the card renders the single header owned input.
+    const Ingredient spice = Ingredient(id: "spice", name: "Spice");
+    const List<Quantity> desiredGrams = [Quantity(amount: 10, unit: Unit.grams)];
+
+    testWidgets("shows the stored owned amount on the first build", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 2);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(ownedField, findsOneWidget);
+      expect(tester.widget<TextField>(ownedField).controller?.text, "2");
+    });
+
+    testWidgets("shows the new owned amount when the parent changes it", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 2);
+      // The second pump keeps the same State object, so only `didUpdateWidget` can refresh the text.
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 5);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller?.text, "5");
+    });
+
+    testWidgets("shows an empty field when the user owns nothing", (WidgetTester tester) async {
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller?.text, "");
+    });
+
+    testWidgets("empties the field when the parent drops the owned amount to nothing", (WidgetTester tester) async {
+      // The downward direction of the re-seed. An empty first build cannot prove it, because an
+      // empty field is also what the old code showed for every amount.
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 2);
+      await _pumpForOwnedInputs(tester, ingredient: spice, quantitiesDesired: desiredGrams, ownedAmount: 0);
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      expect(tester.widget<TextField>(ownedField).controller?.text, "");
+    });
+
+    testWidgets("keeps a half-typed decimal while the user types", (WidgetTester tester) async {
+      // Each keystroke reports the amount to the parent, which pumps the card again. The re-seed must
+      // not rewrite the text under the user: "1." parses to 1.0, the same amount as "1".
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1");
+      await tester.pump();
+      await tester.enterText(ownedField, "1.");
+      await tester.pump();
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1.");
+
+      await tester.enterText(ownedField, "1.5");
+      await tester.pump();
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1.5");
+    });
+
+    testWidgets("keeps the dot while the user deletes a decimal digit", (WidgetTester tester) async {
+      // "1.5" back to "1." changes the amount from 1.5 to 1.0, so an amount-only guard would write
+      // "1" and take away the dot that the user is still editing.
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1.5");
+      await tester.pump();
+      await tester.enterText(ownedField, "1.");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1.");
+    });
+
+    testWidgets("keeps a second decimal digit as the user typed it", (WidgetTester tester) async {
+      // The field shows the exact stored amount, so the re-seed must not shorten "0.75". A shorter
+      // text would show a number that the shopping list does not use.
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "0.75");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller?.text, "0.75");
+    });
+  });
+
   group("ShoppingIngredient best-value banner", () {
     // A real 2-product mix, so the "Best value" banner is shown.
     CombinationRecommendation buildMix() {
@@ -420,6 +511,85 @@ void main() {
       await tester.pump();
 
       expect(captured, 3.0);
+      // The button also writes the amount into the field, so the user reads what it filled in.
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "3");
+    });
+
+    testWidgets("auto-fill reports the amount that it writes into the field", (WidgetTester tester) async {
+      // The button shortens the need to two decimals, then writes that number and reports it, so
+      // the field and the page can never disagree.
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      double? captured;
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a")],
+        remainingGrams: 500,
+        quantitiesDesired: const [Quantity(amount: 0.125, unit: Unit.pieces)],
+        ownedUnit: const OwnedUnit(unit: Unit.pieces),
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      await tester.tap(find.byTooltip("Auto-fill with needed amount"));
+      await tester.pump();
+
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "0.13");
+      expect(captured, 0.13);
+    });
+
+    testWidgets("auto-fill writes a short number, not the float noise of the need", (WidgetTester tester) async {
+      // The needed amount comes out of the unit conversions, which multiply doubles, so it can carry
+      // a long tail: 2 spoons at density 0.92 give 27.599999999999998. The 120-pixel field cannot
+      // show that, and the user never typed it.
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      double? captured;
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a")],
+        remainingGrams: 500,
+        quantitiesDesired: const [Quantity(amount: 27.599999999999998, unit: Unit.pieces)],
+        ownedUnit: const OwnedUnit(unit: Unit.pieces),
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      await tester.tap(find.byTooltip("Auto-fill with needed amount"));
+      await tester.pump();
+
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, "Owned")).controller?.text, "27.6");
+      // The page must store the number the field shows, or the two disagree again.
+      expect(captured, 27.6);
+    });
+
+    testWidgets("a unit switch keeps the stored amount when the field text does not parse", (WidgetTester tester) async {
+      // The dropdown used to re-read the field text, so text the parser rejects stored 0 and wiped
+      // an owned amount that the page still held.
+      await tester.binding.setSurfaceSize(const Size(1400, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      double? captured;
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a")],
+        remainingGrams: 500,
+        quantitiesDesired: const [Quantity(amount: 3, unit: Unit.pieces)],
+        ownedAmount: 5,
+        ownedUnit: const OwnedUnit(unit: Unit.pieces),
+        onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
+      );
+
+      // A stray character: the input reports nothing for it, so the page still holds 5.
+      await tester.enterText(find.widgetWithText(TextField, "Owned"), "5a");
+      await tester.pump();
+
+      await tester.tap(find.byType(DropdownButtonFormField<OwnedUnit>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("grams").last);
+      await tester.pumpAndSettle();
+
+      expect(captured, 5);
     });
 
     testWidgets("auto-fill counts one pack for two equivalents that need only one (no over-fill)", (WidgetTester tester) async {
