@@ -1018,9 +1018,9 @@
           "subMeals": [
             {
               "cooking": {
-                "recipeId": "6c877540-8a82-1e23-b9ad-f37d25fb840b",
+                "recipeId": "3f2c81a0-5d4e-4c1b-9a77-2b6f0d91c4ee",
                 "yield": 1,
-                "ref_name": "Ensalada con Salmón a la Plancha"
+                "ref_name": "Ensalada César"
               },
               "people": 2
             }

@@ -4,6 +4,7 @@ import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
+import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
@@ -11,6 +12,9 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/persistency.dart";
+import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/models/ingredient_usage.dart";
+import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 
@@ -279,6 +283,94 @@ void main() {
         List<String> outputIds = recipe.instructions.expand((i) => i.outputs).map((o) => o.id).toList();
         expect(outputIds.toSet().length, outputIds.length, reason: "Recipe '${recipe.name}' has duplicate output IDs");
       }
+    });
+  });
+
+  group("Ensalada César", () {
+    const String ensaladaCesarId = "3f2c81a0-5d4e-4c1b-9a77-2b6f0d91c4ee";
+
+    test("the recipe book holds it as a dinner meal with carbs, proteins and vegetables", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Recipe recipe = RecipesProvider.instance.recipes.firstWhere((Recipe r) => r.id == ensaladaCesarId);
+
+      expect(recipe.name, "Ensalada César");
+      expect(recipe.type, RecipeType.meal);
+      expect(recipe.lunch, false);
+      expect(recipe.dinner, true);
+      expect(recipe.carbs, true);
+      expect(recipe.proteins, true);
+      expect(recipe.vegetables, true);
+      expect(recipe.maxStorageDays, 0);
+      expect(recipe.includeInMenuGeneration, true);
+    });
+
+    test("it uses the Caesar salad ingredients with the expected amounts", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Recipe recipe = RecipesProvider.instance.recipes.firstWhere((Recipe r) => r.id == ensaladaCesarId);
+      Map<String, Ingredient> ingredientById = {for (Ingredient i in IngredientsProvider.instance.ingredients) i.id: i};
+
+      Map<String, String> amountByIngredientName = {
+        for (Instruction instruction in recipe.instructions)
+          for (IngredientUsage usage in instruction.ingredientsUsed)
+            ingredientById[usage.ingredient]!.name: "${usage.quantity.amount} ${usage.quantity.unit.name}",
+      };
+
+      expect(amountByIngredientName, {
+        "Lechuga Romana": "200.0 grams",
+        "Tiras de pechuga de pollo": "140.0 grams",
+        "Queso curado y cheddar en dados": "100.0 grams",
+        "Picatostes": "30.0 grams",
+        "Parmesano (o Grana Padano) rallado": "20.0 grams",
+        "Salsa César": "6.0 centiliters",
+      });
+    });
+
+    test("each new ingredient carries its Mercadona product", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Map<String, Ingredient> ingredientByName = {for (Ingredient i in IngredientsProvider.instance.ingredients) i.name: i};
+
+      Map<String, String> expectedPacks = {
+        "Lechuga Romana": "1x200.0 grams",
+        "Tiras de pechuga de pollo": "1x140.0 grams",
+        "Queso curado y cheddar en dados": "1x125.0 grams",
+        "Picatostes": "1x100.0 grams",
+        "Salsa César": "1x31.0 centiliters",
+      };
+
+      for (MapEntry<String, String> expected in expectedPacks.entries) {
+        Ingredient ingredient = ingredientByName[expected.key]!;
+        expect(ingredient.products.length, 1, reason: "${expected.key} product count");
+        Product product = ingredient.products.first;
+        expect("${product.itemsPerPack}x${product.quantityPerItem} ${product.unit.name}", expected.value, reason: "${expected.key} pack size");
+        expect(product.link.startsWith("https://tienda.mercadona.es/product/"), true, reason: "${expected.key} store link");
+      }
+    });
+
+    test("it replaces the salmon salad on week 3 Wednesday dinner", () async {
+      List<Recipe> recipes = await loadRecipesAndGetList();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
+
+      Meal wednesdayDinner = menu.weeks[2].meals.firstWhere(
+        (Meal meal) => meal.mealTime.weekDay == WeekDay.wednesday && meal.mealTime.mealType == MealType.dinner,
+      );
+
+      expect(wednesdayDinner.subMeals.length, 1);
+      expect(wednesdayDinner.subMeals.first.cooking!.recipeId, ensaladaCesarId);
+      expect(wednesdayDinner.subMeals.first.people, 2);
+    });
+
+    test("the salmon salad stays on week 1 Thursday dinner", () async {
+      List<Recipe> recipes = await loadRecipesAndGetList();
+      MultiWeekMenu menu = await Persistency.loadDefaultMenu(recipes: recipes);
+
+      Meal thursdayDinner = menu.weeks[0].meals.firstWhere(
+        (Meal meal) => meal.mealTime.weekDay == WeekDay.thursday && meal.mealTime.mealType == MealType.dinner,
+      );
+
+      expect(thursdayDinner.subMeals.first.cooking!.recipeId, "6c877540-8a82-1e23-b9ad-f37d25fb840b");
     });
   });
 }
