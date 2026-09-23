@@ -1,6 +1,6 @@
 import "dart:math";
 
-import "package:menu_management/flutter_essentials/utils/arithmetic_expression.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";

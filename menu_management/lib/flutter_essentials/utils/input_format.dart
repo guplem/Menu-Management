@@ -3,7 +3,7 @@ import "package:flutter/services.dart";
 /// A collection of common [TextInputFormatter] presets for form fields.
 ///
 /// Provides ready-to-use formatters for names, usernames, prices,
-/// digit-only inputs, and alphanumeric text.
+/// digit-only inputs, arithmetic expressions, and alphanumeric text.
 class InputFormat {
   /// Allows letters (including accented), apostrophes, middle dots, and spaces.
   static TextInputFormatter get name {
