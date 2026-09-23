@@ -102,22 +102,11 @@ class MenuConfigurationPage extends StatelessWidget {
                           const SizedBox(height: 5),
                           SizedBox(
                             width: 140,
-                            child: TextField(
+                            child: _CookingTimeField(
                               enabled: menuConfiguration.requiresMeal,
-                              controller: TextEditingController.fromValue(
-                                TextEditingValue(
-                                  text: menuConfiguration.availableCookingTimeMinutes.toString(),
-                                  selection: TextSelection.collapsed(offset: menuConfiguration.availableCookingTimeMinutes.toString().length),
-                                ),
-                              ),
-                              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Cooking time", suffixText: "min"),
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [InputFormat.arithmetic],
-                              onChanged: (String cookingTimeInput) {
-                                int? cookingTimeMinutes = evaluateWholeArithmetic(cookingTimeInput);
-                                if (cookingTimeMinutes != null && cookingTimeMinutes >= 0) {
-                                  MenuProvider.update(newConfiguration: menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes));
-                                }
+                              minutes: menuConfiguration.availableCookingTimeMinutes,
+                              onMinutesChanged: (int cookingTimeMinutes) {
+                                MenuProvider.update(newConfiguration: menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes));
                               },
                             ),
                           ),
@@ -159,6 +148,57 @@ class MenuConfigurationPage extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// The "Cooking time" input of one meal slot.
+///
+/// The field keeps its own controller, so the text that the user types stays on screen. Each valid
+/// keystroke stores a value, and the provider then builds the page again. A controller made from the
+/// stored value on each build would replace "120/1" with "120", and the next "0" would give "1200".
+class _CookingTimeField extends StatefulWidget {
+  const _CookingTimeField({required this.enabled, required this.minutes, required this.onMinutesChanged});
+
+  final bool enabled;
+  final int minutes;
+  final void Function(int minutes) onMinutesChanged;
+
+  @override
+  State<_CookingTimeField> createState() => _CookingTimeFieldState();
+}
+
+class _CookingTimeFieldState extends State<_CookingTimeField> {
+  late final TextEditingController _controller = TextEditingController(text: widget.minutes.toString());
+
+  @override
+  void didUpdateWidget(_CookingTimeField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Replace the text only when the stored minutes changed and the text means another value,
+    // for example after a menu load.
+    if (widget.minutes != oldWidget.minutes && evaluateWholeArithmetic(_controller.text) != widget.minutes) {
+      _controller.text = widget.minutes.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      enabled: widget.enabled,
+      controller: _controller,
+      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Cooking time", suffixText: "min"),
+      keyboardType: TextInputType.number,
+      inputFormatters: [InputFormat.arithmetic],
+      onChanged: (String cookingTimeInput) {
+        int? cookingTimeMinutes = evaluateWholeArithmetic(cookingTimeInput);
+        if (cookingTimeMinutes != null && cookingTimeMinutes >= 0) widget.onMinutesChanged(cookingTimeMinutes);
+      },
     );
   }
 }
