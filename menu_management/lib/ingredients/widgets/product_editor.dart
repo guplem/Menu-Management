@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
@@ -93,20 +94,51 @@ class _ProductEditorState extends State<ProductEditor> {
 
   bool get _isFormValid {
     if (_linkController.text.trim().isEmpty) return false;
-    if (int.tryParse(_itemsPerPackController.text) == null) return false;
-    if (double.tryParse(_quantityPerItemController.text) == null) return false;
-    int items = int.parse(_itemsPerPackController.text);
-    double qty = double.parse(_quantityPerItemController.text);
-    return items > 0 && qty > 0;
+    int? items = evaluateWholeArithmetic(_itemsPerPackController.text);
+    double? qty = evaluateArithmetic(_quantityPerItemController.text);
+    if (items == null || qty == null) return false;
+    return items > 0 && qty > 0 && !_hasInvalidNumber;
+  }
+
+  /// The error text of the "Items per pack" field, or null when the text is empty or valid.
+  String? get _itemsPerPackError {
+    if (_itemsPerPackController.text.trim().isEmpty) return null;
+    int? items = evaluateWholeArithmetic(_itemsPerPackController.text);
+    return items == null || items <= 0 ? "Enter a whole number above 0" : null;
+  }
+
+  /// The error text of the "Quantity per item" field, or null when the text is empty or valid.
+  String? get _quantityPerItemError {
+    if (_quantityPerItemController.text.trim().isEmpty) return null;
+    double? quantity = evaluateArithmetic(_quantityPerItemController.text);
+    return quantity == null || quantity <= 0 ? "Enter a number above 0" : null;
+  }
+
+  /// The error text of an optional shelf-life field, or null when the text is empty or valid.
+  static String? _shelfLifeDaysError(String text) {
+    if (text.trim().isEmpty) return null;
+    int? days = evaluateWholeArithmetic(text);
+    return days == null || days < 0 ? "Enter a whole number of days" : null;
+  }
+
+  /// Whether a number field shows an error.
+  ///
+  /// Save and Add stay disabled while this is true. Save drops a form that is not valid, so an
+  /// enabled Save would lose the product in the form with no warning.
+  bool get _hasInvalidNumber {
+    return _itemsPerPackError != null ||
+        _quantityPerItemError != null ||
+        _shelfLifeDaysError(_shelfLifeDaysOpenedController.text) != null ||
+        _shelfLifeDaysError(_shelfLifeDaysClosedController.text) != null;
   }
 
   Product _buildProductFromForm() {
-    int? shelfLifeDaysOpened = int.tryParse(_shelfLifeDaysOpenedController.text);
-    int? shelfLifeDaysClosed = int.tryParse(_shelfLifeDaysClosedController.text);
+    int? shelfLifeDaysOpened = evaluateWholeArithmetic(_shelfLifeDaysOpenedController.text);
+    int? shelfLifeDaysClosed = evaluateWholeArithmetic(_shelfLifeDaysClosedController.text);
     return Product(
       link: _linkController.text.trim(),
-      itemsPerPack: int.parse(_itemsPerPackController.text),
-      quantityPerItem: double.parse(_quantityPerItemController.text),
+      itemsPerPack: evaluateWholeArithmetic(_itemsPerPackController.text)!,
+      quantityPerItem: evaluateArithmetic(_quantityPerItemController.text)!,
       unit: _selectedUnit,
       shelfLifeDaysOpened: shelfLifeDaysOpened,
       shelfLifeDaysClosed: shelfLifeDaysClosed,
@@ -191,15 +223,17 @@ class _ProductEditorState extends State<ProductEditor> {
             const SizedBox(height: 12),
             TextField(
               controller: _itemsPerPackController,
-              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Items per pack"),
+              decoration: InputDecoration(border: const OutlineInputBorder(), labelText: "Items per pack", errorText: _itemsPerPackError),
               keyboardType: TextInputType.number,
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _quantityPerItemController,
-              decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Quantity per item"),
+              decoration: InputDecoration(border: const OutlineInputBorder(), labelText: "Quantity per item", errorText: _quantityPerItemError),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -214,23 +248,27 @@ class _ProductEditorState extends State<ProductEditor> {
             const SizedBox(height: 12),
             TextField(
               controller: _shelfLifeDaysOpenedController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 labelText: "Shelf life after opening (days)",
                 hintText: "Leave empty if it does not go bad once opened",
+                errorText: _shelfLifeDaysError(_shelfLifeDaysOpenedController.text),
               ),
               keyboardType: TextInputType.number,
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _shelfLifeDaysClosedController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 labelText: "Shelf life sealed (days from purchase)",
                 hintText: "Leave empty for indefinite when sealed",
+                errorText: _shelfLifeDaysError(_shelfLifeDaysClosedController.text),
               ),
               keyboardType: TextInputType.number,
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -268,7 +306,7 @@ class _ProductEditorState extends State<ProductEditor> {
       ),
       actions: [
         TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("Cancel")),
-        FilledButton(onPressed: _hasChanges ? _saveAndClose : null, child: const Text("Save")),
+        FilledButton(onPressed: _hasChanges && !_hasInvalidNumber ? _saveAndClose : null, child: const Text("Save")),
       ],
     );
   }

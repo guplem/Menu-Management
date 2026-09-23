@@ -146,7 +146,7 @@ class _ExportRecipeToMarkdownState extends State<ExportRecipeToMarkdown> {
   }
 
   void _exportToClipboard() {
-    final int? servings = int.tryParse(servingsController.text);
+    final int? servings = evaluateWholeArithmetic(servingsController.text);
     if (servings == null || servings <= 0) {
       return;
     }
@@ -167,7 +167,7 @@ class _ExportRecipeToMarkdownState extends State<ExportRecipeToMarkdown> {
       content: TextField(
         controller: servingsController,
         keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        inputFormatters: [InputFormat.arithmetic],
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
           labelText: "Number of Servings",
@@ -184,7 +184,7 @@ class _ExportRecipeToMarkdownState extends State<ExportRecipeToMarkdown> {
         ),
         FilledButton.icon(
           icon: const Icon(Icons.copy_rounded),
-          onPressed: servingsController.text.trimAndSetNullIfEmpty == null || (int.tryParse(servingsController.text) ?? 0) <= 0
+          onPressed: servingsController.text.trimAndSetNullIfEmpty == null || (evaluateWholeArithmetic(servingsController.text) ?? 0) <= 0
               ? null
               : _exportToClipboard,
           label: const Text("Copy"),

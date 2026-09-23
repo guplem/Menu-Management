@@ -561,6 +561,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                     width: 120,
                     child: TextField(
                       controller: _controller,
+                      inputFormatters: [InputFormat.arithmetic],
                       decoration: InputDecoration(
                         labelText: "Owned",
                         border: const OutlineInputBorder(),
@@ -572,7 +573,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
                         ),
                       ),
                       onChanged: (String value) {
-                        double? val = double.tryParse(value);
+                        double? val = evaluateArithmetic(value);
                         if (value.isNullOrEmpty) val = 0;
                         if (val == null) return;
                         widget.onOwnedChanged(val, widget.ownedUnit);

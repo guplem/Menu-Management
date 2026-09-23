@@ -233,9 +233,10 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
                 child: TextField(
                   controller: _controller,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [InputFormat.arithmetic],
                   decoration: const InputDecoration(labelText: "Owned", border: OutlineInputBorder(), isDense: true),
                   onChanged: (String value) {
-                    double? parsed = double.tryParse(value);
+                    double? parsed = evaluateArithmetic(value);
                     if (value.isNullOrEmpty) parsed = 0;
                     if (parsed == null) return;
                     widget.onOwnedCountChanged!(parsed);

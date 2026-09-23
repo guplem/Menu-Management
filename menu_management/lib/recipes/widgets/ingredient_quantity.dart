@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/recipes/enums/unit.dart";
@@ -68,11 +67,12 @@ class _IngredientQuantityState extends State<IngredientQuantity> {
           width: 120,
           child: TextField(
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[\d.]+"))],
+            inputFormatters: [InputFormat.arithmetic],
             controller: amountController,
             decoration: InputDecoration(border: const OutlineInputBorder(), labelText: "New", errorText: isInvalidAmount ? "Invalid Amount" : null),
             onChanged: (value) {
-              double? amount = double.tryParse(value);
+              double? amount = evaluateArithmetic(value);
+              if (amount != null && amount < 0) amount = null;
               if (amount != null) {
                 updateIngredientUsage(ingredientUsage.copyWith(quantity: ingredientUsage.quantity.copyWith(amount: amount)));
               }

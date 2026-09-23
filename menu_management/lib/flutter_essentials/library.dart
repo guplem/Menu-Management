@@ -1,4 +1,5 @@
 // Utils
+export "package:menu_management/flutter_essentials/utils/arithmetic_expression.dart";
 export "package:menu_management/flutter_essentials/utils/debug.dart";
 export "package:menu_management/flutter_essentials/utils/debug_timer.dart";
 export "package:menu_management/flutter_essentials/utils/elastic_curve.dart";

@@ -43,6 +43,21 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
     super.dispose();
   }
 
+  /// The error text of an optional amount field, or null when its text is empty or a number above 0.
+  ///
+  /// Save stays disabled while a field shows an error. Otherwise Save would store no value for
+  /// text such as "1/" and remove the value that the ingredient had.
+  static String? _optionalAmountError(String text) {
+    if (text.trim().isEmpty) return null;
+    double? amount = evaluateArithmetic(text);
+    return amount == null || amount <= 0 ? "Enter a number above 0" : null;
+  }
+
+  bool get _canSave {
+    if (_controller.text.trimAndSetNullIfEmpty == null) return false;
+    return _optionalAmountError(_densityController.text) == null && _optionalAmountError(_gramsPerPieceController.text) == null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -58,23 +73,27 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
           const SizedBox(height: 12),
           TextField(
             controller: _densityController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
               labelText: "Density (g/ml)",
               hintText: "e.g. 1.05 for yogurt, 0.91 for oil",
+              errorText: _optionalAmountError(_densityController.text),
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [InputFormat.arithmetic],
             onChanged: (String value) => setState(() {}),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _gramsPerPieceController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
               labelText: "Grams per piece",
               hintText: "e.g. 5 for garlic, 80 for carrot",
+              errorText: _optionalAmountError(_gramsPerPieceController.text),
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [InputFormat.arithmetic],
             onChanged: (String value) => setState(() {}),
           ),
         ],
@@ -87,11 +106,11 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
           child: const Text("Cancel"),
         ),
         FilledButton(
-          onPressed: _controller.text.trimAndSetNullIfEmpty == null
+          onPressed: !_canSave
               ? null
               : () {
-                  double? density = double.tryParse(_densityController.text);
-                  double? gramsPerPiece = double.tryParse(_gramsPerPieceController.text);
+                  double? density = evaluateArithmetic(_densityController.text);
+                  double? gramsPerPiece = evaluateArithmetic(_gramsPerPieceController.text);
                   final Ingredient updatedIngredient = widget.ingredient.copyWith(
                     name: _controller.text,
                     density: density,

@@ -173,6 +173,39 @@ void main() {
       expect(tester.widget<TextField>(ownedField).controller!.text, "1.");
     });
 
+    testWidgets("keeps an arithmetic expression as the user typed it", (WidgetTester tester) async {
+      // "1/6" reports 1/6 to the parent. A re-seed would write 0.16666666666666666 over the expression.
+      double owned = 0;
+      Product product = _packProduct();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return ShoppingProductRow(
+                  product: product,
+                  recommendation: _recommendation(product),
+                  isBestOption: true,
+                  packsToBuy: 9,
+                  ownedCount: owned,
+                  onOwnedCountChanged: (double value) => setState(() => owned = value),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1/");
+      await tester.pump();
+      await tester.enterText(ownedField, "1/6");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller!.text, "1/6");
+      expect(owned, 1 / 6);
+    });
+
     testWidgets("uses 'piece' wording for single-item packs", (WidgetTester tester) async {
       const Product piecesProduct = Product(link: "", quantityPerItem: 1, itemsPerPack: 1, unit: Unit.pieces);
       await _pumpRow(
