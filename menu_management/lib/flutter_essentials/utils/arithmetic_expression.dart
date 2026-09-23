@@ -5,8 +5,8 @@
 /// priority apply from left to right. A `+` or `-` in front of a number or a parenthesis is its sign.
 ///
 /// Returns null for empty text, for text that is not complete arithmetic (such as "1/" while the
-/// user types), and for a division by zero. A plain number such as "2.5" gives the same value as
-/// [double.tryParse].
+/// user types), for a division by zero, and for a number too large for a double. A plain decimal
+/// number such as "2.5" or "1,5" gives its value.
 double? evaluateArithmetic(String text) {
   _ArithmeticParser parser = _ArithmeticParser(text);
   if (parser.isAtEnd) return null;
@@ -47,6 +47,7 @@ class _ArithmeticParser {
 
   static final RegExp _numberCharacter = RegExp(r"[\d.,]");
 
+  /// Whether only spaces are left. It moves the position past those spaces, like [_peek].
   bool get isAtEnd => _peek() == null;
 
   /// The next character that is not a space, or null at the end of the text.
@@ -111,6 +112,9 @@ class _ArithmeticParser {
     String number = _text.substring(start, _position).replaceAll(",", ".");
     // double.tryParse also reads forms such as "1e3" or "NaN". The loop above lets through
     // only digits and separators, so here it reads a plain decimal number.
-    return double.tryParse(number);
+    double? value = double.tryParse(number);
+    // A number too large for a double reads as infinity. 1 divided by it would give a finite 0.
+    if (value == null || !value.isFinite) return null;
+    return value;
   }
 }

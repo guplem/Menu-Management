@@ -81,6 +81,20 @@ void main() {
         expect(evaluateArithmetic("2 3"), isNull);
       });
 
+      test("gives null for a number form that is not a plain decimal", () {
+        // double.tryParse reads these, but a typed amount never means them.
+        expect(evaluateArithmetic("1e3"), isNull);
+        expect(evaluateArithmetic("NaN"), isNull);
+        expect(evaluateArithmetic("Infinity"), isNull);
+      });
+
+      test("gives null for a number too large for a double", () {
+        String tooLarge = "9" * 400;
+        expect(evaluateArithmetic(tooLarge), isNull);
+        // Only the number is infinite here: 1 divided by it gives 0, which is not what the user typed.
+        expect(evaluateArithmetic("1/$tooLarge"), isNull);
+      });
+
       test("gives null for a division by zero", () {
         expect(evaluateArithmetic("1/0"), isNull);
         expect(evaluateArithmetic("1/(2-2)"), isNull);
