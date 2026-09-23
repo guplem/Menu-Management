@@ -26,6 +26,12 @@ class InputFormat {
     return FilteringTextInputFormatter.digitsOnly;
   }
 
+  /// Allows the characters of an arithmetic expression: digits, dots, commas, `+ - * /`,
+  /// parentheses, and spaces. Read the text with `evaluateArithmetic`.
+  static TextInputFormatter get arithmetic {
+    return FilteringTextInputFormatter.allow(RegExp(r"[\d.,+\-*/() ]"));
+  }
+
   /// Allows only alphanumeric characters (a-z, A-Z, 0-9).
   static TextInputFormatter get alphanumeric {
     return FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9]"));
