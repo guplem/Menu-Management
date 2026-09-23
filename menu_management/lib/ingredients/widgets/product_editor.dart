@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
@@ -93,20 +94,19 @@ class _ProductEditorState extends State<ProductEditor> {
 
   bool get _isFormValid {
     if (_linkController.text.trim().isEmpty) return false;
-    if (int.tryParse(_itemsPerPackController.text) == null) return false;
-    if (double.tryParse(_quantityPerItemController.text) == null) return false;
-    int items = int.parse(_itemsPerPackController.text);
-    double qty = double.parse(_quantityPerItemController.text);
+    int? items = evaluateWholeArithmetic(_itemsPerPackController.text);
+    double? qty = evaluateArithmetic(_quantityPerItemController.text);
+    if (items == null || qty == null) return false;
     return items > 0 && qty > 0;
   }
 
   Product _buildProductFromForm() {
-    int? shelfLifeDaysOpened = int.tryParse(_shelfLifeDaysOpenedController.text);
-    int? shelfLifeDaysClosed = int.tryParse(_shelfLifeDaysClosedController.text);
+    int? shelfLifeDaysOpened = evaluateWholeArithmetic(_shelfLifeDaysOpenedController.text);
+    int? shelfLifeDaysClosed = evaluateWholeArithmetic(_shelfLifeDaysClosedController.text);
     return Product(
       link: _linkController.text.trim(),
-      itemsPerPack: int.parse(_itemsPerPackController.text),
-      quantityPerItem: double.parse(_quantityPerItemController.text),
+      itemsPerPack: evaluateWholeArithmetic(_itemsPerPackController.text)!,
+      quantityPerItem: evaluateArithmetic(_quantityPerItemController.text)!,
       unit: _selectedUnit,
       shelfLifeDaysOpened: shelfLifeDaysOpened,
       shelfLifeDaysClosed: shelfLifeDaysClosed,
@@ -193,6 +193,7 @@ class _ProductEditorState extends State<ProductEditor> {
               controller: _itemsPerPackController,
               decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Items per pack"),
               keyboardType: TextInputType.number,
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -200,6 +201,7 @@ class _ProductEditorState extends State<ProductEditor> {
               controller: _quantityPerItemController,
               decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Quantity per item"),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -220,6 +222,7 @@ class _ProductEditorState extends State<ProductEditor> {
                 hintText: "Leave empty if it does not go bad once opened",
               ),
               keyboardType: TextInputType.number,
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -231,6 +234,7 @@ class _ProductEditorState extends State<ProductEditor> {
                 hintText: "Leave empty for indefinite when sealed",
               ),
               keyboardType: TextInputType.number,
+              inputFormatters: [InputFormat.arithmetic],
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),

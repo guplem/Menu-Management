@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
@@ -113,10 +112,10 @@ class MenuConfigurationPage extends StatelessWidget {
                               ),
                               decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Cooking time", suffixText: "min"),
                               keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              inputFormatters: [InputFormat.arithmetic],
                               onChanged: (String cookingTimeInput) {
-                                int? cookingTimeMinutes = int.tryParse(cookingTimeInput);
-                                if (cookingTimeMinutes != null) {
+                                int? cookingTimeMinutes = evaluateWholeArithmetic(cookingTimeInput);
+                                if (cookingTimeMinutes != null && cookingTimeMinutes >= 0) {
                                   MenuProvider.update(newConfiguration: menuConfiguration.copyWith(availableCookingTimeMinutes: cookingTimeMinutes));
                                 }
                               },

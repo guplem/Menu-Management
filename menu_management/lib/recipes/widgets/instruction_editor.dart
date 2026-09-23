@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
+import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/result.dart";
@@ -111,7 +111,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
               Flexible(
                 child: TextField(
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [InputFormat.arithmetic],
                   controller: workingTimeController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -120,8 +120,8 @@ class _InstructionEditorState extends State<InstructionEditor> {
                     suffixIcon: Icon(Icons.restaurant_menu_rounded),
                   ),
                   onChanged: (value) {
-                    int? valueParsed = int.tryParse(value);
-                    if (valueParsed == null) return;
+                    int? valueParsed = evaluateWholeArithmetic(value);
+                    if (valueParsed == null || valueParsed < 0) return;
                     updateInstruction(newInstruction.copyWith(workingTimeMinutes: valueParsed));
                   },
                 ),
@@ -130,7 +130,7 @@ class _InstructionEditorState extends State<InstructionEditor> {
               Flexible(
                 child: TextField(
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [InputFormat.arithmetic],
                   controller: cookingTimeController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -139,7 +139,9 @@ class _InstructionEditorState extends State<InstructionEditor> {
                     suffixIcon: Icon(Icons.takeout_dining_rounded),
                   ),
                   onChanged: (value) {
-                    updateInstruction(newInstruction.copyWith(cookingTimeMinutes: int.parse(value)));
+                    int? valueParsed = evaluateWholeArithmetic(value);
+                    if (valueParsed == null || valueParsed < 0) return;
+                    updateInstruction(newInstruction.copyWith(cookingTimeMinutes: valueParsed));
                   },
                 ),
               ),

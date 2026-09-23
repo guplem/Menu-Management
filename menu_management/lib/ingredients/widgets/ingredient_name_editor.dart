@@ -64,6 +64,7 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
               hintText: "e.g. 1.05 for yogurt, 0.91 for oil",
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [InputFormat.arithmetic],
             onChanged: (String value) => setState(() {}),
           ),
           const SizedBox(height: 12),
@@ -75,6 +76,7 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
               hintText: "e.g. 5 for garlic, 80 for carrot",
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [InputFormat.arithmetic],
             onChanged: (String value) => setState(() {}),
           ),
         ],
@@ -90,8 +92,8 @@ class _IngredientNameEditorState extends State<IngredientNameEditor> {
           onPressed: _controller.text.trimAndSetNullIfEmpty == null
               ? null
               : () {
-                  double? density = double.tryParse(_densityController.text);
-                  double? gramsPerPiece = double.tryParse(_gramsPerPieceController.text);
+                  double? density = evaluateArithmetic(_densityController.text);
+                  double? gramsPerPiece = evaluateArithmetic(_gramsPerPieceController.text);
                   final Ingredient updatedIngredient = widget.ingredient.copyWith(
                     name: _controller.text,
                     density: density,
