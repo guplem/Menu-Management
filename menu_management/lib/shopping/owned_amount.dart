@@ -1,5 +1,6 @@
 import "dart:math";
 
+import "package:menu_management/flutter_essentials/utils/arithmetic_expression.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
@@ -83,12 +84,13 @@ String ownedFieldText(double amount) {
 /// parent, which builds the field again. Without that test, "1.5" cut back to "1." would lose its
 /// dot, because both mean 1.0.
 ///
-/// Empty text counts as 0, which is what an input reports for it. Text that parses to no number
-/// also counts as 0 here. An input reports nothing for such text, so the stored amount keeps its
-/// old value.
+/// This function reads the text with [evaluateArithmetic], the same way that the inputs read it, so "1/6"
+/// means one sixth. Empty text counts as 0, which is what an input reports for it. Text that
+/// evaluates to no number also counts as 0 here. An input reports nothing for such text, so the
+/// stored amount keeps its old value.
 bool ownedFieldNeedsReseed({required String fieldText, required double amount, required double previousAmount}) {
   if (amount == previousAmount) return false;
-  return (double.tryParse(fieldText) ?? 0) != amount;
+  return (evaluateArithmetic(fieldText) ?? 0) != amount;
 }
 
 /// Converts an owned [count] of a single [product] of [ingredient] into [targetUnit].
