@@ -1982,6 +1982,83 @@
       ],
       "density": 1.05,
       "gramsPerPiece": 125.0
+    },
+    {
+      "id": "8f1c3d20-7a45-4f8e-9b12-6c0a5e83d771",
+      "name": "Lechuga Romana",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69435/lechuga-romana-cortada-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 5
+        }
+      ],
+      "density": 0.2
+    },
+    {
+      "id": "c4a9b7e0-1f83-4d62-8e05-9a7c2b41f6d3",
+      "name": "Tiras de pechuga de pollo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/56652/tiras-pechuga-pollo-horno-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 140.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 2,
+          "shelfLifeDaysClosed": 14,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 1.05
+    },
+    {
+      "id": "2d6e4f10-9c27-4a85-b3f1-0e58d7a92c46",
+      "name": "Queso curado y cheddar en dados",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/51111/queso-curado-cheddar-hacendado-dados-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 125.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 30,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 1.1
+    },
+    {
+      "id": "7b0d5a90-3e61-4c47-9f28-1d84b6e03f52",
+      "name": "Picatostes",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/82788/picatostes-tostados-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 100.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 14,
+          "shelfLifeDaysClosed": 180
+        }
+      ],
+      "density": 0.25
+    },
+    {
+      "id": "e5c81b40-62d9-4f13-a07b-8c3f5d2e91a4",
+      "name": "Salsa César",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/17366/salsa-cesar-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 31.0,
+          "unit": "centiliters",
+          "shelfLifeDaysOpened": 30,
+          "shelfLifeDaysClosed": 180
+        }
+      ],
+      "density": 1.0
     }
   ],
   "Recipes": [
@@ -6798,6 +6875,112 @@
       "carbs": true,
       "proteins": true,
       "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "3f2c81a0-5d4e-4c1b-9a77-2b6f0d91c4ee",
+      "name": "Ensalada César",
+      "instructions": [
+        {
+          "id": "0c9e7fa0-2b58-4d31-86a4-1e7b53c9f2d6",
+          "ingredientsUsed": [
+            {
+              "ingredient": "8f1c3d20-7a45-4f8e-9b12-6c0a5e83d771",
+              "quantity": {
+                "amount": 200.0,
+                "unit": "grams"
+              },
+              "ref_name": "Lechuga Romana"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Trocear la lechuga romana y ponerla en una ensaladera",
+          "outputs": [
+            {
+              "id": "a1f47c60-0b93-4e28-8d75-3f6c9a20e4b1",
+              "description": "Lechuga troceada en la ensaladera"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "5a34e2b0-8f71-4c09-9d62-b0e45f17ca83",
+          "ingredientsUsed": [
+            {
+              "ingredient": "c4a9b7e0-1f83-4d62-8e05-9a7c2b41f6d3",
+              "quantity": {
+                "amount": 140.0,
+                "unit": "grams"
+              },
+              "ref_name": "Tiras de pechuga de pollo"
+            },
+            {
+              "ingredient": "2d6e4f10-9c27-4a85-b3f1-0e58d7a92c46",
+              "quantity": {
+                "amount": 100.0,
+                "unit": "grams"
+              },
+              "ref_name": "Queso curado y cheddar en dados"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Añadir las tiras de pollo y los dados de queso sobre la lechuga",
+          "outputs": [
+            {
+              "id": "d80b63f0-4a17-4c95-b2e6-57f1c8d3a09e",
+              "description": "Ensalada con pollo y queso"
+            }
+          ],
+          "inputs": [
+            "a1f47c60-0b93-4e28-8d75-3f6c9a20e4b1"
+          ]
+        },
+        {
+          "id": "9e61d480-c35a-4b27-a8f0-72d1e9b6053c",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7b0d5a90-3e61-4c47-9f28-1d84b6e03f52",
+              "quantity": {
+                "amount": 30.0,
+                "unit": "grams"
+              },
+              "ref_name": "Picatostes"
+            },
+            {
+              "ingredient": "b3be0b30-43b3-10ba-b0dd-9d041637ca66",
+              "quantity": {
+                "amount": 20.0,
+                "unit": "grams"
+              },
+              "ref_name": "Parmesano (o Grana Padano) rallado"
+            },
+            {
+              "ingredient": "e5c81b40-62d9-4f13-a07b-8c3f5d2e91a4",
+              "quantity": {
+                "amount": 6.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Salsa César"
+            }
+          ],
+          "workingTimeMinutes": 4,
+          "cookingTimeMinutes": 0,
+          "description": "Añadir los picatostes y el parmesano, aliñar con la salsa César y mezclar",
+          "outputs": [],
+          "inputs": [
+            "d80b63f0-4a17-4c95-b2e6-57f1c8d3a09e"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": true,
       "type": "meal",
       "lunch": false,
       "dinner": true,
