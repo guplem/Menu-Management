@@ -154,6 +154,25 @@ void main() {
       expect(trips.first.items.length, 2);
     });
 
+    test("records the cook days that each item buys, also a later week that an earlier trip buys because the item keeps", () {
+      // Salt keeps forever, so the first trip buys the salt of day 2 and of day 14.
+      // Banana keeps 5 days, so it forces a trip for week 2.
+      Ingredient salt = _ingredient(id: "salt");
+      Ingredient banana = _ingredient(id: "banana", products: [_product(shelfLifeDaysClosed: 5)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "salt": [_event(day: 2, amount: 50), _event(day: 14, amount: 30)],
+        "banana": [_event(day: 7, amount: 200)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [salt, banana]);
+
+      expect(trips.map((ShoppingTrip trip) => trip.weekIndex).toList(), [0, 1]);
+      expect(trips[0].items.single.ingredientId, "salt");
+      expect(trips[0].items.single.cookDays, {2, 14});
+      expect(trips[1].items.single.ingredientId, "banana");
+      expect(trips[1].items.single.cookDays, {7});
+    });
+
     test("same ingredient used in two distant weeks with short shelf life splits across two trips", () {
       // Banana used on day 2 and day 9. Shelf life 5 days closed.
       // Day 2: trip 0 (-1) gives 3 days → fresh. latestW=0.

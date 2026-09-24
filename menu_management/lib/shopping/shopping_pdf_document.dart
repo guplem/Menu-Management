@@ -118,17 +118,25 @@ abstract class ShoppingPdfDocument with _$ShoppingPdfDocument {
 /// [multiWeekMenu] and [recipes] serve the justification only. `ingredientMealRequirements` says
 /// which meal needs which amount of an ingredient.
 ///
-/// A trip section lists a meal under the trip of the week of its cook event
-/// (`IngredientMealRequirement.cookWeekIndex`), not of the week of the meal. The cook event cooks
-/// the food of its leftover meals too, so that trip buys the food of a leftover meal of the next week.
+/// A trip section lists a meal under the trip that buys the day of its cook event
+/// (`IngredientMealRequirement.cookDayIndex` against `TripItem.cookDays`), not under the trip of the
+/// week of the meal. Two reasons make the week of the meal wrong:
+///
+/// 1. The cook event cooks the food of its leftover meals too, so its trip buys the food of a
+///    leftover meal of the next week.
+/// 2. The planner buys an item that keeps on an earlier trip, also for a later week (ADR 0014 and
+///    0015). The trip of the week of the meal then buys none of it.
+///
+/// A meal whose cook day no trip buys, because the owned stock covers it, goes under the first trip
+/// that buys the ingredient. The meals show the whole need, so such a meal still needs a place.
 ///
 /// Known gap: the amounts of the meals of one ingredient do not always add up to the amount to
 /// buy. Two reasons cause it, and neither of them is a fault:
 ///
 /// 1. The amount to buy has the stock that the user already owns taken off it. The meals show the
 ///    whole need, because a meal needs the food whoever paid for it.
-/// 2. A trip section shows the share of that one trip. Its meals are the meals of the weeks that
-///    the trip buys for, so the two sides cover the same weeks but not the same rounding.
+/// 2. A trip section shows the share of that one trip. Its meals are the meals whose cook days the
+///    trip buys, so the two sides cover the same meals but not the same rounding.
 ///
 /// Do not build on that difference.
 ShoppingPdfDocument buildShoppingPdfDocument({
@@ -143,19 +151,21 @@ ShoppingPdfDocument buildShoppingPdfDocument({
   final Map<String, List<IngredientMealRequirement>> mealRequirements = multiWeekMenu.ingredientMealRequirements(recipes: recipes);
   final List<Ingredient> sorted = sortIngredientsForCopy(ingredients);
 
-  /// Builds one line of one section. [weeks] holds the weeks that the section buys for, or null
-  /// for the section that covers the whole menu. The justification and the ranking both read it,
-  /// so the amount, the meals under it and the recommended product all cover the same weeks.
+  /// Builds one line of one section. [tripWeekIndex] names the trip of the section, or is null for
+  /// the section that covers the whole menu. The justification and the ranking both read it, so
+  /// the amount, the meals under it and the recommended product all cover the same cook days.
   ShoppingPdfIngredientEntry? entryOf({
     required Ingredient ingredient,
     required List<Quantity> remaining,
     required bool freezeOnArrival,
-    required Set<int>? weeks,
+    required int? tripWeekIndex,
   }) {
     assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
     if (!remaining.any((Quantity quantity) => quantity.amount > 0)) return null;
     final List<CookingEvent> events = cookingTimeline[ingredient.id] ?? const [];
     final List<IngredientMealRequirement> requirements = mealRequirements[ingredient.id] ?? const [];
+    bool isOnThisTrip(int cookDay) =>
+        tripWeekIndex == null || _tripOfCookDay(trips: trips, ingredientId: ingredient.id, cookDay: cookDay) == tripWeekIndex;
     return ShoppingPdfIngredientEntry(
       ingredientName: ingredient.name,
       amounts: shoppingAmountsText(remaining),
@@ -163,12 +173,12 @@ ShoppingPdfDocument buildShoppingPdfDocument({
       products: _productOptions(
         ingredient: ingredient,
         remaining: remaining,
-        events: weeks == null ? events : events.where((CookingEvent event) => weeks.contains(event.dayIndex ~/ 7)).toList(),
+        events: events.where((CookingEvent event) => isOnThisTrip(event.dayIndex)).toList(),
       ),
       meals: _mealNeeds(
         ingredient: ingredient,
         startDate: multiWeekMenu.startDate,
-        requirements: weeks == null ? requirements : requirements.where((IngredientMealRequirement r) => weeks.contains(r.cookWeekIndex)).toList(),
+        requirements: requirements.where((IngredientMealRequirement r) => isOnThisTrip(r.cookDayIndex)).toList(),
       ),
     );
   }
@@ -182,7 +192,7 @@ ShoppingPdfDocument buildShoppingPdfDocument({
         ingredient: ingredient,
         remaining: remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId),
         freezeOnArrival: false,
-        weeks: null,
+        tripWeekIndex: null,
       );
       if (entry != null) entries.add(entry);
     }
@@ -190,7 +200,6 @@ ShoppingPdfDocument buildShoppingPdfDocument({
     return ShoppingPdfDocument(title: _documentTitle(multiWeekMenu), trips: sections);
   }
 
-  final Map<int, Set<int>> weeksByTrip = _weeksByTrip(trips: trips, weekCount: multiWeekMenu.weeks.length);
   final Map<int, List<ShoppingPdfIngredientEntry>> entriesByWeek = {for (ShoppingTrip trip in trips) trip.weekIndex: []};
   for (Ingredient ingredient in sorted) {
     final List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
@@ -199,7 +208,7 @@ ShoppingPdfDocument buildShoppingPdfDocument({
         ingredient: ingredient,
         remaining: allocation.quantities,
         freezeOnArrival: allocation.freezeOnArrival,
-        weeks: weeksByTrip[allocation.weekIndex] ?? const <int>{},
+        tripWeekIndex: allocation.weekIndex,
       );
       if (entry != null) entriesByWeek[allocation.weekIndex]!.add(entry);
     }
@@ -219,19 +228,25 @@ ShoppingPdfDocument buildShoppingPdfDocument({
   return ShoppingPdfDocument(title: _documentTitle(multiWeekMenu), trips: sections);
 }
 
-/// Says which weeks of the menu each trip buys for, keyed by the week of the trip.
+/// Says which trip buys the cook event of [ingredientId] on [cookDay], as the week of that trip.
 ///
-/// The planner puts one trip on the day before a week starts (ADR 0014). A trip therefore buys
-/// for its own week and for every week up to the next trip. The last trip buys for every week
-/// that is left.
-Map<int, Set<int>> _weeksByTrip({required List<ShoppingTrip> trips, required int weekCount}) {
-  final Map<int, Set<int>> weeks = {};
-  for (int index = 0; index < trips.length; index++) {
-    final int first = trips[index].weekIndex;
-    final int last = index + 1 < trips.length ? trips[index + 1].weekIndex - 1 : weekCount - 1;
-    weeks[first] = <int>{for (int week = first; week <= last; week++) week};
+/// The first trip whose items of the ingredient hold [cookDay] wins. An ingredient that the
+/// planner splits over two units can in theory buy one cook day on two trips, and the meal of that
+/// day then goes under the earlier one.
+///
+/// A cook day that no trip buys goes to the first trip that buys the ingredient. The planner skips
+/// a cook event that the owned stock covers, and the owned stock covers the earliest events first.
+/// It returns null when no trip buys the ingredient at all.
+int? _tripOfCookDay({required List<ShoppingTrip> trips, required String ingredientId, required int cookDay}) {
+  int? firstTrip;
+  for (ShoppingTrip trip in trips) {
+    for (TripItem item in trip.items) {
+      if (item.ingredientId != ingredientId) continue;
+      firstTrip ??= trip.weekIndex;
+      if (item.cookDays.contains(cookDay)) return trip.weekIndex;
+    }
   }
-  return weeks;
+  return firstTrip;
 }
 
 /// Names the document after the days that the menu covers, for example

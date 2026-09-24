@@ -187,7 +187,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   ///
   /// The shopping totals ([allIngredients], [ingredientSources]) and the per-meal breakdown
   /// ([ingredientMealRequirements]) all read this list, so they count the same meals.
-  List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex})> _fedSubMeals({
+  List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookDayIndex})> _fedSubMeals({
     required List<Recipe> recipes,
   }) {
     List<({int weekIndex, Meal meal})> ordered = [
@@ -201,9 +201,9 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
       return a.meal.mealTime.goesBefore(b.meal.mealTime) ? -1 : 1;
     });
 
-    // The latest cook event of each recipe so far: its absolute day and its week.
-    Map<String, ({int day, int weekIndex})> latestCook = {};
-    List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex})> fed = [];
+    // The absolute day of the latest cook event of each recipe so far.
+    Map<String, int> latestCook = {};
+    List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookDayIndex})> fed = [];
 
     for (({int weekIndex, Meal meal}) entry in ordered) {
       int day = entry.weekIndex * 7 + entry.meal.mealTime.weekDay.value;
@@ -214,14 +214,14 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
         Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
         if (recipe == null) continue;
 
-        int cookWeekIndex;
+        int cookDayIndex;
         if (cooking.yield > 0) {
-          latestCook[recipe.id] = (day: day, weekIndex: entry.weekIndex);
-          cookWeekIndex = entry.weekIndex;
+          latestCook[recipe.id] = day;
+          cookDayIndex = day;
         } else {
-          ({int day, int weekIndex})? cook = latestCook[recipe.id];
-          if (cook == null || day - cook.day > recipe.maxStorageDays) continue;
-          cookWeekIndex = cook.weekIndex;
+          int? cookDay = latestCook[recipe.id];
+          if (cookDay == null || day - cookDay > recipe.maxStorageDays) continue;
+          cookDayIndex = cookDay;
         }
         fed.add((
           weekIndex: entry.weekIndex,
@@ -229,7 +229,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
           subMealIndex: subMealIndex,
           subMeal: subMeal,
           recipe: recipe,
-          cookWeekIndex: cookWeekIndex,
+          cookDayIndex: cookDayIndex,
         ));
       }
     }
@@ -240,7 +240,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   /// appears in [_fedSubMeals]. This number is the servings that the whole menu cooks of the recipe.
   List<({Recipe recipe, int servings})> _servingsPerRecipe({required List<Recipe> recipes}) {
     Map<String, ({Recipe recipe, int servings})> byRecipeId = {};
-    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex}) fed in _fedSubMeals(
+    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookDayIndex}) fed in _fedSubMeals(
       recipes: recipes,
     )) {
       int servings = byRecipeId[fed.recipe.id]?.servings ?? 0;
@@ -306,7 +306,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes}) {
     Map<String, List<IngredientMealRequirement>> requirements = {};
 
-    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex}) fed in _fedSubMeals(
+    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookDayIndex}) fed in _fedSubMeals(
       recipes: recipes,
     )) {
       for (MapEntry<String, List<Quantity>> ingredient in fed.recipe.perServingQuantities().entries) {
@@ -315,7 +315,7 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
             .add(
               IngredientMealRequirement(
                 weekIndex: fed.weekIndex,
-                cookWeekIndex: fed.cookWeekIndex,
+                cookDayIndex: fed.cookDayIndex,
                 mealTime: fed.mealTime,
                 subMealIndex: fed.subMealIndex,
                 recipeId: fed.recipe.id,

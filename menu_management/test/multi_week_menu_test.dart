@@ -729,6 +729,9 @@ void main() {
         (1, WeekDay.monday, 1),
         (1, WeekDay.tuesday, 1),
       ]);
+      // The day of the cook event, counted from the first day of the menu: Friday of week 0 is
+      // day 6, and Monday of week 1 is day 9. A shopping trip buys the food of that day.
+      expect(requirements.map((IngredientMealRequirement r) => r.cookDayIndex), [6, 6, 9, 9]);
     });
 
     test("counts a leftover meal of the next week in the servings of the recipe source", () {
