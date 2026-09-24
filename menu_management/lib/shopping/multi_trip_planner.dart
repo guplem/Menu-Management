@@ -7,11 +7,18 @@ import "package:menu_management/shopping/owned_amount.dart";
 
 /// A grouped item to buy on a specific [ShoppingTrip].
 class TripItem {
-  const TripItem({required this.ingredientId, required this.amount, required this.unit, this.freezeOnArrival = false});
+  const TripItem({required this.ingredientId, required this.amount, required this.unit, this.freezeOnArrival = false, this.cookDays = const {}});
 
   final String ingredientId;
   final double amount;
   final Unit unit;
+
+  /// The day indexes (`CookingEvent.dayIndex`) of the cooking events that this item buys for.
+  ///
+  /// The planner can put the need of a later week on an earlier trip, when the item keeps long
+  /// enough. The week of the trip therefore does not say which meals the item feeds. Read this set
+  /// to know it.
+  final Set<int> cookDays;
 
   /// True when the planner assumed this item is frozen on arrival to extend its shelf life.
   /// Only set when [planShoppingTrips] is called with `assumeFreezerForFreezable: true`
@@ -274,6 +281,7 @@ List<ShoppingTrip> _aggregate({required List<_PlanEvent> events, required Map<St
     byTrip[trip]![event.ingredientId]![event.unit] = _AggregatedAmount(
       amount: (existing?.amount ?? 0) + event.amount,
       requiresFreezing: (existing?.requiresFreezing ?? false) || event.requiresFreezing,
+      cookDays: {...?existing?.cookDays, event.dayIndex},
     );
   }
 
@@ -284,7 +292,15 @@ List<ShoppingTrip> _aggregate({required List<_PlanEvent> events, required Map<St
     List<TripItem> items = [];
     for (MapEntry<String, Map<Unit, _AggregatedAmount>> ie in ingredientMap.entries) {
       for (MapEntry<Unit, _AggregatedAmount> ue in ie.value.entries) {
-        items.add(TripItem(ingredientId: ie.key, amount: ue.value.amount, unit: ue.key, freezeOnArrival: ue.value.requiresFreezing));
+        items.add(
+          TripItem(
+            ingredientId: ie.key,
+            amount: ue.value.amount,
+            unit: ue.key,
+            freezeOnArrival: ue.value.requiresFreezing,
+            cookDays: ue.value.cookDays,
+          ),
+        );
       }
     }
     items.sort((TripItem a, TripItem b) {
@@ -300,9 +316,10 @@ List<ShoppingTrip> _aggregate({required List<_PlanEvent> events, required Map<St
 }
 
 class _AggregatedAmount {
-  const _AggregatedAmount({required this.amount, required this.requiresFreezing});
+  const _AggregatedAmount({required this.amount, required this.requiresFreezing, required this.cookDays});
   final double amount;
   final bool requiresFreezing;
+  final Set<int> cookDays;
 }
 
 class _PlanEvent {
