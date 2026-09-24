@@ -74,15 +74,20 @@ MultiWeekMenu _twoWeekMenu() => MultiWeekMenu(
   ],
 );
 
-/// One trip per week, each trip carrying the same amount of the noodles.
+/// One trip per week, each trip carrying the same amount of the noodles. Each trip buys the
+/// Saturday of its own week: day 0 and day 7 of [_twoWeekMenu].
 const List<ShoppingTrip> _tripPerWeek = [
   ShoppingTrip(
     weekIndex: 0,
-    items: [TripItem(ingredientId: "n1", amount: 250, unit: Unit.grams)],
+    items: [
+      TripItem(ingredientId: "n1", amount: 250, unit: Unit.grams, cookDays: {0}),
+    ],
   ),
   ShoppingTrip(
     weekIndex: 1,
-    items: [TripItem(ingredientId: "n1", amount: 250, unit: Unit.grams)],
+    items: [
+      TripItem(ingredientId: "n1", amount: 250, unit: Unit.grams, cookDays: {7}),
+    ],
   ),
 ];
 
@@ -438,14 +443,19 @@ void main() {
           ),
         ],
       );
+      // The Friday cook of week 1 is day 6, and the Wednesday cook of week 2 is day 11.
       const List<ShoppingTrip> trips = [
         ShoppingTrip(
           weekIndex: 0,
-          items: [TripItem(ingredientId: "n1", amount: 400, unit: Unit.grams)],
+          items: [
+            TripItem(ingredientId: "n1", amount: 400, unit: Unit.grams, cookDays: {6}),
+          ],
         ),
         ShoppingTrip(
           weekIndex: 1,
-          items: [TripItem(ingredientId: "n1", amount: 200, unit: Unit.grams)],
+          items: [
+            TripItem(ingredientId: "n1", amount: 200, unit: Unit.grams, cookDays: {11}),
+          ],
         ),
       ];
 
@@ -482,6 +492,123 @@ void main() {
         ShoppingPdfMealNeed(
           weekLabel: "Week 2",
           dayLabel: "Sunday 17 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+      ]);
+    });
+
+    test("lists every meal that a trip buys for, also a meal of a later week that the trip buys because the item keeps", () {
+      // Noodles keep forever, so the planner buys the noodles of both weeks on the first trip.
+      // Lettuce keeps 3 days, so the planner adds a second trip for the lettuce of week 2.
+      const Ingredient noodles = Ingredient(
+        id: "n1",
+        name: "Noodles",
+        products: [Product(link: "", quantityPerItem: 500, unit: Unit.grams)],
+      );
+      const Ingredient lettuce = Ingredient(
+        id: "n2",
+        name: "Lettuce",
+        products: [Product(link: "", quantityPerItem: 1, unit: Unit.pieces, shelfLifeDaysClosed: 3)],
+      );
+      const Recipe salad = Recipe(
+        id: "r1",
+        name: "Pasta salad",
+        instructions: [
+          Instruction(
+            id: "i1",
+            description: "Mix.",
+            ingredientsUsed: [
+              IngredientUsage(
+                ingredient: "n1",
+                quantity: Quantity(amount: 100, unit: Unit.grams),
+              ),
+              IngredientUsage(
+                ingredient: "n2",
+                quantity: Quantity(amount: 1, unit: Unit.pieces),
+              ),
+            ],
+          ),
+        ],
+      );
+      MultiWeekMenu multiWeek = _twoWeekMenu();
+      Map<String, List<CookingEvent>> timeline = buildCookingTimeline(multiWeekMenu: multiWeek, recipes: const [salad]);
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: const [noodles, lettuce]);
+
+      ShoppingPdfDocument document = _document(
+        ingredients: const [noodles, lettuce],
+        remaining: const {
+          "n1": [Quantity(amount: 400, unit: Unit.grams)],
+          "n2": [Quantity(amount: 4, unit: Unit.pieces)],
+        },
+        trips: trips,
+        multiWeekMenu: multiWeek,
+        recipes: const [salad],
+        cookingTimeline: timeline,
+      );
+
+      ShoppingPdfIngredientEntry firstTripNoodles = document.trips.first.ingredients.firstWhere(
+        (ShoppingPdfIngredientEntry entry) => entry.ingredientName == "Noodles",
+      );
+      expect(firstTripNoodles.amounts, "400 grams");
+      expect(firstTripNoodles.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 1",
+          dayLabel: "Wednesday 6 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta salad",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 2",
+          dayLabel: "Wednesday 13 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta salad",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+      ]);
+    });
+
+    test("lists a meal that the owned stock covers under the first trip that buys the ingredient", () {
+      // The user owns the noodles of week 1, so the planner buys only the noodles of day 7. The
+      // meal of week 1 still needs the food, and the list shows the whole need.
+      const List<ShoppingTrip> trips = [
+        ShoppingTrip(
+          weekIndex: 1,
+          items: [
+            TripItem(ingredientId: "n1", amount: 200, unit: Unit.grams, cookDays: {7}),
+          ],
+        ),
+      ];
+
+      ShoppingPdfDocument document = _document(
+        remaining: const {
+          "n1": [Quantity(amount: 200, unit: Unit.grams)],
+        },
+        trips: trips,
+        multiWeekMenu: _twoWeekMenu(),
+      );
+
+      expect(document.trips.single.ingredients.single.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 1",
+          dayLabel: "Wednesday 6 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 2",
+          dayLabel: "Wednesday 13 Aug",
           mealName: "Lunch",
           recipeName: "Pasta",
           people: 2,

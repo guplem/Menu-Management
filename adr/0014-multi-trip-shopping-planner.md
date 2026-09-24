@@ -30,7 +30,7 @@ When no trip can possibly serve a perishable event fresh (very short shelf life 
 
 ### Cross-week leftovers
 
-A cook event late in week N can feed a leftover meal in week N+1. The food of that meal is bought with the cook event, because the cook cooks it on the cook day. `buildCookingTimeline` puts the whole amount of a cook event on its cook day, so the planner assigns it to the trip of the cook event. The shopping PDF follows the same rule: a trip section lists a leftover meal under the trip of its cook event (`IngredientMealRequirement.cookWeekIndex`), not under the trip of the week of the meal.
+A cook event late in week N can feed a leftover meal in week N+1. The food of that meal is bought with the cook event, because the cook cooks it on the cook day. `buildCookingTimeline` puts the whole amount of a cook event on its cook day, so the planner assigns it to the trip of the cook event. The shopping PDF follows the same rule at the level of the day. `TripItem.cookDays` records the cook days that each trip item buys for. A trip section lists a meal under the trip whose items hold its cook day (`IngredientMealRequirement.cookDayIndex`). A rule by week range is not enough, because the planner can put a long-life item of a later week on an earlier trip (see also ADR 0015). A cook day that no trip buys, because owned stock covers it, goes under the first trip that buys the ingredient.
 
 ### Per-event shelf life lookup
 
