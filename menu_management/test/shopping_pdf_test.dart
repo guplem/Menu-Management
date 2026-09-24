@@ -1,5 +1,4 @@
 import "dart:convert";
-import "dart:io";
 import "dart:typed_data";
 
 import "package:flutter_test/flutter_test.dart";
@@ -18,8 +17,11 @@ import "package:menu_management/recipes/models/ingredient_usage.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
+import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/shopping_pdf.dart";
 import "package:menu_management/shopping/shopping_pdf_document.dart";
+
+import "helpers/pdf_bytes_reader.dart";
 
 const String _link = "https://tienda.mercadona.es/product/1/espaguetis";
 
@@ -53,39 +55,6 @@ MultiWeekMenu _menu() => MultiWeekMenu(
     ),
   ],
 );
-
-/// Reads back the words that the PDF draws on its pages, joined by one space.
-///
-/// A PDF holds its drawn text in a compressed stream, and it writes one word at a time as
-/// `[(word)]TJ`. This inflates every stream and puts the words back together, so a test can read
-/// the page the way the reader reads it. It is the one way to prove that a string reaches a page.
-String _drawnText(Uint8List bytes) {
-  const String open = "stream\n";
-  const String close = "\nendstream";
-  final String raw = latin1.decode(bytes);
-  final List<String> words = [];
-  int at = 0;
-  while (true) {
-    final int start = raw.indexOf(open, at);
-    if (start < 0) break;
-    final int end = raw.indexOf(close, start);
-    if (end < 0) break;
-    at = end + close.length;
-    final String inflated;
-    try {
-      inflated = latin1.decode(ZLibDecoder().convert(bytes.sublist(start + open.length, end)));
-    } catch (_) {
-      continue; // Not a compressed stream, for example an embedded font.
-    }
-    for (RegExpMatch match in RegExp(r"\[\((.*?)\)\]TJ").allMatches(inflated)) {
-      words.add(match.group(1)!.replaceAll(r"\(", "(").replaceAll(r"\)", ")"));
-    }
-  }
-  return words.join(" ");
-}
-
-/// Counts the pages of a PDF. Every page object carries `/Type/Page` and no `s` after it.
-int _pageCount(Uint8List bytes) => RegExp(r"/Type/Page[^s]").allMatches(latin1.decode(bytes)).length;
 
 void main() {
   group("buildShoppingPdfBytes", () {
@@ -129,14 +98,14 @@ void main() {
   });
 
   group("the text that the renderer writes", () {
-    test("writes the ingredient and the amount to buy, and the freeze note of a trip that needs it", () {
-      const ShoppingPdfIngredientEntry entry = ShoppingPdfIngredientEntry(ingredientName: "Noodles", amounts: "500 grams + 2 pieces");
-
-      expect(shoppingIngredientHeadingText(entry), "Noodles: 500 grams + 2 pieces");
-      expect(shoppingIngredientHeadingText(entry.copyWith(freezeOnArrival: true)), "Noodles: 500 grams + 2 pieces (freeze on arrival)");
+    test("numbers each trip in its banner and counts what it buys", () {
+      expect(tripBannerText(tripNumber: 1, tripsCount: 3, title: "now"), "Trip 1 of 3: now");
+      expect(tripBannerText(tripNumber: 2, tripsCount: 2, title: "Friday 12 Aug"), "Trip 2 of 2: Friday 12 Aug");
+      expect(itemCountText(12), "12 items");
+      expect(itemCountText(1), "1 item");
     });
 
-    test("writes the packs of one product, and marks the product that the app recommends", () {
+    test("writes the packs of one product, and names the mark of the product that the app recommends", () {
       const ShoppingPdfProductOption option = ShoppingPdfProductOption(
         label: "Espaguetis (500 grams/pack)",
         link: _link,
@@ -144,13 +113,17 @@ void main() {
         isRecommended: false,
       );
 
-      // The indent is part of the line: it sets the product under the ingredient that holds it.
-      expect(productOptionText(option), "   Espaguetis (500 grams/pack): 2 packs");
-      expect(productOptionText(option.copyWith(packs: 1)), "   Espaguetis (500 grams/pack): 1 pack");
-      expect(productOptionText(option.copyWith(isRecommended: true)), "   Espaguetis (500 grams/pack): 2 packs - recommended");
+      expect(productPacksText(option), "2 packs");
+      expect(productPacksText(option.copyWith(packs: 1)), "1 pack");
+      expect(recommendedBadgeText, "Recommended");
     });
 
-    test("writes the week, the day, the meal slot, the recipe and the amount of one meal that needs the ingredient", () {
+    test("names the freeze mark with the words of the copied text", () {
+      expect(freezeOnArrivalBadgeText, "Freeze on arrival");
+      expect(freezeOnArrivalSuffix, " (${freezeOnArrivalBadgeText.toLowerCase()})");
+    });
+
+    test("writes when a meal needs the ingredient, and which dish for how many people", () {
       const ShoppingPdfMealNeed need = ShoppingPdfMealNeed(
         weekLabel: "Week 1",
         dayLabel: "Wednesday 6 Aug",
@@ -161,10 +134,14 @@ void main() {
         amounts: "200 grams",
       );
 
-      // The indent is part of the line: it sets the meal under the ingredient that needs it.
-      expect(mealNeedText(need), "   Week 1, Wednesday 6 Aug, Lunch - Pasta for 2 people: 200 grams");
-      expect(mealNeedText(need.copyWith(people: 1)), "   Week 1, Wednesday 6 Aug, Lunch - Pasta for 1 person: 200 grams");
-      expect(mealNeedText(need.copyWith(isCookEvent: false)), "   Week 1, Wednesday 6 Aug, Lunch - Pasta for 2 people (leftovers): 200 grams");
+      expect(mealNeedWhenText(need), "Week 1, Wednesday 6 Aug, Lunch");
+      expect(mealNeedDishText(need), "Pasta for 2 people");
+      expect(mealNeedDishText(need.copyWith(people: 1)), "Pasta for 1 person");
+      expect(mealNeedDishText(need.copyWith(isCookEvent: false)), "Pasta for 2 people (leftovers)");
+    });
+
+    test("says so when an ingredient has no store product", () {
+      expect(noProductText, "No store product saved. Buy the amount above.");
     });
   });
 
@@ -214,7 +191,7 @@ void main() {
       );
 
       expect(latin1.decode(bytes).contains("/S/URI"), isFalse);
-      expect(_drawnText(bytes).contains("Espaguetis (500 grams/pack): 1 pack - recommended"), isTrue);
+      expect(drawnPdfText(bytes).contains("1 pack Espaguetis (500 grams/pack) Recommended"), isTrue);
     });
 
     test("writes a long list of ingredients with long names, which no single page can hold", () async {
@@ -258,9 +235,43 @@ void main() {
       expect(latin1.decode(bytes.sublist(0, 5)), "%PDF-");
       // The two headings below reach a page only through the renderer, so this is the one check
       // that the justification block and the trip title are drawn and not only composed.
-      String drawn = _drawnText(bytes);
+      String drawn = drawnPdfText(bytes);
       expect(drawn.contains(mealNeedsHeadingText), isTrue);
       expect(drawn.contains("Trip 0"), isTrue);
+    });
+
+    test("starts every trip on a new page with a banner that numbers it and counts its items", () async {
+      ShoppingPdfTripSection trip(String title) => ShoppingPdfTripSection(
+        title: title,
+        ingredients: const [ShoppingPdfIngredientEntry(ingredientName: "Noodles", amounts: "500 grams")],
+      );
+
+      Uint8List bytes = await renderShoppingPdf(ShoppingPdfDocument(title: "Shopping list", trips: [trip("now"), trip("Friday 12 Aug")]));
+
+      // Two trips of one line each fit one page together. Two pages prove the break.
+      expect(pdfPageCount(bytes), 2);
+      String drawn = drawnPdfText(bytes);
+      expect(drawn.contains("Trip 1 of 2: now 1 item"), isTrue);
+      expect(drawn.contains("Trip 2 of 2: Friday 12 Aug 1 item"), isTrue);
+      expect(drawn.contains("Shopping list · Page 2 of 2"), isTrue);
+    });
+
+    test("draws the freeze mark of an ingredient, and the note of an ingredient with no product", () async {
+      Uint8List bytes = await renderShoppingPdf(
+        const ShoppingPdfDocument(
+          title: "Shopping list",
+          trips: [
+            ShoppingPdfTripSection(
+              title: "",
+              ingredients: [ShoppingPdfIngredientEntry(ingredientName: "Noodles", amounts: "500 grams", freezeOnArrival: true)],
+            ),
+          ],
+        ),
+      );
+
+      String drawn = drawnPdfText(bytes);
+      expect(drawn.contains("Noodles $freezeOnArrivalBadgeText 500 grams"), isTrue);
+      expect(drawn.contains(noProductText), isTrue);
     });
 
     test("writes a file for a section that holds nothing to buy", () async {
@@ -272,7 +283,7 @@ void main() {
       );
 
       expect(latin1.decode(bytes.sublist(0, 5)), "%PDF-");
-      expect(_drawnText(bytes).contains(nothingToBuyText), isTrue);
+      expect(drawnPdfText(bytes).contains(nothingToBuyText), isTrue);
     });
 
     test("continues one ingredient on the next page when its meals do not fit on one page", () async {
@@ -308,10 +319,10 @@ void main() {
         ),
       );
 
-      expect(_pageCount(bytes), 2);
-      String drawn = _drawnText(bytes);
-      expect(drawn.contains("Noodles: 500 grams"), isTrue);
-      expect(drawn.contains("Pasta number 79 for 2 people: 200 grams"), isTrue);
+      expect(pdfPageCount(bytes), 2);
+      String drawn = drawnPdfText(bytes);
+      expect(drawn.contains("Noodles 500 grams"), isTrue);
+      expect(drawn.contains("Week 4, Wednesday 6 Aug, Lunch Pasta number 79 for 2 people 200 grams"), isTrue);
     });
   });
 }
