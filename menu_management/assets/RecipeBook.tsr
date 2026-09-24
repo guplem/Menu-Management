@@ -151,6 +151,22 @@
           "unit": "pieces",
           "shelfLifeDaysOpened": 28,
           "shelfLifeDaysClosed": 28
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/31505/huevos-medianos-m-paquete",
+          "itemsPerPack": 12,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 28,
+          "shelfLifeDaysClosed": 28
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/30167/huevos-tamanos-diferentes-paquete",
+          "itemsPerPack": 24,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 28,
+          "shelfLifeDaysClosed": 28
         }
       ],
       "density": 1.03
