@@ -432,6 +432,19 @@ void main() {
 
       expect(tester.widget<TextField>(ownedField).controller?.text, "0.75");
     });
+
+    testWidgets("keeps an arithmetic expression as the user typed it", (WidgetTester tester) async {
+      // "1/6" reports 1/6 to the parent. A re-seed would write 0.16666666666666666 over the expression.
+      await tester.pumpWidget(const _OwnedHarness(ingredient: spice, desired: desiredGrams));
+
+      Finder ownedField = find.widgetWithText(TextField, "Owned");
+      await tester.enterText(ownedField, "1/");
+      await tester.pump();
+      await tester.enterText(ownedField, "1/6");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(ownedField).controller?.text, "1/6");
+    });
   });
 
   group("ShoppingIngredient best-value banner", () {
@@ -563,7 +576,7 @@ void main() {
       expect(captured, 27.6);
     });
 
-    testWidgets("a unit switch keeps the stored amount when the field text does not parse", (WidgetTester tester) async {
+    testWidgets("a unit switch keeps the stored amount when the field text does not evaluate", (WidgetTester tester) async {
       // The dropdown used to re-read the field text, so text the parser rejects stored 0 and wiped
       // an owned amount that the page still held.
       await tester.binding.setSurfaceSize(const Size(1400, 600));
@@ -580,8 +593,8 @@ void main() {
         onOwnedChanged: (double amount, OwnedUnit unit) => captured = amount,
       );
 
-      // A stray character: the input reports nothing for it, so the page still holds 5.
-      await tester.enterText(find.widgetWithText(TextField, "Owned"), "5a");
+      // Arithmetic that is not complete: the input reports nothing for it, so the page still holds 5.
+      await tester.enterText(find.widgetWithText(TextField, "Owned"), "5/");
       await tester.pump();
 
       await tester.tap(find.byType(DropdownButtonFormField<OwnedUnit>));

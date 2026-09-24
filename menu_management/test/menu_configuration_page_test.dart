@@ -5,6 +5,7 @@ import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
+import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
@@ -43,6 +44,26 @@ Future<void> _pumpConfigurationPage(WidgetTester tester) async {
 void main() {
   setUp(() => MenuProvider.setMultiWeekMenu(null));
   tearDown(() => MenuProvider.setMultiWeekMenu(null));
+
+  group("MenuConfigurationPage cooking time", () {
+    testWidgets("keeps an arithmetic expression while the user types it", (WidgetTester tester) async {
+      // "120/1" is already valid and stores 120. A field that rebuilt from the stored value would
+      // then show "120", and the next "0" would make "1200" instead of "120/10".
+      MenuConfiguration original = MenuProvider.instance.configurations.first;
+      addTearDown(() => MenuProvider.update(newConfiguration: original));
+      MenuProvider.update(newConfiguration: original.copyWith(requiresMeal: true));
+      await _pumpConfigurationPage(tester);
+
+      Finder cookingTimeField = find.widgetWithText(TextField, "Cooking time").first;
+      await tester.enterText(cookingTimeField, "120/1");
+      await tester.pump();
+      await tester.enterText(cookingTimeField, "120/10");
+      await tester.pump();
+
+      expect(tester.widget<TextField>(cookingTimeField).controller!.text, "120/10");
+      expect(MenuProvider.instance.configurations.first.availableCookingTimeMinutes, 12);
+    });
+  });
 
   group("MenuConfigurationPage day labels", () {
     testWidgets("starts at Saturday when no menu is active", (WidgetTester tester) async {

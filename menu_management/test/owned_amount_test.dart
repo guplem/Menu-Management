@@ -63,6 +63,12 @@ void main() {
       expect(ownedFieldNeedsReseed(fieldText: "", amount: 0, previousAmount: 3), isFalse);
       expect(ownedFieldNeedsReseed(fieldText: "abc", amount: 4, previousAmount: 0), isTrue);
     });
+
+    test("leaves an arithmetic expression alone when it already means the new amount", () {
+      // The user typed "1/6". A re-seed would replace the expression with 0.16666666666666666.
+      expect(ownedFieldNeedsReseed(fieldText: "1/6", amount: 1 / 6, previousAmount: 0), isFalse);
+      expect(ownedFieldNeedsReseed(fieldText: "2*3", amount: 6, previousAmount: 2), isFalse);
+    });
   });
 
   group("roundNeededAmount", () {
