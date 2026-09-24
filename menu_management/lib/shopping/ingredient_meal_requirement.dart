@@ -14,11 +14,17 @@ part "ingredient_meal_requirement.g.dart";
 /// [isCookEvent] is false when the meal eats leftovers of an earlier cook. Such a meal still
 /// needs the ingredient, because the earlier cook buys the food for it.
 ///
+/// [cookWeekIndex] is the week of the cook event that cooks the food of this meal. For a cook
+/// meal it equals [weekIndex]. For a leftover meal it can be an earlier week, because a cook
+/// event late in one week can feed a meal of the next week. The shopping trip that buys the
+/// food is the trip of that cook event, so use [cookWeekIndex] to put the meal under a trip.
+///
 /// The record holds the recipe id, never the Recipe object, the same way Cooking does.
 @freezed
 abstract class IngredientMealRequirement with _$IngredientMealRequirement {
   const factory IngredientMealRequirement({
     required int weekIndex,
+    required int cookWeekIndex,
     required MealTime mealTime,
     required int subMealIndex,
     required String recipeId,

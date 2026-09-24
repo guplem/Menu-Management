@@ -118,16 +118,17 @@ abstract class ShoppingPdfDocument with _$ShoppingPdfDocument {
 /// [multiWeekMenu] and [recipes] serve the justification only. `ingredientMealRequirements` says
 /// which meal needs which amount of an ingredient.
 ///
+/// A trip section lists a meal under the trip of the week of its cook event
+/// (`IngredientMealRequirement.cookWeekIndex`), not of the week of the meal. The cook event cooks
+/// the food of its leftover meals too, so that trip buys the food of a leftover meal of the next week.
+///
 /// Known gap: the amounts of the meals of one ingredient do not always add up to the amount to
-/// buy. Three reasons cause it, and none of them is a fault:
+/// buy. Two reasons cause it, and neither of them is a fault:
 ///
 /// 1. The amount to buy has the stock that the user already owns taken off it. The meals show the
 ///    whole need, because a meal needs the food whoever paid for it.
 /// 2. A trip section shows the share of that one trip. Its meals are the meals of the weeks that
 ///    the trip buys for, so the two sides cover the same weeks but not the same rounding.
-/// 3. Issue #49: a cook event that feeds a meal of the next week is counted once by
-///    `allIngredients`, which feeds the amount to buy, and once per meal by
-///    `ingredientMealRequirements`, which feeds the justification.
 ///
 /// Do not build on that difference.
 ShoppingPdfDocument buildShoppingPdfDocument({
@@ -167,7 +168,7 @@ ShoppingPdfDocument buildShoppingPdfDocument({
       meals: _mealNeeds(
         ingredient: ingredient,
         startDate: multiWeekMenu.startDate,
-        requirements: weeks == null ? requirements : requirements.where((IngredientMealRequirement r) => weeks.contains(r.weekIndex)).toList(),
+        requirements: weeks == null ? requirements : requirements.where((IngredientMealRequirement r) => weeks.contains(r.cookWeekIndex)).toList(),
       ),
     );
   }

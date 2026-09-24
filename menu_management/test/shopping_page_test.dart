@@ -99,6 +99,30 @@ MultiWeekMenu _twoWeekMilkMenu({required DateTime startDate}) {
   return MultiWeekMenu(startDate: startDate, weeks: const [week, week]);
 }
 
+/// A two-week menu. The Friday cook of week 1 also feeds a leftover meal on the Saturday of week 2.
+MultiWeekMenu _crossWeekLeftoverMenu() {
+  return const MultiWeekMenu(
+    weeks: [
+      Menu(
+        meals: [
+          Meal(
+            mealTime: MealTime(weekDay: WeekDay.friday, mealType: MealType.dinner),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 2), people: 2)],
+          ),
+        ],
+      ),
+      Menu(
+        meals: [
+          Meal(
+            mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "r1", yield: 0), people: 2)],
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
 MultiWeekMenu _menu({DateTime? startDate}) {
   return MultiWeekMenu(
     startDate: startDate,
@@ -243,6 +267,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(_copiedTexts.single.split("\n"), const ["Milk: 1,200 grams (freeze on arrival)"]);
+    });
+
+    testWidgets("buys the food of a leftover meal of the next week with its cook event", (WidgetTester tester) async {
+      // Issue #49: the Friday cook of week 1 also feeds the Saturday of week 2, so the list buys
+      // 4 servings of 200 grams, all on the one trip before the cook event.
+      await _pumpShoppingPage(tester, _crossWeekLeftoverMenu());
+
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Simplified"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Detailed"));
+      await tester.pumpAndSettle();
+
+      expect(_copiedTexts.map((String text) => text.split("\n")).toList(), const [
+        ["Rice: 800 grams"],
+        ["now", "---", "Rice", "  500 grams/pack: 2 packs", "    https://example.com/rice"],
+      ]);
     });
 
     testWidgets("names the copied format in the snackbar", (WidgetTester tester) async {

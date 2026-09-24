@@ -421,6 +421,76 @@ void main() {
       ]);
     });
 
+    test("lists a leftover meal of the next week under the trip that buys its cook event", () {
+      // The cook event on the Friday of week 1 cooks the food of the Saturday of week 2 too.
+      // The trip of week 1 buys that food, so the trip of week 1 must justify it.
+      MultiWeekMenu multiWeek = MultiWeekMenu(
+        startDate: DateTime(2025, 8, 6),
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.friday, mealType: MealType.dinner, yield: 2)],
+          ),
+          Menu(
+            meals: [
+              _meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, yield: 0),
+              _meal(weekDay: WeekDay.wednesday, mealType: MealType.lunch),
+            ],
+          ),
+        ],
+      );
+      const List<ShoppingTrip> trips = [
+        ShoppingTrip(
+          weekIndex: 0,
+          items: [TripItem(ingredientId: "n1", amount: 400, unit: Unit.grams)],
+        ),
+        ShoppingTrip(
+          weekIndex: 1,
+          items: [TripItem(ingredientId: "n1", amount: 200, unit: Unit.grams)],
+        ),
+      ];
+
+      ShoppingPdfDocument document = _document(
+        remaining: const {
+          "n1": [Quantity(amount: 600, unit: Unit.grams)],
+        },
+        trips: trips,
+        multiWeekMenu: multiWeek,
+      );
+
+      expect(document.trips.map((ShoppingPdfTripSection section) => section.ingredients.single.amounts).toList(), ["400 grams", "200 grams"]);
+      expect(document.trips.first.ingredients.single.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 1",
+          dayLabel: "Tuesday 12 Aug",
+          mealName: "Dinner",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 2",
+          dayLabel: "Wednesday 13 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: false,
+          amounts: "200 grams",
+        ),
+      ]);
+      expect(document.trips.last.ingredients.single.meals, const [
+        ShoppingPdfMealNeed(
+          weekLabel: "Week 2",
+          dayLabel: "Sunday 17 Aug",
+          mealName: "Lunch",
+          recipeName: "Pasta",
+          people: 2,
+          isCookEvent: true,
+          amounts: "200 grams",
+        ),
+      ]);
+    });
+
     test("writes no meal for an ingredient that no meal of the menu needs", () {
       ShoppingPdfDocument document = _document(
         ingredients: const [Ingredient(id: "n2", name: "Salt")],

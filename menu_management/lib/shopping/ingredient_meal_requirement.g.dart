@@ -10,6 +10,7 @@ _IngredientMealRequirement _$IngredientMealRequirementFromJson(
   Map<String, dynamic> json,
 ) => _IngredientMealRequirement(
   weekIndex: (json['weekIndex'] as num).toInt(),
+  cookWeekIndex: (json['cookWeekIndex'] as num).toInt(),
   mealTime: MealTime.fromJson(json['mealTime'] as Map<String, dynamic>),
   subMealIndex: (json['subMealIndex'] as num).toInt(),
   recipeId: json['recipeId'] as String,
@@ -27,6 +28,7 @@ Map<String, dynamic> _$IngredientMealRequirementToJson(
   _IngredientMealRequirement instance,
 ) => <String, dynamic>{
   'weekIndex': instance.weekIndex,
+  'cookWeekIndex': instance.cookWeekIndex,
   'mealTime': instance.mealTime.toJson(),
   'subMealIndex': instance.subMealIndex,
   'recipeId': instance.recipeId,

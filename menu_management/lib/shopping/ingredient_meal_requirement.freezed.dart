@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$IngredientMealRequirement {
 
- int get weekIndex; MealTime get mealTime; int get subMealIndex; String get recipeId; String get recipeName; int get people; bool get isCookEvent; List<Quantity> get quantities;
+ int get weekIndex; int get cookWeekIndex; MealTime get mealTime; int get subMealIndex; String get recipeId; String get recipeName; int get people; bool get isCookEvent; List<Quantity> get quantities;
 /// Create a copy of IngredientMealRequirement
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $IngredientMealRequirementCopyWith<IngredientMealRequirement> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is IngredientMealRequirement&&(identical(other.weekIndex, weekIndex) || other.weekIndex == weekIndex)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.subMealIndex, subMealIndex) || other.subMealIndex == subMealIndex)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.recipeName, recipeName) || other.recipeName == recipeName)&&(identical(other.people, people) || other.people == people)&&(identical(other.isCookEvent, isCookEvent) || other.isCookEvent == isCookEvent)&&const DeepCollectionEquality().equals(other.quantities, quantities));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IngredientMealRequirement&&(identical(other.weekIndex, weekIndex) || other.weekIndex == weekIndex)&&(identical(other.cookWeekIndex, cookWeekIndex) || other.cookWeekIndex == cookWeekIndex)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.subMealIndex, subMealIndex) || other.subMealIndex == subMealIndex)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.recipeName, recipeName) || other.recipeName == recipeName)&&(identical(other.people, people) || other.people == people)&&(identical(other.isCookEvent, isCookEvent) || other.isCookEvent == isCookEvent)&&const DeepCollectionEquality().equals(other.quantities, quantities));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,weekIndex,mealTime,subMealIndex,recipeId,recipeName,people,isCookEvent,const DeepCollectionEquality().hash(quantities));
+int get hashCode => Object.hash(runtimeType,weekIndex,cookWeekIndex,mealTime,subMealIndex,recipeId,recipeName,people,isCookEvent,const DeepCollectionEquality().hash(quantities));
 
 @override
 String toString() {
-  return 'IngredientMealRequirement(weekIndex: $weekIndex, mealTime: $mealTime, subMealIndex: $subMealIndex, recipeId: $recipeId, recipeName: $recipeName, people: $people, isCookEvent: $isCookEvent, quantities: $quantities)';
+  return 'IngredientMealRequirement(weekIndex: $weekIndex, cookWeekIndex: $cookWeekIndex, mealTime: $mealTime, subMealIndex: $subMealIndex, recipeId: $recipeId, recipeName: $recipeName, people: $people, isCookEvent: $isCookEvent, quantities: $quantities)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $IngredientMealRequirementCopyWith<$Res>  {
   factory $IngredientMealRequirementCopyWith(IngredientMealRequirement value, $Res Function(IngredientMealRequirement) _then) = _$IngredientMealRequirementCopyWithImpl;
 @useResult
 $Res call({
- int weekIndex, MealTime mealTime, int subMealIndex, String recipeId, String recipeName, int people, bool isCookEvent, List<Quantity> quantities
+ int weekIndex, int cookWeekIndex, MealTime mealTime, int subMealIndex, String recipeId, String recipeName, int people, bool isCookEvent, List<Quantity> quantities
 });
 
 
@@ -65,9 +65,10 @@ class _$IngredientMealRequirementCopyWithImpl<$Res>
 
 /// Create a copy of IngredientMealRequirement
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? weekIndex = null,Object? mealTime = null,Object? subMealIndex = null,Object? recipeId = null,Object? recipeName = null,Object? people = null,Object? isCookEvent = null,Object? quantities = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? weekIndex = null,Object? cookWeekIndex = null,Object? mealTime = null,Object? subMealIndex = null,Object? recipeId = null,Object? recipeName = null,Object? people = null,Object? isCookEvent = null,Object? quantities = null,}) {
   return _then(_self.copyWith(
 weekIndex: null == weekIndex ? _self.weekIndex : weekIndex // ignore: cast_nullable_to_non_nullable
+as int,cookWeekIndex: null == cookWeekIndex ? _self.cookWeekIndex : cookWeekIndex // ignore: cast_nullable_to_non_nullable
 as int,mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
 as MealTime,subMealIndex: null == subMealIndex ? _self.subMealIndex : subMealIndex // ignore: cast_nullable_to_non_nullable
 as int,recipeId: null == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
@@ -169,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int weekIndex,  MealTime mealTime,  int subMealIndex,  String recipeId,  String recipeName,  int people,  bool isCookEvent,  List<Quantity> quantities)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int weekIndex,  int cookWeekIndex,  MealTime mealTime,  int subMealIndex,  String recipeId,  String recipeName,  int people,  bool isCookEvent,  List<Quantity> quantities)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _IngredientMealRequirement() when $default != null:
-return $default(_that.weekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId,_that.recipeName,_that.people,_that.isCookEvent,_that.quantities);case _:
+return $default(_that.weekIndex,_that.cookWeekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId,_that.recipeName,_that.people,_that.isCookEvent,_that.quantities);case _:
   return orElse();
 
 }
@@ -190,10 +191,10 @@ return $default(_that.weekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int weekIndex,  MealTime mealTime,  int subMealIndex,  String recipeId,  String recipeName,  int people,  bool isCookEvent,  List<Quantity> quantities)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int weekIndex,  int cookWeekIndex,  MealTime mealTime,  int subMealIndex,  String recipeId,  String recipeName,  int people,  bool isCookEvent,  List<Quantity> quantities)  $default,) {final _that = this;
 switch (_that) {
 case _IngredientMealRequirement():
-return $default(_that.weekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId,_that.recipeName,_that.people,_that.isCookEvent,_that.quantities);case _:
+return $default(_that.weekIndex,_that.cookWeekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId,_that.recipeName,_that.people,_that.isCookEvent,_that.quantities);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +211,10 @@ return $default(_that.weekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int weekIndex,  MealTime mealTime,  int subMealIndex,  String recipeId,  String recipeName,  int people,  bool isCookEvent,  List<Quantity> quantities)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int weekIndex,  int cookWeekIndex,  MealTime mealTime,  int subMealIndex,  String recipeId,  String recipeName,  int people,  bool isCookEvent,  List<Quantity> quantities)?  $default,) {final _that = this;
 switch (_that) {
 case _IngredientMealRequirement() when $default != null:
-return $default(_that.weekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId,_that.recipeName,_that.people,_that.isCookEvent,_that.quantities);case _:
+return $default(_that.weekIndex,_that.cookWeekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId,_that.recipeName,_that.people,_that.isCookEvent,_that.quantities);case _:
   return null;
 
 }
@@ -225,10 +226,11 @@ return $default(_that.weekIndex,_that.mealTime,_that.subMealIndex,_that.recipeId
 @JsonSerializable()
 
 class _IngredientMealRequirement implements IngredientMealRequirement {
-  const _IngredientMealRequirement({required this.weekIndex, required this.mealTime, required this.subMealIndex, required this.recipeId, required this.recipeName, required this.people, required this.isCookEvent, final  List<Quantity> quantities = const []}): _quantities = quantities;
+  const _IngredientMealRequirement({required this.weekIndex, required this.cookWeekIndex, required this.mealTime, required this.subMealIndex, required this.recipeId, required this.recipeName, required this.people, required this.isCookEvent, final  List<Quantity> quantities = const []}): _quantities = quantities;
   factory _IngredientMealRequirement.fromJson(Map<String, dynamic> json) => _$IngredientMealRequirementFromJson(json);
 
 @override final  int weekIndex;
+@override final  int cookWeekIndex;
 @override final  MealTime mealTime;
 @override final  int subMealIndex;
 @override final  String recipeId;
@@ -256,16 +258,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IngredientMealRequirement&&(identical(other.weekIndex, weekIndex) || other.weekIndex == weekIndex)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.subMealIndex, subMealIndex) || other.subMealIndex == subMealIndex)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.recipeName, recipeName) || other.recipeName == recipeName)&&(identical(other.people, people) || other.people == people)&&(identical(other.isCookEvent, isCookEvent) || other.isCookEvent == isCookEvent)&&const DeepCollectionEquality().equals(other._quantities, _quantities));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IngredientMealRequirement&&(identical(other.weekIndex, weekIndex) || other.weekIndex == weekIndex)&&(identical(other.cookWeekIndex, cookWeekIndex) || other.cookWeekIndex == cookWeekIndex)&&(identical(other.mealTime, mealTime) || other.mealTime == mealTime)&&(identical(other.subMealIndex, subMealIndex) || other.subMealIndex == subMealIndex)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.recipeName, recipeName) || other.recipeName == recipeName)&&(identical(other.people, people) || other.people == people)&&(identical(other.isCookEvent, isCookEvent) || other.isCookEvent == isCookEvent)&&const DeepCollectionEquality().equals(other._quantities, _quantities));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,weekIndex,mealTime,subMealIndex,recipeId,recipeName,people,isCookEvent,const DeepCollectionEquality().hash(_quantities));
+int get hashCode => Object.hash(runtimeType,weekIndex,cookWeekIndex,mealTime,subMealIndex,recipeId,recipeName,people,isCookEvent,const DeepCollectionEquality().hash(_quantities));
 
 @override
 String toString() {
-  return 'IngredientMealRequirement(weekIndex: $weekIndex, mealTime: $mealTime, subMealIndex: $subMealIndex, recipeId: $recipeId, recipeName: $recipeName, people: $people, isCookEvent: $isCookEvent, quantities: $quantities)';
+  return 'IngredientMealRequirement(weekIndex: $weekIndex, cookWeekIndex: $cookWeekIndex, mealTime: $mealTime, subMealIndex: $subMealIndex, recipeId: $recipeId, recipeName: $recipeName, people: $people, isCookEvent: $isCookEvent, quantities: $quantities)';
 }
 
 
@@ -276,7 +278,7 @@ abstract mixin class _$IngredientMealRequirementCopyWith<$Res> implements $Ingre
   factory _$IngredientMealRequirementCopyWith(_IngredientMealRequirement value, $Res Function(_IngredientMealRequirement) _then) = __$IngredientMealRequirementCopyWithImpl;
 @override @useResult
 $Res call({
- int weekIndex, MealTime mealTime, int subMealIndex, String recipeId, String recipeName, int people, bool isCookEvent, List<Quantity> quantities
+ int weekIndex, int cookWeekIndex, MealTime mealTime, int subMealIndex, String recipeId, String recipeName, int people, bool isCookEvent, List<Quantity> quantities
 });
 
 
@@ -293,9 +295,10 @@ class __$IngredientMealRequirementCopyWithImpl<$Res>
 
 /// Create a copy of IngredientMealRequirement
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? weekIndex = null,Object? mealTime = null,Object? subMealIndex = null,Object? recipeId = null,Object? recipeName = null,Object? people = null,Object? isCookEvent = null,Object? quantities = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? weekIndex = null,Object? cookWeekIndex = null,Object? mealTime = null,Object? subMealIndex = null,Object? recipeId = null,Object? recipeName = null,Object? people = null,Object? isCookEvent = null,Object? quantities = null,}) {
   return _then(_IngredientMealRequirement(
 weekIndex: null == weekIndex ? _self.weekIndex : weekIndex // ignore: cast_nullable_to_non_nullable
+as int,cookWeekIndex: null == cookWeekIndex ? _self.cookWeekIndex : cookWeekIndex // ignore: cast_nullable_to_non_nullable
 as int,mealTime: null == mealTime ? _self.mealTime : mealTime // ignore: cast_nullable_to_non_nullable
 as MealTime,subMealIndex: null == subMealIndex ? _self.subMealIndex : subMealIndex // ignore: cast_nullable_to_non_nullable
 as int,recipeId: null == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable

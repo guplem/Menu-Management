@@ -151,52 +151,121 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     return total;
   }
 
-  Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
-    Map<String, List<Quantity>> combined = {};
+  /// Lists every sub-meal that a cook event feeds, in the order of the clock: week, day, meal
+  /// type, then the index of the sub-meal. A cook event is a sub-meal whose `Cooking.yield` is
+  /// above zero, and it feeds itself.
+  ///
+  /// A leftover sub-meal (yield zero or below) belongs to the nearest earlier cook event of its
+  /// recipe, in this week or in an earlier week. That cook event feeds it only when the leftover
+  /// meal is at most `maxStorageDays` days after the cook day. Otherwise no cook event feeds it,
+  /// and this list leaves it out. An earlier cook event cannot reach it either, because an
+  /// earlier cook day has an earlier end of the storage window.
+  ///
+  /// A sub-meal whose recipe is not in [recipes] is left out, the same rule the rest of the menu
+  /// code follows for a deleted recipe.
+  ///
+  /// The shopping totals ([allIngredients], [ingredientSources]) and the per-meal breakdown
+  /// ([ingredientMealRequirements]) all read this list, so they count the same meals.
+  List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex})> _fedSubMeals({
+    required List<Recipe> recipes,
+  }) {
+    List<({int weekIndex, Meal meal})> ordered = [
+      for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++)
+        for (Meal meal in weeks[weekIndex].meals) (weekIndex: weekIndex, meal: meal),
+    ];
+    // The meals of one week arrive in the order the generator wrote them, so order them by the clock.
+    ordered.sort((({int weekIndex, Meal meal}) a, ({int weekIndex, Meal meal}) b) {
+      if (a.weekIndex != b.weekIndex) return a.weekIndex.compareTo(b.weekIndex);
+      if (a.meal.mealTime.isSameTime(b.meal.mealTime)) return 0;
+      return a.meal.mealTime.goesBefore(b.meal.mealTime) ? -1 : 1;
+    });
 
-    for (Menu week in weeks) {
-      Map<String, List<Quantity>> weekIngredients = week.allIngredients(recipes: recipes);
-      for (MapEntry<String, List<Quantity>> entry in weekIngredients.entries) {
-        if (combined[entry.key] == null) {
-          combined[entry.key] = [];
+    // The latest cook event of each recipe so far: its absolute day and its week.
+    Map<String, ({int day, int weekIndex})> latestCook = {};
+    List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex})> fed = [];
+
+    for (({int weekIndex, Meal meal}) entry in ordered) {
+      int day = entry.weekIndex * 7 + entry.meal.mealTime.weekDay.value;
+      for (int subMealIndex = 0; subMealIndex < entry.meal.subMeals.length; subMealIndex++) {
+        SubMeal subMeal = entry.meal.subMeals[subMealIndex];
+        Cooking? cooking = subMeal.cooking;
+        if (cooking == null) continue;
+        Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
+        if (recipe == null) continue;
+
+        int cookWeekIndex;
+        if (cooking.yield > 0) {
+          latestCook[recipe.id] = (day: day, weekIndex: entry.weekIndex);
+          cookWeekIndex = entry.weekIndex;
+        } else {
+          ({int day, int weekIndex})? cook = latestCook[recipe.id];
+          if (cook == null || day - cook.day > recipe.maxStorageDays) continue;
+          cookWeekIndex = cook.weekIndex;
         }
-        for (Quantity quantity in entry.value) {
-          Quantity? existing = combined[entry.key]!.firstWhereOrNull((q) => q.unit == quantity.unit);
-          if (existing != null) {
-            combined[entry.key]!.remove(existing);
-            combined[entry.key]!.add(existing.copyWith(amount: existing.amount + quantity.amount));
-          } else {
-            combined[entry.key]!.add(quantity);
-          }
+        fed.add((
+          weekIndex: entry.weekIndex,
+          mealTime: entry.meal.mealTime,
+          subMealIndex: subMealIndex,
+          subMeal: subMeal,
+          recipe: recipe,
+          cookWeekIndex: cookWeekIndex,
+        ));
+      }
+    }
+    return fed;
+  }
+
+  /// Sums the people of every fed sub-meal per recipe, in the order in which each recipe first
+  /// appears in [_fedSubMeals]. This number is the servings that the whole menu cooks of the recipe.
+  List<({Recipe recipe, int servings})> _servingsPerRecipe({required List<Recipe> recipes}) {
+    Map<String, ({Recipe recipe, int servings})> byRecipeId = {};
+    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex}) fed in _fedSubMeals(
+      recipes: recipes,
+    )) {
+      int servings = byRecipeId[fed.recipe.id]?.servings ?? 0;
+      byRecipeId[fed.recipe.id] = (recipe: fed.recipe, servings: servings + fed.subMeal.people);
+    }
+    return byRecipeId.values.toList();
+  }
+
+  /// Returns what the whole menu needs of each ingredient, keyed by ingredient id. The shopping
+  /// list buys these amounts.
+  ///
+  /// The count walks all weeks at once, so a cook event late in one week also buys the food of
+  /// its leftover meals in the next week. The result counts the same meals as
+  /// [ingredientMealRequirements], so for each ingredient it equals the sum of those entries, up
+  /// to floating-point rounding.
+  Map<String, List<Quantity>> allIngredients({required List<Recipe> recipes}) {
+    Map<String, List<Quantity>> ingredients = {};
+    for (({Recipe recipe, int servings}) entry in _servingsPerRecipe(recipes: recipes)) {
+      for (MapEntry<String, List<Quantity>> ingredient in entry.recipe.perServingQuantities().entries) {
+        List<Quantity> totals = ingredients.putIfAbsent(ingredient.key, () => <Quantity>[]);
+        for (Quantity perServing in ingredient.value) {
+          addQuantityInto(totals, perServing.scaledBy(entry.servings));
         }
       }
     }
-
-    return combined;
+    return ingredients;
   }
 
   /// Returns per-recipe breakdown of ingredient usage across all weeks.
+  /// The servings of a recipe count the same meals as [allIngredients].
   /// Entries with the same recipe name are merged by summing servings.
   Map<String, List<IngredientSource>> ingredientSources({required List<Recipe> recipes}) {
-    Map<String, List<IngredientSource>> combined = {};
-
-    for (Menu week in weeks) {
-      Map<String, List<IngredientSource>> weekSources = week.ingredientSources(recipes: recipes);
-      for (MapEntry<String, List<IngredientSource>> entry in weekSources.entries) {
-        combined[entry.key] ??= [];
-        for (IngredientSource source in entry.value) {
-          int existingIndex = combined[entry.key]!.indexWhere((s) => s.recipeName == source.recipeName);
-          if (existingIndex >= 0) {
-            IngredientSource existing = combined[entry.key]![existingIndex];
-            combined[entry.key]![existingIndex] = existing.copyWith(servings: existing.servings + source.servings);
-          } else {
-            combined[entry.key]!.add(source);
-          }
+    Map<String, List<IngredientSource>> sources = {};
+    for (({Recipe recipe, int servings}) entry in _servingsPerRecipe(recipes: recipes)) {
+      for (MapEntry<String, List<Quantity>> ingredient in entry.recipe.perServingQuantities().entries) {
+        List<IngredientSource> ingredientSources = sources.putIfAbsent(ingredient.key, () => <IngredientSource>[]);
+        int existingIndex = ingredientSources.indexWhere((IngredientSource s) => s.recipeName == entry.recipe.name);
+        if (existingIndex >= 0) {
+          IngredientSource existing = ingredientSources[existingIndex];
+          ingredientSources[existingIndex] = existing.copyWith(servings: existing.servings + entry.servings);
+        } else {
+          ingredientSources.add(IngredientSource(recipeName: entry.recipe.name, perServingQuantities: ingredient.value, servings: entry.servings));
         }
       }
     }
-
-    return combined;
+    return sources;
   }
 
   /// Returns, for each ingredient, the meals of the whole menu that need it.
@@ -206,59 +275,36 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   /// recipe, cook meals and leftover meals alike, with the amount that this one meal needs.
   ///
   /// The walk covers the whole menu, not one week at a time. A cook event late in one week feeds
-  /// leftover meals of the next week, the same way [servingsForCookEvent] counts them. A week-local
-  /// walk would write no entry for such a leftover meal, because that week cooks nothing.
+  /// leftover meals of the next week. A week-local walk would write no entry for such a leftover
+  /// meal, because that week cooks nothing.
   ///
-  /// A meal whose recipe is not in [recipes] gets no entry, the same rule the rest of the menu
-  /// code follows for a deleted recipe.
+  /// A leftover meal that no cook event feeds gets no entry. See [_fedSubMeals] for the rule.
+  /// A meal whose recipe is not in [recipes] gets no entry either.
   ///
   /// The entries are ordered by week, then by the clock, then by the index of the sub-meal.
-  ///
-  /// Note: the total of the entries of one ingredient can be above the total that [allIngredients]
-  /// reports, because [allIngredients] counts the people of each week on its own and misses a
-  /// leftover meal of the next week. That gap makes the shopping list under-buy. It is a bug of
-  /// [allIngredients], not of this method, and issue #49 tracks the fix. Do not align this method
-  /// to [allIngredients]: the entries here are correct.
   Map<String, List<IngredientMealRequirement>> ingredientMealRequirements({required List<Recipe> recipes}) {
     Map<String, List<IngredientMealRequirement>> requirements = {};
 
-    for (int weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
-      for (Meal meal in weeks[weekIndex].meals) {
-        for (int subMealIndex = 0; subMealIndex < meal.subMeals.length; subMealIndex++) {
-          SubMeal subMeal = meal.subMeals[subMealIndex];
-          Cooking? cooking = subMeal.cooking;
-          if (cooking == null) continue;
-
-          Recipe? recipe = recipes.firstWhereOrNull((Recipe r) => r.id == cooking.recipeId);
-          if (recipe == null) continue;
-
-          for (MapEntry<String, List<Quantity>> ingredient in recipe.perServingQuantities().entries) {
-            requirements
-                .putIfAbsent(ingredient.key, () => <IngredientMealRequirement>[])
-                .add(
-                  IngredientMealRequirement(
-                    weekIndex: weekIndex,
-                    mealTime: meal.mealTime,
-                    subMealIndex: subMealIndex,
-                    recipeId: recipe.id,
-                    recipeName: recipe.name,
-                    people: subMeal.people,
-                    isCookEvent: cooking.yield > 0,
-                    quantities: ingredient.value.map((Quantity q) => q.scaledBy(subMeal.people)).toList(),
-                  ),
-                );
-          }
-        }
+    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal, Recipe recipe, int cookWeekIndex}) fed in _fedSubMeals(
+      recipes: recipes,
+    )) {
+      for (MapEntry<String, List<Quantity>> ingredient in fed.recipe.perServingQuantities().entries) {
+        requirements
+            .putIfAbsent(ingredient.key, () => <IngredientMealRequirement>[])
+            .add(
+              IngredientMealRequirement(
+                weekIndex: fed.weekIndex,
+                cookWeekIndex: fed.cookWeekIndex,
+                mealTime: fed.mealTime,
+                subMealIndex: fed.subMealIndex,
+                recipeId: fed.recipe.id,
+                recipeName: fed.recipe.name,
+                people: fed.subMeal.people,
+                isCookEvent: fed.subMeal.cooking!.yield > 0,
+                quantities: ingredient.value.map((Quantity q) => q.scaledBy(fed.subMeal.people)).toList(),
+              ),
+            );
       }
-    }
-
-    // The meals of one week arrive in the order the generator wrote them, so order them at the end.
-    for (List<IngredientMealRequirement> mealRequirements in requirements.values) {
-      mealRequirements.sort((IngredientMealRequirement a, IngredientMealRequirement b) {
-        if (a.weekIndex != b.weekIndex) return a.weekIndex.compareTo(b.weekIndex);
-        if (a.mealTime.isSameTime(b.mealTime)) return a.subMealIndex.compareTo(b.subMealIndex);
-        return a.mealTime.goesBefore(b.mealTime) ? -1 : 1;
-      });
     }
 
     return requirements;
