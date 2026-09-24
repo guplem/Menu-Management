@@ -19,6 +19,8 @@ import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 
+import "helpers/pdf_bytes_reader.dart";
+
 Recipe _pasta() => const Recipe(
   id: "r1",
   name: "Pasta",
@@ -94,9 +96,9 @@ void main() {
       MenuPdfDish dish({required int people, required MenuPdfDishSource source, int servingsToCook = 0}) =>
           MenuPdfDish(recipeName: "Pasta", people: people, source: source, servingsToCook: servingsToCook);
 
-      expect(dishNoteText(dish(people: 2, source: MenuPdfDishSource.cooked, servingsToCook: 5)), "2p - cook 5 servings");
-      expect(dishNoteText(dish(people: 1, source: MenuPdfDishSource.cooked, servingsToCook: 1)), "1p - cook 1 serving");
-      expect(dishNoteText(dish(people: 3, source: MenuPdfDishSource.leftovers)), "3p - leftovers");
+      expect(dishNoteText(dish(people: 2, source: MenuPdfDishSource.cooked, servingsToCook: 5)), "2p · cook 5 servings");
+      expect(dishNoteText(dish(people: 1, source: MenuPdfDishSource.cooked, servingsToCook: 1)), "1p · cook 1 serving");
+      expect(dishNoteText(dish(people: 3, source: MenuPdfDishSource.leftovers)), "3p · leftovers");
       // A dish with no recipe keeps its people count: an empty meal for two is a gap to see.
       expect(dishNoteText(dish(people: 2, source: MenuPdfDishSource.empty)), "2p");
     });
@@ -130,14 +132,23 @@ void main() {
       expect(weekTableMealTypes(const MenuPdfWeekSection(title: "Week 1")), MealType.values);
     });
 
-    test("writes the servings and the times under the name of a recipe", () {
-      MenuPdfRecipeSection section = const MenuPdfRecipeSection(recipeName: "Pasta", servings: 5, workingTimeMinutes: 7, cookingTimeMinutes: 12);
+    test("counts the weeks and the recipes under the title", () {
+      MenuPdfRecipeSection recipe = const MenuPdfRecipeSection(recipeName: "Pasta", servings: 2, workingTimeMinutes: 1, cookingTimeMinutes: 1);
+      MenuPdfWeekSection week = const MenuPdfWeekSection(title: "Week 1");
 
-      expect(recipeSummaryText(section), "5 servings - 19 min (7 min of work, 12 min of cooking)");
-      expect(recipeSummaryText(section.copyWith(servings: 1)), "1 serving - 19 min (7 min of work, 12 min of cooking)");
+      expect(menuSubtitleText(MenuPdfDocument(title: "Menu", weeks: [week, week, week], recipes: [recipe, recipe])), "3 weeks · 2 recipes");
+      expect(menuSubtitleText(MenuPdfDocument(title: "Menu", weeks: [week], recipes: [recipe])), "1 week · 1 recipe");
+      expect(menuSubtitleText(const MenuPdfDocument(title: "Menu")), "0 weeks · 0 recipes");
     });
 
-    test("writes one ingredient line, and numbers every step with its times and its ingredients", () {
+    test("writes the servings and the times of a recipe as one fact each", () {
+      MenuPdfRecipeSection section = const MenuPdfRecipeSection(recipeName: "Pasta", servings: 5, workingTimeMinutes: 7, cookingTimeMinutes: 12);
+
+      expect(recipeFactTexts(section), ["5 servings", "19 min in total", "7 min of work", "12 min of cooking"]);
+      expect(recipeFactTexts(section.copyWith(servings: 1)), ["1 serving", "19 min in total", "7 min of work", "12 min of cooking"]);
+    });
+
+    test("writes the times of a step, and the ingredients that it uses on a line of their own", () {
       MenuPdfStep step = const MenuPdfStep(
         number: 1,
         description: "Boil the pasta.",
@@ -149,10 +160,15 @@ void main() {
         ],
       );
 
-      expect(ingredientLineText(const MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "500 grams")), "Noodles: 500 grams");
-      expect(stepTitleText(step), "1. Boil the pasta.");
-      expect(stepDetailsText(step), "   5 min of work, 12 min of cooking - Noodles: 500 grams, Egg: 5 pieces");
-      expect(stepDetailsText(step.copyWith(ingredients: [])), "   5 min of work, 12 min of cooking");
+      expect(stepTimesText(step), "5 min of work · 12 min of cooking");
+      expect(stepIngredientsText(step), "Uses: Noodles (500 grams), Egg (5 pieces)");
+      // A step that uses no ingredient writes no ingredient line.
+      expect(stepIngredientsText(step.copyWith(ingredients: [])), "");
+    });
+
+    test("explains the two notes of a dish in the legend", () {
+      expect(cookLegendText, "cook N servings: cook at this meal. N counts the leftovers for later meals too.");
+      expect(leftoversLegendText, "leftovers: eat the food of an earlier cook.");
     });
   });
 
@@ -195,6 +211,59 @@ void main() {
       Uint8List bytes = await renderMenuPdf(const MenuPdfDocument(title: "Menu"));
 
       expect(latin1.decode(bytes.sublist(0, 5)), "%PDF-");
+    });
+
+    test("starts every week and the recipes on a new page, so no week table breaks in the middle", () async {
+      MenuPdfWeekSection week(int number) => MenuPdfWeekSection(
+        title: "Week $number",
+        days: const [
+          MenuPdfDayRow(
+            dayLabel: "Saturday",
+            slots: [MenuPdfSlot(mealType: MealType.lunch)],
+          ),
+        ],
+      );
+      MenuPdfDocument document = MenuPdfDocument(
+        title: "Menu",
+        weeks: [week(1), week(2)],
+        recipes: const [MenuPdfRecipeSection(recipeName: "Pasta", servings: 2, workingTimeMinutes: 1, cookingTimeMinutes: 1)],
+      );
+
+      Uint8List bytes = await renderMenuPdf(document);
+
+      // Two small weeks and one small recipe fit one page together. Three pages prove the breaks.
+      expect(pdfPageCount(bytes), 3);
+      expect(drawnPdfText(bytes).contains("Menu · Page 3 of 3"), isTrue);
+    });
+
+    test("draws every part of a recipe: the facts, the ingredients, the steps and their times", () async {
+      MenuPdfDocument document = const MenuPdfDocument(
+        title: "Menu",
+        recipes: [
+          MenuPdfRecipeSection(
+            recipeName: "Pasta",
+            servings: 5,
+            workingTimeMinutes: 7,
+            cookingTimeMinutes: 12,
+            ingredients: [MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "500 grams")],
+            steps: [
+              MenuPdfStep(
+                number: 1,
+                description: "Boil the pasta.",
+                workingTimeMinutes: 5,
+                cookingTimeMinutes: 12,
+                ingredients: [MenuPdfIngredientLine(ingredientName: "Noodles", amounts: "500 grams")],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      String drawn = drawnPdfText(await renderMenuPdf(document));
+
+      expect(drawn.contains("5 servings 19 min in total 7 min of work 12 min of cooking"), isTrue);
+      expect(drawn.contains("Noodles 500 grams"), isTrue);
+      expect(drawn.contains("1 Boil the pasta. 5 min of work · 12 min of cooking Uses: Noodles (500 grams)"), isTrue);
     });
   });
 }
