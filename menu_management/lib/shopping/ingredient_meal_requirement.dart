@@ -14,17 +14,19 @@ part "ingredient_meal_requirement.g.dart";
 /// [isCookEvent] is false when the meal eats leftovers of an earlier cook. Such a meal still
 /// needs the ingredient, because the earlier cook buys the food for it.
 ///
-/// [cookWeekIndex] is the week of the cook event that cooks the food of this meal. For a cook
-/// meal it equals [weekIndex]. For a leftover meal it can be an earlier week, because a cook
-/// event late in one week can feed a meal of the next week. The shopping trip that buys the
-/// food is the trip of that cook event, so use [cookWeekIndex] to put the meal under a trip.
+/// [cookDayIndex] is the day of the cook event that cooks the food of this meal, counted from the
+/// first day of the menu (`weekIndex * 7 + weekDay`, the same count as `CookingEvent.dayIndex`).
+/// For a leftover meal it is an earlier day, and it can be in an earlier week, because a cook
+/// event late in one week can feed a meal of the next week. The shopping trip that buys the food
+/// is the trip that buys that cook day (`TripItem.cookDays`), so use [cookDayIndex] to put the
+/// meal under a trip.
 ///
 /// The record holds the recipe id, never the Recipe object, the same way Cooking does.
 @freezed
 abstract class IngredientMealRequirement with _$IngredientMealRequirement {
   const factory IngredientMealRequirement({
     required int weekIndex,
-    required int cookWeekIndex,
+    required int cookDayIndex,
     required MealTime mealTime,
     required int subMealIndex,
     required String recipeId,
@@ -33,6 +35,11 @@ abstract class IngredientMealRequirement with _$IngredientMealRequirement {
     required bool isCookEvent,
     @Default([]) List<Quantity> quantities,
   }) = _IngredientMealRequirement;
+
+  const IngredientMealRequirement._();
+
+  /// The week of the cook event that cooks the food of this meal.
+  int get cookWeekIndex => cookDayIndex ~/ 7;
 
   factory IngredientMealRequirement.fromJson(Map<String, Object?> json) => _$IngredientMealRequirementFromJson(json);
 }
