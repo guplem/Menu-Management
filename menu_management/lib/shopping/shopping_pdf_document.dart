@@ -264,7 +264,7 @@ String _documentTitle(MultiWeekMenu multiWeekMenu) {
 /// mark. This drops it and warns, the same way `remainingForCopy` warns on its own bad data.
 ///
 /// `recommendCombination` is not used here on purpose: it picks a mix of products and drops every
-/// product that the mix leaves out, and it returns null for many amounts (issue #48).
+/// product that the mix leaves out.
 List<ShoppingPdfProductOption> _productOptions({
   required Ingredient ingredient,
   required List<Quantity> remaining,
