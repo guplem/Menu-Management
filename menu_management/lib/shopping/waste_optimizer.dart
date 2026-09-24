@@ -390,10 +390,13 @@ CombinationRecommendation? recommendCombination({
     normalizedEvents = [_NormalizedEvent(dayIndex: 0, amount: totalNeeded)];
   }
 
-  // Per-product cap = packs that product alone would need (already accounts for expiry).
-  List<int> caps = sorted
-      .map((Product p) => _simulateProduct(product: p, totalNeeded: totalNeeded, events: events, ingredient: ingredient).packsNeeded)
-      .toList();
+  // Per-product cap = packs that product alone would need to cover the whole need (already accounts
+  // for expiry). Add back the pack that the under-buy rule drops: the reduced count cannot cover the
+  // need, so with it no candidate is feasible when the need is not an exact pack multiple (issue #48).
+  List<int> caps = sorted.map((Product p) {
+    ProductRecommendation solo = _simulateProduct(product: p, totalNeeded: totalNeeded, events: events, ingredient: ingredient);
+    return solo.underBuy ? solo.packsNeeded + 1 : solo.packsNeeded;
+  }).toList();
 
   // Bound the search: if the Cartesian product of the ranges is too large, fall back to the best
   // single product from the per-product ranking.

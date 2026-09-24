@@ -496,6 +496,23 @@ void main() {
     });
   });
 
+  group("buildIngredientCopyLines need that is not an exact pack multiple (issue #48)", () {
+    test("writes the pack line for a 599 g need with 100 g packs", () {
+      const Ingredient flour = Ingredient(
+        id: "flour",
+        name: "Flour",
+        products: [Product(link: "https://shop.example/flour", quantityPerItem: 100, unit: Unit.grams)],
+      );
+
+      String text = buildIngredientCopyLines(
+        ingredient: flour,
+        remaining: const [Quantity(amount: 599, unit: Unit.grams)],
+      );
+
+      expect(text.split("\n"), const ["Flour", "  100 grams/pack: 6 packs", "    https://shop.example/flour", ""]);
+    });
+  });
+
   group("buildIngredientChecklistLines", () {
     test("writes the ingredient, the pack size and the pack count on one line, with no link", () {
       // The reader pastes this text into a checklist app, and each line becomes one item. A link

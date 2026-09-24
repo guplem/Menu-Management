@@ -870,6 +870,50 @@ void main() {
       expect(rec.overBuyWaste, closeTo(300, 0.01));
       expect(rec.totalWaste, closeTo(600, 0.01));
     });
+
+    group("needs that are not an exact pack multiple (issue #48)", () {
+      test("buys 6 packs of 100 g for a 599 g need and reports 1 g of over-buy", () {
+        // One pack less (500 g) would leave the need 99 g short, so the mix must buy 6 packs.
+        Product pack = _product(quantityPerItem: 100);
+
+        CombinationRecommendation? rec = recommendCombination(totalNeeded: 599, events: const [], ingredient: _ingredient(), products: [pack]);
+
+        expect(rec, isNotNull);
+        expect(packsBySize(rec!), {100.0: 6});
+        expect(rec.overBuyWaste, closeTo(1, 0.01));
+        expect(rec.expiryWaste, closeTo(0, 0.01));
+      });
+
+      test("buys 7 packs of 100 g for a 601 g need and reports 99 g of over-buy", () {
+        Product pack = _product(quantityPerItem: 100);
+
+        CombinationRecommendation? rec = recommendCombination(totalNeeded: 601, events: const [], ingredient: _ingredient(), products: [pack]);
+
+        expect(rec, isNotNull);
+        expect(packsBySize(rec!), {100.0: 7});
+        expect(rec.overBuyWaste, closeTo(99, 0.01));
+        expect(rec.expiryWaste, closeTo(0, 0.01));
+      });
+
+      test("picks 6 small packs over a more wasteful mix for a 599 g need", () {
+        // Need 599 g with 100 g and 350 g packs. Six 100 g packs (600 g) waste only 1 g.
+        // The best mix that uses the 350 g pack is 3x100 + 1x350 (650 g), which wastes 51 g.
+        Product small = _product(quantityPerItem: 100, link: "small");
+        Product large = _product(quantityPerItem: 350, link: "large");
+
+        CombinationRecommendation? rec = recommendCombination(
+          totalNeeded: 599,
+          events: const [],
+          ingredient: _ingredient(),
+          products: [small, large],
+        );
+
+        expect(rec, isNotNull);
+        expect(packsBySize(rec!), {100.0: 6});
+        expect(rec.overBuyWaste, closeTo(1, 0.01));
+        expect(rec.expiryWaste, closeTo(0, 0.01));
+      });
+    });
   });
 
   group("combinationPackLines", () {
