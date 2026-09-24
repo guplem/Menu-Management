@@ -28,6 +28,10 @@ Non-perishable events are processed afterwards: each is placed on the earliest a
 
 When no trip can possibly serve a perishable event fresh (very short shelf life relative to cooking day), the planner falls back to the latest trip on or before the event day. The existing menu expiry warning (ADR 0010) continues to surface this to the user; the shopping list does not silently drop the item.
 
+### Cross-week leftovers
+
+A cook event late in week N can feed a leftover meal in week N+1. The food of that meal is bought with the cook event, because the cook cooks it on the cook day. `buildCookingTimeline` puts the whole amount of a cook event on its cook day, so the planner assigns it to the trip of the cook event. The shopping PDF follows the same rule: a trip section lists a leftover meal under the trip of its cook event (`IngredientMealRequirement.cookWeekIndex`), not under the trip of the week of the meal.
+
 ### Per-event shelf life lookup
 
 Shelf life is read from the same-unit product variants of the ingredient. ADR 0015 changes this from a first-match lookup to an any-match across same-unit variants: if any variant has `shelfLifeDaysClosed = null` the ingredient is treated as non-perishable, otherwise the planner uses the maximum `shelfLifeDaysClosed` across the matching variants. This mirrors the menu warning's "warn only if every variant is past sealed life" policy and lets a long-life variant consolidate trips that would otherwise be split. The original first-match wording is kept here for historical context.

@@ -175,6 +175,9 @@ abstract class Menu with _$Menu {
 
   /// Returns what the whole week needs of each ingredient, keyed by ingredient id.
   ///
+  /// This method sees one week only. It misses a leftover meal of the next week that a cook event
+  /// of this week feeds. The shopping list reads `MultiWeekMenu.allIngredients`, which walks all weeks.
+  ///
   /// Each cooked recipe contributes its per-serving amounts, scaled by the people that eat it.
   /// The per-recipe merge of the usages comes from [Recipe.perServingQuantities], so the shopping
   /// list and the per-meal breakdown can never split an ingredient in two different ways.

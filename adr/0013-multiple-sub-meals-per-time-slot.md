@@ -24,6 +24,8 @@ Introduce a `SubMeal` Freezed model and restructure `Meal` to hold a `List<SubMe
 
 `Menu.allIngredients` and `Menu.ingredientSources` iterate over sub-meals within each meal. The `peopleFactor` for a recipe sums `subMeal.people` across all sub-meals (in all meals) that reference that recipe.
 
+The shopping list reads `MultiWeekMenu.allIngredients` instead, which also counts per sub-meal but walks all weeks at once (see ADR 0008).
+
 ### Menu generator
 
 For each `MenuConfiguration`, the generator creates `mealCount` sub-meals. The first sub-meal gets the primary recipe (assigned by the existing algorithm). Additional sub-meals get different recipes from the same pool, avoiding duplicates within a slot. Default people per sub-meal: `ceil(2 / mealCount)`.

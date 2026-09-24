@@ -65,7 +65,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 1033 tests across 41 files |
+| Run all tests | `cd menu_management && flutter test test/` | 1041 tests across 41 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -157,7 +157,8 @@ CI runs the format check, `flutter analyze`, and the full test suite on every PR
   - `Recipe.fitsConfiguration()`: Check if recipe matches meal requirements
   - `Menu.copyWithUpdatedRecipe(recipes:)`: Update a meal's recipe and recalculate yields
   - `Menu.copyWithUpdatedYields(recipes:)`: Calculate yields based on recipe reuse
-  - `Menu.allIngredients(recipes:)`: Aggregate all ingredients across meals (respects yields)
+  - `Menu.allIngredients(recipes:)`: Aggregate all ingredients across the meals of one week (respects yields)
+  - `MultiWeekMenu.allIngredients(recipes:)`: Aggregate the ingredients of the whole menu for the shopping list, including leftover meals that a cook event of the previous week feeds
   - `MenuConfiguration.canBeCookedAtTheSpot`: Derived from time availability
 
 ### Adding or Editing Products (mandatory)
