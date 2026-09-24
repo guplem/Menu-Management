@@ -772,6 +772,221 @@ void main() {
         4,
       );
     });
+
+    group("servingsForCookEvent attributes each meal to one cook event", () {
+      const MealTime satBreakfast = MealTime(weekDay: WeekDay.saturday, mealType: MealType.breakfast);
+      const MealTime satLunch = MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch);
+      const MealTime satDinner = MealTime(weekDay: WeekDay.saturday, mealType: MealType.dinner);
+      const MealTime sunLunch = MealTime(weekDay: WeekDay.sunday, mealType: MealType.lunch);
+      const MealTime monLunch = MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch);
+      const MealTime tueLunch = MealTime(weekDay: WeekDay.tuesday, mealType: MealType.lunch);
+      const MealTime wedLunch = MealTime(weekDay: WeekDay.wednesday, mealType: MealType.lunch);
+      const MealTime thuLunch = MealTime(weekDay: WeekDay.thursday, mealType: MealType.lunch);
+
+      /// Builds one meal that holds one sub-meal per entry of [people], all with [recipeId].
+      Meal mealOf(MealTime mealTime, String recipeId, List<int> people) {
+        return Meal(
+          mealTime: mealTime,
+          subMeals: [
+            for (int p in people)
+              SubMeal(
+                cooking: Cooking(recipeId: recipeId, yield: 1),
+                people: p,
+              ),
+          ],
+        );
+      }
+
+      /// Returns the servings of every cook event of [recipeId], keyed by week, slot and sub-meal index.
+      Map<(int, MealTime, int), int> cookServings(MultiWeekMenu multi, String recipeId, List<Recipe> recipes) {
+        Map<(int, MealTime, int), int> result = {};
+        for (int wi = 0; wi < multi.weeks.length; wi++) {
+          for (Meal meal in multi.weeks[wi].meals) {
+            for (int si = 0; si < meal.subMeals.length; si++) {
+              Cooking? cooking = meal.subMeals[si].cooking;
+              if (cooking == null || cooking.recipeId != recipeId || cooking.yield <= 0) continue;
+              result[(wi, meal.mealTime, si)] = multi.servingsForCookEvent(
+                cookWeekIndex: wi,
+                cookMealTime: meal.mealTime,
+                subMealIndex: si,
+                recipes: recipes,
+              );
+            }
+          }
+        }
+        return result;
+      }
+
+      test("a fresh-only recipe at lunch and dinner of one day cooks the people of each meal", () {
+        List<Recipe> recipes = [Recipe(id: "f1", name: "Salad", maxStorageDays: 0)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                mealOf(satLunch, "f1", [2]),
+                mealOf(satDinner, "f1", [2]),
+              ],
+            ),
+          ],
+        ).copyWithUpdatedYields(recipes: recipes);
+
+        expect(cookServings(multi, "f1", recipes), {(0, satLunch, 0): 2, (0, satDinner, 0): 2});
+      });
+
+      test("a fresh-only recipe at breakfast and dinner does not count the earlier meal", () {
+        List<Recipe> recipes = [Recipe(id: "f1", name: "Salad", maxStorageDays: 0)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                mealOf(satDinner, "f1", [3]),
+                mealOf(satBreakfast, "f1", [1]),
+              ],
+            ),
+          ],
+        ).copyWithUpdatedYields(recipes: recipes);
+
+        expect(cookServings(multi, "f1", recipes), {(0, satBreakfast, 0): 1, (0, satDinner, 0): 3});
+      });
+
+      test("two sub-meals of a fresh-only recipe in one slot cook the people of each sub-meal", () {
+        List<Recipe> recipes = [Recipe(id: "f1", name: "Salad", maxStorageDays: 0)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                mealOf(satLunch, "f1", [2, 3]),
+              ],
+            ),
+          ],
+        ).copyWithUpdatedYields(recipes: recipes);
+
+        expect(cookServings(multi, "f1", recipes), {(0, satLunch, 0): 2, (0, satLunch, 1): 3});
+      });
+
+      test("two sub-meals of a storable recipe in one slot cook once for both", () {
+        List<Recipe> recipes = [Recipe(id: "s1", name: "Stew", maxStorageDays: 2)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                mealOf(satLunch, "s1", [2, 3]),
+                mealOf(sunLunch, "s1", [4]),
+              ],
+            ),
+          ],
+        ).copyWithUpdatedYields(recipes: recipes);
+
+        expect(cookServings(multi, "s1", recipes), {(0, satLunch, 0): 9});
+      });
+
+      test("a storable recipe cooked again keeps its later leftovers for the second cook event", () {
+        List<Recipe> recipes = [Recipe(id: "s1", name: "Stew", maxStorageDays: 1)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                mealOf(monLunch, "s1", [2]),
+                mealOf(tueLunch, "s1", [3]),
+                mealOf(wedLunch, "s1", [4]),
+                mealOf(thuLunch, "s1", [5]),
+              ],
+            ),
+          ],
+        ).copyWithUpdatedYields(recipes: recipes);
+
+        expect(cookServings(multi, "s1", recipes), {(0, monLunch, 0): 5, (0, wedLunch, 0): 9});
+      });
+
+      test("a second cook event inside the storage window takes the leftovers after it", () {
+        // These yields are set by hand: Wednesday cooks again although Monday's window still covers it.
+        List<Recipe> recipes = [Recipe(id: "s1", name: "Stew", maxStorageDays: 3)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                Meal(
+                  mealTime: monLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 2), people: 2)],
+                ),
+                Meal(
+                  mealTime: tueLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 3)],
+                ),
+                Meal(
+                  mealTime: wedLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 2), people: 4)],
+                ),
+                Meal(
+                  mealTime: thuLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 5)],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        expect(cookServings(multi, "s1", recipes), {(0, monLunch, 0): 5, (0, wedLunch, 0): 9});
+      });
+
+      test("a leftover sub-meal outside the storage window is not counted", () {
+        // These yields are set by hand: Thursday is a leftover sub-meal that Monday's window does not cover.
+        List<Recipe> recipes = [Recipe(id: "s1", name: "Stew", maxStorageDays: 1)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                Meal(
+                  mealTime: monLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 2), people: 2)],
+                ),
+                Meal(
+                  mealTime: tueLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 3)],
+                ),
+                Meal(
+                  mealTime: thuLunch,
+                  subMeals: [SubMeal(cooking: Cooking(recipeId: "s1", yield: 0), people: 5)],
+                ),
+              ],
+            ),
+          ],
+        );
+
+        expect(cookServings(multi, "s1", recipes), {(0, monLunch, 0): 5});
+      });
+
+      test("the servings of all cook events of a recipe add up to its total servings", () {
+        List<Recipe> recipes = [Recipe(id: "f1", name: "Salad", maxStorageDays: 0), Recipe(id: "s1", name: "Stew", maxStorageDays: 1)];
+        MultiWeekMenu multi = MultiWeekMenu(
+          weeks: [
+            Menu(
+              meals: [
+                mealOf(satBreakfast, "f1", [1, 2]),
+                mealOf(satLunch, "f1", [2]),
+                mealOf(satDinner, "s1", [2, 1]),
+                mealOf(sunLunch, "s1", [3]),
+                mealOf(monLunch, "s1", [4]),
+                mealOf(thuLunch, "s1", [2]),
+              ],
+            ),
+            Menu(
+              meals: [
+                mealOf(satLunch, "s1", [5]),
+                mealOf(sunLunch, "f1", [3]),
+              ],
+            ),
+          ],
+        ).copyWithUpdatedYields(recipes: recipes);
+
+        for (String recipeId in ["f1", "s1"]) {
+          int sum = cookServings(multi, recipeId, recipes).values.fold(0, (int a, int b) => a + b);
+          expect(sum, multi.totalServingsForRecipe(recipeId), reason: recipeId);
+        }
+        expect(multi.totalServingsForRecipe("f1"), 8);
+        expect(multi.totalServingsForRecipe("s1"), 17);
+      });
+    });
   });
 
   group("MultiWeekMenu start date", () {

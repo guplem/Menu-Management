@@ -120,9 +120,13 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   }
 
   /// Returns the total people served by a specific cook event (yield > 0 sub-meal).
-  /// The cook event at [cookWeekIndex]/[cookMealTime]/[subMealIndex] feeds itself plus all
-  /// subsequent leftover occurrences (yield == 0) of the same recipe within
-  /// the recipe's maxStorageDays window.
+  /// The cook event at [cookWeekIndex]/[cookMealTime]/[subMealIndex] feeds itself plus the
+  /// later leftover sub-meals (yield == 0) of the same recipe within the recipe's
+  /// maxStorageDays window. The count stops at the next cook event of the recipe, because
+  /// that cook event feeds the leftovers after it. A sub-meal that cooks for itself, such as
+  /// each meal of a recipe with maxStorageDays 0, counts only for its own cook event.
+  /// So the sum over all cook events of a recipe equals [totalServingsForRecipe] when the
+  /// yields come from [copyWithUpdatedYields].
   int servingsForCookEvent({required int cookWeekIndex, required MealTime cookMealTime, required int subMealIndex, required List<Recipe> recipes}) {
     // Find the cook meal
     Meal? cookMeal = weeks[cookWeekIndex].meals.firstWhereOrNull((Meal m) => m.mealTime.isSameTime(cookMealTime));
@@ -136,17 +140,34 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
     int maxDays = recipe?.maxStorageDays ?? 0;
     int cookAbsoluteDay = cookWeekIndex * 7 + cookMealTime.weekDay.value;
 
-    int total = 0;
+    // Collect the later sub-meals of the recipe inside the storage window, in the order of the clock.
+    // The order is week, day, meal type, then the index of the sub-meal.
+    List<({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal})> laterSubMeals = [];
     for (int wi = cookWeekIndex; wi < weeks.length; wi++) {
       for (Meal meal in weeks[wi].meals) {
-        for (SubMeal subMeal in meal.subMeals) {
+        int mealAbsoluteDay = wi * 7 + meal.mealTime.weekDay.value;
+        if (mealAbsoluteDay - cookAbsoluteDay > maxDays) continue;
+        for (int si = 0; si < meal.subMeals.length; si++) {
+          SubMeal subMeal = meal.subMeals[si];
           if (subMeal.cooking?.recipeId != recipeId) continue;
-          int mealAbsoluteDay = wi * 7 + meal.mealTime.weekDay.value;
-          if (mealAbsoluteDay < cookAbsoluteDay) continue;
-          if (mealAbsoluteDay - cookAbsoluteDay > maxDays) continue;
-          total += subMeal.people;
+          bool sameSlot = wi == cookWeekIndex && meal.mealTime.isSameTime(cookMealTime);
+          bool isLater = wi > cookWeekIndex || (sameSlot ? si > subMealIndex : cookMealTime.goesBefore(meal.mealTime));
+          if (!isLater) continue;
+          laterSubMeals.add((weekIndex: wi, mealTime: meal.mealTime, subMealIndex: si, subMeal: subMeal));
         }
       }
+    }
+    laterSubMeals.sort((a, b) {
+      if (a.weekIndex != b.weekIndex) return a.weekIndex.compareTo(b.weekIndex);
+      if (a.mealTime.isSameTime(b.mealTime)) return a.subMealIndex.compareTo(b.subMealIndex);
+      return a.mealTime.goesBefore(b.mealTime) ? -1 : 1;
+    });
+
+    int total = cookSubMeal.people;
+    for (({int weekIndex, MealTime mealTime, int subMealIndex, SubMeal subMeal}) later in laterSubMeals) {
+      // The next cook event of the recipe feeds itself and the leftovers after it.
+      if (later.subMeal.cooking!.yield > 0) break;
+      total += later.subMeal.people;
     }
     return total;
   }
