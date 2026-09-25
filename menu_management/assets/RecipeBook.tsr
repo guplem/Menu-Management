@@ -2075,6 +2075,424 @@
         }
       ],
       "density": 1.0
+    },
+    {
+      "id": "9a4fc345-541b-4a4f-aa9c-7119a3f631c3",
+      "name": "Harina de trigo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/29100/harina-trigo-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.55
+    },
+    {
+      "id": "fdf4306e-dec9-42b2-bf1c-11d4b4c0587d",
+      "name": "Mantequilla",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/20716/mantequilla-sin-sal-anadida-hacendado-pastilla",
+          "itemsPerPack": 1,
+          "quantityPerItem": 250.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 30,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 0.91
+    },
+    {
+      "id": "7d717969-a416-41b6-95c4-960430dc2644",
+      "name": "Levadura química",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/80293/impulsor-gasificante-hacendado-uso-alimentario-caja",
+          "itemsPerPack": 6,
+          "quantityPerItem": 15.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.8
+    },
+    {
+      "id": "3ae8ade4-e487-4d86-8634-2bd322324265",
+      "name": "Lentejas pardinas (secas)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/5330/lenteja-pardina-hacendado-categoria-extra-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1000.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.85
+    },
+    {
+      "id": "9fad3c0d-f715-4a6c-8da0-420ec31d61f3",
+      "name": "Chorizo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/54209/chorizo-dulce-extra-hacendado-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 280.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 30
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/54209/chorizo-dulce-extra-hacendado-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 30
+        }
+      ],
+      "density": 1.0
+    },
+    {
+      "id": "06e1cf19-4627-4650-9532-32d72f724876",
+      "name": "Laurel (hojas)",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/47994/hoja-laurel-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 12.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.1,
+      "gramsPerPiece": 0.2
+    },
+    {
+      "id": "08c5321e-a6cb-4ee5-a4c7-b4b5484cf146",
+      "name": "Almejas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/60874/almeja-hacendado-congelada-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 450.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 1.0
+    },
+    {
+      "id": "40080fd9-6b92-4016-a5c5-a26af5ab93f9",
+      "name": "Pollo entero",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/2781/pollo-entero-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1840.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/2781/pollo-entero-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 5,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 1.05
+    },
+    {
+      "id": "41c53db5-55a0-4206-945d-25cbc9d9763f",
+      "name": "Jamón cocido",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/59256/jamon-cocido-hacendado-lonchas-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 200.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 5
+        }
+      ],
+      "density": 1.05
+    },
+    {
+      "id": "0e3dcd06-281d-41a4-9546-633c38755a59",
+      "name": "Setas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/69653/seta-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 250.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 3,
+          "shelfLifeDaysClosed": 5
+        }
+      ],
+      "density": 0.4
+    },
+    {
+      "id": "00b50084-03b1-4d80-8bdd-39165e805b21",
+      "name": "Quesitos en porciones",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52405/queso-porciones-hacendado-caja",
+          "itemsPerPack": 24,
+          "quantityPerItem": 15.625,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 30
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/52405/queso-porciones-hacendado-caja",
+          "itemsPerPack": 24,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 30
+        }
+      ],
+      "density": 1.05
+    },
+    {
+      "id": "a2455082-28dd-4cf2-b180-a0c34b58e5ff",
+      "name": "Dorada",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/81234.1/dorada-limpia-con-cabeza-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 530.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 2,
+          "canBeFrozen": true
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/81234.1/dorada-limpia-con-cabeza-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 2,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 1.05,
+      "gramsPerPiece": 530.0
+    },
+    {
+      "id": "8de5b969-35ee-4488-bbc3-9c465ad0692c",
+      "name": "Guindilla seca",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/21552/cayena-guindillas-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 23.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.3,
+      "gramsPerPiece": 0.3
+    },
+    {
+      "id": "ab9e9466-0627-4652-92e6-2c0af14822b7",
+      "name": "Mayonesa",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52728/mayonesa-hacendado-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 24.0,
+          "unit": "centiliters",
+          "shelfLifeDaysOpened": 30
+        }
+      ],
+      "density": 0.92
+    },
+    {
+      "id": "182fa5ad-d3d9-4c7b-a032-d8a802a02eda",
+      "name": "Pepinillos en vinagre",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/11565/pepinillos-vinagre-hacendado-tarro",
+          "itemsPerPack": 1,
+          "quantityPerItem": 420.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 15
+        }
+      ],
+      "density": 0.9
+    },
+    {
+      "id": "64d05243-6152-4cb2-bf66-0d2480d4f14f",
+      "name": "Brandy",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/28525/brandy-jerez-solera-reserva-convidado-baco-botella",
+          "itemsPerPack": 1,
+          "quantityPerItem": 70.0,
+          "unit": "centiliters"
+        }
+      ],
+      "density": 0.95
+    },
+    {
+      "id": "6bc83929-6384-4f8e-8b4e-673e1381f201",
+      "name": "Canela en rama",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/52880/canela-rama-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 19.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.5,
+      "gramsPerPiece": 2.5
+    },
+    {
+      "id": "62f75ca9-83b4-4930-ba69-ec754ce9cbff",
+      "name": "Canela molida",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/34177/canela-molida-hacendado-bote",
+          "itemsPerPack": 1,
+          "quantityPerItem": 52.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.5
+    },
+    {
+      "id": "7033b211-d408-4aac-823a-38c197c728f8",
+      "name": "Nata para cocinar",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/10199/nata-ligera-cocinar-hacendado-pack-3",
+          "itemsPerPack": 3,
+          "quantityPerItem": 20.0,
+          "unit": "centiliters",
+          "shelfLifeDaysOpened": 5
+        }
+      ],
+      "density": 1.0
+    },
+    {
+      "id": "dfd43b63-7068-479c-b94c-a2cd0cbe3cb0",
+      "name": "Gambas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/24181/gamba-pelada-cruda-tamano-mediano-hacendado-ultracongelada-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 360.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 1,
+          "canBeFrozen": true
+        }
+      ],
+      "density": 1.0,
+      "gramsPerPiece": 20.0
+    },
+    {
+      "id": "1c0db353-a3b4-4a9b-b88d-80440e10f3e2",
+      "name": "Chistorra",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/2864/chistorra-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 220.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 2
+        }
+      ],
+      "density": 1.0
+    },
+    {
+      "id": "fa075727-70de-4a0b-aa9e-a536067ca7b3",
+      "name": "Queso en lonchas para fundir",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/50371/queso-lonchas-fundido-sandwich-mezcla-hacendado-paquete",
+          "itemsPerPack": 10,
+          "quantityPerItem": 20.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 5
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/50371/queso-lonchas-fundido-sandwich-mezcla-hacendado-paquete",
+          "itemsPerPack": 10,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 5
+        }
+      ],
+      "density": 1.05,
+      "gramsPerPiece": 20.0
+    },
+    {
+      "id": "d5e779b3-e52c-45b5-bbfc-4750eb55558d",
+      "name": "Coco rallado",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/34035/coco-rallado-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 125.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.35
+    },
+    {
+      "id": "49091142-bd4b-4bfb-87b3-bb4e117ef1e3",
+      "name": "Cacao en polvo",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/11609/cacao-polvo-taza-hacendado-paquete",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400.0,
+          "unit": "grams"
+        }
+      ],
+      "density": 0.5
+    },
+    {
+      "id": "2ae2d51a-6f60-4267-aa03-4b9a2fdf6376",
+      "name": "Melocotón",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/3433/melocoton-amarillo-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 270.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 2,
+          "shelfLifeDaysClosed": 7
+        },
+        {
+          "link": "https://tienda.mercadona.es/product/3433/melocoton-amarillo-pieza",
+          "itemsPerPack": 1,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 2,
+          "shelfLifeDaysClosed": 7
+        }
+      ],
+      "density": 0.95,
+      "gramsPerPiece": 270.0
+    },
+    {
+      "id": "e9b3f093-b137-4e5c-ad6b-fe3e7ed5a185",
+      "name": "Fresas",
+      "products": [
+        {
+          "link": "https://tienda.mercadona.es/product/3723/fresas-bandeja",
+          "itemsPerPack": 1,
+          "quantityPerItem": 400.0,
+          "unit": "grams",
+          "shelfLifeDaysOpened": 3,
+          "shelfLifeDaysClosed": 10
+        }
+      ],
+      "density": 0.6
     }
   ],
   "Recipes": [
@@ -7002,6 +7420,3033 @@
       "dinner": true,
       "maxStorageDays": 0,
       "includeInMenuGeneration": true
+    },
+    {
+      "id": "bb5d6c2a-7e2b-4a98-904f-5a6218c8ec85",
+      "name": "Magdalenas",
+      "instructions": [
+        {
+          "id": "972975bf-817e-49b9-88ed-400c814a1e1d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "fdf4306e-dec9-42b2-bf1c-11d4b4c0587d",
+              "quantity": {
+                "amount": 45.0,
+                "unit": "grams"
+              },
+              "ref_name": "Mantequilla"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 1,
+          "description": "Derretir la mantequilla. Untar con un poco de mantequilla los moldes de papel.",
+          "outputs": [
+            {
+              "id": "66e3a74e-f9d0-4727-92cf-0d38da82576c",
+              "description": "Mantequilla derretida y moldes untados"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "c2d70f2a-206f-4f90-9118-46dcaa2d30a5",
+          "ingredientsUsed": [
+            {
+              "ingredient": "9a4fc345-541b-4a4f-aa9c-7119a3f631c3",
+              "quantity": {
+                "amount": 45.0,
+                "unit": "grams"
+              },
+              "ref_name": "Harina de trigo"
+            },
+            {
+              "ingredient": "7d717969-a416-41b6-95c4-960430dc2644",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Levadura química"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Mezclar la harina con la levadura química.",
+          "outputs": [
+            {
+              "id": "d7263841-b3ce-471d-8478-8ce091d614c2",
+              "description": "Harina con levadura"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "43794f6d-e70b-4717-af9e-a2a1f7df238f",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 45.0,
+                "unit": "grams"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Batir dos claras y dos yemas. Cuando estén bien batidas, añadir la otra yema.\nSeguir batiendo y añadir el azúcar hasta que se disuelva.",
+          "outputs": [
+            {
+              "id": "044639a8-5bab-4054-bdb9-a8e864ba108f",
+              "description": "Huevos batidos con azúcar"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "7eaa9838-6673-4b24-bc48-e4b719e5c018",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Incorporar la harina con levadura y la mantequilla derretida. Remover sin parar hasta tener una masa bien ligada.",
+          "outputs": [
+            {
+              "id": "26200353-4f94-4039-8df1-804464f3f42c",
+              "description": "Masa de magdalenas"
+            }
+          ],
+          "inputs": [
+            "044639a8-5bab-4054-bdb9-a8e864ba108f",
+            "d7263841-b3ce-471d-8478-8ce091d614c2",
+            "66e3a74e-f9d0-4727-92cf-0d38da82576c"
+          ]
+        },
+        {
+          "id": "7ab9b551-e1b6-4d54-88b4-8f697ba8db52",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 3.0,
+                "unit": "grams"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 18,
+          "description": "Rellenar los moldes con la masa y espolvorear azúcar por encima.\nHornear en el horno precalentado a fuego medio (180 °C) hasta que tengan un tono dorado.",
+          "outputs": [],
+          "inputs": [
+            "26200353-4f94-4039-8df1-804464f3f42c"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "breakfast",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 5,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "8d901ef8-7e9b-4323-845e-229452dd088f",
+      "name": "Lentejas con chorizo",
+      "instructions": [
+        {
+          "id": "f99a6565-4ac9-4262-858c-106493b883b0",
+          "ingredientsUsed": [
+            {
+              "ingredient": "3ae8ade4-e487-4d86-8634-2bd322324265",
+              "quantity": {
+                "amount": 125.0,
+                "unit": "grams"
+              },
+              "ref_name": "Lentejas pardinas (secas)"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "La noche anterior: limpiar las lentejas (quitar palos y piedras) y ponerlas en remojo en una olla con agua.",
+          "outputs": [
+            {
+              "id": "05dbb510-f622-4d6c-b2b4-1481b420a827",
+              "description": "Lentejas en remojo"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "bfa4d8b3-477a-464d-9354-c1d76dc62238",
+          "ingredientsUsed": [
+            {
+              "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Agua"
+            },
+            {
+              "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Cebolla"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "671f3ca0-8746-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Zanahoria"
+            },
+            {
+              "ingredient": "06e1cf19-4627-4650-9532-32d72f724876",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Laurel (hojas)"
+            },
+            {
+              "ingredient": "9fad3c0d-f715-4a6c-8da0-420ec31d61f3",
+              "quantity": {
+                "amount": 40.0,
+                "unit": "grams"
+              },
+              "ref_name": "Chorizo"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Escurrir las lentejas. En un puchero con agua limpia, poner las lentejas con la cebolla y los ajos pelados y enteros, la zanahoria, el laurel, los trozos de chorizo, el aceite y un poco de sal.",
+          "outputs": [
+            {
+              "id": "2e62ef28-3f9e-4276-9d8f-2adb8ef123b1",
+              "description": "Puchero preparado"
+            }
+          ],
+          "inputs": [
+            "05dbb510-f622-4d6c-b2b4-1481b420a827"
+          ]
+        },
+        {
+          "id": "4b235058-12c6-4be9-9786-bf8ee845c03c",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 60,
+          "description": "Poner a fuego fuerte. Cuando empiece a hervir, bajar el fuego y cocer muy despacio durante 1 hora (30 minutos en olla rápida).",
+          "outputs": [
+            {
+              "id": "9a938963-ed36-4ecc-9f61-89c71c312b63",
+              "description": "Lentejas cocidas"
+            }
+          ],
+          "inputs": [
+            "2e62ef28-3f9e-4276-9d8f-2adb8ef123b1"
+          ]
+        },
+        {
+          "id": "fbfe2c4c-f284-4270-91c7-417cc01ae5a6",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Retirar el laurel, la cebolla, los ajos y la zanahoria. Comprobar que estén blandas y ajustar de sal.",
+          "outputs": [],
+          "inputs": [
+            "9a938963-ed36-4ecc-9f61-89c71c312b63"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": false,
+      "maxStorageDays": 5,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "9ff743de-348a-434a-91b0-da409d29085f",
+      "name": "Macarrones con chorizo, jamón y queso",
+      "instructions": [
+        {
+          "id": "4be7abcd-1d76-4d06-ad5a-9514a0f4d0e2",
+          "ingredientsUsed": [
+            {
+              "ingredient": "31870940-c6d4-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 62.5,
+                "unit": "grams"
+              },
+              "ref_name": "Pasta tortiglioni"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 12,
+          "description": "Cocer los macarrones en abundante agua con sal durante 10-12 minutos, hasta que estén al dente. Pasarlos por agua fría, escurrir y poner en una fuente.",
+          "outputs": [
+            {
+              "id": "55d5d024-c211-4b33-ab1a-d42e05a240d3",
+              "description": "Macarrones cocidos"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "7dd4d707-d478-4093-9db0-bed304fd296c",
+          "ingredientsUsed": [
+            {
+              "ingredient": "9fad3c0d-f715-4a6c-8da0-420ec31d61f3",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Chorizo"
+            },
+            {
+              "ingredient": "baa4e2fa-10cb-471d-aeb3-344e1c99623d",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Bacon"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
+              "quantity": {
+                "amount": 125.0,
+                "unit": "grams"
+              },
+              "ref_name": "Salsa de tomate (bote)"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 3,
+          "description": "Cortar el bacon y el chorizo en cuadrados no muy grandes. En una sartén con el aceite, rehogar 30 segundos.\nAñadir la salsa de tomate y remover hasta que esté caliente.",
+          "outputs": [
+            {
+              "id": "0246c192-f3e6-41b6-9691-3868fcde9d4e",
+              "description": "Salsa con chorizo y bacon"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "cfcc636f-77c7-436d-bf49-e4f06500611b",
+          "ingredientsUsed": [
+            {
+              "ingredient": "858ba01c-8be3-4d96-bd75-9c4c255b3223",
+              "quantity": {
+                "amount": 12.5,
+                "unit": "grams"
+              },
+              "ref_name": "Mozzarella rallada"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Mezclar la salsa con los macarrones. Espolvorear con el queso y remover hasta que se funda.",
+          "outputs": [],
+          "inputs": [
+            "55d5d024-c211-4b33-ab1a-d42e05a240d3",
+            "0246c192-f3e6-41b6-9691-3868fcde9d4e"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": false,
+      "maxStorageDays": 4,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "6f7cc245-1414-4f6e-bede-224465696a36",
+      "name": "Arroz con almejas",
+      "instructions": [
+        {
+          "id": "6fab364d-571b-4ed8-83f8-d5153160af0d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "08c5321e-a6cb-4ee5-a4c7-b4b5484cf146",
+              "quantity": {
+                "amount": 75.0,
+                "unit": "grams"
+              },
+              "ref_name": "Almejas"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Poner las almejas en un recipiente con agua y sal abundante para que suelten la arena.",
+          "outputs": [
+            {
+              "id": "c34d6cd3-26b3-48ef-82e6-8fc8d821390f",
+              "description": "Almejas limpias"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "68ae5dc2-e444-4877-acfe-0f843db9ac02",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "8f5167b0-c155-10a4-855b-21d41fd3dece",
+              "quantity": {
+                "amount": 2.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Vino blanco seco"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Perejil (especia)"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 4,
+          "description": "En una cazuela con el aceite caliente, echar las almejas y rehogar.\nCuando estén medio abiertas, añadir el vino blanco, el ajo picado y el perejil.",
+          "outputs": [
+            {
+              "id": "7d327797-69de-4cd3-b71a-2f75a00584e4",
+              "description": "Almejas rehogadas"
+            }
+          ],
+          "inputs": [
+            "c34d6cd3-26b3-48ef-82e6-8fc8d821390f"
+          ]
+        },
+        {
+          "id": "d0088601-701b-4f67-bf7c-aab49a63cda9",
+          "ingredientsUsed": [
+            {
+              "ingredient": "5d213070-8277-11ef-91e8-3ff59147e22a",
+              "quantity": {
+                "amount": 85.0,
+                "unit": "grams"
+              },
+              "ref_name": "Arroz"
+            },
+            {
+              "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 30.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Agua"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 23,
+          "description": "Añadir el arroz y rehogar 3 minutos. Añadir el agua, remover y cocer a fuego vivo durante 20 minutos.",
+          "outputs": [
+            {
+              "id": "b8526489-42a6-4536-b755-a577c45486d3",
+              "description": "Arroz cocido"
+            }
+          ],
+          "inputs": [
+            "7d327797-69de-4cd3-b71a-2f75a00584e4"
+          ]
+        },
+        {
+          "id": "05bebe9d-bb93-49e5-9c12-05b1360b49de",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 10,
+          "description": "Comprobar el punto de sal y dejar reposar tapado con un trapo 10 minutos.",
+          "outputs": [],
+          "inputs": [
+            "b8526489-42a6-4536-b755-a577c45486d3"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": false,
+      "maxStorageDays": 2,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "15a44a95-374d-4a15-a2e6-2305be426a1c",
+      "name": "Paella de pollo y judías verdes",
+      "instructions": [
+        {
+          "id": "fbd7fd5f-bb46-4027-9d3d-a8328d542e81",
+          "ingredientsUsed": [
+            {
+              "ingredient": "2cd926e5-7a02-49b5-a16e-8ef176b009e7",
+              "quantity": {
+                "amount": 187.5,
+                "unit": "grams"
+              },
+              "ref_name": "Muslos de pollo deshuesados"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 10,
+          "description": "En una paella con el aceite caliente, freír el pollo dándole vueltas hasta que esté bien dorado.",
+          "outputs": [
+            {
+              "id": "a9936084-4de7-481c-97e0-67932051141c",
+              "description": "Pollo dorado"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "84e2e72a-224d-455d-9399-e8532f039de5",
+          "ingredientsUsed": [
+            {
+              "ingredient": "5ce86780-cd8a-1098-91d0-51096b672064",
+              "quantity": {
+                "amount": 62.5,
+                "unit": "grams"
+              },
+              "ref_name": "Judías Verdes"
+            },
+            {
+              "ingredient": "8ebac7b5-911b-40ae-a35a-6b2af3aa2d70",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Salsa de tomate (bote)"
+            },
+            {
+              "ingredient": "fc2a1cb0-6df8-11ef-bbaf-9d5832b648f8",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimentón/Paprika"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 5,
+          "description": "Añadir las judías verdes y rehogar con la salsa de tomate.\nApartar del fuego, añadir el pimentón y rehogar.",
+          "outputs": [
+            {
+              "id": "5ba7ed12-d66e-4275-8a43-7d7db7c56562",
+              "description": "Sofrito de pollo y judías"
+            }
+          ],
+          "inputs": [
+            "a9936084-4de7-481c-97e0-67932051141c"
+          ]
+        },
+        {
+          "id": "4a57dd3e-73c8-47e9-8152-d803716fd2e2",
+          "ingredientsUsed": [
+            {
+              "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 50.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Agua"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 45,
+          "description": "Añadir el agua y un poco de sal. Cocer a fuego medio hasta que el pollo esté cocido (unos 45 minutos).",
+          "outputs": [
+            {
+              "id": "9bf1b148-1afe-445c-9c73-b7d8e5a7603c",
+              "description": "Caldo con pollo"
+            }
+          ],
+          "inputs": [
+            "5ba7ed12-d66e-4275-8a43-7d7db7c56562"
+          ]
+        },
+        {
+          "id": "e0796747-c3d3-42bf-bbe6-f3823db73ade",
+          "ingredientsUsed": [
+            {
+              "ingredient": "f768cea0-6df9-11ef-bbaf-9d5832b648f8",
+              "quantity": {
+                "amount": 100.0,
+                "unit": "grams"
+              },
+              "ref_name": "Arroz Bomba"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 20,
+          "description": "Subir el fuego al máximo. Cuando hierva, añadir el arroz, remover e igualar. Cocer 10 minutos, bajar el fuego y cocer 10 minutos más.\nEl grano debe quedar cocido pero algo resistente en el centro.",
+          "outputs": [
+            {
+              "id": "2160d94f-0430-459d-b72e-c43dddf369a6",
+              "description": "Paella cocida"
+            }
+          ],
+          "inputs": [
+            "9bf1b148-1afe-445c-9c73-b7d8e5a7603c"
+          ]
+        },
+        {
+          "id": "2538e3f1-80d7-45bf-aa35-fac383a42afe",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 5,
+          "description": "Retirar del fuego y dejar reposar 5 minutos tapado con un trapo o papel.",
+          "outputs": [],
+          "inputs": [
+            "2160d94f-0430-459d-b72e-c43dddf369a6"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": true,
+      "dinner": false,
+      "maxStorageDays": 4,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "50e62db2-2024-45f2-a0d7-1240b5da767c",
+      "name": "Ensalada de jamón y queso",
+      "instructions": [
+        {
+          "id": "a3c0ad20-4813-4ac4-844f-ad54e955f500",
+          "ingredientsUsed": [
+            {
+              "ingredient": "41c53db5-55a0-4206-945d-25cbc9d9763f",
+              "quantity": {
+                "amount": 50.0,
+                "unit": "grams"
+              },
+              "ref_name": "Jamón cocido"
+            },
+            {
+              "ingredient": "2d6e4f10-9c27-4a85-b3f1-0e58d7a92c46",
+              "quantity": {
+                "amount": 50.0,
+                "unit": "grams"
+              },
+              "ref_name": "Queso curado y cheddar en dados"
+            },
+            {
+              "ingredient": "fe71deee-e360-45ef-af6c-d6b64de852f2",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Lechuga Iceberg"
+            },
+            {
+              "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Perejil (especia)"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Cortar el jamón en dados. Lavar la lechuga, escurrir y trocear.\nPoner la lechuga, el jamón y el queso en una ensaladera, mezclar y espolvorear el perejil por encima.",
+          "outputs": [
+            {
+              "id": "70d3a2ef-8d38-47c3-9535-568adec5abd6",
+              "description": "Ensalada montada"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "4afdc778-4412-42fc-8807-a03c499ccaae",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "ba455b80-8a73-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Vinagre de vino blanco"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 1,
+          "description": "En una sartén, calentar un poco el aceite. Añadir el vinagre, la sal y la pimienta y batir con un tenedor hasta emulsionar.\nRociar la ensalada y remover.",
+          "outputs": [],
+          "inputs": [
+            "70d3a2ef-8d38-47c3-9535-568adec5abd6"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "8c5a8a90-13a2-4491-961c-8da77f123e0d",
+      "name": "Patatas en salsa verde",
+      "instructions": [
+        {
+          "id": "e80dcfe0-597c-4740-8cd6-b346b7f056e5",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 10,
+          "description": "Cocer los huevos en agua durante 10 minutos. Separar las yemas y picar en trozos pequeños.",
+          "outputs": [
+            {
+              "id": "eae2bc50-88a9-423c-85de-3fce53209b18",
+              "description": "Huevo duro picado"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "7b2aaab9-e416-4971-bcce-7b7c2021fa2e",
+          "ingredientsUsed": [
+            {
+              "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Patata"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Perejil (especia)"
+            }
+          ],
+          "workingTimeMinutes": 8,
+          "cookingTimeMinutes": 5,
+          "description": "Pelar las patatas y cortarlas en lonchas de 3 mm. En una cazuela ancha, calentar el aceite y rehogar las patatas con cuidado para que no se rompan.\nAñadir el ajo y la mitad del perejil.",
+          "outputs": [
+            {
+              "id": "c07c491e-700a-46aa-9c71-b117228c9b90",
+              "description": "Patatas rehogadas"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "fbcf95d4-9ae0-4721-b58c-12236b170dc9",
+          "ingredientsUsed": [
+            {
+              "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 12.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Agua"
+            },
+            {
+              "ingredient": "8f5167b0-c155-10a4-855b-21d41fd3dece",
+              "quantity": {
+                "amount": 2.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Vino blanco seco"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 60,
+          "description": "Cuando las patatas empiecen a sudar, añadir el agua caliente y el vino blanco hasta cubrir. Hervir a fuego medio 1 hora.",
+          "outputs": [
+            {
+              "id": "33bcec04-aeca-4f66-a2b0-9232e9b8e564",
+              "description": "Patatas guisadas"
+            }
+          ],
+          "inputs": [
+            "c07c491e-700a-46aa-9c71-b117228c9b90"
+          ]
+        },
+        {
+          "id": "386070a7-7da8-458a-81a6-ca6758c683aa",
+          "ingredientsUsed": [
+            {
+              "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Perejil (especia)"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 10,
+          "description": "Espolvorear el huevo picado y el resto del perejil por encima. Dejar reposar 10 minutos.",
+          "outputs": [],
+          "inputs": [
+            "33bcec04-aeca-4f66-a2b0-9232e9b8e564",
+            "eae2bc50-88a9-423c-85de-3fce53209b18"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 3,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "214fa411-de8b-462f-9ee2-d56d6154dff6",
+      "name": "Pollo asado",
+      "instructions": [
+        {
+          "id": "023c5a1b-f2a8-48ac-9a0f-2ec9a9bd0f52",
+          "ingredientsUsed": [
+            {
+              "ingredient": "40080fd9-6b92-4016-a5c5-a26af5ab93f9",
+              "quantity": {
+                "amount": 375.0,
+                "unit": "grams"
+              },
+              "ref_name": "Pollo entero"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Limpiar bien el pollo, sazonar con sal y pimienta recién molida y untar con un poco de aceite. Colocar en la bandeja del horno.",
+          "outputs": [
+            {
+              "id": "ffcb3b08-9316-441a-ae5c-0a3e1cee2a0e",
+              "description": "Pollo preparado"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "704ba939-ffa5-4fc2-8321-7cff346dab21",
+          "ingredientsUsed": [
+            {
+              "ingredient": "8f5167b0-c155-10a4-855b-21d41fd3dece",
+              "quantity": {
+                "amount": 5.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Vino blanco seco"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 60,
+          "description": "Asar a fuego fuerte los primeros 15 minutos y a fuego medio los 45 minutos restantes, hasta que esté hecho y dorado.\nCada 15 minutos, abrir el horno y rociar el pollo con un chorrito de vino blanco.",
+          "outputs": [
+            {
+              "id": "ef5d5c09-4696-4e9e-a2b1-fcbeec23b5cb",
+              "description": "Pollo asado"
+            }
+          ],
+          "inputs": [
+            "ffcb3b08-9316-441a-ae5c-0a3e1cee2a0e"
+          ]
+        },
+        {
+          "id": "13c1f661-f0c2-4c4f-9e39-858282ecfc83",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Trocear el pollo en una fuente y cubrir con el jugo de la bandeja.",
+          "outputs": [],
+          "inputs": [
+            "ef5d5c09-4696-4e9e-a2b1-fcbeec23b5cb"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 4,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "1ce554a7-abcf-4519-8a86-71df075e4f39",
+      "name": "Revuelto de setas",
+      "instructions": [
+        {
+          "id": "47832e53-1a4f-4bf2-bb31-cd52a191226d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "0e3dcd06-281d-41a4-9546-633c38755a59",
+              "quantity": {
+                "amount": 62.5,
+                "unit": "grams"
+              },
+              "ref_name": "Setas"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Cortar la parte final del tallo de las setas, lavarlas bajo el grifo, secar con un trapo y partir con la mano.",
+          "outputs": [
+            {
+              "id": "4b2df0d6-4093-47ca-b4d0-022d0908a9e3",
+              "description": "Setas limpias"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "465adf3a-ea8f-4a43-959c-89cfd82881a9",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "5e717b40-d33f-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Perejil (especia)"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 12,
+          "description": "En una sartén con 4 partes del aceite, rehogar el ajo picado y las setas a fuego medio 10-15 minutos. Añadir el perejil. Sacar y escurrir.",
+          "outputs": [
+            {
+              "id": "c32505ce-cd95-4eed-8f42-72aea6a8976c",
+              "description": "Setas rehogadas"
+            }
+          ],
+          "inputs": [
+            "4b2df0d6-4093-47ca-b4d0-022d0908a9e3"
+          ]
+        },
+        {
+          "id": "4b50247a-5781-4679-a40f-272f8c35dc51",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 3,
+          "description": "En la misma sartén, calentar el resto del aceite y añadir las setas. Salpimentar.\nEchar los huevos sin batir con un poco de sal y remover con una cuchara de madera hasta que cuajen.",
+          "outputs": [],
+          "inputs": [
+            "c32505ce-cd95-4eed-8f42-72aea6a8976c"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": false,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "0ed37cb4-c7e8-4c97-afbd-b029f6387324",
+      "name": "Tortilla de jamón de York y queso",
+      "instructions": [
+        {
+          "id": "1c1ebc4f-5dd6-4f2c-b173-e9db84f35123",
+          "ingredientsUsed": [
+            {
+              "ingredient": "41c53db5-55a0-4206-945d-25cbc9d9763f",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Jamón cocido"
+            },
+            {
+              "ingredient": "00b50084-03b1-4d80-8bdd-39165e805b21",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Quesitos en porciones"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Cortar el jamón en tiras y trocear los quesitos. Batir los huevos con un poco de sal.",
+          "outputs": [
+            {
+              "id": "91631951-b76b-4379-953a-6ac67a355a75",
+              "description": "Ingredientes preparados"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "e9db780c-8103-4d1b-8df0-6be4e3f7d065",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 4,
+          "description": "En una sartén con el aceite caliente, rehogar el jamón y el queso sin que se funda. Echar los huevos batidos.\nDar forma de tortilla alargada con una espumadera. Debe quedar jugosa.",
+          "outputs": [],
+          "inputs": [
+            "91631951-b76b-4379-953a-6ac67a355a75"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "7da6f563-25b1-47a6-bdc7-08bfdbd2e524",
+      "name": "Tortilla de jamón serrano",
+      "instructions": [
+        {
+          "id": "9712ca0c-fb11-4622-8601-856c31e17bac",
+          "ingredientsUsed": [
+            {
+              "ingredient": "c1b2a3d4-f5e6-7890-bcde-f01234567890",
+              "quantity": {
+                "amount": 15.0,
+                "unit": "grams"
+              },
+              "ref_name": "Jamón serrano"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 1,
+          "description": "Picar el jamón y saltearlo en la sartén. Batir los huevos con muy poca sal y añadir el jamón.",
+          "outputs": [
+            {
+              "id": "339995dc-4218-41be-9dd4-a328329bb519",
+              "description": "Huevos batidos con jamón"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "8615c5ed-9137-4d3b-b18d-d654b4ad72e4",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 2,
+          "description": "En una sartén con un poco de aceite muy caliente, echar el batido. Dejar cuajar un poco, picándolo con la espumadera, y enrollar como una tortilla francesa.",
+          "outputs": [],
+          "inputs": [
+            "339995dc-4218-41be-9dd4-a328329bb519"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "0953c289-c317-43a6-8190-41187f2946cd",
+      "name": "Dorada al horno",
+      "instructions": [
+        {
+          "id": "add4517d-b9f2-4c3d-8b87-be31ab54e834",
+          "ingredientsUsed": [
+            {
+              "ingredient": "a2455082-28dd-4cf2-b180-a0c34b58e5ff",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Dorada"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 20,
+          "description": "Lavar las doradas y secarlas. Ponerlas en una fuente de horno, regar con un chorrito de aceite y sazonar con sal gorda por dentro y por fuera.\nHornear en el horno precalentado durante 20 minutos.",
+          "outputs": [
+            {
+              "id": "7090d194-4bcd-4aa5-bc79-7099cdce8d9f",
+              "description": "Doradas asadas"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "166a4a91-3bbd-4ac0-b555-02b316aeed36",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 4,
+          "cookingTimeMinutes": 0,
+          "description": "Abrir las doradas por la mitad y quitar la cabeza, la espina central y todas las espinas laterales posibles.",
+          "outputs": [
+            {
+              "id": "0956dedc-bf08-47f1-85ed-50052b053255",
+              "description": "Doradas limpias"
+            }
+          ],
+          "inputs": [
+            "7090d194-4bcd-4aa5-bc79-7099cdce8d9f"
+          ]
+        },
+        {
+          "id": "f86b955f-459e-4292-89d5-040e0078bc8d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "8de5b969-35ee-4488-bbc3-9c465ad0692c",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Guindilla seca"
+            },
+            {
+              "ingredient": "ba455b80-8a73-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Vinagre de vino blanco"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 3,
+          "description": "En una sartén a fuego fuerte, poner el resto del aceite, el ajo laminado y la guindilla. Cuando el ajo esté dorado, apartar.\nEchar un chorrito de vinagre sobre las doradas y después el aceite muy caliente con el ajo y la guindilla.",
+          "outputs": [],
+          "inputs": [
+            "0956dedc-bf08-47f1-85ed-50052b053255"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "4aacb01c-f679-402c-9f85-69f291e493c4",
+      "name": "Salmón al horno con salsa tártara",
+      "instructions": [
+        {
+          "id": "a3cdc137-9c54-4053-88d6-7e2e8fb9267a",
+          "ingredientsUsed": [
+            {
+              "ingredient": "ab9e9466-0627-4652-92e6-2c0af14822b7",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Mayonesa"
+            },
+            {
+              "ingredient": "182fa5ad-d3d9-4c7b-a032-d8a802a02eda",
+              "quantity": {
+                "amount": 10.0,
+                "unit": "grams"
+              },
+              "ref_name": "Pepinillos en vinagre"
+            },
+            {
+              "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "centiliters"
+              },
+              "ref_name": "Zumo de limón"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Hacer la salsa tártara: picar muy finos los pepinillos y mezclarlos con la mayonesa y unas gotas de limón. Reservar en el frigorífico.",
+          "outputs": [
+            {
+              "id": "fa63aea1-620f-4c0a-a35f-1f73d45cab9b",
+              "description": "Salsa tártara"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "dabbff81-5f6d-46e1-a901-033fdd118acf",
+          "ingredientsUsed": [
+            {
+              "ingredient": "342cd030-8045-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Salmón"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Zumo de limón"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Poner el salmón en una fuente de horno untado con un poco de aceite. Exprimir el limón por encima y sazonar con sal y pimienta negra por ambos lados.",
+          "outputs": [
+            {
+              "id": "227edcee-5772-421e-830e-3501d14ef859",
+              "description": "Salmón preparado"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "900151c2-fb2a-4712-8c32-2e85cd535ddc",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 0,
+          "cookingTimeMinutes": 10,
+          "description": "Hornear en el horno precalentado durante 10 minutos.",
+          "outputs": [
+            {
+              "id": "1e8ca900-3af1-4c6d-8431-f126fabffa21",
+              "description": "Salmón horneado"
+            }
+          ],
+          "inputs": [
+            "227edcee-5772-421e-830e-3501d14ef859"
+          ]
+        },
+        {
+          "id": "4c129e03-e341-49d7-99a1-26fc22ac02cd",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Quitar la piel y las espinas. Servir acompañado de salsa tártara.",
+          "outputs": [],
+          "inputs": [
+            "1e8ca900-3af1-4c6d-8431-f126fabffa21",
+            "fa63aea1-620f-4c0a-a35f-1f73d45cab9b"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "13b7c66f-2027-4daf-97d6-54d0b81656f3",
+      "name": "Crepes",
+      "instructions": [
+        {
+          "id": "b2f42bac-23b2-4458-bd7c-6043990c6b78",
+          "ingredientsUsed": [
+            {
+              "ingredient": "9a4fc345-541b-4a4f-aa9c-7119a3f631c3",
+              "quantity": {
+                "amount": 2.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Harina de trigo"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.05,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "64d05243-6152-4cb2-bf66-0d2480d4f14f",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Brandy"
+            },
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 5.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            }
+          ],
+          "workingTimeMinutes": 8,
+          "cookingTimeMinutes": 0,
+          "description": "En un recipiente, mezclar la harina, el azúcar y una pizca de sal. Añadir los huevos batidos, el aceite y el brandy y remover hasta tener una masa homogénea.\nAñadir la leche poco a poco sin dejar de remover. Si la masa está muy espesa, añadir un poco más de leche.",
+          "outputs": [
+            {
+              "id": "e74baa07-3949-4d05-a120-b768af2a67d2",
+              "description": "Masa de crepes"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "e53b4f84-9a7d-4af9-bac4-6e7a946eff14",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 0,
+          "cookingTimeMinutes": 60,
+          "description": "Dejar reposar la masa 1 hora.",
+          "outputs": [
+            {
+              "id": "eb2938d5-3ef2-4cc3-87c5-253f6135457f",
+              "description": "Masa reposada"
+            }
+          ],
+          "inputs": [
+            "e74baa07-3949-4d05-a120-b768af2a67d2"
+          ]
+        },
+        {
+          "id": "4954c931-ced4-4371-af3c-84645bbca813",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 15,
+          "cookingTimeMinutes": 0,
+          "description": "Calentar una sartén antiadherente con unas gotas de aceite. Cuando esté muy caliente, verter dos cucharadas de masa hasta cubrir el fondo.\nCuando cuaje, dar la vuelta y retirar. Repetir con toda la masa. Servir solas o rellenas (mermelada, chocolate, miel...).",
+          "outputs": [],
+          "inputs": [
+            "eb2938d5-3ef2-4cc3-87c5-253f6135457f"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 2,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "8cc710d2-8509-4c3e-a0dd-09a1f9a9cfb2",
+      "name": "Flan",
+      "instructions": [
+        {
+          "id": "1aaeccee-391e-4fd1-beb1-d6f65846424b",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 5,
+          "description": "Hacer azúcar caramelo: calentar el azúcar en un cazo a fuego medio sin remover hasta que esté dorado. Cubrir con él el interior del molde o flanera.",
+          "outputs": [
+            {
+              "id": "2361ed39-1c06-4006-a608-cf0dbbc672bc",
+              "description": "Molde caramelizado"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "bcba3aaf-05c0-4cbd-8a55-f7104eb9323d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 6.25,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            },
+            {
+              "ingredient": "6bc83929-6384-4f8e-8b4e-673e1381f201",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Canela en rama"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 5,
+          "description": "Hervir la leche con la canela. Cuando esté templada, quitar la canela y añadir los huevos batidos y el azúcar. Mezclar bien.",
+          "outputs": [
+            {
+              "id": "f6cfd7e6-6438-475f-a6fa-bd93e79a2995",
+              "description": "Mezcla de flan"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "eed0e3dd-df53-49ff-946b-97ba9b248fd2",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 60,
+          "description": "Verter la mezcla en el molde y cocer al baño María (el molde dentro de un recipiente con agua hasta la mitad) 1 hora en el horno a fuego medio.",
+          "outputs": [
+            {
+              "id": "54525c13-31f6-4fe5-8514-732116d3949d",
+              "description": "Flan cocido"
+            }
+          ],
+          "inputs": [
+            "2361ed39-1c06-4006-a608-cf0dbbc672bc",
+            "f6cfd7e6-6438-475f-a6fa-bd93e79a2995"
+          ]
+        },
+        {
+          "id": "6de2205c-33ce-4365-add2-d59aeb3cee9b",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Dejar enfriar completamente y desmoldar con cuidado sobre una fuente.",
+          "outputs": [],
+          "inputs": [
+            "54525c13-31f6-4fe5-8514-732116d3949d"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 3,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "1f7b228a-ff53-44e0-917d-3c9c218dc641",
+      "name": "Tarta de queso",
+      "instructions": [
+        {
+          "id": "68b59e78-da9f-4ca3-af88-87301ad8861f",
+          "ingredientsUsed": [
+            {
+              "ingredient": "fdf4306e-dec9-42b2-bf1c-11d4b4c0587d",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "grams"
+              },
+              "ref_name": "Mantequilla"
+            },
+            {
+              "ingredient": "a4d36d70-7542-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 125.0,
+                "unit": "grams"
+              },
+              "ref_name": "Queso fresco de Burgos"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            },
+            {
+              "ingredient": "9a4fc345-541b-4a4f-aa9c-7119a3f631c3",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Harina de trigo"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Untar un molde redondo con mantequilla. En el vaso de la batidora, poner el queso fresco, los huevos, el azúcar y la harina y batir.",
+          "outputs": [
+            {
+              "id": "582e7a74-540b-4a2a-9225-f785effcd28a",
+              "description": "Masa de tarta en el molde"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "962d75a6-1901-4223-9a01-2242120f23e5",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 30,
+          "description": "Hornear a 180 °C unos 30 minutos. Sacar, dejar enfriar y desmoldar pasando la punta de un cuchillo por los lados.",
+          "outputs": [],
+          "inputs": [
+            "582e7a74-540b-4a2a-9225-f785effcd28a"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 4,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "2b09214b-ddfe-46c0-9f93-dc992d02e037",
+      "name": "Torrijas",
+      "instructions": [
+        {
+          "id": "91788d71-d7eb-4df9-8ca3-d3b6a1aede05",
+          "ingredientsUsed": [
+            {
+              "ingredient": "63172560-5784-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Pan"
+            },
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            },
+            {
+              "ingredient": "6bc83929-6384-4f8e-8b4e-673e1381f201",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Canela en rama"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 60,
+          "description": "Poner las rebanadas de pan (de 1 cm, del día anterior) en una fuente. Calentar la leche con el azúcar y la canela en rama.\nVerter sobre el pan y dejar que empape bien entre 1 y 2 horas.",
+          "outputs": [
+            {
+              "id": "946d4fc4-0365-4d7d-88e8-4b064b8b5ef3",
+              "description": "Pan empapado"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "97841329-71c6-4139-aef8-ccc6a06da504",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "a3f7ce50-854e-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 3.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Aceite de Girasol"
+            }
+          ],
+          "workingTimeMinutes": 8,
+          "cookingTimeMinutes": 6,
+          "description": "Escurrir el pan, rebozar en los huevos bien batidos y freír en aceite muy caliente.",
+          "outputs": [
+            {
+              "id": "8b1cee67-1435-4d9d-ab3e-076b20d2a22f",
+              "description": "Torrijas fritas"
+            }
+          ],
+          "inputs": [
+            "946d4fc4-0365-4d7d-88e8-4b064b8b5ef3"
+          ]
+        },
+        {
+          "id": "0e122cfc-8f25-47c1-833d-5027a6deec01",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            },
+            {
+              "ingredient": "62f75ca9-83b4-4930-ba69-ec754ce9cbff",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Canela molida"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Poner las torrijas en una fuente y espolvorear con el azúcar y la canela en polvo bien mezclados.",
+          "outputs": [],
+          "inputs": [
+            "8b1cee67-1435-4d9d-ab3e-076b20d2a22f"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 2,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "499e9529-24a2-4305-b8fd-dab9b72b6509",
+      "name": "Salsa bechamel",
+      "instructions": [
+        {
+          "id": "f06415c2-5938-4b26-ba62-209c78428e7e",
+          "ingredientsUsed": [
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 5,
+          "description": "Calentar la leche en un recipiente.",
+          "outputs": [
+            {
+              "id": "78b20fd0-7377-4a27-b779-526fd30ebeef",
+              "description": "Leche caliente"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "6423604b-1b66-477c-8dd1-c037150068c2",
+          "ingredientsUsed": [
+            {
+              "ingredient": "fdf4306e-dec9-42b2-bf1c-11d4b4c0587d",
+              "quantity": {
+                "amount": 17.5,
+                "unit": "grams"
+              },
+              "ref_name": "Mantequilla"
+            },
+            {
+              "ingredient": "9a4fc345-541b-4a4f-aa9c-7119a3f631c3",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Harina de trigo"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 3,
+          "description": "En un cazo, fundir la mantequilla y echar la harina sin dejar de remover con una cuchara de madera. Sazonar con un poco de sal.",
+          "outputs": [
+            {
+              "id": "7b70aae3-a7da-4f10-9a45-c0742d7a4de6",
+              "description": "Roux"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "42989dee-92d1-4848-9a74-fa3b819565da",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 10,
+          "cookingTimeMinutes": 10,
+          "description": "Añadir la leche caliente poco a poco, removiendo hasta que la salsa tenga el cuerpo deseado. Comprobar el punto de sal.",
+          "outputs": [],
+          "inputs": [
+            "78b20fd0-7377-4a27-b779-526fd30ebeef",
+            "7b70aae3-a7da-4f10-9a45-c0742d7a4de6"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 3,
+      "includeInMenuGeneration": false
+    },
+    {
+      "id": "1a799668-4334-459c-aa8f-1bd47e24c8e1",
+      "name": "Salsa de tomate casera",
+      "instructions": [
+        {
+          "id": "23e4145f-3eb3-4314-ba68-016c50772c55",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "9a648f10-86be-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Cebolla"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 20,
+          "description": "En una sartén con el aceite caliente, añadir la cebolla troceada y dejar a fuego lento unos 15 minutos.\nAñadir el ajo troceado y cocer 5 minutos más.",
+          "outputs": [
+            {
+              "id": "f352be86-e8c9-4650-9f37-25941cf80ec1",
+              "description": "Sofrito de cebolla y ajo"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "26649189-13fc-494d-ac96-44ee05a93058",
+          "ingredientsUsed": [
+            {
+              "ingredient": "44da8460-2173-1eeb-9b52-298d2e408b19",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "pieces"
+              },
+              "ref_name": "Tomate"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 30,
+          "description": "Lavar y trocear los tomates. Echarlos a la sartén, remover y cocer todo unos 30 minutos.",
+          "outputs": [
+            {
+              "id": "1572085e-c60b-4cab-a5d9-69a3297b1242",
+              "description": "Tomate cocido"
+            }
+          ],
+          "inputs": [
+            "f352be86-e8c9-4650-9f37-25941cf80ec1"
+          ]
+        },
+        {
+          "id": "a752a1ca-a3eb-4e2c-86e2-7e219500473e",
+          "ingredientsUsed": [
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 0,
+          "description": "Añadir un poco de sal y una pizca de azúcar para quitar la acidez. Remover y pasar todo por el pasapurés.",
+          "outputs": [],
+          "inputs": [
+            "1572085e-c60b-4cab-a5d9-69a3297b1242"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": false,
+      "vegetables": true,
+      "type": "meal",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 5,
+      "includeInMenuGeneration": false
+    },
+    {
+      "id": "6d50d509-e9d1-4182-8ed0-cefb11276df8",
+      "name": "Espaguetis con queso y nueces",
+      "instructions": [
+        {
+          "id": "f2f86c45-ff13-4017-bb71-ba49e92d332d",
+          "ingredientsUsed": [
+            {
+              "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 50.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Agua"
+            },
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "31870940-c6d4-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 62.5,
+                "unit": "grams"
+              },
+              "ref_name": "Pasta tortiglioni"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 16,
+          "description": "Calentar el agua en un recipiente de pyrex en el microondas hasta que hierva. Añadir un chorro de aceite, la pasta y un poco de sal.\nCocer en el microondas 10-12 minutos hasta que esté al dente. Escurrir y reservar.",
+          "outputs": [
+            {
+              "id": "1dabd29f-3894-460c-be12-fbac4e372993",
+              "description": "Pasta cocida"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "3f5631aa-1c3f-4794-ae6e-766e148dfb43",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "858ba01c-8be3-4d96-bd75-9c4c255b3223",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Mozzarella rallada"
+            },
+            {
+              "ingredient": "5acfd350-b862-11ef-b59c-79b6dddc8e34",
+              "quantity": {
+                "amount": 7.5,
+                "unit": "grams"
+              },
+              "ref_name": "Nueces"
+            },
+            {
+              "ingredient": "7033b211-d408-4aac-823a-38c197c728f8",
+              "quantity": {
+                "amount": 5.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Nata para cocinar"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 3,
+          "description": "En otro recipiente de pyrex, poner el resto del aceite y el queso, y calentar 1 minuto en el microondas.\nAñadir las nueces trituradas y la nata poco a poco sin dejar de remover. Salpimentar y calentar 2 minutos más.",
+          "outputs": [
+            {
+              "id": "2a1a17a0-d2f2-49bb-9902-48cc55c3e544",
+              "description": "Salsa de queso y nueces"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "4c1b5eae-92ef-48ea-958e-91dc62868cbf",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Pasar la pasta a una fuente, rociar con la salsa y remover con un tenedor hasta que quede bien mezclada.",
+          "outputs": [],
+          "inputs": [
+            "1dabd29f-3894-460c-be12-fbac4e372993",
+            "2a1a17a0-d2f2-49bb-9902-48cc55c3e544"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": false,
+      "maxStorageDays": 2,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "fa16dc68-998a-4122-9065-bac07b73efd0",
+      "name": "Gambas al ajillo",
+      "instructions": [
+        {
+          "id": "0d0f2320-0ceb-4b9f-869e-a95004d05300",
+          "ingredientsUsed": [
+            {
+              "ingredient": "dfd43b63-7068-479c-b94c-a2cd0cbe3cb0",
+              "quantity": {
+                "amount": 125.0,
+                "unit": "grams"
+              },
+              "ref_name": "Gambas"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 0,
+          "description": "Pelar las gambas dejando solo las colas y sazonarlas con sal.",
+          "outputs": [
+            {
+              "id": "de5c1302-52fc-42d0-bfab-c269e81a0fe5",
+              "description": "Colas de gamba"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "d7ab0db9-6f4a-4d82-a381-6ac913a32348",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7722a1d0-5ae8-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.5,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Aceite de Oliva"
+            },
+            {
+              "ingredient": "5018a870-8e88-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Ajo troceado"
+            },
+            {
+              "ingredient": "8de5b969-35ee-4488-bbc3-9c465ad0692c",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Guindilla seca"
+            },
+            {
+              "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Zumo de limón"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 3,
+          "description": "En una cazuela de barro, poner el aceite, los ajos pelados y partidos por la mitad y la guindilla. Calentar en el microondas 2 minutos.\nAñadir las colas de gamba y un chorro de limón. Remover y calentar 1 minuto más.",
+          "outputs": [],
+          "inputs": [
+            "de5c1302-52fc-42d0-bfab-c269e81a0fe5"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "ff098832-8637-4ad6-84f1-312799cf777d",
+      "name": "Gambas con queso",
+      "instructions": [
+        {
+          "id": "f33be822-80aa-4f80-9fe5-5fa8f779930b",
+          "ingredientsUsed": [
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 250.0,
+                "unit": "grams"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "dfd43b63-7068-479c-b94c-a2cd0cbe3cb0",
+              "quantity": {
+                "amount": 6.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Gambas"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 7,
+          "description": "Cubrir el fondo de una fuente de pyrex con la mitad de la sal un poco humedecida. Poner las gambas una junto a otra y cubrir con el resto de la sal humedecida.\nCocer en el microondas 7 minutos y dejar enfriar.",
+          "outputs": [
+            {
+              "id": "ff4efb6c-022f-46bf-a0ad-97c571a6e185",
+              "description": "Gambas a la sal"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "5f76a1fe-7797-4fdf-af4e-d9f010abc4c8",
+          "ingredientsUsed": [
+            {
+              "ingredient": "858ba01c-8be3-4d96-bd75-9c4c255b3223",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "grams"
+              },
+              "ref_name": "Mozzarella rallada"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 4,
+          "cookingTimeMinutes": 3,
+          "description": "Quitar toda la sal. Pelar las colas de las gambas sin quitar la cabeza.\nEspolvorear las colas con el queso y un poco de pimienta y calentar en el microondas 2-3 minutos hasta que el queso se funda.",
+          "outputs": [
+            {
+              "id": "e5b06a1e-a00d-4979-9b0d-188722813020",
+              "description": "Gambas gratinadas"
+            }
+          ],
+          "inputs": [
+            "ff4efb6c-022f-46bf-a0ad-97c571a6e185"
+          ]
+        },
+        {
+          "id": "f8d2f9ee-ec86-4e8c-8a4f-8188b1817c04",
+          "ingredientsUsed": [
+            {
+              "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Zumo de limón"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 0,
+          "description": "Servir con unas gotas de limón sobre las cabezas.",
+          "outputs": [],
+          "inputs": [
+            "e5b06a1e-a00d-4979-9b0d-188722813020"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": true,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "6ded4f2e-7f65-4baf-94bb-e07074359c66",
+      "name": "Huevos al plato con chistorra y queso",
+      "instructions": [
+        {
+          "id": "eef4be00-1787-4a45-9afa-10f3c30d3a98",
+          "ingredientsUsed": [
+            {
+              "ingredient": "fa075727-70de-4a0b-aa9e-a536067ca7b3",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Queso en lonchas para fundir"
+            },
+            {
+              "ingredient": "1c0db353-a3b4-4a9b-b88d-80440e10f3e2",
+              "quantity": {
+                "amount": 60.0,
+                "unit": "grams"
+              },
+              "ref_name": "Chistorra"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 1,
+          "description": "En un plato llano o cazuela de barro, poner las lonchas de queso y encima los dos trozos de chistorra abiertos por la mitad. Calentar en el microondas 1 minuto.",
+          "outputs": [
+            {
+              "id": "64b6d46c-7aef-40d6-944a-e569e6604948",
+              "description": "Base de queso y chistorra"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "de42d28f-4071-45df-95fc-af685bc437c9",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 2.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 3,
+          "description": "Cascar los dos huevos encima con una pizca de sal. Pinchar la yema para que no se rompa y calentar en el microondas unos 3 minutos.",
+          "outputs": [],
+          "inputs": [
+            "64b6d46c-7aef-40d6-944a-e569e6604948"
+          ]
+        }
+      ],
+      "carbs": false,
+      "proteins": true,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": true,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "8a6f80cb-c1d8-413c-85e2-c8d11b902664",
+      "name": "Salsa bechamel al microondas",
+      "instructions": [
+        {
+          "id": "25dcc593-c3d6-4af4-8093-d7e7f713bfe2",
+          "ingredientsUsed": [
+            {
+              "ingredient": "fdf4306e-dec9-42b2-bf1c-11d4b4c0587d",
+              "quantity": {
+                "amount": 10.0,
+                "unit": "grams"
+              },
+              "ref_name": "Mantequilla"
+            },
+            {
+              "ingredient": "9a4fc345-541b-4a4f-aa9c-7119a3f631c3",
+              "quantity": {
+                "amount": 10.0,
+                "unit": "grams"
+              },
+              "ref_name": "Harina de trigo"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 1,
+          "description": "Fundir la mantequilla en el microondas 20 segundos. Añadir la harina removiendo bien con una cuchara de madera y calentar 20 segundos más.",
+          "outputs": [
+            {
+              "id": "2963a4dc-7d3f-4786-af8b-3fee87296607",
+              "description": "Roux"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "5f581869-21a8-40c6-ac44-322c3ef946e6",
+          "ingredientsUsed": [
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 12.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            },
+            {
+              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 0.1,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Sal"
+            },
+            {
+              "ingredient": "b4523e20-c612-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.05,
+                "unit": "teaspoons"
+              },
+              "ref_name": "Pimienta (especia)"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 4,
+          "description": "Añadir la leche fría mezclando bien y calentar 1 minuto. Remover, salpimentar y calentar 2 minutos.\nRemover y terminar con 30 segundos más. Remover por última vez.\nEs importante sacar y remover cada vez para que la salsa emulsione.",
+          "outputs": [],
+          "inputs": [
+            "2963a4dc-7d3f-4786-af8b-3fee87296607"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "meal",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 3,
+      "includeInMenuGeneration": false
+    },
+    {
+      "id": "4b1be9da-03d0-4aab-b506-c3339d5c045e",
+      "name": "Bolas de coco",
+      "instructions": [
+        {
+          "id": "768ef804-e1ed-4e32-af33-95424f62bd77",
+          "ingredientsUsed": [
+            {
+              "ingredient": "d48c4d30-cc57-1098-91d0-51096b672064",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Patata"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 4,
+          "description": "Lavar la patata, pincharla con un tenedor y cocerla con piel en el microondas 4 minutos a máxima potencia. Pelar y trocear.",
+          "outputs": [
+            {
+              "id": "d3478e2d-79ee-4659-ae6d-f503911e1fae",
+              "description": "Patata cocida"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "a833f1aa-ddcc-492a-85d3-cb6dd85547e6",
+          "ingredientsUsed": [
+            {
+              "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.06,
+                "unit": "pieces"
+              },
+              "ref_name": "Zumo de limón"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 37.5,
+                "unit": "grams"
+              },
+              "ref_name": "Azúcar blanco"
+            },
+            {
+              "ingredient": "d5e779b3-e52c-45b5-bbfc-4750eb55558d",
+              "quantity": {
+                "amount": 62.5,
+                "unit": "grams"
+              },
+              "ref_name": "Coco rallado"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.0,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            }
+          ],
+          "workingTimeMinutes": 8,
+          "cookingTimeMinutes": 0,
+          "description": "Picar un cuarto de la piel del limón junto con el azúcar y el coco. Añadir la patata y los huevos y batir hasta tener una masa compacta.\nHacer bolitas del tamaño de una nuez y ponerlas en moldes de papel rizado.",
+          "outputs": [
+            {
+              "id": "bf1f9afe-836d-4359-a86b-cd19342f1e22",
+              "description": "Bolitas de coco"
+            }
+          ],
+          "inputs": [
+            "d3478e2d-79ee-4659-ae6d-f503911e1fae"
+          ]
+        },
+        {
+          "id": "cb189528-5a78-4c52-b96c-ecd38d032826",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 2,
+          "description": "Poner en una fuente y cocer en el microondas a máxima potencia 2 minutos. Dejar enfriar.",
+          "outputs": [],
+          "inputs": [
+            "bf1f9afe-836d-4359-a86b-cd19342f1e22"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 5,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "99050abe-89ed-4d70-9e6e-2574ac4a0d2d",
+      "name": "Chocolate a la taza",
+      "instructions": [
+        {
+          "id": "d0b17606-147b-4d6e-a978-3bce99af490c",
+          "ingredientsUsed": [
+            {
+              "ingredient": "49091142-bd4b-4bfb-87b3-bb4e117ef1e3",
+              "quantity": {
+                "amount": 50.0,
+                "unit": "grams"
+              },
+              "ref_name": "Cacao en polvo"
+            },
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 25.0,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            }
+          ],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "En una jarra de pyrex, disolver el chocolate en un poco de leche fría e ir añadiendo el resto de la leche hasta la textura deseada.",
+          "outputs": [
+            {
+              "id": "daa30330-577b-48f3-b586-2ce00e5137d3",
+              "description": "Chocolate disuelto"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "b22b5912-60c2-4786-99cb-c13b6551a1ed",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 5,
+          "description": "Calentar en el microondas a máxima potencia 2 minutos y remover. Calentar 3 minutos más y remover. Se puede servir con nata montada.",
+          "outputs": [],
+          "inputs": [
+            "daa30330-577b-48f3-b586-2ce00e5137d3"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "snack",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 0,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "360710b6-c771-498d-b853-6380958bf900",
+      "name": "Flan de huevo al microondas",
+      "instructions": [
+        {
+          "id": "401406e0-a23e-49d5-a541-530fb786ae90",
+          "ingredientsUsed": [
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 0.75,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 4,
+          "description": "Hacer azúcar caramelo en la flanera o recipiente de pyrex: calentar el azúcar en el microondas hasta que esté dorado y cubrir el fondo.",
+          "outputs": [
+            {
+              "id": "9468a4d7-fc19-40bf-afa2-260439bfec39",
+              "description": "Flanera caramelizada"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "203918d2-1aa5-4ccb-aa5a-a3f568264f1c",
+          "ingredientsUsed": [
+            {
+              "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 12.5,
+                "unit": "centiliters"
+              },
+              "ref_name": "Leche desnatada sin lactosa"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 1.25,
+                "unit": "tablespoons"
+              },
+              "ref_name": "Azúcar blanco"
+            },
+            {
+              "ingredient": "ab8499c0-d32c-10a7-a87d-2fef2dcd1072",
+              "quantity": {
+                "amount": 0.06,
+                "unit": "pieces"
+              },
+              "ref_name": "Zumo de limón"
+            },
+            {
+              "ingredient": "6bc83929-6384-4f8e-8b4e-673e1381f201",
+              "quantity": {
+                "amount": 0.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Canela en rama"
+            },
+            {
+              "ingredient": "7e55ac20-6f80-1e99-9cbf-85317f03e969",
+              "quantity": {
+                "amount": 1.25,
+                "unit": "pieces"
+              },
+              "ref_name": "Huevo"
+            }
+          ],
+          "workingTimeMinutes": 3,
+          "cookingTimeMinutes": 3,
+          "description": "En otro recipiente, calentar la leche con el azúcar, la corteza de un cuarto de limón y la canela 3 minutos al 100% en el microondas.\nRetirar la corteza de limón y la canela. Añadir los huevos y batir todo lentamente.",
+          "outputs": [
+            {
+              "id": "b308e9a8-3a88-4308-ba29-d1995c900533",
+              "description": "Mezcla de flan"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "9fde5505-a68b-4b6e-9c14-3605b25cc0a7",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 1,
+          "cookingTimeMinutes": 15,
+          "description": "Verter la mezcla en la flanera caramelizada y cocer en el microondas 15 minutos al 75% de potencia.\nDejar reposar hasta que se enfríe y desmoldar sobre una fuente. Se puede adornar con nata montada.",
+          "outputs": [],
+          "inputs": [
+            "9468a4d7-fc19-40bf-afa2-260439bfec39",
+            "b308e9a8-3a88-4308-ba29-d1995c900533"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": true,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 3,
+      "includeInMenuGeneration": true
+    },
+    {
+      "id": "a625ea94-67ea-4668-a296-57a8f391c9b6",
+      "name": "Mermelada de melocotón",
+      "instructions": [
+        {
+          "id": "2ea5ab2f-47ef-4efc-b71c-3ecbfc2567f2",
+          "ingredientsUsed": [
+            {
+              "ingredient": "2ae2d51a-6f60-4267-aa03-4b9a2fdf6376",
+              "quantity": {
+                "amount": 250.0,
+                "unit": "grams"
+              },
+              "ref_name": "Melocotón"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 125.0,
+                "unit": "grams"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 10,
+          "description": "Pelar los melocotones, quitar el hueso y trocear. Ponerlos en un bol con el azúcar y cocer en el microondas 10 minutos a máxima potencia.",
+          "outputs": [
+            {
+              "id": "a693a9a2-3a7d-4ead-9c52-9d46957fe990",
+              "description": "Melocotón cocido"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "461663a1-bfb6-4b1b-b0e9-36bfdd1d6f92",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 5,
+          "description": "Batir hasta la textura deseada y cocer en el microondas 5 minutos más.\nDejar enfriar y guardar en el frigorífico 24 horas antes de usar.",
+          "outputs": [],
+          "inputs": [
+            "a693a9a2-3a7d-4ead-9c52-9d46957fe990"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 7,
+      "includeInMenuGeneration": false
+    },
+    {
+      "id": "5760047c-329d-49ab-8628-621a10aaf185",
+      "name": "Mermelada de fresa",
+      "instructions": [
+        {
+          "id": "2b9017a2-6ecf-4296-a1ef-a008de3ce250",
+          "ingredientsUsed": [
+            {
+              "ingredient": "e9b3f093-b137-4e5c-ad6b-fe3e7ed5a185",
+              "quantity": {
+                "amount": 250.0,
+                "unit": "grams"
+              },
+              "ref_name": "Fresas"
+            },
+            {
+              "ingredient": "7b636a50-8a06-1eaa-b835-cfe533d41a10",
+              "quantity": {
+                "amount": 125.0,
+                "unit": "grams"
+              },
+              "ref_name": "Azúcar blanco"
+            }
+          ],
+          "workingTimeMinutes": 5,
+          "cookingTimeMinutes": 10,
+          "description": "Limpiar las fresas y quitar el rabo. Ponerlas en un bol con el azúcar y cocer en el microondas a máxima potencia 10 minutos.",
+          "outputs": [
+            {
+              "id": "1f7695fb-1ab5-4853-96b1-9fd3bd4b4a03",
+              "description": "Fresas cocidas"
+            }
+          ],
+          "inputs": []
+        },
+        {
+          "id": "5984c382-f043-4fb6-8fa6-34ce5c66e964",
+          "ingredientsUsed": [],
+          "workingTimeMinutes": 2,
+          "cookingTimeMinutes": 0,
+          "description": "Batir hasta la textura deseada. Cuando esté fría, guardar en el frigorífico 24 horas antes de usar.",
+          "outputs": [],
+          "inputs": [
+            "1f7695fb-1ab5-4853-96b1-9fd3bd4b4a03"
+          ]
+        }
+      ],
+      "carbs": true,
+      "proteins": false,
+      "vegetables": false,
+      "type": "dessert",
+      "lunch": false,
+      "dinner": false,
+      "maxStorageDays": 7,
+      "includeInMenuGeneration": false
     }
   ]
 }
