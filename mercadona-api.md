@@ -53,7 +53,8 @@ curl -X PUT -H 'content-type: application/json' \
 |-------|------|-------------|
 | `packaging` | string? | `"Pieza"` (single item), `"Pack-N"` (multi-pack), `"Bandeja"` (tray), `"Bote"` (jar/can), `"Brik"` (brick), `"Paquete"` (package), etc. |
 | `share_url` | string | Canonical product URL for the `link` field in the Product model. |
-| `details.storage_instructions` | string | Look for "consumir en N dias" to derive `shelfLifeDaysOpened` (days after opening). If the page also lists a separate sealed shelf life, set `shelfLifeDaysClosed` from that. |
+| `details.storage_instructions` and `details.usage_instructions` | string | Read **both** fields: the "once opened" text is often only in `usage_instructions` (e.g. "Una vez abierto consumir en 48 horas"). Derive `shelfLifeDaysOpened` from it (48 horas = 2, una semana = 7). If a field also lists a separate sealed shelf life, set `shelfLifeDaysClosed` from that. |
+| `price_instructions.drained_weight` | double? | Use it as the size when `unit_size` is `null` (some frozen seafood). |
 | `is_bulk` | bool | `true` for items sold by weight (e.g., fresh produce sold per piece). |
 
 ## Mapping API Response to Product Model Fields
@@ -67,8 +68,9 @@ Product(
   unit:            "grams" if size_format == "kg"
                    "centiliters" if size_format == "l"
                    "pieces" if the product is countable (see below)
-  shelfLifeDaysOpened: parse from details.storage_instructions (days after opening), null if not found
-  shelfLifeDaysClosed: parse from details.storage_instructions when a separate sealed
+  shelfLifeDaysOpened: parse from details.storage_instructions and details.usage_instructions
+                       (days after opening), null if not found
+  shelfLifeDaysClosed: parse from the same two fields when a separate sealed
                        shelf life is given, null if indefinite when sealed
 )
 ```
