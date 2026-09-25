@@ -2099,6 +2099,7 @@
           "quantityPerItem": 250.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 30,
+          "shelfLifeDaysClosed": 90,
           "canBeFrozen": true
         }
       ],
@@ -2175,6 +2176,7 @@
           "quantityPerItem": 450.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 365,
           "canBeFrozen": true
         }
       ],
@@ -2214,7 +2216,9 @@
           "itemsPerPack": 1,
           "quantityPerItem": 200.0,
           "unit": "grams",
-          "shelfLifeDaysOpened": 5
+          "shelfLifeDaysOpened": 2,
+          "shelfLifeDaysClosed": 21,
+          "canBeFrozen": true
         }
       ],
       "density": 1.05
@@ -2243,14 +2247,16 @@
           "itemsPerPack": 24,
           "quantityPerItem": 15.625,
           "unit": "grams",
-          "shelfLifeDaysOpened": 30
+          "shelfLifeDaysOpened": 30,
+          "shelfLifeDaysClosed": 90
         },
         {
           "link": "https://tienda.mercadona.es/product/52405/queso-porciones-hacendado-caja",
           "itemsPerPack": 24,
           "quantityPerItem": 1.0,
           "unit": "pieces",
-          "shelfLifeDaysOpened": 30
+          "shelfLifeDaysOpened": 30,
+          "shelfLifeDaysClosed": 90
         }
       ],
       "density": 1.05
@@ -2387,11 +2393,12 @@
           "quantityPerItem": 360.0,
           "unit": "grams",
           "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 365,
           "canBeFrozen": true
         }
       ],
       "density": 1.0,
-      "gramsPerPiece": 20.0
+      "gramsPerPiece": 12.0
     },
     {
       "id": "1c0db353-a3b4-4a9b-b88d-80440e10f3e2",
@@ -2402,7 +2409,9 @@
           "itemsPerPack": 1,
           "quantityPerItem": 220.0,
           "unit": "grams",
-          "shelfLifeDaysOpened": 2
+          "shelfLifeDaysOpened": 2,
+          "shelfLifeDaysClosed": 14,
+          "canBeFrozen": true
         }
       ],
       "density": 1.0
@@ -2416,14 +2425,16 @@
           "itemsPerPack": 10,
           "quantityPerItem": 20.0,
           "unit": "grams",
-          "shelfLifeDaysOpened": 5
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 45
         },
         {
           "link": "https://tienda.mercadona.es/product/50371/queso-lonchas-fundido-sandwich-mezcla-hacendado-paquete",
           "itemsPerPack": 10,
           "quantityPerItem": 1.0,
           "unit": "pieces",
-          "shelfLifeDaysOpened": 5
+          "shelfLifeDaysOpened": 5,
+          "shelfLifeDaysClosed": 45
         }
       ],
       "density": 1.05,
@@ -2437,7 +2448,8 @@
           "link": "https://tienda.mercadona.es/product/34035/coco-rallado-hacendado-paquete",
           "itemsPerPack": 1,
           "quantityPerItem": 125.0,
-          "unit": "grams"
+          "unit": "grams",
+          "shelfLifeDaysOpened": 7
         }
       ],
       "density": 0.35
@@ -7655,7 +7667,7 @@
           ],
           "workingTimeMinutes": 5,
           "cookingTimeMinutes": 0,
-          "description": "Escurrir las lentejas. En un puchero con agua limpia, poner las lentejas con la cebolla y los ajos pelados y enteros, la zanahoria, el laurel, los trozos de chorizo, el aceite y un poco de sal.",
+          "description": "Escurrir las lentejas. En un puchero con agua limpia, poner las lentejas con la cebolla entera pelada, el ajo, la zanahoria, el laurel, los trozos de chorizo, el aceite y un poco de sal.",
           "outputs": [
             {
               "id": "2e62ef28-3f9e-4276-9d8f-2adb8ef123b1",
@@ -7687,7 +7699,7 @@
           "ingredientsUsed": [],
           "workingTimeMinutes": 2,
           "cookingTimeMinutes": 0,
-          "description": "Retirar el laurel, la cebolla, los ajos y la zanahoria. Comprobar que estén blandas y ajustar de sal.",
+          "description": "Retirar el laurel, la cebolla y la zanahoria. Comprobar que estén blandas y ajustar de sal.",
           "outputs": [],
           "inputs": [
             "9a938963-ed36-4ecc-9f61-89c71c312b63"
@@ -8514,7 +8526,7 @@
           ],
           "workingTimeMinutes": 2,
           "cookingTimeMinutes": 12,
-          "description": "En una sartén con 4 partes del aceite, rehogar el ajo picado y las setas a fuego medio 10-15 minutos. Añadir el perejil. Sacar y escurrir.",
+          "description": "En una sartén con dos tercios del aceite, rehogar el ajo picado y las setas a fuego medio 10-15 minutos. Añadir el perejil. Sacar y escurrir.",
           "outputs": [
             {
               "id": "c32505ce-cd95-4eed-8f42-72aea6a8976c",
@@ -8830,7 +8842,7 @@
           ],
           "workingTimeMinutes": 2,
           "cookingTimeMinutes": 3,
-          "description": "En una sartén a fuego fuerte, poner el resto del aceite, el ajo laminado y la guindilla. Cuando el ajo esté dorado, apartar.\nEchar un chorrito de vinagre sobre las doradas y después el aceite muy caliente con el ajo y la guindilla.",
+          "description": "En una sartén a fuego fuerte, poner el resto del aceite, el ajo troceado y la guindilla. Cuando el ajo esté dorado, apartar.\nEchar un chorrito de vinagre sobre las doradas y después el aceite muy caliente con el ajo y la guindilla.",
           "outputs": [],
           "inputs": [
             "0956dedc-bf08-47f1-85ed-50052b053255"
@@ -9762,13 +9774,13 @@
               "ref_name": "Sal"
             }
           ],
-          "workingTimeMinutes": 5,
+          "workingTimeMinutes": 2,
           "cookingTimeMinutes": 0,
-          "description": "Pelar las gambas dejando solo las colas y sazonarlas con sal.",
+          "description": "Descongelar las gambas en el frigorífico (unas 8 horas), secarlas y sazonarlas con sal.",
           "outputs": [
             {
               "id": "de5c1302-52fc-42d0-bfab-c269e81a0fe5",
-              "description": "Colas de gamba"
+              "description": "Gambas descongeladas"
             }
           ],
           "inputs": []
@@ -9811,7 +9823,7 @@
           ],
           "workingTimeMinutes": 2,
           "cookingTimeMinutes": 3,
-          "description": "En una cazuela de barro, poner el aceite, los ajos pelados y partidos por la mitad y la guindilla. Calentar en el microondas 2 minutos.\nAñadir las colas de gamba y un chorro de limón. Remover y calentar 1 minuto más.",
+          "description": "En una cazuela de barro, poner el aceite, el ajo troceado y la guindilla. Calentar en el microondas 2 minutos.\nAñadir las gambas y un chorro de limón. Remover y calentar 1 minuto más.",
           "outputs": [],
           "inputs": [
             "de5c1302-52fc-42d0-bfab-c269e81a0fe5"
@@ -9835,14 +9847,6 @@
           "id": "f33be822-80aa-4f80-9fe5-5fa8f779930b",
           "ingredientsUsed": [
             {
-              "ingredient": "aa9fa790-5a81-1e99-9cbf-85317f03e969",
-              "quantity": {
-                "amount": 250.0,
-                "unit": "grams"
-              },
-              "ref_name": "Sal"
-            },
-            {
               "ingredient": "dfd43b63-7068-479c-b94c-a2cd0cbe3cb0",
               "quantity": {
                 "amount": 6.0,
@@ -9853,7 +9857,7 @@
           ],
           "workingTimeMinutes": 3,
           "cookingTimeMinutes": 7,
-          "description": "Cubrir el fondo de una fuente de pyrex con la mitad de la sal un poco humedecida. Poner las gambas una junto a otra y cubrir con el resto de la sal humedecida.\nCocer en el microondas 7 minutos y dejar enfriar.",
+          "description": "Descongelar las gambas en el frigorífico (unas 8 horas) y secarlas.\nCubrir el fondo de una fuente de pyrex con sal gruesa un poco humedecida. Poner las gambas una junto a otra y cubrirlas con más sal humedecida.\nCocer en el microondas 7 minutos y dejar enfriar.",
           "outputs": [
             {
               "id": "ff4efb6c-022f-46bf-a0ad-97c571a6e185",
@@ -9884,7 +9888,7 @@
           ],
           "workingTimeMinutes": 4,
           "cookingTimeMinutes": 3,
-          "description": "Quitar toda la sal. Pelar las colas de las gambas sin quitar la cabeza.\nEspolvorear las colas con el queso y un poco de pimienta y calentar en el microondas 2-3 minutos hasta que el queso se funda.",
+          "description": "Quitar toda la sal y volver a poner las gambas en la fuente.\nEspolvorear con el queso y un poco de pimienta y calentar en el microondas 2-3 minutos hasta que el queso se funda.",
           "outputs": [
             {
               "id": "e5b06a1e-a00d-4979-9b0d-188722813020",
@@ -9909,7 +9913,7 @@
           ],
           "workingTimeMinutes": 1,
           "cookingTimeMinutes": 0,
-          "description": "Servir con unas gotas de limón sobre las cabezas.",
+          "description": "Servir con unas gotas de limón por encima.",
           "outputs": [],
           "inputs": [
             "e5b06a1e-a00d-4979-9b0d-188722813020"
