@@ -429,7 +429,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   ///
   /// For an equivalent group of 2+ members the buy count is the cycled share: the group's
   /// solo cover ([_packsToBuyForProduct], computed from the still-needed amount so it reflects
-  /// owned stock) split one-of-each via [distributeEquivalentPacks]. Non-equivalent products
+  /// owned stock) split one-of-each via [distributeEquivalentPacks]. A member row gets no per-trip
+  /// split, but it names the trip when one later trip buys the whole cover. Non-equivalent products
   /// (different pack size, shelf life, ...) keep their solo count and the per-trip split.
   ///
   /// Every rendered row also hosts its own "Owned" input (per-product owned counts), including the
@@ -464,6 +465,11 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
       List<int> visibleMembers = isCombinedGroup ? _visibleMemberIndexes(group: group, cycledShares: cycledShares) : const [];
 
+      // The solo trip purchases of the group's cover. One entry means that one later trip buys the
+      // whole cover, so each member row names that trip. All members share one unit.
+      List<ProductTripPurchase> groupTripPurchases = isCombinedGroup ? _tripPurchasesForProduct(group.first.value) : const [];
+      ProductTripPurchase? groupSingleTrip = groupTripPurchases.length == 1 ? groupTripPurchases.single : null;
+
       bool isFirstVisibleInGroup = true;
       for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
         int productIndex = group[memberIndex].key;
@@ -494,9 +500,15 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             recommendation: recommendation,
             isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
             packsToBuy: packsToBuy,
-            // The one-of-each cycle already splits an equivalent group; a per-trip split on top
-            // would show the wrong (solo) counts, so it is only used for standalone products.
-            tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),
+            // The one-of-each cycle already splits an equivalent group. A per-trip split on top
+            // would show the solo counts, so a member row gets no 2+ split. When one later trip buys
+            // the whole cover, the member row gets one entry with its own cycled share, so the row
+            // names that trip.
+            tripPurchases: !isCombinedGroup
+                ? _tripPurchasesForProduct(product)
+                : groupSingleTrip != null && packsToBuy > 0
+                ? [ProductTripPurchase(weekIndex: groupSingleTrip.weekIndex, packs: packsToBuy, isFirstTrip: groupSingleTrip.isFirstTrip)]
+                : const [],
             startDate: widget.startDate,
             ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
             onOwnedCountChanged: (double count) => widget.onProductOwnedChanged(productIndex, count),

@@ -39,6 +39,7 @@ Future<void> _pumpProducts(
   Map<int, double> ownedProductCounts = const {},
   double ownedAmount = 0,
   void Function(double amount, OwnedUnit unit)? onOwnedChanged,
+  List<ShoppingTrip> plannedTrips = const [],
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -61,7 +62,7 @@ Future<void> _pumpProducts(
           ownedProductCounts: ownedProductCounts,
           onProductOwnedChanged: (int productIndex, double count) {},
           sources: const [],
-          plannedTrips: const [],
+          plannedTrips: plannedTrips,
         ),
       ),
     ),
@@ -750,6 +751,64 @@ void main() {
       expect(find.text("Covered"), findsOneWidget);
       expect(find.text("and"), findsOneWidget);
       expect(find.text("or"), findsNothing);
+    });
+
+    testWidgets("names the single later trip on each row of an equivalent group", (WidgetTester tester) async {
+      // Two equivalent 500 g variants, need 1000 g -> 2 packs total -> 1 pack each. The first trip
+      // buys only rice, so only the week 2 trip buys this ingredient.
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a"), _equivProduct("b")],
+        remainingGrams: 1000,
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 1000)]),
+          _trip(1, [_item(ingredientId: "pizza", amount: 1000)]),
+        ],
+      );
+
+      expect(find.text("Buy 1 pack Week 2"), findsNWidgets(2));
+      expect(find.text("Buy 1 pack"), findsNothing);
+      expect(find.text("and"), findsOneWidget);
+    });
+
+    testWidgets("keeps the plain cycled share on an equivalent group that 2 trips buy", (WidgetTester tester) async {
+      // Need 1000 g -> 1 pack each. Both trips buy the ingredient, and a per-trip split of the solo
+      // count would contradict the one-of-each share, so each row keeps the plain share.
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a"), _equivProduct("b")],
+        remainingGrams: 1000,
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "pizza", amount: 500)]),
+          _trip(1, [_item(ingredientId: "pizza", amount: 500)]),
+        ],
+      );
+
+      expect(find.text("Buy 1 pack"), findsNWidgets(2));
+      expect(find.text("Buy 1 pack now"), findsNothing);
+      expect(find.text("+ 1 pack Week 2"), findsNothing);
+    });
+
+    testWidgets("buys one pack less on each single later-trip row of an equivalent group with an under-buy", (WidgetTester tester) async {
+      // Need 2000 g -> 4 packs total -> 2 packs each. Each recommendation drops one mostly-empty
+      // pack (packsNeeded 1), so each row buys 1 pack on the week 2 trip and shows the chip.
+      List<Product> products = [_equivProduct("a"), _equivProduct("b")];
+      ProductRecommendation underBuy(Product product) =>
+          ProductRecommendation(product: product, packsNeeded: 1, overBuyWaste: 0, expiryWaste: 0, isViable: true, underBuy: true, shortfall: 100);
+      await _pumpProducts(
+        tester,
+        products: products,
+        remainingGrams: 2000,
+        recommendations: [underBuy(products[0]), underBuy(products[1])],
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 2000)]),
+          _trip(1, [_item(ingredientId: "pizza", amount: 2000)]),
+        ],
+      );
+
+      expect(find.text("Buy 1 pack Week 2"), findsNWidgets(2));
+      expect(find.text("Buy 2 packs Week 2"), findsNothing);
+      expect(find.text("100 grams short"), findsNWidgets(2));
     });
   });
 
