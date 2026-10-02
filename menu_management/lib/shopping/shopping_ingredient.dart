@@ -109,7 +109,8 @@ class ShoppingIngredient extends StatefulWidget {
   final List<IngredientSource> sources;
 
   /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
-  /// each product row shows the per-trip buy split instead of a single total.
+  /// each product row shows the per-trip buy split instead of a single total. When only a later
+  /// trip buys it, the single total names that trip.
   final List<ShoppingTrip> plannedTrips;
 
   /// First day of the menu. It turns the per-trip buy lines into real shopping dates.
@@ -267,7 +268,14 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   /// same unit and prints the waste-minimal mix. An ingredient with two products of the same unit
   /// can therefore read differently on the page and in the copy.
   ///
-  /// Returns an empty list (single-total display) unless 2+ trips actually buy this product.
+  /// Returns an empty list (plain single-total display) when the plan has fewer than 2 trips, when
+  /// no trip buys this product, or when the earliest trip of the plan holds this ingredient and the
+  /// split gives the product to one trip only. One trip alone otherwise gives a one-entry list.
+  ///
+  /// The one-entry list names the earliest trip that holds a [TripItem] of this ingredient, not
+  /// the trip that the split picked. The largest-remainder split can round a small early need down
+  /// to 0 and move the whole buy to a later trip. A recipe before that later trip still needs the
+  /// product, so the row must name the earlier trip.
   List<ProductTripPurchase> _tripPurchasesForProduct(Product product) {
     if (widget.plannedTrips.length < 2) return const [];
     int firstWeek = widget.plannedTrips.first.weekIndex; // trips are sorted ascending by the planner
@@ -285,9 +293,25 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       if (packs <= 0) continue;
       purchases.add(ProductTripPurchase(weekIndex: allocation.weekIndex, packs: packs, isFirstTrip: allocation.weekIndex == firstWeek));
     }
-    // A row is a "split" only when 2+ trips actually buy this product.
-    if (purchases.length < 2) return const [];
-    return purchases;
+    // No purchase gives the plain total, and 2+ purchases give the per-trip split.
+    if (purchases.length != 1) return purchases;
+    int? earliestLaterTripWeek = _earliestLaterTripWeekForIngredient();
+    // The earliest trip of the plan alone gives the plain total, the same as a one-trip plan.
+    if (earliestLaterTripWeek == null) return const [];
+    return [ProductTripPurchase(weekIndex: earliestLaterTripWeek, packs: purchases.single.packs, isFirstTrip: false)];
+  }
+
+  /// Returns the week of the earliest planned trip that holds a [TripItem] of this ingredient.
+  ///
+  /// Returns null when that trip is the first trip of the plan, or when no trip holds the ingredient.
+  /// The split weighs each trip by the grams of all its items of this ingredient, whatever their
+  /// unit, so this method finds the trip by ingredient and not by the unit of a product.
+  int? _earliestLaterTripWeekForIngredient() {
+    ShoppingTrip? earliestTrip = widget.plannedTrips.firstWhereOrNull(
+      (ShoppingTrip trip) => trip.items.any((TripItem item) => item.ingredientId == widget.ingredient.id),
+    );
+    if (earliestTrip == null || earliestTrip.weekIndex == widget.plannedTrips.first.weekIndex) return null;
+    return earliestTrip.weekIndex;
   }
 
   /// Returns the indexes inside [group] of the equivalent members whose row renders.
@@ -414,7 +438,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   ///
   /// For an equivalent group of 2+ members the buy count is the cycled share: the group's
   /// solo cover ([_packsToBuyForProduct], computed from the still-needed amount so it reflects
-  /// owned stock) split one-of-each via [distributeEquivalentPacks]. Non-equivalent products
+  /// owned stock) split one-of-each via [distributeEquivalentPacks]. A member row gets no per-trip
+  /// split, but it names the trip when one later trip buys the whole cover. Non-equivalent products
   /// (different pack size, shelf life, ...) keep their solo count and the per-trip split.
   ///
   /// Every rendered row also hosts its own "Owned" input (per-product owned counts), including the
@@ -449,6 +474,10 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
       List<int> visibleMembers = isCombinedGroup ? _visibleMemberIndexes(group: group, cycledShares: cycledShares) : const [];
 
+      // When the first trip of the plan does not hold this ingredient, each member row names the
+      // earliest trip that holds it. Otherwise a plain share would read as "buy now".
+      int? groupEarliestLaterTripWeek = isCombinedGroup ? _earliestLaterTripWeekForIngredient() : null;
+
       bool isFirstVisibleInGroup = true;
       for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
         int productIndex = group[memberIndex].key;
@@ -479,9 +508,15 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             recommendation: recommendation,
             isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
             packsToBuy: packsToBuy,
-            // The one-of-each cycle already splits an equivalent group; a per-trip split on top
-            // would show the wrong (solo) counts, so it is only used for standalone products.
-            tripPurchases: isCombinedGroup ? const [] : _tripPurchasesForProduct(product),
+            // The one-of-each cycle already splits an equivalent group. A per-trip split on top
+            // would show the solo counts, so a member row gets no 2+ split. When the first trip of
+            // the plan does not hold the ingredient, the member row gets one entry with its own
+            // cycled share, so the row names the earliest trip that holds it.
+            tripPurchases: !isCombinedGroup
+                ? _tripPurchasesForProduct(product)
+                : groupEarliestLaterTripWeek != null
+                ? [ProductTripPurchase(weekIndex: groupEarliestLaterTripWeek, packs: packsToBuy, isFirstTrip: false)]
+                : const [],
             startDate: widget.startDate,
             ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
             onOwnedCountChanged: (double count) => widget.onProductOwnedChanged(productIndex, count),

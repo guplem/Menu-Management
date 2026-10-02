@@ -221,6 +221,33 @@ void main() {
       expect(find.text("Buy 2 pieces now"), findsOneWidget);
       expect(find.text("+ 1 piece Week 3"), findsOneWidget);
     });
+
+    testWidgets("names the trip when the only trip purchase is a later trip", (WidgetTester tester) async {
+      const Product piecesProduct = Product(link: "", quantityPerItem: 1, itemsPerPack: 1, unit: Unit.pieces);
+      await _pumpRow(
+        tester,
+        product: piecesProduct,
+        packsToBuy: 2,
+        tripPurchases: const [ProductTripPurchase(weekIndex: 2, packs: 2, isFirstTrip: false)],
+      );
+
+      expect(find.text("Buy 2 pieces Week 3"), findsOneWidget);
+      // The plain total would tell the user to buy it now.
+      expect(find.text("Buy 2 pieces"), findsNothing);
+    });
+
+    testWidgets("names the shopping date of a single later trip when the menu has a start date", (WidgetTester tester) async {
+      Product product = _packProduct();
+      await _pumpRow(
+        tester,
+        product: product,
+        packsToBuy: 3,
+        startDate: DateTime(2025, 8, 6),
+        tripPurchases: const [ProductTripPurchase(weekIndex: 1, packs: 3, isFirstTrip: false)],
+      );
+
+      expect(find.text("Buy 3 packs Tuesday 12 Aug"), findsOneWidget);
+    });
   });
 
   group("ShoppingProductRow under-buy warning", () {
@@ -305,6 +332,32 @@ void main() {
       expect(find.text("Buy 2 packs now"), findsOneWidget);
       expect(find.text("+ 1 pack Week 2"), findsOneWidget);
       expect(find.textContaining("short"), findsNothing);
+    });
+
+    testWidgets("buys one pack less on a single later-trip line and keeps the warning chip", (WidgetTester tester) async {
+      Product product = _packProduct();
+      ProductRecommendation underBuy = ProductRecommendation(
+        product: product,
+        packsNeeded: 2,
+        overBuyWaste: 0,
+        expiryWaste: 0,
+        isViable: true,
+        underBuy: true,
+        shortfall: 100,
+      );
+
+      // The trip purchase holds the full round-up (3 packs). The row must still drop one pack.
+      await _pumpRow(
+        tester,
+        product: product,
+        packsToBuy: 3,
+        recommendation: underBuy,
+        tripPurchases: const [ProductTripPurchase(weekIndex: 1, packs: 3, isFirstTrip: false)],
+      );
+
+      expect(find.text("100 grams short"), findsOneWidget);
+      expect(find.text("Buy 2 packs Week 2"), findsOneWidget);
+      expect(find.text("Buy 3 packs Week 2"), findsNothing);
     });
   });
 }
