@@ -836,6 +836,26 @@ void main() {
       expect(find.text("and"), findsOneWidget);
     });
 
+    testWidgets("names the earliest trip on each row of an equivalent group that 2 later trips buy", (WidgetTester tester) async {
+      // Need 1000 g -> 1 pack each. The first trip buys only rice, so a plain share would read as
+      // "buy now". Each row must name the week 2 trip, the earliest trip that holds the ingredient.
+      await _pumpProducts(
+        tester,
+        products: [_equivProduct("a"), _equivProduct("b")],
+        remainingGrams: 1000,
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 1000)]),
+          _trip(1, [_item(ingredientId: "pizza", amount: 500)]),
+          _trip(2, [_item(ingredientId: "pizza", amount: 500)]),
+        ],
+      );
+
+      expect(find.text("Buy 1 pack Week 2"), findsNWidgets(2));
+      expect(find.text("Buy 1 pack"), findsNothing);
+      expect(find.text("Buy 1 pack Week 3"), findsNothing);
+      expect(find.text("and"), findsOneWidget);
+    });
+
     testWidgets("keeps the plain cycled share on an equivalent group that 2 trips buy", (WidgetTester tester) async {
       // Need 1000 g -> 1 pack each. Both trips buy the ingredient, and a per-trip split of the solo
       // count would contradict the one-of-each share, so each row keeps the plain share.

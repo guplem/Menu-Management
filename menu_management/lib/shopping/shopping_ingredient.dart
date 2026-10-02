@@ -474,10 +474,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
 
       List<int> visibleMembers = isCombinedGroup ? _visibleMemberIndexes(group: group, cycledShares: cycledShares) : const [];
 
-      // The solo trip purchases of the group's cover. One entry means that one later trip buys the
-      // whole cover, so each member row names that trip. All members share one unit.
-      List<ProductTripPurchase> groupTripPurchases = isCombinedGroup ? _tripPurchasesForProduct(group.first.value) : const [];
-      ProductTripPurchase? groupSingleTrip = groupTripPurchases.length == 1 ? groupTripPurchases.single : null;
+      // When the first trip of the plan does not hold this ingredient, each member row names the
+      // earliest trip that holds it. Otherwise a plain share would read as "buy now".
+      int? groupEarliestLaterTripWeek = isCombinedGroup ? _earliestLaterTripWeekForIngredient() : null;
 
       bool isFirstVisibleInGroup = true;
       for (int memberIndex = 0; memberIndex < group.length; memberIndex++) {
@@ -510,13 +509,13 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
             isBestOption: bestWaste != null && recommendation.totalWaste == bestWaste,
             packsToBuy: packsToBuy,
             // The one-of-each cycle already splits an equivalent group. A per-trip split on top
-            // would show the solo counts, so a member row gets no 2+ split. When one later trip buys
-            // the whole cover, the member row gets one entry with its own cycled share, so the row
-            // names that trip.
+            // would show the solo counts, so a member row gets no 2+ split. When the first trip of
+            // the plan does not hold the ingredient, the member row gets one entry with its own
+            // cycled share, so the row names the earliest trip that holds it.
             tripPurchases: !isCombinedGroup
                 ? _tripPurchasesForProduct(product)
-                : groupSingleTrip != null && packsToBuy > 0
-                ? [ProductTripPurchase(weekIndex: groupSingleTrip.weekIndex, packs: packsToBuy, isFirstTrip: groupSingleTrip.isFirstTrip)]
+                : groupEarliestLaterTripWeek != null
+                ? [ProductTripPurchase(weekIndex: groupEarliestLaterTripWeek, packs: packsToBuy, isFirstTrip: false)]
                 : const [],
             startDate: widget.startDate,
             ownedCount: widget.ownedProductCounts[productIndex] ?? 0,
