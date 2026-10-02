@@ -289,13 +289,14 @@ void main() {
     });
 
     testWidgets("counts the single later trip from the remaining after owned stock", (WidgetTester tester) async {
-      // The recipes need 900 grams, and owned stock leaves 300 grams to buy, all on the week 2 trip.
+      // The week 2 trip item holds 900 grams, and owned stock leaves 300 grams to buy. The row must
+      // count the packs from the 300 grams, not from the 900 grams of the trip item.
       await _pumpIngredient(
         tester,
         remainingGrams: 300,
         plannedTrips: [
           _trip(0, [_item(ingredientId: "rice", amount: 600)]),
-          _trip(1, [_item(amount: 300)]),
+          _trip(1, [_item(amount: 900)]),
         ],
       );
 
