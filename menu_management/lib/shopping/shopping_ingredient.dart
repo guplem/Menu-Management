@@ -268,8 +268,14 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   /// same unit and prints the waste-minimal mix. An ingredient with two products of the same unit
   /// can therefore read differently on the page and in the copy.
   ///
-  /// Returns an empty list (plain single-total display) when no trip buys this product, or when
-  /// only the first trip buys it. One later trip alone gives a one-entry list.
+  /// Returns an empty list (plain single-total display) when the plan has fewer than 2 trips, when
+  /// no trip buys this product, or when the earliest trip of the plan holds this ingredient and the
+  /// split gives the product to one trip only. One trip alone otherwise gives a one-entry list.
+  ///
+  /// The one-entry list names the earliest trip that holds a [TripItem] of this ingredient, not
+  /// the trip that the split picked. The largest-remainder split can round a small early need down
+  /// to 0 and move the whole buy to a later trip. A recipe before that later trip still needs the
+  /// product, so the row must name the earlier trip.
   List<ProductTripPurchase> _tripPurchasesForProduct(Product product) {
     if (widget.plannedTrips.length < 2) return const [];
     int firstWeek = widget.plannedTrips.first.weekIndex; // trips are sorted ascending by the planner
@@ -287,10 +293,16 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       if (packs <= 0) continue;
       purchases.add(ProductTripPurchase(weekIndex: allocation.weekIndex, packs: packs, isFirstTrip: allocation.weekIndex == firstWeek));
     }
-    // A row is a "split" when 2+ trips buy this product. One later trip stays in the list, so the
-    // row names that trip. The first trip alone means "buy it now", so the row shows the plain total.
-    if (purchases.length == 1 && purchases.single.isFirstTrip) return const [];
-    return purchases;
+    // A row is a "split" when 2+ trips buy this product.
+    if (purchases.length != 1) return purchases; // The split weighs each trip by the grams of all its items of this ingredient, whatever their
+    // unit, so the earliest trip is found by ingredient and not by the unit of this product.
+    // One purchase means that at least one trip holds this ingredient, so firstWhere finds a trip.
+    ShoppingTrip earliestTrip = widget.plannedTrips.firstWhere(
+      (ShoppingTrip trip) => trip.items.any((TripItem item) => item.ingredientId == widget.ingredient.id),
+    );
+    // The earliest trip of the plan alone gives the plain total, the same as a one-trip plan.
+    if (earliestTrip.weekIndex == firstWeek) return const [];
+    return [ProductTripPurchase(weekIndex: earliestTrip.weekIndex, packs: purchases.single.packs, isFirstTrip: false)];
   }
 
   /// Returns the indexes inside [group] of the equivalent members whose row renders.

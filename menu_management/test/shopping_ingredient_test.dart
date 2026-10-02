@@ -265,6 +265,39 @@ void main() {
       expect(find.text("Buy 6 packs"), findsNothing);
     });
 
+    testWidgets("shows the plain total when the rounding moves the whole buy off a first trip that needs it", (WidgetTester tester) async {
+      // Week 1 needs 0.4 grams, so the shared split gives it none of the 600 grams. A week 1 recipe
+      // still needs the product, so the row must not send the user to the week 2 trip.
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(amount: 0.4)]),
+          _trip(1, [_item(amount: 600)]),
+        ],
+      );
+
+      expect(find.text("Buy 6 packs"), findsOneWidget);
+      expect(find.text("Buy 6 packs Week 2"), findsNothing);
+    });
+
+    testWidgets("names the earliest trip that needs the product when the rounding moves the buy to a later trip", (WidgetTester tester) async {
+      // The first trip buys only rice. Week 2 needs 0.4 grams, so the shared split gives the whole
+      // 600 grams to week 3. The row must name the week 2 trip, because a week 2 recipe needs it.
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 600)]),
+          _trip(1, [_item(amount: 0.4)]),
+          _trip(2, [_item(amount: 600)]),
+        ],
+      );
+
+      expect(find.text("Buy 6 packs Week 2"), findsOneWidget);
+      expect(find.text("Buy 6 packs Week 3"), findsNothing);
+    });
+
     testWidgets("an ingredient with products shows a per-product owned input, not the header input", (WidgetTester tester) async {
       double? reportedIndex;
       double? reportedCount;
