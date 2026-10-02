@@ -109,7 +109,8 @@ class ShoppingIngredient extends StatefulWidget {
   final List<IngredientSource> sources;
 
   /// Planned shopping trips for the whole menu. When 2+ trips buy this ingredient,
-  /// each product row shows the per-trip buy split instead of a single total.
+  /// each product row shows the per-trip buy split instead of a single total. When only a later
+  /// trip buys it, the single total names that trip.
   final List<ShoppingTrip> plannedTrips;
 
   /// First day of the menu. It turns the per-trip buy lines into real shopping dates.
@@ -267,7 +268,8 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
   /// same unit and prints the waste-minimal mix. An ingredient with two products of the same unit
   /// can therefore read differently on the page and in the copy.
   ///
-  /// Returns an empty list (single-total display) unless 2+ trips actually buy this product.
+  /// Returns an empty list (plain single-total display) when no trip buys this product, or when
+  /// only the first trip buys it. One later trip alone gives a one-entry list.
   List<ProductTripPurchase> _tripPurchasesForProduct(Product product) {
     if (widget.plannedTrips.length < 2) return const [];
     int firstWeek = widget.plannedTrips.first.weekIndex; // trips are sorted ascending by the planner
@@ -285,8 +287,9 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       if (packs <= 0) continue;
       purchases.add(ProductTripPurchase(weekIndex: allocation.weekIndex, packs: packs, isFirstTrip: allocation.weekIndex == firstWeek));
     }
-    // A row is a "split" only when 2+ trips actually buy this product.
-    if (purchases.length < 2) return const [];
+    // A row is a "split" when 2+ trips buy this product. One later trip stays in the list, so the
+    // row names that trip. The first trip alone means "buy it now", so the row shows the plain total.
+    if (purchases.length == 1 && purchases.single.isFirstTrip) return const [];
     return purchases;
   }
 

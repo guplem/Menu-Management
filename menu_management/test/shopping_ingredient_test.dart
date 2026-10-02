@@ -250,6 +250,21 @@ void main() {
       expect(find.textContaining("now"), findsNothing);
     });
 
+    testWidgets("names the later trip when it is the only trip that buys the product", (WidgetTester tester) async {
+      // The first trip buys a different ingredient, so only the week 2 trip buys this product.
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 600)]),
+          _trip(1, [_item(amount: 600)]),
+        ],
+      );
+
+      expect(find.text("Buy 6 packs Week 2"), findsOneWidget);
+      expect(find.text("Buy 6 packs"), findsNothing);
+    });
+
     testWidgets("an ingredient with products shows a per-product owned input, not the header input", (WidgetTester tester) async {
       double? reportedIndex;
       double? reportedCount;

@@ -40,7 +40,8 @@ class ShoppingProductRow extends StatefulWidget {
   final int packsToBuy;
 
   /// Per-trip split of [packsToBuy]. When it has 2+ entries the buy area shows one line per
-  /// trip (e.g. "Buy 6 packs now" + "3 packs week 2"); otherwise it shows a single total.
+  /// trip (e.g. "Buy 6 packs now" + "+ 3 packs Week 2"). With 1 entry it shows the single total
+  /// with that trip's label (e.g. "Buy 3 packs Week 2"). When it is empty it shows the plain total.
   final List<ProductTripPurchase> tripPurchases;
 
   /// First day of the menu. When it is set, a later trip line names its real shopping date
@@ -91,21 +92,25 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
   /// is actually bought when owned stock did not change the count, which holds exactly when
   /// `packsToBuy == recommendation.packsNeeded + 1` (packsNeeded is already the reduced count).
   /// Also suppressed in the multi-trip split (2+ purchases), where the per-trip lines render the
-  /// full round-up, so a "buying less" chip would contradict them.
+  /// full round-up, so a "buying less" chip would contradict them. A single trip purchase keeps
+  /// the reduction, because its line shows [packsToBuy] minus one, not the purchase's packs.
   bool get _appliesUnderBuy =>
       widget.recommendation.underBuy && widget.tripPurchases.length < 2 && widget.packsToBuy == widget.recommendation.packsNeeded + 1;
 
   String _tripPurchaseLabel(ProductTripPurchase purchase, {required bool isFirstLine}) {
     String prefix = isFirstLine ? "Buy" : "+";
-    // shoppingTripLabel owns the whole rule: "now" for the first trip, a real date after it,
-    // and "Week N" without a start date.
-    String when = shoppingTripLabel(
+    return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} ${_tripWhen(purchase)}";
+  }
+
+  /// Names the trip of [purchase]. shoppingTripLabel owns the whole rule: "now" for the first
+  /// trip, a real date after it, and "Week N" without a start date.
+  String _tripWhen(ProductTripPurchase purchase) {
+    return shoppingTripLabel(
       startDate: widget.startDate,
       weekIndex: purchase.weekIndex,
       tripDay: ShoppingTrip.dayForWeek(purchase.weekIndex),
       isFirstTrip: purchase.isFirstTrip,
     );
-    return "$prefix ${purchase.packs} ${_packWord(purchase.packs)} $when";
   }
 
   String _wasteBreakdown() {
@@ -283,7 +288,11 @@ class _ShoppingProductRowState extends State<ShoppingProductRow> {
                       ],
                     )
                   : Text(
-                      "Buy $effectivePacksToBuy ${_packWord(effectivePacksToBuy)}",
+                      // A single trip purchase names its trip. The count stays effectivePacksToBuy,
+                      // so the under-buy reduction applies to this line too.
+                      widget.tripPurchases.length == 1
+                          ? "Buy $effectivePacksToBuy ${_packWord(effectivePacksToBuy)} ${_tripWhen(widget.tripPurchases.single)}"
+                          : "Buy $effectivePacksToBuy ${_packWord(effectivePacksToBuy)}",
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.right,
                     ),
