@@ -6,8 +6,10 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/quantity.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/shopping/multi_trip_planner.dart";
 import "package:menu_management/shopping/owned_amount.dart";
+import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
@@ -81,6 +83,7 @@ Future<void> _pumpIngredient(
   required double remainingGrams,
   required List<ShoppingTrip> plannedTrips,
   List<CombinationRecommendation> combinationRecommendations = const [],
+  DateTime? startDate,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -98,6 +101,7 @@ Future<void> _pumpIngredient(
           onProductOwnedChanged: (int productIndex, double count) {},
           sources: const [],
           plannedTrips: plannedTrips,
+          startDate: startDate,
         ),
       ),
     ),
@@ -230,8 +234,9 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
-      expect(find.textContaining("week"), findsNothing);
-      expect(find.textContaining("now"), findsNothing);
+      // A trip label on the first trip would tell the user nothing new.
+      expect(find.text("Buy 6 packs now"), findsNothing);
+      expect(find.text("Buy 6 packs Week 1"), findsNothing);
     });
 
     testWidgets("shows no split when 3 trips exist but only 1 buys the product", (WidgetTester tester) async {
@@ -247,8 +252,9 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
-      expect(find.textContaining("week"), findsNothing);
-      expect(find.textContaining("now"), findsNothing);
+      // A trip label on the first trip would tell the user nothing new.
+      expect(find.text("Buy 6 packs now"), findsNothing);
+      expect(find.text("Buy 6 packs Week 1"), findsNothing);
     });
 
     testWidgets("names the later trip when it is the only trip that buys the product", (WidgetTester tester) async {
@@ -264,6 +270,37 @@ void main() {
 
       expect(find.text("Buy 6 packs Week 2"), findsOneWidget);
       expect(find.text("Buy 6 packs"), findsNothing);
+    });
+
+    testWidgets("names the shopping date of the single later trip when the menu has a start date", (WidgetTester tester) async {
+      // Menu day 0 is Wednesday 6 Aug 2025, so the week 2 trip falls on Tuesday 12 Aug.
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 600,
+        startDate: DateTime(2025, 8, 6),
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 600)]),
+          _trip(1, [_item(amount: 600)]),
+        ],
+      );
+
+      expect(find.text("Buy 6 packs Tuesday 12 Aug"), findsOneWidget);
+      expect(find.text("Buy 6 packs Week 2"), findsNothing);
+    });
+
+    testWidgets("counts the single later trip from the remaining after owned stock", (WidgetTester tester) async {
+      // The recipes need 900 grams, and owned stock leaves 300 grams to buy, all on the week 2 trip.
+      await _pumpIngredient(
+        tester,
+        remainingGrams: 300,
+        plannedTrips: [
+          _trip(0, [_item(ingredientId: "rice", amount: 600)]),
+          _trip(1, [_item(amount: 300)]),
+        ],
+      );
+
+      expect(find.text("Buy 3 packs Week 2"), findsOneWidget);
+      expect(find.text("Buy 9 packs Week 2"), findsNothing);
     });
 
     testWidgets("shows the plain total when the rounding moves the whole buy off a first trip that needs it", (WidgetTester tester) async {
@@ -379,8 +416,9 @@ void main() {
       );
 
       expect(find.text("Buy 6 packs"), findsOneWidget);
-      expect(find.textContaining("week"), findsNothing);
-      expect(find.textContaining("now"), findsNothing);
+      // Week 2 gets no grams, so the row must neither split nor name the week 2 trip.
+      expect(find.text("Buy 6 packs now"), findsNothing);
+      expect(find.text("Buy 6 packs Week 2"), findsNothing);
     });
 
     testWidgets("splits the page total the same way the copied list splits it", (WidgetTester tester) async {
@@ -397,6 +435,33 @@ void main() {
 
       expect(find.text("Buy 5 packs now"), findsOneWidget);
       expect(find.text("+ 1 pack Week 2"), findsOneWidget);
+    });
+
+    testWidgets("names the same single later trip that the copied list puts the product under", (WidgetTester tester) async {
+      // Only the week 2 trip buys beans. The row and the copied list must both send the user to it.
+      // The copy names each trip with shoppingTripLabel, the same as the shopping page does.
+      List<ShoppingTrip> trips = [
+        _trip(0, [_item(ingredientId: "rice", amount: 600)]),
+        _trip(1, [_item(amount: 600)]),
+      ];
+      await _pumpIngredient(tester, remainingGrams: 600, plannedTrips: trips);
+
+      String copied = buildMultiTripCopyText(
+        ingredients: [_ingredient()],
+        remainingByIngredientId: const {
+          "beans": [Quantity(amount: 600, unit: Unit.grams)],
+        },
+        trips: trips,
+        tripLabel: (ShoppingTrip trip) => shoppingTripLabel(
+          startDate: null,
+          weekIndex: trip.weekIndex,
+          tripDay: trip.tripDay,
+          isFirstTrip: trip.weekIndex == trips.first.weekIndex,
+        ),
+      );
+
+      expect(find.text("Buy 6 packs Week 2"), findsOneWidget);
+      expect(copied.split("\n"), const ["Week 2", "------", "Beans", "  2x50grams: 6 packs"]);
     });
   });
 
