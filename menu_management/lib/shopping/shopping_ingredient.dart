@@ -293,16 +293,25 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
       if (packs <= 0) continue;
       purchases.add(ProductTripPurchase(weekIndex: allocation.weekIndex, packs: packs, isFirstTrip: allocation.weekIndex == firstWeek));
     }
-    // A row is a "split" when 2+ trips buy this product.
-    if (purchases.length != 1) return purchases; // The split weighs each trip by the grams of all its items of this ingredient, whatever their
-    // unit, so the earliest trip is found by ingredient and not by the unit of this product.
-    // One purchase means that at least one trip holds this ingredient, so firstWhere finds a trip.
-    ShoppingTrip earliestTrip = widget.plannedTrips.firstWhere(
+    // No purchase gives the plain total, and 2+ purchases give the per-trip split.
+    if (purchases.length != 1) return purchases;
+    int? earliestLaterTripWeek = _earliestLaterTripWeekForIngredient();
+    // The earliest trip of the plan alone gives the plain total, the same as a one-trip plan.
+    if (earliestLaterTripWeek == null) return const [];
+    return [ProductTripPurchase(weekIndex: earliestLaterTripWeek, packs: purchases.single.packs, isFirstTrip: false)];
+  }
+
+  /// Returns the week of the earliest planned trip that holds a [TripItem] of this ingredient.
+  ///
+  /// Returns null when that trip is the first trip of the plan, or when no trip holds the ingredient.
+  /// The split weighs each trip by the grams of all its items of this ingredient, whatever their
+  /// unit, so this method finds the trip by ingredient and not by the unit of a product.
+  int? _earliestLaterTripWeekForIngredient() {
+    ShoppingTrip? earliestTrip = widget.plannedTrips.firstWhereOrNull(
       (ShoppingTrip trip) => trip.items.any((TripItem item) => item.ingredientId == widget.ingredient.id),
     );
-    // The earliest trip of the plan alone gives the plain total, the same as a one-trip plan.
-    if (earliestTrip.weekIndex == firstWeek) return const [];
-    return [ProductTripPurchase(weekIndex: earliestTrip.weekIndex, packs: purchases.single.packs, isFirstTrip: false)];
+    if (earliestTrip == null || earliestTrip.weekIndex == widget.plannedTrips.first.weekIndex) return null;
+    return earliestTrip.weekIndex;
   }
 
   /// Returns the indexes inside [group] of the equivalent members whose row renders.
