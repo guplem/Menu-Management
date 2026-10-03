@@ -188,9 +188,12 @@ class _MenuPageState extends State<MenuPage> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FloatingActionButton(tooltip: "Export menu", onPressed: _showExportDialog, child: const Icon(Icons.ios_share_rounded)),
+          // Two buttons with the default hero tag on one page make Flutter throw at each page change.
+          // A null hero tag turns off the hero animation of the button.
+          FloatingActionButton(heroTag: null, tooltip: "Export menu", onPressed: _showExportDialog, child: const Icon(Icons.ios_share_rounded)),
           const SizedBox(height: 10),
           FloatingActionButton(
+            heroTag: null,
             tooltip: "Save Menu",
             child: const Icon(Icons.save_rounded),
             onPressed: () {
