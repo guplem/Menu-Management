@@ -401,7 +401,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
     String weeksText = trips.map((ShoppingTrip t) => _tripLabel(trip: t, trips: trips)).join(", ");
-    return "$prefix: the detailed export splits into $tripCountText ($weeksText).";
+    return "$prefix: the exports split into $tripCountText ($weeksText).";
   }
 
   /// Collects the ingredients of the list and what the user must still buy of each one.
