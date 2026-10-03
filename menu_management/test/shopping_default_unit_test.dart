@@ -122,4 +122,31 @@ void main() {
       });
     });
   });
+
+  group("availableOwnedUnits", () {
+    test("lists pieces first, then the other units, then packs", () {
+      Ingredient ingredient = _ingredientWithProducts([_product(Unit.grams), _product(Unit.pieces)]);
+
+      List<OwnedUnit> result = availableOwnedUnits(
+        ingredient: ingredient,
+        desiredQuantities: [const Quantity(amount: 1, unit: Unit.teaspoons)],
+      );
+
+      expect(result, [
+        const OwnedUnit(unit: Unit.pieces),
+        const OwnedUnit(unit: Unit.grams),
+        const OwnedUnit(unit: Unit.teaspoons),
+        const OwnedUnit(),
+      ]);
+    });
+
+    test("offers no packs for an ingredient with no products", () {
+      List<OwnedUnit> result = availableOwnedUnits(
+        ingredient: _ingredientNoProducts(),
+        desiredQuantities: [const Quantity(amount: 100, unit: Unit.grams)],
+      );
+
+      expect(result, [const OwnedUnit(unit: Unit.grams)]);
+    });
+  });
 }
