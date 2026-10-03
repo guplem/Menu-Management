@@ -24,7 +24,25 @@ For each cooking event (per ingredient, per unit, per day) the planner computes 
 
 Perishable events are sorted by `latestWeek` ascending and processed greedily: reuse a previously chosen trip if it falls within the event's window, otherwise add the event's `latestWeek` as a new chosen trip. This is the textbook minimum interval point cover.
 
-Non-perishable events are processed afterwards: each is placed on the earliest already-chosen trip that is on or before the event's `latestWeek`. If none exists (e.g., no perishables at all), trip 0 is added. This biases non-perishables toward early purchase rather than late, which matches user expectation (buy the pantry stuff up front).
+Non-perishable events are processed afterwards. When no chosen trip is on or before the `latestWeek` of such an event (e.g., no perishables at all), trip 0 is added. When the trip set is final, each non-perishable goes on the first trip. The first trip is always on or before the event, because the planner added trip 0 when no chosen trip was. This biases non-perishables toward early purchase rather than late, which matches user expectation (buy the pantry stuff up front).
+
+Rejected alternative: give each non-perishable the earliest chosen trip before the trip set is final. The result then depends on the key order of the timeline. A pantry item can take a later trip before another pantry item adds trip 0, and that later trip can stay open for the pantry item alone.
+
+### Trip of each perishable
+
+The greedy pass only picks the trip weeks. Freezing-required and non-perishable events can still add trip 0 after it. When the trip set is final, the planner gives each perishable event its trip again:
+
+- When the first trip is inside the window of the event, the event goes on the first trip.
+- Otherwise the event goes on the latest trip inside its window.
+
+The reason is how the user shops. The first trip is usually a home delivery, so it takes everything that it keeps fresh. The later trips are small trips to the shop, for the perishables that do not keep from the delivery. On those trips the user buys each item as close to its use as possible.
+
+Rejected alternatives:
+
+- **The first chosen trip inside the window** (the greedy result): it can pick an in-between trip. Example: trips in week 0, 1 and 2, and a yogurt for day 15 with a window of [1, 2]. The yogurt went on trip 1, but the user goes to the shop for trip 2 anyway, and the yogurt is fresher from there.
+- **Always the latest trip inside the window**: it moves items off the home delivery onto the small trips to the shop. The user rejected it.
+
+The assignment cannot add a trip, because each window already holds the trip that the greedy pass gave it. It can empty a trip in one case: trip 0 came after the greedy pass, and trip 0 is inside the window of every perishable event of the first greedy trip. The non-perishables of that trip also move to trip 0, because each non-perishable goes on the first trip. The plan then has one trip fewer. Only the first greedy trip can empty, because every later greedy trip holds the event that created it, and the window of that event does not hold an earlier trip.
 
 When no trip can possibly serve a perishable event fresh (very short shelf life relative to cooking day), the planner falls back to the latest trip on or before the event day. The existing menu expiry warning (ADR 0010) continues to surface this to the user; the shopping list does not silently drop the item.
 
@@ -68,7 +86,7 @@ One floating Export button replaced the floating copy button. It opens `showExpo
 ## Consequences
 
 - The user can now produce a "buy these things on this trip" plan with one click, without having to mentally split the menu themselves.
-- The greedy is optimal for minimum trip count under the week-boundary trip schedule: standard interval point cover. There is no smaller set of trips that respects every event's freshness window.
+- The greedy is optimal for the freshness windows of the perishables alone: standard interval point cover. No smaller set of trips holds a trip inside every perishable window. A trip 0 that non-perishables or freezing events add later can make the plan bigger than needed. The final assignment recovers one trip in the case that "Trip of each perishable" describes. The planner does not search for the smallest plan overall.
 - Trips are weekly-only by construction. If the user has a real-world cadence like "I shop on Wednesday and Saturday", the planner cannot match it. Adding configurable trip days would mean exposing trip schedules in the UI; deferred until requested.
 - The planner originally used the first-matching-unit product for shelf life. ADR 0015 promoted this to an any-match: the longest sealed shelf life among same-unit variants drives trip planning, and any freezable variant makes the ingredient freezable for the freezer-aware mode. The shopping page's pack-display code (`products.first`) is unaffected; only the planner's shelf-life and freezable lookups changed.
 - Non-perishables defaulting to trip 0 means a menu of only non-perishables produces a single trip 0, matching the prior single-trip behavior exactly.

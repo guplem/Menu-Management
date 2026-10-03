@@ -66,6 +66,16 @@ double _gramsBoughtFor(List<ShoppingTrip> trips, Ingredient ingredient) {
   return total;
 }
 
+/// Each trip week mapped to its items, written as "ingredientId amount unit days {cookDays} freeze freezeOnArrival".
+Map<int, List<String>> _itemsByTrip(List<ShoppingTrip> trips) {
+  return {
+    for (ShoppingTrip trip in trips)
+      trip.weekIndex: trip.items
+          .map((TripItem item) => "${item.ingredientId} ${item.amount} ${item.unit.name} days ${item.cookDays} freeze ${item.freezeOnArrival}")
+          .toList(),
+  };
+}
+
 void main() {
   group("planShoppingTrips", () {
     test("returns no trips when timeline is empty", () {
@@ -711,6 +721,144 @@ void main() {
       expect(trips.length, 1);
       expect(trips.first.weekIndex, greaterThan(0));
       expect(trips.first.items.first.freezeOnArrival, isFalse);
+    });
+  });
+
+  group("planShoppingTrips trip of each perishable", () {
+    // Meat keeps 2 days, so a meat need on day 0, 7 and 14 forces the trips of week 0, 1 and 2.
+    Ingredient meat = _ingredient(id: "meat", products: [_product(shelfLifeDaysClosed: 2)]);
+
+    test("a perishable that the first trip cannot keep fresh goes on the latest trip in its window", () {
+      // Yogurt keeps 14 days and is used on day 15. Trip 0 (day -1) is 16 days early, so its window is [1, 2].
+      // Trip 1 and trip 2 both keep it fresh. Trip 2 is closer to the use.
+      Ingredient yogurt = _ingredient(id: "yogurt", products: [_product(shelfLifeDaysClosed: 14)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "meat": [_event(day: 0), _event(day: 7), _event(day: 14)],
+        "yogurt": [_event(day: 15)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat, yogurt]);
+
+      expect(_itemsByTrip(trips), {
+        0: ["meat 100.0 grams days {0} freeze false"],
+        1: ["meat 100.0 grams days {7} freeze false"],
+        2: ["meat 100.0 grams days {14} freeze false", "yogurt 100.0 grams days {15} freeze false"],
+      });
+    });
+
+    test("a perishable that the first trip keeps fresh goes on the first trip, also when a later trip fits", () {
+      // Cheese keeps 30 days and is used on day 15, so its window is [0, 2].
+      // Salt keeps forever and adds trip 0 after the meat picked trip 1 and trip 2.
+      Ingredient cheese = _ingredient(id: "cheese", products: [_product(shelfLifeDaysClosed: 30)]);
+      Ingredient salt = _ingredient(id: "salt");
+      Map<String, List<CookingEvent>> timeline = {
+        "meat": [_event(day: 7), _event(day: 14)],
+        "cheese": [_event(day: 15)],
+        "salt": [_event(day: 2)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat, cheese, salt]);
+
+      expect(_itemsByTrip(trips), {
+        0: ["cheese 100.0 grams days {15} freeze false", "salt 100.0 grams days {2} freeze false"],
+        1: ["meat 100.0 grams days {7} freeze false"],
+        2: ["meat 100.0 grams days {14} freeze false"],
+      });
+    });
+
+    test("a perishable that no trip keeps fresh still goes on the latest trip on or before its use", () {
+      // Mushroom keeps 1 day and is used on day 10. No trip keeps it fresh, so it falls back to trip 1 (day 6).
+      Ingredient mushroom = _ingredient(id: "mushroom", products: [_product(shelfLifeDaysClosed: 1)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "meat": [_event(day: 0), _event(day: 7), _event(day: 14)],
+        "mushroom": [_event(day: 10)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat, mushroom]);
+
+      expect(_itemsByTrip(trips), {
+        0: ["meat 100.0 grams days {0} freeze false"],
+        1: ["meat 100.0 grams days {7} freeze false", "mushroom 100.0 grams days {10} freeze false"],
+        2: ["meat 100.0 grams days {14} freeze false"],
+      });
+    });
+
+    test("drops a later trip when the first trip keeps every perishable of that trip fresh", () {
+      // Milk keeps 30 days and is used on day 10, so the greedy pass picks trip 1 for it.
+      // Salt then adds trip 0. Trip 0 keeps the milk fresh, so the milk moves there and trip 1 buys nothing.
+      Ingredient milk = _ingredient(id: "milk", products: [_product(shelfLifeDaysClosed: 30)]);
+      Ingredient salt = _ingredient(id: "salt");
+      Map<String, List<CookingEvent>> timeline = {
+        "milk": [_event(day: 10)],
+        "salt": [_event(day: 3)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [milk, salt]);
+
+      expect(_itemsByTrip(trips), {
+        0: ["milk 100.0 grams days {10} freeze false", "salt 100.0 grams days {3} freeze false"],
+      });
+    });
+
+    test("in one-trip mode, a perishable that trip 0 keeps fresh joins the frozen item on trip 0", () {
+      // Chicken keeps 3 days and is used on day 14, so it must be frozen and pins trip 0.
+      // Cheese keeps 30 days and is used on day 10, so the greedy pass picks trip 1 for it. Its window is [0, 1].
+      // Trip 0 is inside the window of the cheese, so the cheese moves to trip 0 and trip 1 buys nothing.
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Ingredient cheese = _ingredient(id: "cheese", products: [_product(shelfLifeDaysClosed: 30)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 14, amount: 200)],
+        "cheese": [_event(day: 10)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [chicken, cheese], assumeFreezerForFreezable: true);
+
+      expect(_itemsByTrip(trips), {
+        0: ["cheese 100.0 grams days {10} freeze false", "chicken 200.0 grams days {14} freeze true"],
+      });
+    });
+
+    test("puts a pantry item on the first trip when that trip appears after the pantry item got a later trip", () {
+      // Milk keeps 30 days and is used on day 10, so the greedy pass picks trip 1 for it.
+      // Salt comes before pepper in the timeline, so salt gets trip 1 before pepper adds trip 0.
+      // Trip 0 keeps the milk fresh, so the milk moves there. Salt must move too, or trip 1 buys only salt.
+      Ingredient milk = _ingredient(id: "milk", products: [_product(shelfLifeDaysClosed: 30)]);
+      Ingredient salt = _ingredient(id: "salt");
+      Ingredient pepper = _ingredient(id: "pepper");
+      Map<String, List<CookingEvent>> timeline = {
+        "milk": [_event(day: 10)],
+        "salt": [_event(day: 10)],
+        "pepper": [_event(day: 3)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [milk, salt, pepper]);
+
+      expect(_itemsByTrip(trips), {
+        0: ["milk 100.0 grams days {10} freeze false", "pepper 100.0 grams days {3} freeze false", "salt 100.0 grams days {10} freeze false"],
+      });
+    });
+
+    test("puts a pantry item on the first trip when owned stock covers its early need", () {
+      // The owned salt covers the need of day 3, so only the salt need of day 10 is left, and it gets trip 1.
+      // Pepper then adds trip 0, and the milk moves there. Salt must move too, or trip 1 buys only salt.
+      Ingredient milk = _ingredient(id: "milk", products: [_product(shelfLifeDaysClosed: 30)]);
+      Ingredient salt = _ingredient(id: "salt");
+      Ingredient pepper = _ingredient(id: "pepper");
+      Map<String, List<CookingEvent>> timeline = {
+        "milk": [_event(day: 10)],
+        "salt": [_event(day: 3), _event(day: 10)],
+        "pepper": [_event(day: 3)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [milk, salt, pepper],
+        ownedAmounts: const {"salt": OwnedStock(amount: 100, unit: Unit.grams)},
+      );
+
+      expect(_itemsByTrip(trips), {
+        0: ["milk 100.0 grams days {10} freeze false", "pepper 100.0 grams days {3} freeze false", "salt 100.0 grams days {10} freeze false"],
+      });
     });
   });
 

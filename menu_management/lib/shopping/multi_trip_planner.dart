@@ -44,22 +44,28 @@ class ShoppingTrip {
   static int dayForWeek(int weekIndex) => weekIndex * 7 - 1;
 }
 
-/// Plans a minimal set of shopping trips that respects sealed shelf life.
+/// Plans the shopping trips of a menu, with few trips, and respects sealed shelf life.
 ///
 /// One trip is scheduled the day before each week it covers. For every cooking
-/// event, the planner finds the latest trip that still gets the item fresh
-/// (using the matching product's [Product.shelfLifeDaysClosed]). A greedy
-/// interval point cover then picks the minimum number of trips that covers
-/// every event.
+/// event, the planner computes a window of trips `[earliestWeek, latestWeek]`.
+/// `earliestWeek` is the earliest trip that keeps the item fresh (from the matching
+/// product's [Product.shelfLifeDaysClosed]). `latestWeek` is the latest trip on or before the use.
+/// A greedy interval point cover then picks the trips for the perishable events,
+/// so that each window of a perishable event holds a chosen trip.
+///
+/// After the trip set is final, each perishable event goes on the first trip when the first trip
+/// is inside the window of the event. Otherwise it goes on the latest trip inside the window,
+/// so the user buys the item as close to its use as possible.
 ///
 /// Items whose unit has no matching product, or whose matching product has
 /// [Product.shelfLifeDaysClosed] = null, are treated as non-perishable: they
-/// have no upper expiry constraint and ride along on the trips already chosen
-/// by perishable items, only adding trip 0 if no other trip exists.
+/// have no upper expiry constraint. The planner adds trip 0 when no chosen trip is on or before
+/// the `latestWeek` of such an event. When the trip set is final, each non-perishable goes on the first trip.
 ///
 /// If an event cannot be served fresh by any prior trip (very short shelf life
 /// relative to the cooking day), the planner falls back to the latest trip on
-/// or before the event day. The matching menu warning surfaces this to the user.
+/// or before the event day. The window then holds only that trip, which does not keep the item fresh.
+/// The matching menu warning surfaces this to the user.
 ///
 /// [ownedAmounts] holds the user's owned stock per ingredient (one amount + one selected
 /// unit, or "packs"). It is drawn down via the shared [OwnedStockConsumer] (a single grams pool)
@@ -129,24 +135,24 @@ List<ShoppingTrip> planShoppingTrips({
     event.assignedTrip = 0;
   }
 
-  // Non-perishables ride along on the earliest chosen trip that is on or before
-  // their event day. If no such trip exists, add trip 0 (so we never store a
-  // non-perishable beyond its event by accident, and so single-non-perishable
-  // menus end up with a single trip 0).
+  // A non-perishable needs a trip on or before its event. When no chosen trip is that early, add trip 0.
+  // A menu with only non-perishables therefore ends up with trip 0 alone.
+  bool nonPerishableNeedsTripZero = nonPerishable.any((_PlanEvent event) => chosenTrips.every((int trip) => trip > event.latestWeek));
+  if (nonPerishableNeedsTripZero && !chosenTrips.contains(0)) chosenTrips.add(0);
+
+  // The trip set is now final. The greedy pass only picked the trips, so give each perishable its trip again:
+  // the first trip (usually a home delivery) when the first trip is inside the window of the event.
+  // Otherwise the perishable goes on the latest trip inside the window, to buy the item as close to its use as possible.
+  chosenTrips.sort();
+  for (_PlanEvent event in perishable) {
+    event.assignedTrip = _tripForPerishable(event, chosenTrips: chosenTrips);
+  }
+
+  // Every non-perishable goes on the first trip, so a later trip never stays open for a pantry item alone.
+  // The first trip is on or before the event of each non-perishable, because the check above added trip 0 when needed.
+  // When a freezing event exists, trip 0 is in the set, so the first trip is trip 0.
   for (_PlanEvent event in nonPerishable) {
-    chosenTrips.sort();
-    int? assigned;
-    for (int trip in chosenTrips) {
-      if (trip <= event.latestWeek) {
-        assigned = trip;
-        break;
-      }
-    }
-    if (assigned == null) {
-      assigned = 0;
-      if (!chosenTrips.contains(0)) chosenTrips.add(0);
-    }
-    event.assignedTrip = assigned;
+    event.assignedTrip = chosenTrips.first;
   }
 
   return _aggregate(events: events, ingredientsById: ingredientsById);
@@ -263,6 +269,17 @@ void _attachTripWindow(_PlanEvent event, {required int maxWeekIndex}) {
 
   event.earliestWeek = earliestWeek;
   event.latestWeek = latestWeek;
+}
+
+/// The trip of a perishable [event], picked from [chosenTrips] (sorted ascending).
+///
+/// Returns the first trip when it is inside the window of the event. Otherwise returns the latest trip inside the window.
+/// The greedy pass put a trip inside every window, so a trip always matches.
+int _tripForPerishable(_PlanEvent event, {required List<int> chosenTrips}) {
+  bool isInWindow(int trip) => trip >= event.earliestWeek && trip <= event.latestWeek;
+  int firstTrip = chosenTrips.first;
+  if (isInWindow(firstTrip)) return firstTrip;
+  return chosenTrips.lastWhere(isInWindow);
 }
 
 int _compareForGreedy(_PlanEvent a, _PlanEvent b) {
