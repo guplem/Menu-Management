@@ -44,16 +44,18 @@ class ShoppingTrip {
   static int dayForWeek(int weekIndex) => weekIndex * 7 - 1;
 }
 
-/// Plans a minimal set of shopping trips that respects sealed shelf life.
+/// Plans the shopping trips of a menu, with few trips, and respects sealed shelf life.
 ///
 /// One trip is scheduled the day before each week it covers. For every cooking
-/// event, the planner finds the latest trip that still gets the item fresh
-/// (using the matching product's [Product.shelfLifeDaysClosed]). A greedy
-/// interval point cover then picks the minimum number of trips that covers
-/// every event.
+/// event, the planner computes a window of trips `[earliestWeek, latestWeek]`.
+/// `earliestWeek` is the earliest trip that keeps the item fresh (from the matching
+/// product's [Product.shelfLifeDaysClosed]). `latestWeek` is the latest trip on or before the use.
+/// A greedy interval point cover then picks the trips for the perishable events,
+/// so that each window of a perishable event holds a chosen trip.
 ///
 /// After the trip set is final, each perishable event goes on the first trip when the first trip
-/// keeps it fresh. Otherwise it goes on the latest trip that keeps it fresh, close to its use.
+/// is inside the window of the event. Otherwise it goes on the latest trip inside the window,
+/// so the user buys the item as close to its use as possible.
 ///
 /// Items whose unit has no matching product, or whose matching product has
 /// [Product.shelfLifeDaysClosed] = null, are treated as non-perishable: they
@@ -62,7 +64,8 @@ class ShoppingTrip {
 ///
 /// If an event cannot be served fresh by any prior trip (very short shelf life
 /// relative to the cooking day), the planner falls back to the latest trip on
-/// or before the event day. The matching menu warning surfaces this to the user.
+/// or before the event day. The window then holds only that trip, which does not keep the item fresh.
+/// The matching menu warning surfaces this to the user.
 ///
 /// [ownedAmounts] holds the user's owned stock per ingredient (one amount + one selected
 /// unit, or "packs"). It is drawn down via the shared [OwnedStockConsumer] (a single grams pool)
