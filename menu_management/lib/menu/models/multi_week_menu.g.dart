@@ -16,10 +16,15 @@ _MultiWeekMenu _$MultiWeekMenuFromJson(Map<String, dynamic> json) =>
       startDate: json['startDate'] == null
           ? null
           : DateTime.parse(json['startDate'] as String),
+      shoppingProgress: ShoppingProgress.fromJsonLenient(
+        json['shoppingProgress'],
+      ),
     );
 
-Map<String, dynamic> _$MultiWeekMenuToJson(_MultiWeekMenu instance) =>
-    <String, dynamic>{
-      'weeks': instance.weeks.map((e) => e.toJson()).toList(),
-      'startDate': ?instance.startDate?.toIso8601String(),
-    };
+Map<String, dynamic> _$MultiWeekMenuToJson(
+  _MultiWeekMenu instance,
+) => <String, dynamic>{
+  'weeks': instance.weeks.map((e) => e.toJson()).toList(),
+  'startDate': ?instance.startDate?.toIso8601String(),
+  'shoppingProgress': ?ShoppingProgress.toJsonOrNull(instance.shoppingProgress),
+};

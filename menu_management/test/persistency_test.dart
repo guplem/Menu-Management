@@ -23,6 +23,7 @@ import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 
 /// A save dialog that picks no file of its own, so a test says what the dialog returns.
 /// `FilePicker.platform` accepts any subclass of [FilePicker], and only `saveFile` is used here.
@@ -433,6 +434,51 @@ void main() {
       expect(menu!.weeks.first.meals.first.subMeals.first.cooking, isNotNull);
       expect(menu.weeks.first.meals.first.subMeals.first.cooking!.recipeId, "valid-id");
     });
+
+    test("keeps the shopping progress of a menu whose recipes are all missing", () async {
+      File tsmFile = File("${tempDir.path}/progress_missing_recipes.tsm");
+      tsmFile.writeAsStringSync(
+        jsonEncode({
+          "shoppingProgress": {
+            "useFreezerStrategy": true,
+            "ownedProductCounts": {
+              "rice": {"https://example.com/rice": 2},
+            },
+          },
+          "weeks": jsonDecode(_validTsmContent())["weeks"],
+        }),
+      );
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: []);
+
+      expect(
+        menu!.shoppingProgress,
+        const ShoppingProgress(
+          ownedProductCounts: {
+            "rice": {"https://example.com/rice": 2},
+          },
+          useFreezerStrategy: true,
+        ),
+      );
+    });
+
+    test("keeps every meal when the shopping progress in the file is malformed", () async {
+      Recipe r1 = _recipe();
+      Recipe r2 = _recipe(id: "r2", name: "Dinner Recipe");
+      File tsmFile = File("${tempDir.path}/broken_progress.tsm");
+      tsmFile.writeAsStringSync(
+        jsonEncode({
+          "shoppingProgress": [1, 2, 3],
+          "weeks": jsonDecode(_validTsmContent())["weeks"],
+        }),
+      );
+
+      MultiWeekMenu? menu = await Persistency.loadMenuFromPath(tsmFile.path, recipes: [r1, r2]);
+
+      expect(menu, isNotNull);
+      expect(menu!.shoppingProgress, isNull);
+      expect(menu.weeks.first.meals.length, 2);
+    });
   });
 
   // ── saveDataToPath ──
@@ -796,6 +842,51 @@ void main() {
       Map<String, dynamic> savedJson = jsonDecode(File(path).readAsStringSync());
       Map<String, dynamic> cooking = savedJson["weeks"][0]["meals"][0]["subMeals"][0]["cooking"];
       expect(cooking["ref_name"], "Pizza");
+    });
+
+    test("saves and loads the shopping progress", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Lunch Recipe");
+      List<Recipe> recipes = [r1];
+      const ShoppingProgress progress = ShoppingProgress(
+        ownedAmounts: {"salt": (amount: 20, unit: Unit.grams)},
+        ownedProductCounts: {
+          "rice": {"https://example.com/rice": 2},
+        },
+        useFreezerStrategy: true,
+      );
+      MultiWeekMenu menu = MultiWeekMenu(
+        shoppingProgress: progress,
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)],
+          ),
+        ],
+      );
+
+      String path = "${tempDir.path}/progress_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      MultiWeekMenu? loaded = await Persistency.loadMenuFromPath(path, recipes: recipes);
+
+      expect(loaded!.shoppingProgress, progress);
+    });
+
+    test("omits the shopping progress from the file when the menu has none", () async {
+      Recipe r1 = _recipe(id: "r1", name: "Lunch Recipe");
+      List<Recipe> recipes = [r1];
+      MultiWeekMenu menu = MultiWeekMenu(
+        weeks: [
+          Menu(
+            meals: [_meal(weekDay: WeekDay.saturday, mealType: MealType.lunch, recipe: r1)],
+          ),
+        ],
+      );
+
+      String path = "${tempDir.path}/no_progress_menu_test.tsm";
+      await Persistency.saveMenuToPath(path: path, multiWeekMenu: menu, recipes: recipes);
+
+      Map<String, dynamic> savedJson = jsonDecode(File(path).readAsStringSync());
+      expect(savedJson.containsKey("shoppingProgress"), isFalse);
     });
   });
 
