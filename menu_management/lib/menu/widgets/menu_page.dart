@@ -11,6 +11,7 @@ import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
+import "package:menu_management/menu/widgets/save_menu_button.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -204,14 +205,7 @@ class _MenuPageState extends State<MenuPage> {
           // A null hero tag turns off the hero animation of the button.
           FloatingActionButton(heroTag: null, tooltip: "Export menu", onPressed: _showExportDialog, child: const Icon(Icons.ios_share_rounded)),
           const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: null,
-            tooltip: "Save Menu",
-            child: const Icon(Icons.save_rounded),
-            onPressed: () {
-              Persistency.saveMenu(multiWeekMenu, recipes: _recipes);
-            },
-          ),
+          SaveMenuButton(buildMenu: () => multiWeekMenu),
         ],
       ),
       body: LayoutBuilder(
