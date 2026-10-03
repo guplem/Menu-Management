@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ShoppingProgress {
 
- Map<String, OwnedAmountProgress> get ownedAmounts; Map<String, Map<String, double>> get ownedProductCounts; bool get useFreezerStrategy;
+ Map<String, OwnedAmountProgress> get ownedAmounts; Map<String, Map<ProductCountKey, double>> get ownedProductCounts; bool get useFreezerStrategy;
 /// Create a copy of ShoppingProgress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $ShoppingProgressCopyWith<$Res>  {
   factory $ShoppingProgressCopyWith(ShoppingProgress value, $Res Function(ShoppingProgress) _then) = _$ShoppingProgressCopyWithImpl;
 @useResult
 $Res call({
- Map<String, OwnedAmountProgress> ownedAmounts, Map<String, Map<String, double>> ownedProductCounts, bool useFreezerStrategy
+ Map<String, OwnedAmountProgress> ownedAmounts, Map<String, Map<ProductCountKey, double>> ownedProductCounts, bool useFreezerStrategy
 });
 
 
@@ -66,7 +66,7 @@ class _$ShoppingProgressCopyWithImpl<$Res>
   return _then(_self.copyWith(
 ownedAmounts: null == ownedAmounts ? _self.ownedAmounts : ownedAmounts // ignore: cast_nullable_to_non_nullable
 as Map<String, OwnedAmountProgress>,ownedProductCounts: null == ownedProductCounts ? _self.ownedProductCounts : ownedProductCounts // ignore: cast_nullable_to_non_nullable
-as Map<String, Map<String, double>>,useFreezerStrategy: null == useFreezerStrategy ? _self.useFreezerStrategy : useFreezerStrategy // ignore: cast_nullable_to_non_nullable
+as Map<String, Map<ProductCountKey, double>>,useFreezerStrategy: null == useFreezerStrategy ? _self.useFreezerStrategy : useFreezerStrategy // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -152,7 +152,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Map<String, OwnedAmountProgress> ownedAmounts,  Map<String, Map<String, double>> ownedProductCounts,  bool useFreezerStrategy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Map<String, OwnedAmountProgress> ownedAmounts,  Map<String, Map<ProductCountKey, double>> ownedProductCounts,  bool useFreezerStrategy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ShoppingProgress() when $default != null:
 return $default(_that.ownedAmounts,_that.ownedProductCounts,_that.useFreezerStrategy);case _:
@@ -173,7 +173,7 @@ return $default(_that.ownedAmounts,_that.ownedProductCounts,_that.useFreezerStra
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Map<String, OwnedAmountProgress> ownedAmounts,  Map<String, Map<String, double>> ownedProductCounts,  bool useFreezerStrategy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Map<String, OwnedAmountProgress> ownedAmounts,  Map<String, Map<ProductCountKey, double>> ownedProductCounts,  bool useFreezerStrategy)  $default,) {final _that = this;
 switch (_that) {
 case _ShoppingProgress():
 return $default(_that.ownedAmounts,_that.ownedProductCounts,_that.useFreezerStrategy);case _:
@@ -193,7 +193,7 @@ return $default(_that.ownedAmounts,_that.ownedProductCounts,_that.useFreezerStra
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Map<String, OwnedAmountProgress> ownedAmounts,  Map<String, Map<String, double>> ownedProductCounts,  bool useFreezerStrategy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Map<String, OwnedAmountProgress> ownedAmounts,  Map<String, Map<ProductCountKey, double>> ownedProductCounts,  bool useFreezerStrategy)?  $default,) {final _that = this;
 switch (_that) {
 case _ShoppingProgress() when $default != null:
 return $default(_that.ownedAmounts,_that.ownedProductCounts,_that.useFreezerStrategy);case _:
@@ -208,7 +208,7 @@ return $default(_that.ownedAmounts,_that.ownedProductCounts,_that.useFreezerStra
 
 
 class _ShoppingProgress extends ShoppingProgress {
-  const _ShoppingProgress({final  Map<String, OwnedAmountProgress> ownedAmounts = const {}, final  Map<String, Map<String, double>> ownedProductCounts = const {}, this.useFreezerStrategy = false}): _ownedAmounts = ownedAmounts,_ownedProductCounts = ownedProductCounts,super._();
+  const _ShoppingProgress({final  Map<String, OwnedAmountProgress> ownedAmounts = const {}, final  Map<String, Map<ProductCountKey, double>> ownedProductCounts = const {}, this.useFreezerStrategy = false}): _ownedAmounts = ownedAmounts,_ownedProductCounts = ownedProductCounts,super._();
   
 
  final  Map<String, OwnedAmountProgress> _ownedAmounts;
@@ -218,8 +218,8 @@ class _ShoppingProgress extends ShoppingProgress {
   return EqualUnmodifiableMapView(_ownedAmounts);
 }
 
- final  Map<String, Map<String, double>> _ownedProductCounts;
-@override@JsonKey() Map<String, Map<String, double>> get ownedProductCounts {
+ final  Map<String, Map<ProductCountKey, double>> _ownedProductCounts;
+@override@JsonKey() Map<String, Map<ProductCountKey, double>> get ownedProductCounts {
   if (_ownedProductCounts is EqualUnmodifiableMapView) return _ownedProductCounts;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_ownedProductCounts);
@@ -257,7 +257,7 @@ abstract mixin class _$ShoppingProgressCopyWith<$Res> implements $ShoppingProgre
   factory _$ShoppingProgressCopyWith(_ShoppingProgress value, $Res Function(_ShoppingProgress) _then) = __$ShoppingProgressCopyWithImpl;
 @override @useResult
 $Res call({
- Map<String, OwnedAmountProgress> ownedAmounts, Map<String, Map<String, double>> ownedProductCounts, bool useFreezerStrategy
+ Map<String, OwnedAmountProgress> ownedAmounts, Map<String, Map<ProductCountKey, double>> ownedProductCounts, bool useFreezerStrategy
 });
 
 
@@ -278,7 +278,7 @@ class __$ShoppingProgressCopyWithImpl<$Res>
   return _then(_ShoppingProgress(
 ownedAmounts: null == ownedAmounts ? _self._ownedAmounts : ownedAmounts // ignore: cast_nullable_to_non_nullable
 as Map<String, OwnedAmountProgress>,ownedProductCounts: null == ownedProductCounts ? _self._ownedProductCounts : ownedProductCounts // ignore: cast_nullable_to_non_nullable
-as Map<String, Map<String, double>>,useFreezerStrategy: null == useFreezerStrategy ? _self.useFreezerStrategy : useFreezerStrategy // ignore: cast_nullable_to_non_nullable
+as Map<String, Map<ProductCountKey, double>>,useFreezerStrategy: null == useFreezerStrategy ? _self.useFreezerStrategy : useFreezerStrategy // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

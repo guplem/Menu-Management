@@ -7,6 +7,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/widgets/save_menu_button.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -31,7 +32,7 @@ class ShoppingPage extends StatefulWidget {
 
   /// Receives the progress after each change that the user makes, so the caller can store it on
   /// its menu. The page itself never changes [multiWeekMenu].
-  final ValueChanged<ShoppingProgress>? onShoppingProgressChanged;
+  final void Function(ShoppingProgress progress)? onShoppingProgressChanged;
 
   @override
   State<ShoppingPage> createState() => _ShoppingPageState();
@@ -91,7 +92,17 @@ class _ShoppingPageState extends State<ShoppingPage> {
       ownedProductCounts[ingredientId] = {...?savedProductCounts[ingredientId]};
 
       OwnedAmountProgress? savedAmount = savedProgress?.ownedAmounts[ingredientId];
-      if (savedAmount == null || ingredient == null) continue;
+      if (savedAmount == null) continue;
+      if (ingredient == null) {
+        Debug.logWarning(true, 'Shopping progress dropped: no ingredient has the id "$ingredientId".', asAssertion: false);
+        continue;
+      }
+      // Product rows replace the header input when a product unit matches a recipe unit. The user
+      // could not see or clear a restored header amount, so the page drops it.
+      if (usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: entry.value)) {
+        Debug.logWarning(true, "Shopping progress dropped: ${ingredient.name} now shows one owned input per product.", asAssertion: false);
+        continue;
+      }
       OwnedUnit savedUnit = OwnedUnit(unit: savedAmount.unit);
       // The unit dropdown asserts that its value is one of its items. A recipe or product edit can
       // remove the saved unit, so the page drops such an amount and does not crash.
@@ -120,11 +131,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
   /// Hands the progress to [ShoppingPage.onShoppingProgressChanged]. Call it after each change.
   void _reportProgress() {
     widget.onShoppingProgressChanged?.call(_currentProgress());
-  }
-
-  /// Saves the menu with the progress on screen, through the same save dialog as the menu page.
-  Future<void> _saveMenu() {
-    return Persistency.saveMenu(widget.multiWeekMenu.copyWith(shoppingProgress: _currentProgress()), recipes: RecipesProvider.instance.recipes);
   }
 
   /// Builds the owned stock for an ingredient: per-product counts when per-product rows render
@@ -193,7 +199,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
             child: const Icon(Icons.ios_share_rounded),
           ),
           const SizedBox(height: 10),
-          FloatingActionButton(heroTag: null, tooltip: "Save Menu", onPressed: _saveMenu, child: const Icon(Icons.save_rounded)),
+          // The save keeps the progress on screen, through the same button as the menu page.
+          SaveMenuButton(buildMenu: () => widget.multiWeekMenu.copyWith(shoppingProgress: _currentProgress())),
         ],
       ),
       body: ListView.builder(

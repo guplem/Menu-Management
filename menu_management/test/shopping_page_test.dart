@@ -183,6 +183,54 @@ OwnedUnit? _headerOwnedUnit(WidgetTester tester) {
   return tester.widget<DropdownButtonFormField<OwnedUnit>>(find.byType(DropdownButtonFormField<OwnedUnit>)).initialValue;
 }
 
+const String _breadLink = "https://example.com/bread";
+
+// The store sells one loaf, so the weight product and the pieces product share one link.
+const Ingredient _bread = Ingredient(
+  id: "bread",
+  name: "Bread",
+  products: [
+    Product(link: _breadLink, quantityPerItem: 400, itemsPerPack: 1, unit: Unit.grams),
+    Product(link: _breadLink, quantityPerItem: 1, itemsPerPack: 1, unit: Unit.pieces),
+  ],
+);
+
+// No product, so the header "Owned" input offers grams only, and no packs.
+const Ingredient _salt = Ingredient(id: "salt", name: "Salt");
+
+/// Seeds one recipe that needs [usages] and returns a one-meal menu that cooks it, with [progress].
+MultiWeekMenu _seedSingleRecipeMenu({
+  required List<Ingredient> ingredients,
+  required List<IngredientUsage> usages,
+  required ShoppingProgress progress,
+}) {
+  Recipe recipe = Recipe(
+    id: "r4",
+    name: "Test dish",
+    instructions: [Instruction(id: "i4", description: "cook it", workingTimeMinutes: 5, cookingTimeMinutes: 0, ingredientsUsed: usages)],
+  );
+  IngredientsProvider.instance.setData(ingredients);
+  RecipesProvider.instance.setData([recipe], ingredients: ingredients);
+  return MultiWeekMenu(
+    shoppingProgress: progress,
+    weeks: const [
+      Menu(
+        meals: [
+          Meal(
+            mealTime: MealTime(weekDay: WeekDay.monday, mealType: MealType.lunch),
+            subMeals: [SubMeal(cooking: Cooking(recipeId: "r4", yield: 1), people: 1)],
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+/// Finds the "Owned" field that shows [text] inside the product row of [productIndex].
+Finder _ownedFieldOfProductRow({required int productIndex, required String text}) {
+  return find.descendant(of: find.byKey(ValueKey<int>(productIndex)), matching: find.widgetWithText(TextField, text));
+}
+
 MultiWeekMenu _menu({DateTime? startDate}) {
   return MultiWeekMenu(
     startDate: startDate,
@@ -390,7 +438,7 @@ void main() {
       MultiWeekMenu menu = _menu().copyWith(
         shoppingProgress: const ShoppingProgress(
           ownedProductCounts: {
-            "rice": {_riceLink: 2},
+            "rice": {(link: _riceLink, unit: Unit.grams): 2},
           },
           useFreezerStrategy: true,
         ),
@@ -399,7 +447,71 @@ void main() {
       await _pumpShoppingPage(tester, menu);
 
       expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+      expect(_ownedFieldOfProductRow(productIndex: 0, text: "2"), findsOneWidget);
+    });
+
+    testWidgets("puts a restored count on the product of its link and unit when two products share a link", (WidgetTester tester) async {
+      MultiWeekMenu menu = _seedSingleRecipeMenu(
+        ingredients: const [_bread],
+        usages: const [
+          IngredientUsage(
+            ingredient: "bread",
+            quantity: Quantity(amount: 200, unit: Unit.grams),
+          ),
+          IngredientUsage(
+            ingredient: "bread",
+            quantity: Quantity(amount: 2, unit: Unit.pieces),
+          ),
+        ],
+        progress: const ShoppingProgress(
+          ownedProductCounts: {
+            "bread": {(link: _breadLink, unit: Unit.pieces): 3},
+          },
+        ),
+      );
+
+      await _pumpShoppingPage(tester, menu);
+
+      expect(_ownedFieldOfProductRow(productIndex: 1, text: "3"), findsOneWidget);
+      expect(_ownedFieldOfProductRow(productIndex: 0, text: "3"), findsNothing);
+    });
+
+    testWidgets("restores a header owned amount in packs", (WidgetTester tester) async {
+      _seedEggs();
+
+      await _pumpShoppingPage(tester, _eggMenu(progress: const ShoppingProgress(ownedAmounts: {"egg": (amount: 2, unit: null)})));
+
       expect(find.widgetWithText(TextField, "2"), findsOneWidget);
+      expect(_headerOwnedUnit(tester), const OwnedUnit());
+    });
+
+    testWidgets("drops a header owned amount in packs when the ingredient has no product", (WidgetTester tester) async {
+      MultiWeekMenu menu = _seedSingleRecipeMenu(
+        ingredients: const [_salt],
+        usages: const [
+          IngredientUsage(
+            ingredient: "salt",
+            quantity: Quantity(amount: 10, unit: Unit.grams),
+          ),
+        ],
+        progress: const ShoppingProgress(ownedAmounts: {"salt": (amount: 3, unit: null)}),
+      );
+
+      await _pumpShoppingPage(tester, menu);
+
+      expect(tester.takeException(), isNull);
+      expect(find.widgetWithText(TextField, "3"), findsNothing);
+    });
+
+    testWidgets("drops a header owned amount when product rows replace the header input", (WidgetTester tester) async {
+      List<ShoppingProgress> reported = [];
+      MultiWeekMenu menu = _menu().copyWith(shoppingProgress: const ShoppingProgress(ownedAmounts: {"rice": (amount: 300, unit: Unit.grams)}));
+      await _pumpShoppingPage(tester, menu, onShoppingProgressChanged: reported.add);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+
+      expect(reported.last, const ShoppingProgress(useFreezerStrategy: true));
     });
 
     testWidgets("restores the header owned amount and its unit", (WidgetTester tester) async {
@@ -432,7 +544,7 @@ void main() {
         reported.last,
         const ShoppingProgress(
           ownedProductCounts: {
-            "rice": {_riceLink: 2},
+            "rice": {(link: _riceLink, unit: Unit.grams): 2},
           },
         ),
       );
@@ -477,7 +589,9 @@ void main() {
 
       expect(savedJson!["shoppingProgress"], {
         "ownedProductCounts": {
-          "rice": {_riceLink: 2.0},
+          "rice": [
+            {"link": _riceLink, "unit": "grams", "count": 2.0},
+          ],
         },
       });
     });

@@ -8,6 +8,7 @@ import "package:menu_management/shopping/shopping_progress.dart";
 
 const String _riceSmallLink = "https://example.com/rice-500";
 const String _riceLargeLink = "https://example.com/rice-1000";
+const String _breadLink = "https://example.com/bread";
 
 const Ingredient _rice = Ingredient(
   id: "rice",
@@ -15,6 +16,26 @@ const Ingredient _rice = Ingredient(
   products: [
     Product(link: _riceSmallLink, quantityPerItem: 500, itemsPerPack: 1, unit: Unit.grams),
     Product(link: _riceLargeLink, quantityPerItem: 1000, itemsPerPack: 1, unit: Unit.grams),
+  ],
+);
+
+// The store sells one loaf, so the weight product and the pieces product share one link.
+const Ingredient _bread = Ingredient(
+  id: "bread",
+  name: "Bread",
+  products: [
+    Product(link: _breadLink, quantityPerItem: 400, itemsPerPack: 1, unit: Unit.grams),
+    Product(link: _breadLink, quantityPerItem: 1, itemsPerPack: 1, unit: Unit.pieces),
+  ],
+);
+
+// Two products with the same link and the same unit: only the first one can carry a saved count.
+const Ingredient _twinFlour = Ingredient(
+  id: "flour",
+  name: "Flour",
+  products: [
+    Product(link: "https://example.com/flour", quantityPerItem: 1000, itemsPerPack: 1, unit: Unit.grams),
+    Product(link: "https://example.com/flour", quantityPerItem: 1000, itemsPerPack: 2, unit: Unit.grams),
   ],
 );
 
@@ -26,7 +47,7 @@ void main() {
       const ShoppingProgress progress = ShoppingProgress(
         ownedAmounts: {"salt": (amount: 20, unit: Unit.grams), "oil": (amount: 1.5, unit: null)},
         ownedProductCounts: {
-          "rice": {_riceLargeLink: 2},
+          "rice": {(link: _riceLargeLink, unit: Unit.grams): 2},
         },
         useFreezerStrategy: true,
       );
@@ -38,7 +59,9 @@ void main() {
           "oil": {"amount": 1.5, "unit": "packs"},
         },
         "ownedProductCounts": {
-          "rice": {_riceLargeLink: 2.0},
+          "rice": [
+            {"link": _riceLargeLink, "unit": "grams", "count": 2.0},
+          ],
         },
       });
     });
@@ -61,7 +84,8 @@ void main() {
       const ShoppingProgress progress = ShoppingProgress(
         ownedAmounts: {"salt": (amount: 20, unit: Unit.grams), "oil": (amount: 1.5, unit: null)},
         ownedProductCounts: {
-          "rice": {_riceLargeLink: 2},
+          "rice": {(link: _riceLargeLink, unit: Unit.grams): 2},
+          "bread": {(link: _breadLink, unit: Unit.grams): 1, (link: _breadLink, unit: Unit.pieces): 3},
         },
         useFreezerStrategy: true,
       );
@@ -97,9 +121,18 @@ void main() {
     test("drops only the bad product counts", () {
       Map<String, Object?> json = {
         "ownedProductCounts": {
-          "rice": {_riceSmallLink: 1, _riceLargeLink: "two"},
-          "milk": {"https://example.com/milk": 0},
-          "pasta": "three",
+          "rice": [
+            {"link": _riceSmallLink, "unit": "grams", "count": 1},
+            {"link": _riceLargeLink, "unit": "grams", "count": "two"},
+            {"link": _riceLargeLink, "unit": "packs", "count": 2},
+            {"link": _riceLargeLink, "count": 2},
+            {"unit": "grams", "count": 2},
+            "not an object",
+          ],
+          "milk": [
+            {"link": "https://example.com/milk", "unit": "grams", "count": 0},
+          ],
+          "pasta": {"https://example.com/pasta": 3},
         },
       };
 
@@ -107,7 +140,7 @@ void main() {
         ShoppingProgress.fromJsonLenient(json),
         const ShoppingProgress(
           ownedProductCounts: {
-            "rice": {_riceSmallLink: 1},
+            "rice": {(link: _riceSmallLink, unit: Unit.grams): 1},
           },
         ),
       );
@@ -132,10 +165,10 @@ void main() {
   });
 
   group("ShoppingProgress.ownedProductCountsByIndex", () {
-    test("turns each product link into the index of that product", () {
+    test("turns each product key into the index of that product", () {
       const ShoppingProgress progress = ShoppingProgress(
         ownedProductCounts: {
-          "rice": {_riceLargeLink: 2, _riceSmallLink: 1},
+          "rice": {(link: _riceLargeLink, unit: Unit.grams): 2, (link: _riceSmallLink, unit: Unit.grams): 1},
         },
       );
 
@@ -144,10 +177,46 @@ void main() {
       });
     });
 
+    test("puts each count on its own product when two products share a link", () {
+      const ShoppingProgress progress = ShoppingProgress(
+        ownedProductCounts: {
+          "bread": {(link: _breadLink, unit: Unit.pieces): 3, (link: _breadLink, unit: Unit.grams): 1},
+        },
+      );
+
+      expect(progress.ownedProductCountsByIndex(ingredients: const [_bread]), {
+        "bread": {0: 1.0, 1: 3.0},
+      });
+    });
+
+    test("puts the count on the first product when two products share a link and a unit", () {
+      const ShoppingProgress progress = ShoppingProgress(
+        ownedProductCounts: {
+          "flour": {(link: "https://example.com/flour", unit: Unit.grams): 2},
+        },
+      );
+
+      expect(progress.ownedProductCountsByIndex(ingredients: const [_twinFlour]), {
+        "flour": {0: 2.0},
+      });
+    });
+
     test("drops a count whose link matches no product", () {
       const ShoppingProgress progress = ShoppingProgress(
         ownedProductCounts: {
-          "rice": {_riceSmallLink: 1, "https://example.com/rice-gone": 3},
+          "rice": {(link: _riceSmallLink, unit: Unit.grams): 1, (link: "https://example.com/rice-gone", unit: Unit.grams): 3},
+        },
+      );
+
+      expect(progress.ownedProductCountsByIndex(ingredients: const [_rice]), {
+        "rice": {0: 1.0},
+      });
+    });
+
+    test("drops a count whose unit matches no product of its link", () {
+      const ShoppingProgress progress = ShoppingProgress(
+        ownedProductCounts: {
+          "rice": {(link: _riceSmallLink, unit: Unit.grams): 1, (link: _riceLargeLink, unit: Unit.pieces): 3},
         },
       );
 
@@ -159,8 +228,8 @@ void main() {
     test("drops the counts of an ingredient that no longer exists", () {
       const ShoppingProgress progress = ShoppingProgress(
         ownedProductCounts: {
-          "rice": {_riceSmallLink: 1},
-          "gone": {"https://example.com/gone": 2},
+          "rice": {(link: _riceSmallLink, unit: Unit.grams): 1},
+          "gone": {(link: "https://example.com/gone", unit: Unit.grams): 2},
         },
       );
 
@@ -171,7 +240,7 @@ void main() {
   });
 
   group("ShoppingProgress.fromPageState", () {
-    test("keys each product count by the link of the product", () {
+    test("keys each product count by the link and the unit of the product", () {
       ShoppingProgress progress = ShoppingProgress.fromPageState(
         previous: null,
         ownedAmounts: const {"salt": (amount: 20, unit: Unit.grams), "rice": (amount: 0, unit: null)},
@@ -188,9 +257,51 @@ void main() {
         const ShoppingProgress(
           ownedAmounts: {"salt": (amount: 20, unit: Unit.grams)},
           ownedProductCounts: {
-            "rice": {_riceLargeLink: 2},
+            "rice": {(link: _riceLargeLink, unit: Unit.grams): 2},
           },
           useFreezerStrategy: true,
+        ),
+      );
+    });
+
+    test("keeps both counts when two products share a link", () {
+      ShoppingProgress progress = ShoppingProgress.fromPageState(
+        previous: null,
+        ownedAmounts: const {"bread": (amount: 0, unit: null)},
+        ownedProductCountsByIndex: const {
+          "bread": {0: 1, 1: 3},
+        },
+        useFreezerStrategy: false,
+        ingredients: const [_bread],
+      );
+
+      expect(
+        progress,
+        const ShoppingProgress(
+          ownedProductCounts: {
+            "bread": {(link: _breadLink, unit: Unit.grams): 1, (link: _breadLink, unit: Unit.pieces): 3},
+          },
+        ),
+      );
+    });
+
+    test("keeps the count of the first product when two products share a link and a unit", () {
+      ShoppingProgress progress = ShoppingProgress.fromPageState(
+        previous: null,
+        ownedAmounts: const {"flour": (amount: 0, unit: null)},
+        ownedProductCountsByIndex: const {
+          "flour": {1: 5, 0: 2},
+        },
+        useFreezerStrategy: false,
+        ingredients: const [_twinFlour],
+      );
+
+      expect(
+        progress,
+        const ShoppingProgress(
+          ownedProductCounts: {
+            "flour": {(link: "https://example.com/flour", unit: Unit.grams): 2},
+          },
         ),
       );
     });
@@ -210,7 +321,7 @@ void main() {
         progress,
         const ShoppingProgress(
           ownedProductCounts: {
-            "rice": {_riceSmallLink: 1},
+            "rice": {(link: _riceSmallLink, unit: Unit.grams): 1},
           },
         ),
       );
@@ -220,8 +331,8 @@ void main() {
       const ShoppingProgress previous = ShoppingProgress(
         ownedAmounts: {"flour": (amount: 300, unit: Unit.grams), "salt": (amount: 50, unit: Unit.grams)},
         ownedProductCounts: {
-          "pasta": {"https://example.com/pasta": 2},
-          "rice": {_riceSmallLink: 4},
+          "pasta": {(link: "https://example.com/pasta", unit: Unit.grams): 2},
+          "rice": {(link: _riceSmallLink, unit: Unit.grams): 4},
         },
         useFreezerStrategy: true,
       );
@@ -242,8 +353,8 @@ void main() {
         const ShoppingProgress(
           ownedAmounts: {"flour": (amount: 300, unit: Unit.grams)},
           ownedProductCounts: {
-            "pasta": {"https://example.com/pasta": 2},
-            "rice": {_riceLargeLink: 1},
+            "pasta": {(link: "https://example.com/pasta", unit: Unit.grams): 2},
+            "rice": {(link: _riceLargeLink, unit: Unit.grams): 1},
           },
         ),
       );

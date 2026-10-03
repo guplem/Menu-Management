@@ -442,7 +442,9 @@ void main() {
           "shoppingProgress": {
             "useFreezerStrategy": true,
             "ownedProductCounts": {
-              "rice": {"https://example.com/rice": 2},
+              "rice": [
+                {"link": "https://example.com/rice", "unit": "grams", "count": 2},
+              ],
             },
           },
           "weeks": jsonDecode(_validTsmContent())["weeks"],
@@ -455,7 +457,7 @@ void main() {
         menu!.shoppingProgress,
         const ShoppingProgress(
           ownedProductCounts: {
-            "rice": {"https://example.com/rice": 2},
+            "rice": {(link: "https://example.com/rice", unit: Unit.grams): 2},
           },
           useFreezerStrategy: true,
         ),
@@ -850,7 +852,7 @@ void main() {
       const ShoppingProgress progress = ShoppingProgress(
         ownedAmounts: {"salt": (amount: 20, unit: Unit.grams)},
         ownedProductCounts: {
-          "rice": {"https://example.com/rice": 2},
+          "rice": {(link: "https://example.com/rice", unit: Unit.grams): 2},
         },
         useFreezerStrategy: true,
       );
