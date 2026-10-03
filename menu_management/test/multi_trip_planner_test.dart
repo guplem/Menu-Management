@@ -66,9 +66,14 @@ double _gramsBoughtFor(List<ShoppingTrip> trips, Ingredient ingredient) {
   return total;
 }
 
-/// Each trip week mapped to its items, written as "ingredientId days {cookDays}".
+/// Each trip week mapped to its items, written as "ingredientId amount unit days {cookDays} freeze freezeOnArrival".
 Map<int, List<String>> _itemsByTrip(List<ShoppingTrip> trips) {
-  return {for (ShoppingTrip trip in trips) trip.weekIndex: trip.items.map((TripItem item) => "${item.ingredientId} days ${item.cookDays}").toList()};
+  return {
+    for (ShoppingTrip trip in trips)
+      trip.weekIndex: trip.items
+          .map((TripItem item) => "${item.ingredientId} ${item.amount} ${item.unit.name} days ${item.cookDays} freeze ${item.freezeOnArrival}")
+          .toList(),
+  };
 }
 
 void main() {
@@ -735,9 +740,9 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat, yogurt]);
 
       expect(_itemsByTrip(trips), {
-        0: ["meat days {0}"],
-        1: ["meat days {7}"],
-        2: ["meat days {14}", "yogurt days {15}"],
+        0: ["meat 100.0 grams days {0} freeze false"],
+        1: ["meat 100.0 grams days {7} freeze false"],
+        2: ["meat 100.0 grams days {14} freeze false", "yogurt 100.0 grams days {15} freeze false"],
       });
     });
 
@@ -755,9 +760,9 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat, cheese, salt]);
 
       expect(_itemsByTrip(trips), {
-        0: ["cheese days {15}", "salt days {2}"],
-        1: ["meat days {7}"],
-        2: ["meat days {14}"],
+        0: ["cheese 100.0 grams days {15} freeze false", "salt 100.0 grams days {2} freeze false"],
+        1: ["meat 100.0 grams days {7} freeze false"],
+        2: ["meat 100.0 grams days {14} freeze false"],
       });
     });
 
@@ -772,9 +777,9 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [meat, mushroom]);
 
       expect(_itemsByTrip(trips), {
-        0: ["meat days {0}"],
-        1: ["meat days {7}", "mushroom days {10}"],
-        2: ["meat days {14}"],
+        0: ["meat 100.0 grams days {0} freeze false"],
+        1: ["meat 100.0 grams days {7} freeze false", "mushroom 100.0 grams days {10} freeze false"],
+        2: ["meat 100.0 grams days {14} freeze false"],
       });
     });
 
@@ -791,7 +796,25 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [milk, salt]);
 
       expect(_itemsByTrip(trips), {
-        0: ["milk days {10}", "salt days {3}"],
+        0: ["milk 100.0 grams days {10} freeze false", "salt 100.0 grams days {3} freeze false"],
+      });
+    });
+
+    test("in one-trip mode, a perishable that trip 0 keeps fresh joins the frozen item on trip 0", () {
+      // Chicken keeps 3 days and is used on day 14, so it must be frozen and pins trip 0.
+      // Cheese keeps 30 days and is used on day 10, so the greedy pass picks trip 1 for it. Its window is [0, 1].
+      // Trip 0 is inside the window of the cheese, so the cheese moves to trip 0 and trip 1 buys nothing.
+      Ingredient chicken = _ingredient(id: "chicken", products: [_product(shelfLifeDaysClosed: 3, canBeFrozen: true)]);
+      Ingredient cheese = _ingredient(id: "cheese", products: [_product(shelfLifeDaysClosed: 30)]);
+      Map<String, List<CookingEvent>> timeline = {
+        "chicken": [_event(day: 14, amount: 200)],
+        "cheese": [_event(day: 10)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [chicken, cheese], assumeFreezerForFreezable: true);
+
+      expect(_itemsByTrip(trips), {
+        0: ["cheese 100.0 grams days {10} freeze false", "chicken 200.0 grams days {14} freeze true"],
       });
     });
 
@@ -811,7 +834,7 @@ void main() {
       List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [milk, salt, pepper]);
 
       expect(_itemsByTrip(trips), {
-        0: ["milk days {10}", "pepper days {3}", "salt days {10}"],
+        0: ["milk 100.0 grams days {10} freeze false", "pepper 100.0 grams days {3} freeze false", "salt 100.0 grams days {10} freeze false"],
       });
     });
 
@@ -834,7 +857,7 @@ void main() {
       );
 
       expect(_itemsByTrip(trips), {
-        0: ["milk days {10}", "pepper days {3}", "salt days {10}"],
+        0: ["milk 100.0 grams days {10} freeze false", "pepper 100.0 grams days {3} freeze false", "salt 100.0 grams days {10} freeze false"],
       });
     });
   });
