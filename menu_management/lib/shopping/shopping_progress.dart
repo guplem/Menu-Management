@@ -49,7 +49,9 @@ abstract class ShoppingProgress with _$ShoppingProgress {
   /// count of the lower index wins and the other count is dropped with a warning.
   ///
   /// The page shows only the ingredients of the current menu. The function copies the entries of
-  /// [previous] for every other ingredient, so the stock at home survives a new menu.
+  /// [previous] for every other ingredient in [ingredients], so the stock at home survives a new
+  /// menu. It drops a previous entry of an ingredient that is not in [ingredients], and a previous
+  /// count whose link and unit match no product of its ingredient.
   factory ShoppingProgress.fromPageState({
     required ShoppingProgress? previous,
     required Map<String, OwnedAmountProgress> ownedAmounts,
@@ -58,18 +60,25 @@ abstract class ShoppingProgress with _$ShoppingProgress {
     required List<Ingredient> ingredients,
   }) {
     Set<String> pageIngredientIds = {...ownedAmounts.keys, ...ownedProductCountsByIndex.keys};
+    Map<String, Ingredient> ingredientsById = {for (Ingredient ingredient in ingredients) ingredient.id: ingredient};
 
     Map<String, OwnedAmountProgress> mergedAmounts = {
       for (MapEntry<String, OwnedAmountProgress> entry in (previous?.ownedAmounts ?? const {}).entries)
-        if (!pageIngredientIds.contains(entry.key)) entry.key: entry.value,
+        if (!pageIngredientIds.contains(entry.key) && ingredientsById.containsKey(entry.key)) entry.key: entry.value,
       for (MapEntry<String, OwnedAmountProgress> entry in ownedAmounts.entries)
         if (entry.value.amount > 0) entry.key: entry.value,
     };
 
-    Map<String, Map<ProductCountKey, double>> mergedCounts = {
-      for (MapEntry<String, Map<ProductCountKey, double>> entry in (previous?.ownedProductCounts ?? const {}).entries)
-        if (!pageIngredientIds.contains(entry.key)) entry.key: entry.value,
-    };
+    Map<String, Map<ProductCountKey, double>> mergedCounts = {};
+    for (MapEntry<String, Map<ProductCountKey, double>> entry in (previous?.ownedProductCounts ?? const {}).entries) {
+      Ingredient? ingredient = ingredientsById[entry.key];
+      if (pageIngredientIds.contains(entry.key) || ingredient == null) continue;
+      Map<ProductCountKey, double> counts = {
+        for (MapEntry<ProductCountKey, double> count in entry.value.entries)
+          if (ingredient.products.any((Product product) => product.link == count.key.link && product.unit == count.key.unit)) count.key: count.value,
+      };
+      if (counts.isNotEmpty) mergedCounts[entry.key] = counts;
+    }
     for (MapEntry<String, Map<int, double>> entry in ownedProductCountsByIndex.entries) {
       Ingredient? ingredient = ingredients.firstWhereOrNull((Ingredient i) => i.id == entry.key);
       if (ingredient == null) continue;

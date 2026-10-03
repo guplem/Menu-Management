@@ -41,6 +41,12 @@ const Ingredient _twinFlour = Ingredient(
 
 const Ingredient _salt = Ingredient(id: "salt", name: "Salt");
 
+const Ingredient _pasta = Ingredient(
+  id: "pasta",
+  name: "Pasta",
+  products: [Product(link: "https://example.com/pasta", quantityPerItem: 500, itemsPerPack: 1, unit: Unit.grams)],
+);
+
 void main() {
   group("ShoppingProgress JSON", () {
     test("writes every part of the progress", () {
@@ -345,7 +351,7 @@ void main() {
           "rice": {1: 1},
         },
         useFreezerStrategy: false,
-        ingredients: const [_rice, _salt],
+        ingredients: const [_rice, _salt, _twinFlour, _pasta],
       );
 
       expect(
@@ -355,6 +361,60 @@ void main() {
           ownedProductCounts: {
             "pasta": {(link: "https://example.com/pasta", unit: Unit.grams): 2},
             "rice": {(link: _riceLargeLink, unit: Unit.grams): 1},
+          },
+        ),
+      );
+    });
+
+    test("drops the previous stock of an ingredient that no longer exists", () {
+      const ShoppingProgress previous = ShoppingProgress(
+        ownedAmounts: {"gone": (amount: 300, unit: Unit.grams), "flour": (amount: 200, unit: Unit.grams)},
+        ownedProductCounts: {
+          "goneToo": {(link: "https://example.com/gone", unit: Unit.grams): 2},
+          "pasta": {(link: "https://example.com/pasta", unit: Unit.grams): 1},
+        },
+      );
+
+      ShoppingProgress progress = ShoppingProgress.fromPageState(
+        previous: previous,
+        ownedAmounts: const {"salt": (amount: 0, unit: Unit.grams)},
+        ownedProductCountsByIndex: const {"salt": {}},
+        useFreezerStrategy: false,
+        ingredients: const [_salt, _twinFlour, _pasta],
+      );
+
+      expect(
+        progress,
+        const ShoppingProgress(
+          ownedAmounts: {"flour": (amount: 200, unit: Unit.grams)},
+          ownedProductCounts: {
+            "pasta": {(link: "https://example.com/pasta", unit: Unit.grams): 1},
+          },
+        ),
+      );
+    });
+
+    test("drops a previous count whose product no longer exists", () {
+      const ShoppingProgress previous = ShoppingProgress(
+        ownedProductCounts: {
+          "bread": {(link: _breadLink, unit: Unit.grams): 1, (link: _breadLink, unit: Unit.teaspoons): 2},
+          "pasta": {(link: "https://example.com/pasta-gone", unit: Unit.grams): 3},
+        },
+      );
+
+      ShoppingProgress progress = ShoppingProgress.fromPageState(
+        previous: previous,
+        ownedAmounts: const {"salt": (amount: 0, unit: Unit.grams)},
+        ownedProductCountsByIndex: const {"salt": {}},
+        useFreezerStrategy: false,
+        ingredients: const [_salt, _bread, _pasta],
+      );
+
+      expect(
+        progress,
+        const ShoppingProgress(
+          ownedProductCounts: {
+            "bread": {(link: _breadLink, unit: Unit.grams): 1},
           },
         ),
       );
