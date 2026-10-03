@@ -16,6 +16,7 @@ import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
 import "package:menu_management/recipes/widgets/play_recipe_page.dart";
 import "package:menu_management/shopping/shopping_page.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 import "package:menu_management/theme/theme_custom.dart";
 
 class MenuPage extends StatefulWidget {
@@ -161,9 +162,9 @@ class _MenuPageState extends State<MenuPage> {
                       initialSeed: DateTime.now().millisecondsSinceEpoch,
                       recipes: RecipesProvider.instance.recipes,
                     );
-                    // The first day is user configuration, not a result of the generator.
-                    // Regeneration only replaces the recipes, so the date must survive it.
-                    multiWeekMenu = regenerated.copyWith(startDate: multiWeekMenu.startDate);
+                    // The first day and the shopping progress are user input, not a result of the
+                    // generator. Regeneration only replaces the recipes, so both must survive it.
+                    multiWeekMenu = regenerated.copyWith(startDate: multiWeekMenu.startDate, shoppingProgress: multiWeekMenu.shoppingProgress);
                     currentWeekIndex = 0;
                   });
                 },
@@ -180,7 +181,18 @@ class _MenuPageState extends State<MenuPage> {
             tooltip: "Create Shopping List",
             icon: const Icon(Icons.shopping_basket_rounded),
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => ShoppingPage(multiWeekMenu: multiWeekMenu)));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ShoppingPage(
+                    multiWeekMenu: multiWeekMenu,
+                    // Each change comes back to this page at once, so every way to leave the
+                    // shopping page keeps the progress, the system back button too.
+                    onShoppingProgressChanged: (ShoppingProgress progress) {
+                      setState(() => multiWeekMenu = multiWeekMenu.copyWith(shoppingProgress: progress));
+                    },
+                  ),
+                ),
+              );
             },
           ),
         ],

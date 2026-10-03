@@ -3,6 +3,7 @@ import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
@@ -11,9 +12,11 @@ import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/menu/widgets/menu_page.dart";
 import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/instruction.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 
 Recipe _breakfastRecipe(String id) {
   return Recipe(
@@ -176,6 +179,36 @@ void main() {
       expect(find.text("Wednesday 6 Aug"), findsOneWidget);
       expect(find.text("6 Aug"), findsOneWidget);
       expect(find.text("Set first day"), findsNothing);
+    });
+
+    testWidgets("keeps the shopping progress when the user regenerates the menu", (WidgetTester tester) async {
+      const ShoppingProgress progress = ShoppingProgress(ownedAmounts: {"salt": (amount: 20, unit: Unit.grams)}, useFreezerStrategy: true);
+      await _pumpMenuPage(tester, MultiWeekMenu(shoppingProgress: progress, weeks: [_week()]));
+
+      await tester.tap(find.byIcon(Icons.refresh_rounded));
+      await tester.pump();
+
+      expect(MenuProvider.instance.multiWeekMenu!.shoppingProgress, progress);
+    });
+  });
+
+  group("MenuPage shopping progress", () {
+    testWidgets("keeps the progress of the shopping page after the user goes back", (WidgetTester tester) async {
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
+
+      await tester.tap(find.byTooltip("Create Shopping List"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(MenuProvider.instance.multiWeekMenu!.shoppingProgress, const ShoppingProgress(useFreezerStrategy: true));
+
+      await tester.tap(find.byTooltip("Create Shopping List"));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
     });
   });
 
