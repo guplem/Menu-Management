@@ -52,6 +52,9 @@ class ShoppingTrip {
 /// interval point cover then picks the minimum number of trips that covers
 /// every event.
 ///
+/// After the trip set is final, each perishable event goes on the first trip when the first trip
+/// keeps it fresh. Otherwise it goes on the latest trip that keeps it fresh, close to its use.
+///
 /// Items whose unit has no matching product, or whose matching product has
 /// [Product.shelfLifeDaysClosed] = null, are treated as non-perishable: they
 /// have no upper expiry constraint and ride along on the trips already chosen
@@ -147,6 +150,14 @@ List<ShoppingTrip> planShoppingTrips({
       if (!chosenTrips.contains(0)) chosenTrips.add(0);
     }
     event.assignedTrip = assigned;
+  }
+
+  // The trip set is now final. The greedy pass only picked the trips, so give each perishable its trip again:
+  // the first trip (usually a home delivery) when it keeps the item fresh, otherwise the latest trip in the window,
+  // to buy the item as close to its use as possible.
+  chosenTrips.sort();
+  for (_PlanEvent event in perishable) {
+    event.assignedTrip = _tripForPerishable(event, chosenTrips: chosenTrips);
   }
 
   return _aggregate(events: events, ingredientsById: ingredientsById);
@@ -263,6 +274,17 @@ void _attachTripWindow(_PlanEvent event, {required int maxWeekIndex}) {
 
   event.earliestWeek = earliestWeek;
   event.latestWeek = latestWeek;
+}
+
+/// The trip of a perishable [event], picked from [chosenTrips] (sorted ascending).
+///
+/// Returns the first trip when it is inside the window of the event. Otherwise returns the latest trip inside the window.
+/// The greedy pass put a trip inside every window, so a trip always matches.
+int _tripForPerishable(_PlanEvent event, {required List<int> chosenTrips}) {
+  bool isInWindow(int trip) => trip >= event.earliestWeek && trip <= event.latestWeek;
+  int firstTrip = chosenTrips.first;
+  if (isInWindow(firstTrip)) return firstTrip;
+  return chosenTrips.lastWhere(isInWindow);
 }
 
 int _compareForGreedy(_PlanEvent a, _PlanEvent b) {
