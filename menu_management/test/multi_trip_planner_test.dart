@@ -794,6 +794,49 @@ void main() {
         0: ["milk days {10}", "salt days {3}"],
       });
     });
+
+    test("puts a pantry item on the first trip when that trip appears after the pantry item got a later trip", () {
+      // Milk keeps 30 days and is used on day 10, so the greedy pass picks trip 1 for it.
+      // Salt comes before pepper in the timeline, so salt gets trip 1 before pepper adds trip 0.
+      // Trip 0 keeps the milk fresh, so the milk moves there. Salt must move too, or trip 1 buys only salt.
+      Ingredient milk = _ingredient(id: "milk", products: [_product(shelfLifeDaysClosed: 30)]);
+      Ingredient salt = _ingredient(id: "salt");
+      Ingredient pepper = _ingredient(id: "pepper");
+      Map<String, List<CookingEvent>> timeline = {
+        "milk": [_event(day: 10)],
+        "salt": [_event(day: 10)],
+        "pepper": [_event(day: 3)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(cookingTimeline: timeline, ingredients: [milk, salt, pepper]);
+
+      expect(_itemsByTrip(trips), {
+        0: ["milk days {10}", "pepper days {3}", "salt days {10}"],
+      });
+    });
+
+    test("puts a pantry item on the first trip when owned stock covers its early need", () {
+      // The owned salt covers the need of day 3, so only the salt need of day 10 is left, and it gets trip 1.
+      // Pepper then adds trip 0, and the milk moves there. Salt must move too, or trip 1 buys only salt.
+      Ingredient milk = _ingredient(id: "milk", products: [_product(shelfLifeDaysClosed: 30)]);
+      Ingredient salt = _ingredient(id: "salt");
+      Ingredient pepper = _ingredient(id: "pepper");
+      Map<String, List<CookingEvent>> timeline = {
+        "milk": [_event(day: 10)],
+        "salt": [_event(day: 3), _event(day: 10)],
+        "pepper": [_event(day: 3)],
+      };
+
+      List<ShoppingTrip> trips = planShoppingTrips(
+        cookingTimeline: timeline,
+        ingredients: [milk, salt, pepper],
+        ownedAmounts: const {"salt": OwnedStock(amount: 100, unit: Unit.grams)},
+      );
+
+      expect(_itemsByTrip(trips), {
+        0: ["milk days {10}", "pepper days {3}", "salt days {10}"],
+      });
+    });
   });
 
   group("ShoppingTrip.dayForWeek", () {
