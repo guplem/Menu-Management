@@ -272,7 +272,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
-      expect(find.widgetWithText(TextField, "2"), findsOneWidget);
+      // The rice has one product, so its product row has the key 0.
+      expect(find.descendant(of: find.byKey(const ValueKey<int>(0)), matching: find.widgetWithText(TextField, "2")), findsOneWidget);
     });
   });
 
