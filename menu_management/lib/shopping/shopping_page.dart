@@ -291,7 +291,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
       options: [
         ClipboardExportOption(
           label: "Simplified",
-          description: "One line per ingredient, with the amount to buy.",
+          description: "One section per shop trip, one line per ingredient with the amount to buy.",
           buildText: _buildSimplifiedCopyText,
           confirmation: "Copied the simplified shopping list to the clipboard.",
         ),
@@ -345,20 +345,16 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  /// The simplified text: the ingredient and the amount, with no trip section and no pack line.
-  ///
-  /// It keeps the "(freeze on arrival)" note of the detailed text. In one-trip mode the plan only
-  /// works if the user freezes those items on the day of the trip, so the note is not a detail.
+  /// The simplified text: the same trip sections as the detailed text, with the ingredient and the
+  /// amount of each trip, and no pack line.
   String _buildSimplifiedCopyText() {
+    List<ShoppingTrip> trips = _planTrips();
     ({List<Ingredient> ingredients, Map<String, List<Quantity>> remainingByIngredientId}) input = _copyInput();
     return buildSimplifiedShoppingCopyText(
       ingredients: input.ingredients,
       remainingByIngredientId: input.remainingByIngredientId,
-      freezeOnArrivalIngredientIds: computeFreezeOnArrivalIngredientIds(
-        ingredients: input.ingredients,
-        remainingByIngredientId: input.remainingByIngredientId,
-        trips: _planTrips(),
-      ),
+      trips: trips,
+      tripLabel: (ShoppingTrip trip) => _tripLabel(trip: trip, trips: trips),
     );
   }
 
@@ -405,7 +401,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     if (trips.isEmpty) return "$prefix: nothing to plan.";
     String tripCountText = "${trips.length} ${trips.length == 1 ? "trip" : "trips"}";
     String weeksText = trips.map((ShoppingTrip t) => _tripLabel(trip: t, trips: trips)).join(", ");
-    return "$prefix: the detailed export splits into $tripCountText ($weeksText).";
+    return "$prefix: the exports split into $tripCountText ($weeksText).";
   }
 
   /// Collects the ingredients of the list and what the user must still buy of each one.
