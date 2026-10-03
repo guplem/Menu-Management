@@ -227,6 +227,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 - Platform target is desktop-first. Mobile platforms have limited save/load support.
 - CI installs the latest stable Flutter and pins no version, on purpose. When `flutter analyze` or a test compile fails on code that `main` already merged with a green check, your local SDK is too old. Run `flutter upgrade`. Never change the code to fit an old SDK.
 - To add days to a calendar date, use the `DateTime(year, month, day + n)` constructor, never `add(Duration(days: n))`. A `Duration` counts hours, so it drifts by one hour at each daylight-saving change and can land on the wrong calendar day.
+- A `Product.link` is not unique inside one ingredient: the grams product and the pieces product of one store item share it. To identify a product in saved data, use the link plus the `unit`, never the link alone.
 
 ## Git Workflow
 
