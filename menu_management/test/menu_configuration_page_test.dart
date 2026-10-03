@@ -10,7 +10,12 @@ import "package:menu_management/menu/models/menu.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/menu/widgets/menu_configuration_page.dart";
+import "package:menu_management/recipes/enums/recipe_type.dart";
+import "package:menu_management/recipes/enums/unit.dart";
+import "package:menu_management/recipes/models/instruction.dart";
+import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 import "package:provider/provider.dart";
 
 Menu _week() {
@@ -24,6 +29,31 @@ Menu _week() {
   );
 }
 
+/// Seeds enough recipes for the generator to fill every slot, so it does not warn.
+void _seedRecipes() {
+  RecipesProvider.instance.setData([
+    for (int i = 0; i < 10; i++)
+      Recipe(
+        id: "b$i",
+        name: "Breakfast $i",
+        type: RecipeType.breakfast,
+        lunch: false,
+        dinner: false,
+        instructions: [Instruction(id: "b${i}_i", description: "make it", workingTimeMinutes: 10, cookingTimeMinutes: 0)],
+      ),
+    for (int i = 0; i < 20; i++)
+      Recipe(
+        id: "m$i",
+        name: "Meal $i",
+        type: RecipeType.meal,
+        lunch: true,
+        dinner: true,
+        carbs: true,
+        instructions: [Instruction(id: "m${i}_i", description: "cook it", workingTimeMinutes: 20, cookingTimeMinutes: 0)],
+      ),
+  ], ingredients: []);
+}
+
 /// Renders the page on a desktop-sized surface, because the configuration grid needs seven columns.
 Future<void> _pumpConfigurationPage(WidgetTester tester) async {
   tester.view.physicalSize = const Size(1800, 1200);
@@ -35,7 +65,15 @@ Future<void> _pumpConfigurationPage(WidgetTester tester) async {
         ChangeNotifierProvider<MenuProvider>.value(value: MenuProvider.instance),
         ChangeNotifierProvider<RecipesProvider>.value(value: RecipesProvider.instance),
       ],
-      child: const MaterialApp(home: MenuConfigurationPage()),
+      child: MaterialApp(
+        // The flutter_test placeholder font is wider than the real font, so the menu page that the
+        // generate button opens overflows its meal cards. Shrink the text scale to make room.
+        builder: (BuildContext context, Widget? child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(0.7)),
+          child: child!,
+        ),
+        home: const MenuConfigurationPage(),
+      ),
     ),
   );
   await tester.pump();
@@ -62,6 +100,20 @@ void main() {
 
       expect(tester.widget<TextField>(cookingTimeField).controller!.text, "120/10");
       expect(MenuProvider.instance.configurations.first.availableCookingTimeMinutes, 12);
+    });
+  });
+
+  group("MenuConfigurationPage generate button", () {
+    testWidgets("keeps the shopping progress of the active menu", (WidgetTester tester) async {
+      _seedRecipes();
+      const ShoppingProgress progress = ShoppingProgress(ownedAmounts: {"salt": (amount: 20, unit: Unit.grams)}, useFreezerStrategy: true);
+      MenuProvider.setMultiWeekMenu(MultiWeekMenu(shoppingProgress: progress, weeks: [_week()]));
+      await _pumpConfigurationPage(tester);
+
+      await tester.tap(find.byTooltip("Generate Menu"));
+      await tester.pumpAndSettle();
+
+      expect(MenuProvider.instance.multiWeekMenu!.shoppingProgress, progress);
     });
   });
 

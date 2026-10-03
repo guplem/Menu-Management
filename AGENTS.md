@@ -65,7 +65,7 @@ Each kind of knowledge has one home. Write a change in the home that matches it;
 | Code gen (watch) | `cd menu_management && dart run build_runner watch --delete-conflicting-outputs` | |
 | Build release | `cd menu_management && flutter build windows` | |
 | Build + copy to Desktop | `./build_and_copy.bat` | Run from repo root; it `cd`s into `menu_management` and runs `build_and_copy.ps1`. Windows only; copies portable build to Desktop |
-| Run all tests | `cd menu_management && flutter test test/` | 1073 tests across 42 files |
+| Run all tests | `cd menu_management && flutter test test/` | 1121 tests across 44 files |
 | Run single test | `cd menu_management && flutter test test/<file>.dart` | |
 | List devices | `flutter devices` | |
 | Format check | `cd menu_management && find lib test -name "*.dart" ! -name "*.freezed.dart" ! -name "*.g.dart" -print0 \| xargs -0 dart format --set-exit-if-changed` | Bash/Git Bash; excludes generated files; fix drift by re-running without `--set-exit-if-changed` |
@@ -93,7 +93,7 @@ UI (Widgets)  -->  State (Providers)  -->  Data (Freezed Models)
 | `ingredients/` | `IngredientsProvider` | `Ingredient`, `Product` | CRUD for food items; optional store product link per ingredient |
 | `recipes/` | `RecipesProvider` | `Recipe`, `Instruction`, `IngredientUsage`, `Quantity`, `Result` | Recipe management with multi-step instructions, inputs/outputs |
 | `menu/` | `MenuProvider` | `MultiWeekMenu`, `Menu`, `Meal`, `MealTime`, `Cooking`, `MenuConfiguration` | Multi-week menus (each week = 21 meal slots), generation algorithm |
-| `shopping/` | (derived) | `ShoppingIngredient` | Aggregated shopping list from generated menu |
+| `shopping/` | (derived) | `ShoppingIngredient`, `ShoppingProgress` | Aggregated shopping list from generated menu; saved owned stock |
 | `theme/` | - | `DynamicTheme`, `ThemeCustom` | Material 3 theming |
 
 ### Menu Generation Algorithm
@@ -106,6 +106,7 @@ Core logic in `menu_generator.dart`. Fully parameterized: receives `List<Recipe>
 
 - **`.tsr` files**: JSON with top-level `"Ingredients"` and `"Recipes"` arrays. On save, `ref_name` fields are injected into `IngredientUsage` entries for human readability.
 - **`.tsm` files**: Menus store `recipeId` (UUID) + `ref_name` per meal, not full Recipe objects. On load, each `recipeId` is validated; missing recipes are skipped with a warning. A menu may also carry `startDate`, the real date of menu day 0; a file without it keeps the Saturday-first, date-less behavior. Use `menu/menu_dates.dart` to turn a day offset into a date or a label.
+- **Shopping progress**: a `.tsm` file can carry `shoppingProgress`, the owned stock and the trip switch of `ShoppingPage`. It keys product counts by product `link` plus `unit`, not index; `shopping/shopping_progress.dart` converts at the page boundary. See ADR 0003.
 - **PDF export**: each PDF is two files. `<feature>_pdf_document.dart` decides what the PDF says, and `<feature>_pdf.dart` renders it and exposes its composed strings as public pure functions. The split keeps the content testable with no PDF to decode. The two PDFs are `menu/menu_pdf.dart` and `shopping/shopping_pdf.dart`. `Persistency.saveBytes` writes any export that is not JSON, and `Persistency.supportsFileSaving()` says if the device has a save dialog.
 - Data is **not** automatically saved -- users must manually save via the save button
 - On startup, dialogs ask whether to load last session, bundled defaults, or skip (for both recipes and menus)
@@ -226,6 +227,7 @@ ADRs capture **why** decisions were made, not just what was built. This includes
 - Platform target is desktop-first. Mobile platforms have limited save/load support.
 - CI installs the latest stable Flutter and pins no version, on purpose. When `flutter analyze` or a test compile fails on code that `main` already merged with a green check, your local SDK is too old. Run `flutter upgrade`. Never change the code to fit an old SDK.
 - To add days to a calendar date, use the `DateTime(year, month, day + n)` constructor, never `add(Duration(days: n))`. A `Duration` counts hours, so it drifts by one hour at each daylight-saving change and can land on the wrong calendar day.
+- A `Product.link` is not unique inside one ingredient: the grams product and the pieces product of one store item share it. To identify a product in saved data, use the link plus the `unit`, never the link alone.
 
 ## Git Workflow
 

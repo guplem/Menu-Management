@@ -7,6 +7,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
+import "package:menu_management/menu/widgets/save_menu_button.dart";
 import "package:menu_management/persistency.dart";
 import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/recipes_provider.dart";
@@ -19,12 +20,19 @@ import "package:menu_management/shopping/ingredient_source.dart";
 import "package:menu_management/shopping/shopping_copy_text.dart";
 import "package:menu_management/shopping/shopping_ingredient.dart";
 import "package:menu_management/shopping/shopping_pdf.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 import "package:menu_management/shopping/waste_optimizer.dart";
 
 class ShoppingPage extends StatefulWidget {
-  const ShoppingPage({super.key, required this.multiWeekMenu});
+  const ShoppingPage({super.key, required this.multiWeekMenu, this.onShoppingProgressChanged});
 
+  /// The menu to shop for. The page restores the owned stock and the trip switch from its
+  /// [MultiWeekMenu.shoppingProgress].
   final MultiWeekMenu multiWeekMenu;
+
+  /// Receives the progress after each change that the user makes, so the caller can store it on
+  /// its menu. The page itself never changes [multiWeekMenu].
+  final void Function(ShoppingProgress progress)? onShoppingProgressChanged;
 
   @override
   State<ShoppingPage> createState() => _ShoppingPageState();
@@ -71,14 +79,58 @@ class _ShoppingPageState extends State<ShoppingPage> {
     ownedUnits = {};
     ownedProductCounts = {};
 
+    ShoppingProgress? savedProgress = widget.multiWeekMenu.shoppingProgress;
+    Map<String, Map<int, double>> savedProductCounts = savedProgress?.ownedProductCountsByIndex(ingredients: allIngredients) ?? {};
+    _useFreezerStrategy = savedProgress?.useFreezerStrategy ?? false;
+
     for (MapEntry<String, List<Quantity>> entry in ingredientsRequired.entries) {
       String ingredientId = entry.key;
       Ingredient? ingredient = allIngredients.firstWhereOrNull((i) => i.id == ingredientId);
 
       ownedAmounts[ingredientId] = 0;
       ownedUnits[ingredientId] = defaultOwnedUnit(ingredient: ingredient, desiredQuantities: entry.value);
-      ownedProductCounts[ingredientId] = {};
+      ownedProductCounts[ingredientId] = {...?savedProductCounts[ingredientId]};
+
+      OwnedAmountProgress? savedAmount = savedProgress?.ownedAmounts[ingredientId];
+      if (savedAmount == null) continue;
+      if (ingredient == null) {
+        Debug.logWarning(true, 'Shopping progress dropped: no ingredient has the id "$ingredientId".', asAssertion: false);
+        continue;
+      }
+      // Product rows replace the header input when a product unit matches a recipe unit. The user
+      // could not see or clear a restored header amount, so the page drops it.
+      if (usesPerProductOwnedInputs(ingredient: ingredient, desiredQuantities: entry.value)) {
+        Debug.logWarning(true, "Shopping progress dropped: ${ingredient.name} now shows one owned input per product.", asAssertion: false);
+        continue;
+      }
+      OwnedUnit savedUnit = OwnedUnit(unit: savedAmount.unit);
+      // The unit dropdown asserts that its value is one of its items. A recipe or product edit can
+      // remove the saved unit, so the page drops such an amount and does not crash.
+      if (!availableOwnedUnits(ingredient: ingredient, desiredQuantities: entry.value).contains(savedUnit)) {
+        Debug.logWarning(true, "Shopping progress dropped: ${ingredient.name} no longer offers the unit ${savedUnit.label}.", asAssertion: false);
+        continue;
+      }
+      ownedAmounts[ingredientId] = savedAmount.amount;
+      ownedUnits[ingredientId] = savedUnit;
     }
+  }
+
+  /// The progress on screen, in the shape that the menu file stores.
+  ShoppingProgress _currentProgress() {
+    return ShoppingProgress.fromPageState(
+      previous: widget.multiWeekMenu.shoppingProgress,
+      ownedAmounts: {
+        for (String ingredientId in ownedAmounts.keys) ingredientId: (amount: ownedAmounts[ingredientId] ?? 0, unit: ownedUnits[ingredientId]?.unit),
+      },
+      ownedProductCountsByIndex: ownedProductCounts,
+      useFreezerStrategy: _useFreezerStrategy,
+      ingredients: IngredientsProvider.instance.ingredients,
+    );
+  }
+
+  /// Hands the progress to [ShoppingPage.onShoppingProgressChanged]. Call it after each change.
+  void _reportProgress() {
+    widget.onShoppingProgressChanged?.call(_currentProgress());
   }
 
   /// Builds the owned stock for an ingredient: per-product counts when per-product rows render
@@ -118,6 +170,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                   value: _useFreezerStrategy,
                   onChanged: (bool value) {
                     setState(() => _useFreezerStrategy = value);
+                    _reportProgress();
                   },
                 ),
               ],
@@ -134,10 +187,21 @@ class _ShoppingPageState extends State<ShoppingPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: "Export shopping list",
-        onPressed: _showExportDialog,
-        child: const Icon(Icons.ios_share_rounded),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Two buttons with the default hero tag on one page make Flutter throw at each page change.
+          // A null hero tag turns off the hero animation of the button.
+          FloatingActionButton(
+            heroTag: null,
+            tooltip: "Export shopping list",
+            onPressed: _showExportDialog,
+            child: const Icon(Icons.ios_share_rounded),
+          ),
+          const SizedBox(height: 10),
+          // The save keeps the progress on screen, through the same button as the menu page.
+          SaveMenuButton(buildMenu: () => widget.multiWeekMenu.copyWith(shoppingProgress: _currentProgress())),
+        ],
       ),
       body: ListView.builder(
         itemCount: ingredientsRequired.length,
@@ -189,11 +253,13 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 ownedAmounts[ingredientId] = amount;
                 ownedUnits[ingredientId] = unit;
               });
+              _reportProgress();
             },
             onProductOwnedChanged: (int productIndex, double count) {
               setState(() {
                 (ownedProductCounts[ingredientId] ??= {})[productIndex] = count;
               });
+              _reportProgress();
             },
           );
         },

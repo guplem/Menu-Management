@@ -12,6 +12,7 @@ import "package:menu_management/recipes/models/quantity.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 
 part "multi_week_menu.freezed.dart";
 part "multi_week_menu.g.dart";
@@ -22,7 +23,16 @@ abstract class MultiWeekMenu with _$MultiWeekMenu {
   /// keeps the date-less day order of the WeekDay enum, which starts at Saturday.
   /// The date never changes the planning math, which stays in absolute day offsets.
   /// Use the functions in `menu_dates.dart` to turn a day offset into a date or a label.
-  const factory MultiWeekMenu({@Default([]) List<Menu> weeks, @JsonKey(includeIfNull: false) DateTime? startDate}) = _MultiWeekMenu;
+  ///
+  /// [shoppingProgress] is what the user typed on the shopping page. It is optional: the JSON
+  /// leaves it out when it is null or empty, and a bad value in a file loads as null or loses
+  /// only that value (see [ShoppingProgress.fromJsonLenient]).
+  const factory MultiWeekMenu({
+    @Default([]) List<Menu> weeks,
+    @JsonKey(includeIfNull: false) DateTime? startDate,
+    @JsonKey(includeIfNull: false, fromJson: ShoppingProgress.fromJsonLenient, toJson: ShoppingProgress.toJsonOrNull)
+    ShoppingProgress? shoppingProgress,
+  }) = _MultiWeekMenu;
 
   factory MultiWeekMenu.fromJson(Map<String, Object?> json) => _$MultiWeekMenuFromJson(json);
 

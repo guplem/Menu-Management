@@ -17,6 +17,7 @@ import "package:menu_management/recipes/enums/unit.dart";
 import "package:menu_management/recipes/models/recipe.dart";
 import "package:menu_management/shopping/ingredient_meal_requirement.dart";
 import "package:menu_management/shopping/ingredient_source.dart";
+import "package:menu_management/shopping/shopping_progress.dart";
 
 /// Helper to create a minimal recipe for testing
 Recipe _testRecipe({required String id, required String name, List<Instruction> instructions = const []}) {
@@ -1391,6 +1392,76 @@ void main() {
         "  Lunch: -",
         "  Dinner: -",
       ]);
+    });
+  });
+
+  group("MultiWeekMenu shopping progress", () {
+    const ShoppingProgress progress = ShoppingProgress(
+      ownedAmounts: {"salt": (amount: 20, unit: Unit.grams)},
+      ownedProductCounts: {
+        "rice": {(link: "https://example.com/rice", unit: Unit.grams): 2},
+      },
+      useFreezerStrategy: true,
+    );
+
+    test("survives a JSON round trip", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(
+        shoppingProgress: progress,
+        weeks: [_singleMealMenu(recipe: recipe)],
+      );
+
+      MultiWeekMenu restored = MultiWeekMenu.fromJson(jsonDecode(jsonEncode(multi.toJson())));
+
+      expect(restored.shoppingProgress, progress);
+    });
+
+    test("writes the progress under its own key", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(
+        shoppingProgress: progress,
+        weeks: [_singleMealMenu(recipe: recipe)],
+      );
+
+      expect(multi.toJson()["shoppingProgress"], {
+        "useFreezerStrategy": true,
+        "ownedAmounts": {
+          "salt": {"amount": 20.0, "unit": "grams"},
+        },
+        "ownedProductCounts": {
+          "rice": [
+            {"link": "https://example.com/rice", "unit": "grams", "count": 2.0},
+          ],
+        },
+      });
+    });
+
+    test("is absent from the JSON when the menu has no progress", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]);
+
+      expect(multi.toJson().containsKey("shoppingProgress"), isFalse);
+    });
+
+    test("is absent from the JSON when the progress is empty", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      MultiWeekMenu multi = MultiWeekMenu(
+        shoppingProgress: const ShoppingProgress(),
+        weeks: [_singleMealMenu(recipe: recipe)],
+      );
+
+      expect(multi.toJson().containsKey("shoppingProgress"), isFalse);
+    });
+
+    test("a malformed progress loads as no progress and keeps the meals", () {
+      Recipe recipe = _testRecipe(id: "r1", name: "Soup");
+      Map<String, dynamic> json = MultiWeekMenu(weeks: [_singleMealMenu(recipe: recipe)]).toJson();
+      json["shoppingProgress"] = "half done";
+
+      MultiWeekMenu restored = MultiWeekMenu.fromJson(jsonDecode(jsonEncode(json)));
+
+      expect(restored.shoppingProgress, isNull);
+      expect(restored.weeks, [_singleMealMenu(recipe: recipe)]);
     });
   });
 }

@@ -29,6 +29,41 @@ class OwnedUnit {
   int get hashCode => unit.hashCode;
 }
 
+/// Lists the units that the header "Owned" dropdown of an ingredient offers: pieces first, then
+/// the other units of the products and of [desiredQuantities], then packs when the ingredient has
+/// products. The shopping page reads it too, to drop a saved unit that the dropdown cannot show.
+List<OwnedUnit> availableOwnedUnits({required Ingredient ingredient, required List<Quantity> desiredQuantities}) {
+  Set<Unit> seen = {};
+  List<OwnedUnit> unitEntries = [];
+
+  // Collect unique units from products
+  for (Product product in ingredient.products) {
+    if (seen.add(product.unit)) {
+      unitEntries.add(OwnedUnit(unit: product.unit));
+    }
+  }
+  // Add unique units from desired quantities not already covered by products
+  for (Quantity q in desiredQuantities) {
+    if (seen.add(q.unit)) {
+      unitEntries.add(OwnedUnit(unit: q.unit));
+    }
+  }
+
+  // Sort: pieces first, then other base units, then packs last
+  unitEntries.sort((OwnedUnit a, OwnedUnit b) {
+    if (a.unit == Unit.pieces && b.unit != Unit.pieces) return -1;
+    if (b.unit == Unit.pieces && a.unit != Unit.pieces) return 1;
+    return 0;
+  });
+
+  // Add "packs" at the end if there are products
+  if (ingredient.products.isNotEmpty) {
+    unitEntries.add(const OwnedUnit());
+  }
+
+  return unitEntries;
+}
+
 /// Returns the default [OwnedUnit] for an ingredient's "owned" dropdown.
 ///
 /// Defaults to pieces when all products are single-piece packs (1 piece per pack),
@@ -133,37 +168,7 @@ class _ShoppingIngredientState extends State<ShoppingIngredient> {
     (ShoppingTrip trip) => trip.items.any((TripItem item) => item.ingredientId == widget.ingredient.id && item.freezeOnArrival),
   );
 
-  List<OwnedUnit> get _availableUnits {
-    Set<Unit> seen = {};
-    List<OwnedUnit> unitEntries = [];
-
-    // Collect unique units from products
-    for (Product product in widget.ingredient.products) {
-      if (seen.add(product.unit)) {
-        unitEntries.add(OwnedUnit(unit: product.unit));
-      }
-    }
-    // Add unique units from desired quantities not already covered by products
-    for (Quantity q in widget.quantitiesDesired) {
-      if (seen.add(q.unit)) {
-        unitEntries.add(OwnedUnit(unit: q.unit));
-      }
-    }
-
-    // Sort: pieces first, then other base units, then packs last
-    unitEntries.sort((OwnedUnit a, OwnedUnit b) {
-      if (a.unit == Unit.pieces && b.unit != Unit.pieces) return -1;
-      if (b.unit == Unit.pieces && a.unit != Unit.pieces) return 1;
-      return 0;
-    });
-
-    // Add "packs" at the end if there are products
-    if (widget.ingredient.products.isNotEmpty) {
-      unitEntries.add(const OwnedUnit());
-    }
-
-    return unitEntries;
-  }
+  List<OwnedUnit> get _availableUnits => availableOwnedUnits(ingredient: widget.ingredient, desiredQuantities: widget.quantitiesDesired);
 
   @override
   void initState() {

@@ -48,10 +48,13 @@ class MenuConfigurationPage extends StatelessWidget {
         tooltip: "Generate Menu",
         child: const Icon(Icons.auto_awesome_sharp),
         onPressed: () {
-          MultiWeekMenu multiWeekMenu = MenuProvider.generateMenu(
+          MultiWeekMenu generated = MenuProvider.generateMenu(
             initialSeed: DateTime.now().millisecondsSinceEpoch,
             recipes: RecipesProvider.instance.recipes,
           );
+          // The stock at home does not depend on the menu, so the new menu keeps the shopping
+          // progress of the active menu.
+          MultiWeekMenu multiWeekMenu = generated.copyWith(shoppingProgress: MenuProvider.instance.multiWeekMenu?.shoppingProgress);
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => MenuPage(multiWeekMenu: multiWeekMenu)));
         },
       ),
