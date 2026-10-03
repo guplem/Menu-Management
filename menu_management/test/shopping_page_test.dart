@@ -383,10 +383,25 @@ void main() {
       expect(_copiedTexts.single.split("\n"), const ["now", "---", "Rice - 500 grams/pack: 1 pack"]);
     });
 
-    testWidgets("copies the simplified list, with no trip section and no pack", (WidgetTester tester) async {
+    testWidgets("copies the simplified list, with the trip section and no pack", (WidgetTester tester) async {
       await _pumpAndCopy(tester, format: "Simplified");
 
-      expect(_copiedTexts.single.split("\n"), const ["Rice: 400 grams"]);
+      expect(_copiedTexts.single.split("\n"), const ["now", "---", "Rice: 400 grams"]);
+    });
+
+    testWidgets("says in the simplified list when to buy what", (WidgetTester tester) async {
+      // The milk keeps 3 days, so the plan buys each week on its own trip. The reader of the
+      // simplified list must see both trips and the amount of each one.
+      IngredientsProvider.instance.setData([_milk]);
+      RecipesProvider.instance.setData([_milkRecipe()], ingredients: [_milk]);
+      await _pumpShoppingPage(tester, _twoWeekMilkMenu(startDate: DateTime(2025, 8, 6)));
+
+      await tester.tap(find.byTooltip("Export shopping list"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Simplified"));
+      await tester.pumpAndSettle();
+
+      expect(_copiedTexts.single.split("\n"), const ["now", "---", "Milk: 600 grams", "", "Tuesday 12 Aug", "--------------", "Milk: 600 grams"]);
     });
 
     testWidgets("keeps the freeze note of the trip plan in the simplified list", (WidgetTester tester) async {
@@ -403,7 +418,7 @@ void main() {
       await tester.tap(find.text("Simplified"));
       await tester.pumpAndSettle();
 
-      expect(_copiedTexts.single.split("\n"), const ["Milk: 1,200 grams (freeze on arrival)"]);
+      expect(_copiedTexts.single.split("\n"), const ["now", "---", "Milk: 1,200 grams (freeze on arrival)"]);
     });
 
     testWidgets("buys the food of a leftover meal of the next week with its cook event", (WidgetTester tester) async {
@@ -421,7 +436,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(_copiedTexts.map((String text) => text.split("\n")).toList(), const [
-        ["Rice: 800 grams"],
+        ["now", "---", "Rice: 800 grams"],
         ["now", "---", "Rice", "  500 grams/pack: 2 packs", "    https://example.com/rice"],
       ]);
     });

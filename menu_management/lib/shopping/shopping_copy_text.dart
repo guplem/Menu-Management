@@ -1,13 +1,12 @@
 // The shopping side gives each copy format its own builder, while the menu side switches formats
 // with the MenuCopyFormat enum. That difference is deliberate. The two menu formats write the same
 // lines with one extra piece of text, so one function with a flag keeps them in step. The shopping
-// formats write different lines: the simplified one needs neither the trip plan nor the packs, and
-// the detailed and the checklist ones write a different shape from the same input. One function
-// with a flag would take parameters that some of its callers must leave empty.
+// formats write a different line shape for each ingredient, so each format passes its own line
+// builder ([IngredientLinesBuilder]).
 //
-// The detailed and the checklist formats read the same input, so they share the parts that must
-// never drift apart: the trip sections ([_buildTripSections]) and the pack mix
-// ([shoppingPackSelection]). Only the per-line shape differs.
+// The three text formats read the same input, so they share the trip sections
+// ([_buildTripSections]) that must never drift apart. The detailed and the checklist formats also
+// share the pack mix ([shoppingPackSelection]). Only the per-line shape differs.
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
@@ -19,8 +18,9 @@ import "package:menu_management/shopping/waste_optimizer.dart";
 
 /// Writes the copied text of one ingredient, for one trip's worth of [remaining].
 ///
-/// [buildIngredientCopyLines] and [buildIngredientChecklistLines] both match this shape, so the
-/// shared builders below take either of them and write the same sections around it.
+/// [buildIngredientCopyLines], [buildIngredientChecklistLines] and [buildIngredientSimplifiedLine]
+/// all match this shape, so the shared builders below take any of them and write the same sections
+/// around it.
 typedef IngredientLinesBuilder = String Function({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival});
 
 /// Sorts the ingredients of the copied list by name, ignoring upper and lower case.
@@ -32,34 +32,40 @@ List<Ingredient> sortIngredientsForCopy(List<Ingredient> ingredients) {
   return sorted;
 }
 
-/// Builds the simplified shopping list: one line per ingredient, with the amount and nothing else.
+/// Builds the simplified shopping list: one section per shop trip, with one line per ingredient.
 ///
-/// Pure: takes the ingredients and what the user must still buy of each one, keyed by ingredient
-/// id, and returns the text. The reader of this text shops without the app, so the text holds no
-/// trip section, no pack line, and no store link. Use [buildMultiTripCopyText] for those.
+/// Pure: takes the same input as [buildMultiTripCopyText] and writes the same trip sections, so the
+/// reader knows when to buy what. Each line holds the ingredient and the amount of that trip, and
+/// nothing else. The reader of this text shops without the app, so the text holds no pack line and
+/// no store link. Use [buildMultiTripCopyText] for those.
 ///
-/// An ingredient that the user already owns writes no line.
-///
-/// [freezeOnArrivalIngredientIds] names the ingredients that the user must freeze on the day of
-/// the trip (ADR 0015). Each of them keeps the same "(freeze on arrival)" suffix that the detailed
-/// text writes. Without the suffix the one-trip plan cannot be followed safely, because the plan
-/// assumes the freezer. Build the set with [computeFreezeOnArrivalIngredientIds].
-///
-/// Precondition: every amount is already a whole number of its unit, as in [buildIngredientCopyLines].
+/// An ingredient that the user already owns writes no line. A line of a trip that the plan freezes
+/// keeps the same "(freeze on arrival)" suffix that the detailed text writes (ADR 0015).
 String buildSimplifiedShoppingCopyText({
   required List<Ingredient> ingredients,
   required Map<String, List<Quantity>> remainingByIngredientId,
-  Set<String> freezeOnArrivalIngredientIds = const {},
+  required List<ShoppingTrip> trips,
+  required String Function(ShoppingTrip trip) tripLabel,
 }) {
-  StringBuffer buffer = StringBuffer();
-  for (Ingredient ingredient in sortIngredientsForCopy(ingredients)) {
-    List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
-    assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
-    if (!remaining.any((Quantity quantity) => quantity.amount > 0)) continue;
-    String freezeSuffix = freezeOnArrivalIngredientIds.contains(ingredient.id) ? freezeOnArrivalSuffix : "";
-    buffer.writeln("${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix");
-  }
-  return buffer.toString().trimRight();
+  return _buildTripSections(
+    ingredients: ingredients,
+    remainingByIngredientId: remainingByIngredientId,
+    trips: trips,
+    tripLabel: tripLabel,
+    buildLines: buildIngredientSimplifiedLine,
+  );
+}
+
+/// Builds the simplified text for one ingredient (one trip's worth of [remaining]), for example
+/// "Rice: 400 grams".
+///
+/// Pure, and it holds the same precondition as [buildIngredientCopyLines]. It returns an empty
+/// text when nothing is needed.
+String buildIngredientSimplifiedLine({required Ingredient ingredient, required List<Quantity> remaining, bool freezeOnArrival = false}) {
+  assertWholeShoppingAmounts(ingredient: ingredient, remaining: remaining);
+  if (!remaining.any((Quantity quantity) => quantity.amount > 0)) return "";
+  String freezeSuffix = freezeOnArrival ? freezeOnArrivalSuffix : "";
+  return "${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix\n";
 }
 
 /// The note that tells the reader to freeze an item on the day of the trip (ADR 0015).
@@ -75,31 +81,6 @@ void assertWholeShoppingAmounts({required Ingredient ingredient, required List<Q
     remaining.every((Quantity q) => q.amount == q.amount.roundToDouble()),
     "The shopping export got a fractional amount for ${ingredient.name}. Round it with roundNeededAmount first.",
   );
-}
-
-/// Returns the ids of the ingredients that the user must freeze on the day of the trip.
-///
-/// Pure: takes the same input as the copy builders plus the planned trips. It reads the same
-/// per-ingredient split as [buildMultiTripCopyText].
-///
-/// The detailed text marks each trip line on its own, so one ingredient can carry the note on one
-/// trip and not on another. This set holds one flag per ingredient, and one marked trip marks the
-/// whole ingredient. The two formats therefore read differently for such an ingredient, and that
-/// is on purpose: the simplified text holds no trip, so its reader buys every batch on day one.
-/// The batch of a later trip then also has to wait, and only the freezer keeps it.
-Set<String> computeFreezeOnArrivalIngredientIds({
-  required List<Ingredient> ingredients,
-  required Map<String, List<Quantity>> remainingByIngredientId,
-  required List<ShoppingTrip> trips,
-}) {
-  Set<String> frozen = {};
-  if (trips.isEmpty) return frozen;
-  for (Ingredient ingredient in ingredients) {
-    List<Quantity> remaining = remainingForCopy(ingredient: ingredient, remainingByIngredientId: remainingByIngredientId);
-    List<TripAllocation> allocations = distributeRemainingAcrossTrips(ingredient: ingredient, pageRemaining: remaining, trips: trips);
-    if (allocations.any((TripAllocation allocation) => allocation.freezeOnArrival)) frozen.add(ingredient.id);
-  }
-  return frozen;
 }
 
 /// Writes the amounts of one ingredient, for example "500 grams + 2 pieces".
@@ -309,7 +290,9 @@ String buildIngredientChecklistLines({required Ingredient ingredient, required L
   String freezeSuffix = freezeOnArrival ? freezeOnArrivalSuffix : "";
 
   List<({Product product, int packs})>? selection = shoppingPackSelection(ingredient: ingredient, remaining: remaining);
-  if (selection == null || selection.isEmpty) return "${ingredient.name}: ${shoppingAmountsText(remaining)}$freezeSuffix\n";
+  if (selection == null || selection.isEmpty) {
+    return buildIngredientSimplifiedLine(ingredient: ingredient, remaining: remaining, freezeOnArrival: freezeOnArrival);
+  }
 
   StringBuffer buffer = StringBuffer();
   for (({Product product, int packs}) line in selection) {

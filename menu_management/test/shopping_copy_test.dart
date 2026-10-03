@@ -239,9 +239,40 @@ void main() {
   });
 
   group("buildSimplifiedShoppingCopyText", () {
-    test("writes one line per ingredient with the amount and nothing else", () {
+    test("writes one section per trip, with one line per ingredient and the amount of that trip", () {
+      // The reader must know when to buy what, so each trip gets the same header the detailed list
+      // writes. Inside a section, the line holds the amount and no pack.
       Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("a")]);
-      Ingredient apple = const Ingredient(id: "apple", name: "Apple");
+      const Ingredient apple = Ingredient(id: "apple", name: "Apple");
+
+      String text = buildSimplifiedShoppingCopyText(
+        ingredients: [pizza, apple],
+        remainingByIngredientId: const {
+          "pizza": [Quantity(amount: 1000, unit: Unit.grams)],
+          "apple": [Quantity(amount: 3, unit: Unit.pieces)],
+        },
+        trips: const [
+          ShoppingTrip(
+            weekIndex: 0,
+            items: [
+              TripItem(ingredientId: "pizza", amount: 500, unit: Unit.grams),
+              TripItem(ingredientId: "apple", amount: 3, unit: Unit.pieces),
+            ],
+          ),
+          ShoppingTrip(
+            weekIndex: 1,
+            items: [TripItem(ingredientId: "pizza", amount: 500, unit: Unit.grams)],
+          ),
+        ],
+        tripLabel: (ShoppingTrip trip) => trip.weekIndex == 0 ? "now" : "Friday 25 Sep",
+      );
+
+      expect(text.split("\n"), const ["now", "---", "Apple: 3 pieces", "Pizza: 500 grams", "", "Friday 25 Sep", "-------------", "Pizza: 500 grams"]);
+    });
+
+    test("writes one flat list with no header when the planner planned no trip", () {
+      Ingredient pizza = Ingredient(id: "pizza", name: "Pizza", products: [_equivProduct("a")]);
+      const Ingredient apple = Ingredient(id: "apple", name: "Apple");
 
       String text = buildSimplifiedShoppingCopyText(
         ingredients: [pizza, apple],
@@ -249,6 +280,8 @@ void main() {
           "pizza": [Quantity(amount: 500, unit: Unit.grams)],
           "apple": [Quantity(amount: 3, unit: Unit.pieces)],
         },
+        trips: const [],
+        tripLabel: (ShoppingTrip trip) => "unused",
       );
 
       // The list is sorted by name and holds no pack line: the amount is all it shows.
@@ -263,6 +296,8 @@ void main() {
         remainingByIngredientId: const {
           "milk": [Quantity(amount: 500, unit: Unit.centiliters), Quantity(amount: 2, unit: Unit.pieces)],
         },
+        trips: const [],
+        tripLabel: (ShoppingTrip trip) => "unused",
       );
 
       expect(text.split("\n"), const ["Milk: 500 centiliters + 2 pieces"]);
@@ -278,27 +313,51 @@ void main() {
           "milk": [Quantity(amount: 0, unit: Unit.centiliters)],
           "rice": [Quantity(amount: 200, unit: Unit.grams)],
         },
+        trips: const [],
+        tripLabel: (ShoppingTrip trip) => "unused",
       );
 
       expect(text.split("\n"), const ["Rice: 200 grams"]);
     });
 
-    test("keeps the freeze-on-arrival warning of the ingredients that the plan freezes", () {
+    test("writes the freeze note only on the trip that the plan freezes", () {
       // In one-trip mode the plan only works if the user freezes these items on the trip day.
-      // A simplified list without the warning cannot be followed safely.
+      // The note rides on the line of the trip that freezes the item, as in the detailed list.
       const Ingredient peas = Ingredient(id: "peas", name: "Peas");
       const Ingredient rice = Ingredient(id: "rice", name: "Rice");
 
       String text = buildSimplifiedShoppingCopyText(
         ingredients: const [peas, rice],
         remainingByIngredientId: const {
-          "peas": [Quantity(amount: 500, unit: Unit.grams)],
+          "peas": [Quantity(amount: 800, unit: Unit.grams)],
           "rice": [Quantity(amount: 200, unit: Unit.grams)],
         },
-        freezeOnArrivalIngredientIds: const {"peas"},
+        trips: const [
+          ShoppingTrip(
+            weekIndex: 0,
+            items: [
+              TripItem(ingredientId: "peas", amount: 500, unit: Unit.grams, freezeOnArrival: true),
+              TripItem(ingredientId: "rice", amount: 200, unit: Unit.grams),
+            ],
+          ),
+          ShoppingTrip(
+            weekIndex: 1,
+            items: [TripItem(ingredientId: "peas", amount: 300, unit: Unit.grams)],
+          ),
+        ],
+        tripLabel: (ShoppingTrip trip) => "Week ${trip.weekIndex + 1}",
       );
 
-      expect(text.split("\n"), const ["Peas: 500 grams (freeze on arrival)", "Rice: 200 grams"]);
+      expect(text.split("\n"), const [
+        "Week 1",
+        "------",
+        "Peas: 500 grams (freeze on arrival)",
+        "Rice: 200 grams",
+        "",
+        "Week 2",
+        "------",
+        "Peas: 300 grams",
+      ]);
     });
 
     test("throws on a fractional amount, the same way the detailed list does", () {
@@ -312,89 +371,10 @@ void main() {
           remainingByIngredientId: const {
             "rice": [Quantity(amount: 0.4, unit: Unit.grams)],
           },
+          trips: const [],
+          tripLabel: (ShoppingTrip trip) => "unused",
         ),
         throwsA(isA<AssertionError>()),
-      );
-    });
-  });
-
-  group("computeFreezeOnArrivalIngredientIds", () {
-    test("names every ingredient that the plan freezes, and no other one", () {
-      // The peas ride trip 0 and must be frozen; the rice is bought on the trip of its own week.
-      const Ingredient peas = Ingredient(
-        id: "peas",
-        name: "Peas",
-        products: [Product(link: "", quantityPerItem: 500, unit: Unit.grams, shelfLifeDaysClosed: 3, canBeFrozen: true)],
-      );
-      const Ingredient rice = Ingredient(id: "rice", name: "Rice");
-
-      List<ShoppingTrip> trips = const [
-        ShoppingTrip(
-          weekIndex: 0,
-          items: [
-            TripItem(ingredientId: "peas", amount: 500, unit: Unit.grams, freezeOnArrival: true),
-            TripItem(ingredientId: "rice", amount: 200, unit: Unit.grams),
-          ],
-        ),
-      ];
-
-      Set<String> frozen = computeFreezeOnArrivalIngredientIds(
-        ingredients: const [peas, rice],
-        remainingByIngredientId: const {
-          "peas": [Quantity(amount: 500, unit: Unit.grams)],
-          "rice": [Quantity(amount: 200, unit: Unit.grams)],
-        },
-        trips: trips,
-      );
-
-      expect(frozen, const {"peas"});
-    });
-
-    test("names an ingredient that one trip freezes and another trip does not", () {
-      // The peas ride two trips: the batch of trip 0 must wait in the freezer, the batch of the
-      // later trip does not. The simplified list holds no trip, so its reader buys both batches on
-      // day one. The later batch then also has to wait, and only the freezer keeps it. So one
-      // frozen batch marks the whole line.
-      const Ingredient peas = Ingredient(
-        id: "peas",
-        name: "Peas",
-        products: [Product(link: "", quantityPerItem: 500, unit: Unit.grams, shelfLifeDaysClosed: 3, canBeFrozen: true)],
-      );
-
-      List<ShoppingTrip> trips = const [
-        ShoppingTrip(
-          weekIndex: 0,
-          items: [TripItem(ingredientId: "peas", amount: 500, unit: Unit.grams, freezeOnArrival: true)],
-        ),
-        ShoppingTrip(
-          weekIndex: 1,
-          items: [TripItem(ingredientId: "peas", amount: 300, unit: Unit.grams)],
-        ),
-      ];
-
-      Set<String> frozen = computeFreezeOnArrivalIngredientIds(
-        ingredients: const [peas],
-        remainingByIngredientId: const {
-          "peas": [Quantity(amount: 800, unit: Unit.grams)],
-        },
-        trips: trips,
-      );
-
-      expect(frozen, const {"peas"});
-    });
-
-    test("names nothing when the planner planned no trip", () {
-      const Ingredient rice = Ingredient(id: "rice", name: "Rice");
-
-      expect(
-        computeFreezeOnArrivalIngredientIds(
-          ingredients: const [rice],
-          remainingByIngredientId: const {
-            "rice": [Quantity(amount: 200, unit: Unit.grams)],
-          },
-          trips: const [],
-        ),
-        isEmpty,
       );
     });
   });
