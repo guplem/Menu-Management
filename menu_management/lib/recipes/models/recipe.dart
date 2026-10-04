@@ -59,6 +59,9 @@ abstract class Recipe with _$Recipe {
     if (!configuration.canBeCookedAtTheSpot && totalTimeMinutes > 0) {
       return false;
     }
+    if (totalTimeMinutes > configuration.availableCookingTimeMinutes) {
+      return false;
+    }
     if (configuration.isMeal && !lunch && !dinner) {
       return false;
     }

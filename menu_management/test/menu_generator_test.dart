@@ -309,6 +309,107 @@ void main() {
     });
   });
 
+  group("MenuGenerator cooking time fit", () {
+    test("picks the recipe that fits the time of the slot, for every seed", () {
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "slow", name: "Slow Braise", totalMinutes: 120, maxStorageDays: 0, dinner: false),
+      );
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "quick", name: "Quick Salad", totalMinutes: 10, maxStorageDays: 0, dinner: false),
+      );
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 15,
+        ),
+      ];
+
+      for (int seed = 0; seed < 20; seed++) {
+        MenuGenerator generator = MenuGenerator(baseSeed: seed);
+        generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+        expect(generator.menu!.meals.single.subMeals.single.cooking?.recipeId, "quick", reason: "seed $seed");
+      }
+    });
+
+    test("leaves the slot empty when no recipe fits its time", () {
+      RecipesProvider.addOrUpdate(
+        newRecipe: _meal(id: "slow", name: "Slow Braise", totalMinutes: 120, maxStorageDays: 0, dinner: false),
+      );
+      List<MenuConfiguration> configs = [
+        const MenuConfiguration(
+          mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+          requiresMeal: true,
+          availableCookingTimeMinutes: 15,
+        ),
+      ];
+
+      MenuGenerator generator = MenuGenerator(baseSeed: 42);
+      generator.generate(configurations: configs, recipes: RecipesProvider.instance.recipes);
+      expect(generator.menu!.meals.single.subMeals.single.cooking, isNull);
+    });
+
+    test("cooks every dish in a slot that has enough time for it, for every seed", () {
+      List<int> recipeMinutes = [5, 15, 30, 45, 90];
+      for (int i = 0; i < recipeMinutes.length; i++) {
+        int minutes = recipeMinutes[i];
+        RecipesProvider.addOrUpdate(
+          newRecipe: _breakfast(id: "b$minutes", name: "Breakfast $minutes", totalMinutes: minutes),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(
+            id: "lunch$minutes",
+            name: "Lunch $minutes",
+            totalMinutes: minutes,
+            maxStorageDays: 3,
+            lunch: true,
+            dinner: false,
+            proteins: i.isEven,
+          ),
+        );
+        RecipesProvider.addOrUpdate(
+          newRecipe: _meal(
+            id: "dinner$minutes",
+            name: "Dinner $minutes",
+            totalMinutes: minutes,
+            maxStorageDays: 0,
+            lunch: false,
+            dinner: true,
+            vegetables: i.isOdd,
+          ),
+        );
+      }
+      List<int> slotMinutes = [0, 10, 25, 60, 120];
+      List<MenuConfiguration> configs = [
+        for (WeekDay day in WeekDay.values)
+          for (MealType mealType in MealType.values)
+            MenuConfiguration(
+              mealTime: MealTime(weekDay: day, mealType: mealType),
+              requiresMeal: true,
+              availableCookingTimeMinutes: slotMinutes[(day.value * 3 + mealType.index) % slotMinutes.length],
+            ),
+      ];
+      List<Recipe> recipes = RecipesProvider.instance.recipes;
+
+      for (int seed = 0; seed < 20; seed++) {
+        MenuGenerator generator = MenuGenerator(baseSeed: seed);
+        generator.generate(configurations: configs, recipes: recipes);
+        for (Meal meal in generator.menu!.meals) {
+          MenuConfiguration config = configs.firstWhere((MenuConfiguration c) => c.mealTime.isSameTime(meal.mealTime));
+          for (SubMeal subMeal in meal.subMeals) {
+            if (subMeal.cooking == null || subMeal.cooking!.yield == 0) continue;
+            Recipe recipe = recipes.firstWhere((Recipe r) => r.id == subMeal.cooking!.recipeId);
+            expect(
+              recipe.totalTimeMinutes,
+              lessThanOrEqualTo(config.availableCookingTimeMinutes),
+              reason: "seed $seed cooks ${recipe.name} at ${meal.mealTime}",
+            );
+          }
+        }
+      }
+    });
+  });
+
   group("MenuGenerator getPreviousMomentConfigurations", () {
     test("returns configurations that come before the target", () {
       MenuGenerator generator = MenuGenerator(baseSeed: 1);
@@ -438,17 +539,23 @@ void main() {
       expect(recipe.fitsConfiguration(noTimeSlot, needToBeStored: false, strictMealTime: false), true);
     });
 
-    test("a 120-minute recipe fits a 15-minute slot (duration is never compared)", () {
-      // NOTE: characterization -- possibly unintended, see plans/002.
-      // fitsConfiguration never compares totalTimeMinutes to availableCookingTimeMinutes.
-      // The only time gate is the binary canBeCookedAtTheSpot (time > 0), so any positive
-      // available time accepts a recipe of any duration.
+    test("rejects a recipe that needs more time than the slot has", () {
       const MenuConfiguration shortSlot = MenuConfiguration(
         mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
         requiresMeal: true,
         availableCookingTimeMinutes: 15,
       );
-      Recipe recipe = _meal(id: "r", name: "R", totalMinutes: 120, lunch: true, dinner: false);
+      Recipe recipe = _meal(id: "r", name: "R", totalMinutes: 16, lunch: true, dinner: false);
+      expect(recipe.fitsConfiguration(shortSlot, needToBeStored: false, strictMealTime: false), false);
+    });
+
+    test("accepts a recipe that needs exactly the time that the slot has", () {
+      const MenuConfiguration shortSlot = MenuConfiguration(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        requiresMeal: true,
+        availableCookingTimeMinutes: 15,
+      );
+      Recipe recipe = _meal(id: "r", name: "R", totalMinutes: 15, lunch: true, dinner: false);
       expect(recipe.fitsConfiguration(shortSlot, needToBeStored: false, strictMealTime: false), true);
     });
 
