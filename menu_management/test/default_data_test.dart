@@ -398,4 +398,36 @@ void main() {
       });
     });
   });
+
+  group("Arroz con tomate, atún, verdura y salchichas", () {
+    const String arrozConAtunYSalchichasId = "d657d03d-ce18-4878-a58d-507f57023ece";
+
+    test("it uses half a can of tuna per serving", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Recipe recipe = RecipesProvider.instance.recipes.firstWhere((Recipe r) => r.id == arrozConAtunYSalchichasId);
+      Map<String, Ingredient> ingredientById = {for (Ingredient i in IngredientsProvider.instance.ingredients) i.id: i};
+
+      // A list, not a map: the recipe uses "Sal" in two steps.
+      List<String> usages = [
+        for (Instruction instruction in recipe.instructions)
+          for (IngredientUsage usage in instruction.ingredientsUsed)
+            "${ingredientById[usage.ingredient]!.name}: ${usage.quantity.amount} ${usage.quantity.unit.name}",
+      ];
+
+      expect(usages, [
+        "Arroz: 100.0 grams",
+        "Agua: 400.0 centiliters",
+        "Sal: 2.0 grams",
+        "Aceite de Oliva: 0.5 centiliters",
+        "Cebolla: 50.0 grams",
+        "Pimiento rojo y verde congelado: 150.0 grams",
+        "Sal: 1.0 grams",
+        "Especias para el horno: 2.0 grams",
+        "Salchichas de pollo y pavo: 2.0 pieces",
+        "Tomate Triturado: 150.0 grams",
+        "Atún en lata: 0.5 pieces",
+      ]);
+    });
+  });
 }

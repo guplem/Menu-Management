@@ -5828,7 +5828,7 @@
             {
               "ingredient": "15b72e30-7419-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 1.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Atún en lata"
