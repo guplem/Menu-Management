@@ -7360,7 +7360,7 @@
             {
               "ingredient": "c4a9b7e0-1f83-4d62-8e05-9a7c2b41f6d3",
               "quantity": {
-                "amount": 140.0,
+                "amount": 70.0,
                 "unit": "grams"
               },
               "ref_name": "Tiras de pechuga de pollo"
@@ -7368,7 +7368,7 @@
             {
               "ingredient": "2d6e4f10-9c27-4a85-b3f1-0e58d7a92c46",
               "quantity": {
-                "amount": 100.0,
+                "amount": 62.5,
                 "unit": "grams"
               },
               "ref_name": "Queso curado y cheddar en dados"
