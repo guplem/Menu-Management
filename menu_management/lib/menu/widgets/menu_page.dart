@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:menu_management/flutter_essentials/library.dart";
 import "package:menu_management/ingredients/ingredients_provider.dart";
+import "package:menu_management/menu/cooking_time_warnings.dart";
 import "package:menu_management/menu/enums/menu_copy_format.dart";
 import "package:menu_management/menu/enums/week_day.dart";
 import "package:menu_management/menu/expiry_warnings.dart";
@@ -300,6 +301,11 @@ class _MenuPageState extends State<MenuPage> {
       recipes: _recipes,
       ingredients: IngredientsProvider.instance.ingredients,
     );
+    CookingTimeWarning? cookingTimeWarning = cookingTimeWarningForSubMeal(
+      subMeal: subMeal,
+      configuration: MenuProvider.instance.getConfigurationForMeal(meal.mealTime),
+      recipes: _recipes,
+    );
 
     return MouseRegion(
       onHover: (_) {
@@ -340,6 +346,7 @@ class _MenuPageState extends State<MenuPage> {
                               Flexible(
                                 child: Text(recipe?.name ?? "?", textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, maxLines: 2),
                               ),
+                              ..._buildCookingTimeIndicator(cookingTimeWarning),
                               ..._buildExpiryIndicator(warnings),
                             ],
                           ),
@@ -435,6 +442,17 @@ class _MenuPageState extends State<MenuPage> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildCookingTimeIndicator(CookingTimeWarning? warning) {
+    if (warning == null) return const [];
+    return [
+      const SizedBox(width: 4),
+      Tooltip(
+        message: cookingTimeWarningMessage(warning),
+        child: Icon(Icons.timer_off_rounded, size: 16, color: Theme.of(context).colorScheme.error),
+      ),
+    ];
   }
 
   List<Widget> _buildExpiryIndicator(List<MealExpiryWarning> warnings) {

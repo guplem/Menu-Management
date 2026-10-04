@@ -42,3 +42,4 @@ For each meal time (sorted by available cooking time, least to most):
 - Storable recipes enable "cook once, eat multiple times" optimization.
 - Sorting by least available time first ensures the most constrained slots are filled first.
 - Nutritional balance is best-effort, not guaranteed (depends on recipe library diversity).
+- `Recipe.fitsConfiguration` checks only whether a slot has any cooking time, not whether the recipe fits in it. So the menu page marks each cooked sub-meal whose recipe needs more time than its slot has (`menu/cooking_time_warnings.dart`).

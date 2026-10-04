@@ -11,6 +11,7 @@ import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
 import "package:menu_management/menu/models/meal_time.dart";
 import "package:menu_management/menu/models/menu.dart";
+import "package:menu_management/menu/models/menu_configuration.dart";
 import "package:menu_management/menu/models/multi_week_menu.dart";
 import "package:menu_management/menu/models/sub_meal.dart";
 import "package:menu_management/menu/widgets/menu_page.dart";
@@ -92,6 +93,18 @@ Menu _cookingWeek() {
       Meal(
         mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
         subMeals: [SubMeal(cooking: Cooking(recipeId: "m0", yield: 1), people: 2)],
+      ),
+    ],
+  );
+}
+
+/// A week that eats leftovers of the meal recipe "m0" on the Saturday lunch, so nobody cooks then.
+Menu _leftoversWeek() {
+  return const Menu(
+    meals: [
+      Meal(
+        mealTime: MealTime(weekDay: WeekDay.saturday, mealType: MealType.lunch),
+        subMeals: [SubMeal(cooking: Cooking(recipeId: "m0", yield: 0), people: 2)],
       ),
     ],
   );
@@ -391,6 +404,36 @@ void main() {
       await _pumpAndCopy(tester, format: "Detailed");
 
       expect(find.text("Copied the detailed menu to the clipboard."), findsOneWidget);
+    });
+  });
+
+  group("MenuPage cooking time warning", () {
+    /// Sets the time to cook of the Saturday lunch, and restores the old value after the test.
+    void setSaturdayLunchMinutes(int minutes) {
+      MenuConfiguration original = MenuProvider.instance.get(weekDay: WeekDay.saturday, mealType: MealType.lunch);
+      addTearDown(() => MenuProvider.update(newConfiguration: original));
+      MenuProvider.update(newConfiguration: original.copyWith(availableCookingTimeMinutes: minutes));
+    }
+
+    testWidgets("warns when the dish needs more time than the meal has", (WidgetTester tester) async {
+      setSaturdayLunchMinutes(15);
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_cookingWeek()]));
+
+      expect(find.byTooltip("Not enough time to cook this dish.\nIt needs 20 min, but this meal has only 15 min."), findsOneWidget);
+    });
+
+    testWidgets("shows no warning when the meal has enough time", (WidgetTester tester) async {
+      setSaturdayLunchMinutes(20);
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_cookingWeek()]));
+
+      expect(find.byIcon(Icons.timer_off_rounded), findsNothing);
+    });
+
+    testWidgets("shows no warning for leftovers", (WidgetTester tester) async {
+      setSaturdayLunchMinutes(0);
+      await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_leftoversWeek()]));
+
+      expect(find.byIcon(Icons.timer_off_rounded), findsNothing);
     });
   });
 }
