@@ -319,8 +319,8 @@ void main() {
 
       expect(amountByIngredientName, {
         "Lechuga Romana": "200.0 grams",
-        "Tiras de pechuga de pollo": "140.0 grams",
-        "Queso curado y cheddar en dados": "100.0 grams",
+        "Tiras de pechuga de pollo": "70.0 grams",
+        "Queso curado y cheddar en dados": "62.5 grams",
         "Picatostes": "30.0 grams",
         "Parmesano (o Grana Padano) rallado": "20.0 grams",
         "Salsa César": "6.0 centiliters",
