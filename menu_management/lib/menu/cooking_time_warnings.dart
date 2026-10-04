@@ -20,7 +20,8 @@ class CookingTimeWarning {
 /// Returns the cooking time warning for a single [subMeal] in the slot of [configuration], or null.
 ///
 /// The warning fires when [Recipe.totalTimeMinutes] is more than [MenuConfiguration.availableCookingTimeMinutes].
-/// The menu generator does not compare these two values, so a generated menu can also get this warning.
+/// [Recipe.fitsConfiguration] makes the generator apply the same rule, so the warning mostly marks
+/// a recipe that the user picked by hand, or a slot whose time changed after the generation.
 ///
 /// Returns null when [SubMeal.cooking] is null, when the cooking is a leftover
 /// (yield == 0, because the cook event happens at an earlier meal), or when the recipe ID is unknown.
