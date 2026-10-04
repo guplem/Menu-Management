@@ -6639,7 +6639,7 @@
             {
               "ingredient": "07c401da-1af6-4a30-8f83-0f22fde011e4",
               "quantity": {
-                "amount": 2.0,
+                "amount": 0.5,
                 "unit": "pieces"
               },
               "ref_name": "Puré de patatas (instantáneo)"
@@ -6647,7 +6647,7 @@
             {
               "ingredient": "20cddb70-c539-1eaa-b835-cfe533d41a10",
               "quantity": {
-                "amount": 200.0,
+                "amount": 50.0,
                 "unit": "centiliters"
               },
               "ref_name": "Agua"
@@ -6655,7 +6655,7 @@
             {
               "ingredient": "34d2c7b0-8478-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 10.0,
+                "amount": 2.5,
                 "unit": "centiliters"
               },
               "ref_name": "Leche desnatada sin lactosa"

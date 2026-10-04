@@ -373,4 +373,29 @@ void main() {
       expect(thursdayDinner.subMeals.first.cooking!.recipeId, "6c877540-8a82-1e23-b9ad-f37d25fb840b");
     });
   });
+
+  group("Puré de patatas con hamburguesa de pollo", () {
+    const String pureConHamburguesaId = "51adf040-d3b2-4030-a644-22e16de5ab69";
+
+    test("it uses half a bag of instant puré per serving, with water and milk to match", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Recipe recipe = RecipesProvider.instance.recipes.firstWhere((Recipe r) => r.id == pureConHamburguesaId);
+      Map<String, Ingredient> ingredientById = {for (Ingredient i in IngredientsProvider.instance.ingredients) i.id: i};
+
+      Map<String, String> amountByIngredientName = {
+        for (Instruction instruction in recipe.instructions)
+          for (IngredientUsage usage in instruction.ingredientsUsed)
+            ingredientById[usage.ingredient]!.name: "${usage.quantity.amount} ${usage.quantity.unit.name}",
+      };
+
+      expect(amountByIngredientName, {
+        "Puré de patatas (instantáneo)": "0.5 pieces",
+        "Agua": "50.0 centiliters",
+        "Leche desnatada sin lactosa": "2.5 centiliters",
+        "Hamburguesa de pollo": "1.0 pieces",
+        "Aceite de Oliva": "0.3 centiliters",
+      });
+    });
+  });
 }
