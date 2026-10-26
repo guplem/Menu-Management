@@ -94,6 +94,27 @@ void main() {
     });
   });
 
+  group("defaultMenuStartDate", () {
+    test("returns today when today is a Saturday", () {
+      expect(defaultMenuStartDate(today: DateTime(2026, 10, 31)), DateTime(2026, 10, 31));
+    });
+
+    test("returns the next Saturday on any other day", () {
+      // 2026-10-26 is a Monday and 2026-10-30 is a Friday.
+      expect(defaultMenuStartDate(today: DateTime(2026, 10, 26)), DateTime(2026, 10, 31));
+      expect(defaultMenuStartDate(today: DateTime(2026, 10, 30)), DateTime(2026, 10, 31));
+    });
+
+    test("returns a Saturday of the next month across a month boundary", () {
+      // 2026-11-01 is a Sunday.
+      expect(defaultMenuStartDate(today: DateTime(2026, 11, 1)), DateTime(2026, 11, 7));
+    });
+
+    test("drops the time of day", () {
+      expect(defaultMenuStartDate(today: DateTime(2026, 10, 26, 18, 45)), DateTime(2026, 10, 31));
+    });
+  });
+
   group("menuWeekRangeLabel", () {
     test("is empty when there is no start date", () {
       expect(menuWeekRangeLabel(startDate: null, weekIndex: 0), "");

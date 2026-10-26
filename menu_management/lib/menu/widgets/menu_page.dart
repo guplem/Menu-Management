@@ -46,7 +46,11 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
-    _multiWeekMenu = widget.multiWeekMenu;
+    // A menu without a first day gets the next Saturday, so every column shows a day number.
+    // Saturday keeps the column order of a date-less menu. The user can change or clear the date.
+    _multiWeekMenu = widget.multiWeekMenu.startDate == null
+        ? widget.multiWeekMenu.copyWith(startDate: defaultMenuStartDate(today: DateTime.now()))
+        : widget.multiWeekMenu;
     // Post-frame because setMultiWeekMenu notifies listeners, which is not allowed mid-build.
     WidgetsBinding.instance.addPostFrameCallback((_) => MenuProvider.setMultiWeekMenu(_multiWeekMenu));
   }

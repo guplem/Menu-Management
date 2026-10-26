@@ -51,6 +51,15 @@ String menuColumnTitle({required DateTime? startDate, required int dayOffset}) {
   return "$dayName ${date.day}";
 }
 
+/// Returns the start date that a menu without one gets: [today] when it is a Saturday, else the next Saturday.
+///
+/// A date-less menu starts at Saturday (the [WeekDay] enum order). A Saturday keeps that column order.
+DateTime defaultMenuStartDate({required DateTime today}) {
+  // DateTime.weekday is 6 for Saturday, so this is the count of days until the next Saturday.
+  final int daysUntilSaturday = (DateTime.saturday - today.weekday) % 7;
+  return DateTime(today.year, today.month, today.day + daysUntilSaturday);
+}
+
 /// Returns the date range of the week at [weekIndex], such as "6 Aug - 12 Aug".
 /// Returns an empty string when [startDate] is null.
 String menuWeekRangeLabel({required DateTime? startDate, required int weekIndex}) {
