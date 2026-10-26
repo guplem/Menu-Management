@@ -6,6 +6,7 @@ import "package:menu_management/ingredients/models/ingredient.dart";
 import "package:menu_management/ingredients/models/product.dart";
 import "package:menu_management/menu/enums/meal_type.dart";
 import "package:menu_management/menu/enums/week_day.dart";
+import "package:menu_management/menu/menu_dates.dart";
 import "package:menu_management/menu/menu_provider.dart";
 import "package:menu_management/menu/models/cooking.dart";
 import "package:menu_management/menu/models/meal.dart";
@@ -134,7 +135,9 @@ late List<String> _copiedTexts;
 
 /// Opens the export dialog of the menu page and picks one format.
 Future<void> _pumpAndCopy(WidgetTester tester, {required String format}) async {
-  await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_cookingWeek()]));
+  // The page gives a date-less menu a start date from today, so a fixed date keeps the text stable.
+  // 2025-08-09 is a Saturday.
+  await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 9), weeks: [_cookingWeek()]));
   await tester.tap(find.byTooltip("Export menu"));
   await tester.pumpAndSettle();
   await tester.tap(find.text(format));
@@ -159,33 +162,31 @@ void main() {
   });
 
   group("MenuPage day columns", () {
-    testWidgets("starts at Saturday and shows no dates when the menu has no start date", (WidgetTester tester) async {
+    testWidgets("gives a menu without a start date the next Saturday as its first day", (WidgetTester tester) async {
       await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week()]));
 
-      expect(find.text("Saturday"), findsOneWidget);
-      expect(find.text("Friday"), findsOneWidget);
-      expect(find.text("Set first day"), findsOneWidget);
-      expect(find.textContaining("Aug"), findsNothing);
+      final DateTime expected = defaultMenuStartDate(today: DateTime.now());
+      expect(MenuProvider.instance.multiWeekMenu!.startDate, expected);
+      expect(find.text("Saturday ${expected.day}"), findsOneWidget);
+      expect(find.text("Set first day"), findsNothing);
     });
 
     testWidgets("starts at the weekday of the start date and wraps around", (WidgetTester tester) async {
       // 2025-08-06 is a Wednesday, so the columns read Wednesday to Tuesday.
       await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: [_week()]));
 
-      expect(find.text("Wednesday"), findsOneWidget);
-      expect(find.text("Tuesday"), findsOneWidget);
-      expect(find.text("6 Aug"), findsOneWidget);
-      expect(find.text("12 Aug"), findsOneWidget);
+      expect(find.text("Wednesday 6"), findsOneWidget);
+      expect(find.text("Tuesday 12"), findsOneWidget);
     });
 
-    testWidgets("shows the date of every column of the second week", (WidgetTester tester) async {
+    testWidgets("shows the day number of every column of the second week", (WidgetTester tester) async {
       await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: [_week(), _week()]));
 
       await tester.tap(find.byIcon(Icons.chevron_right));
       await tester.pump();
 
-      expect(find.text("13 Aug"), findsOneWidget);
-      expect(find.text("19 Aug"), findsOneWidget);
+      expect(find.text("Wednesday 13"), findsOneWidget);
+      expect(find.text("Tuesday 19"), findsOneWidget);
     });
   });
 
@@ -202,11 +203,12 @@ void main() {
       expect(find.text("13 Aug - 19 Aug"), findsOneWidget);
     });
 
-    testWidgets("shows no date range when the menu has no start date", (WidgetTester tester) async {
+    testWidgets("shows the date range of the default first day when the menu has no start date", (WidgetTester tester) async {
       await _pumpMenuPage(tester, MultiWeekMenu(weeks: [_week(), _week()]));
 
+      final DateTime startDate = defaultMenuStartDate(today: DateTime.now());
       expect(find.text("Week 1 / 2"), findsOneWidget);
-      expect(find.textContaining(" - "), findsNothing);
+      expect(find.text(menuWeekRangeLabel(startDate: startDate, weekIndex: 0)), findsOneWidget);
     });
   });
 
@@ -218,7 +220,7 @@ void main() {
       await tester.pump();
 
       expect(find.text("Wednesday 6 Aug"), findsOneWidget);
-      expect(find.text("6 Aug"), findsOneWidget);
+      expect(find.text("Wednesday 6"), findsOneWidget);
       expect(find.text("Set first day"), findsNothing);
     });
 
@@ -368,14 +370,14 @@ void main() {
       await _pumpAndCopy(tester, format: "Detailed");
 
       expect(_copiedTexts.single.split("\n"), [
-        "Week 1",
-        "Saturday",
+        "Week 1 (9 Aug - 15 Aug)",
+        "Saturday 9 Aug",
         "  Breakfast: -",
         "  Lunch: Meal m0 [2p] (cook 2 servings, 20 min)",
         "  Dinner: -",
         "",
-        ..._emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
-        "Friday",
+        ..._emptyDays(["Sunday 10 Aug", "Monday 11 Aug", "Tuesday 12 Aug", "Wednesday 13 Aug", "Thursday 14 Aug"]),
+        "Friday 15 Aug",
         "  Breakfast: -",
         "  Lunch: -",
         "  Dinner: -",
@@ -386,14 +388,14 @@ void main() {
       await _pumpAndCopy(tester, format: "Simplified");
 
       expect(_copiedTexts.single.split("\n"), [
-        "Week 1",
-        "Saturday",
+        "Week 1 (9 Aug - 15 Aug)",
+        "Saturday 9 Aug",
         "  Breakfast: -",
         "  Lunch: Meal m0 [2p] (cook 2 servings)",
         "  Dinner: -",
         "",
-        ..._emptyDays(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]),
-        "Friday",
+        ..._emptyDays(["Sunday 10 Aug", "Monday 11 Aug", "Tuesday 12 Aug", "Wednesday 13 Aug", "Thursday 14 Aug"]),
+        "Friday 15 Aug",
         "  Breakfast: -",
         "  Lunch: -",
         "  Dinner: -",
