@@ -41,6 +41,16 @@ String menuDayLabel({required DateTime? startDate, required int weekIndex, requi
   return "$dayName ${date.toShortDateString()}";
 }
 
+/// Returns the title of one column of the menu grid: "Saturday" without a start date, "Wednesday 6" with one.
+///
+/// The title carries the day of the month only. The week range in the app bar names the months.
+String menuColumnTitle({required DateTime? startDate, required int dayOffset}) {
+  final String dayName = menuDayName(startDate: startDate, dayOffset: dayOffset);
+  final DateTime? date = menuDateForDay(startDate: startDate, dayOffset: dayOffset);
+  if (date == null) return dayName;
+  return "$dayName ${date.day}";
+}
+
 /// Returns the date range of the week at [weekIndex], such as "6 Aug - 12 Aug".
 /// Returns an empty string when [startDate] is null.
 String menuWeekRangeLabel({required DateTime? startDate, required int weekIndex}) {

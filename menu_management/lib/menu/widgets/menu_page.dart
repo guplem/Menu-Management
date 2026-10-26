@@ -55,11 +55,6 @@ class _MenuPageState extends State<MenuPage> {
 
   Menu get currentWeek => multiWeekMenu.weeks[currentWeekIndex];
 
-  /// Real date of the column at [weekDayValue] in the week on screen. Null when the menu has no start date.
-  DateTime? _columnDate(int weekDayValue) {
-    return menuDateForDay(startDate: multiWeekMenu.startDate, dayOffset: currentWeekIndex * 7 + weekDayValue);
-  }
-
   /// Asks the user for the real date of menu day 0, then stores it on the menu.
   Future<void> _pickStartDate() async {
     final DateTime today = DateTime.now();
@@ -217,7 +212,6 @@ class _MenuPageState extends State<MenuPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: List.generate(7, (int weekDayValue) {
-                  final DateTime? columnDate = _columnDate(weekDayValue);
                   return SizedBox(
                     width: columnWidth,
                     child: Card(
@@ -226,15 +220,9 @@ class _MenuPageState extends State<MenuPage> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(15),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                DefaultTextStyle(
-                                  style: Theme.of(context).textTheme.titleLarge!,
-                                  child: Text(menuDayName(startDate: multiWeekMenu.startDate, dayOffset: currentWeekIndex * 7 + weekDayValue)),
-                                ),
-                                if (columnDate != null) Text(columnDate.toShortDateString(), style: Theme.of(context).textTheme.bodySmall),
-                              ],
+                            child: DefaultTextStyle(
+                              style: Theme.of(context).textTheme.titleLarge!,
+                              child: Text(menuColumnTitle(startDate: multiWeekMenu.startDate, dayOffset: currentWeekIndex * 7 + weekDayValue)),
                             ),
                           ),
                           ...currentWeek.mealsOfDay(WeekDay.fromValue(weekDayValue)).map((Meal? meal) {

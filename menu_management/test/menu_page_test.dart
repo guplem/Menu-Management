@@ -172,20 +172,18 @@ void main() {
       // 2025-08-06 is a Wednesday, so the columns read Wednesday to Tuesday.
       await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: [_week()]));
 
-      expect(find.text("Wednesday"), findsOneWidget);
-      expect(find.text("Tuesday"), findsOneWidget);
-      expect(find.text("6 Aug"), findsOneWidget);
-      expect(find.text("12 Aug"), findsOneWidget);
+      expect(find.text("Wednesday 6"), findsOneWidget);
+      expect(find.text("Tuesday 12"), findsOneWidget);
     });
 
-    testWidgets("shows the date of every column of the second week", (WidgetTester tester) async {
+    testWidgets("shows the day number of every column of the second week", (WidgetTester tester) async {
       await _pumpMenuPage(tester, MultiWeekMenu(startDate: DateTime(2025, 8, 6), weeks: [_week(), _week()]));
 
       await tester.tap(find.byIcon(Icons.chevron_right));
       await tester.pump();
 
-      expect(find.text("13 Aug"), findsOneWidget);
-      expect(find.text("19 Aug"), findsOneWidget);
+      expect(find.text("Wednesday 13"), findsOneWidget);
+      expect(find.text("Tuesday 19"), findsOneWidget);
     });
   });
 
@@ -218,7 +216,7 @@ void main() {
       await tester.pump();
 
       expect(find.text("Wednesday 6 Aug"), findsOneWidget);
-      expect(find.text("6 Aug"), findsOneWidget);
+      expect(find.text("Wednesday 6"), findsOneWidget);
       expect(find.text("Set first day"), findsNothing);
     });
 

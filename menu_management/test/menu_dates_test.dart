@@ -79,6 +79,21 @@ void main() {
     });
   });
 
+  group("menuColumnTitle", () {
+    test("returns the weekday name alone when the menu has no start date", () {
+      expect(menuColumnTitle(startDate: null, dayOffset: 0), "Saturday");
+    });
+
+    test("returns the weekday name and the day of the month", () {
+      expect(menuColumnTitle(startDate: wednesday6Aug2025, dayOffset: 0), "Wednesday 6");
+    });
+
+    test("returns the day of the next month after a month boundary", () {
+      // Day 26 from 6 Aug is 1 Sep, a Monday.
+      expect(menuColumnTitle(startDate: wednesday6Aug2025, dayOffset: 26), "Monday 1");
+    });
+  });
+
   group("menuWeekRangeLabel", () {
     test("is empty when there is no start date", () {
       expect(menuWeekRangeLabel(startDate: null, weekIndex: 0), "");
