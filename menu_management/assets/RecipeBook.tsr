@@ -2740,7 +2740,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 35.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -2756,7 +2756,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 75.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -2915,7 +2915,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -2923,7 +2923,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -3334,7 +3334,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -3342,7 +3342,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -6567,7 +6567,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -6575,7 +6575,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
@@ -6755,7 +6755,7 @@
             {
               "ingredient": "f9a5b040-75a8-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Aceitunas con Anchoas"
@@ -6763,7 +6763,7 @@
             {
               "ingredient": "f187e8e0-7479-1e99-9cbf-85317f03e969",
               "quantity": {
-                "amount": 50.0,
+                "amount": 25.0,
                 "unit": "grams"
               },
               "ref_name": "Maíz en lata"
