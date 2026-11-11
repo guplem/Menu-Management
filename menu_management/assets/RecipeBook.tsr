@@ -199,6 +199,14 @@
           "shelfLifeDaysClosed": 1095
         },
         {
+          "link": "https://tienda.mercadona.es/product/18002/atun-claro-aceite-oliva-hacendado-pack-6",
+          "itemsPerPack": 6,
+          "quantityPerItem": 1.0,
+          "unit": "pieces",
+          "shelfLifeDaysOpened": 1,
+          "shelfLifeDaysClosed": 1095
+        },
+        {
           "link": "https://tienda.mercadona.es/product/18030/atun-aceite-oliva-hacendado-lata",
           "itemsPerPack": 1,
           "quantityPerItem": 650.0,

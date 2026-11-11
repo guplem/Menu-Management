@@ -430,4 +430,25 @@ void main() {
       ]);
     });
   });
+
+  group("Atún en lata", () {
+    const String atunEnLataId = "15b72e30-7419-1e99-9cbf-85317f03e969";
+
+    // Recipes count tuna in cans (pieces), and the shopping list shows a product only when its unit matches a recipe unit.
+    test("it sells the 6-can pack in grams and in pieces, and the large can in grams", () async {
+      await Persistency.loadDefaultRecipes(ingredientsProvider: IngredientsProvider.instance, recipesProvider: RecipesProvider.instance);
+
+      Ingredient tuna = IngredientsProvider.instance.ingredients.firstWhere((Ingredient i) => i.id == atunEnLataId);
+
+      List<String> products = [
+        for (Product product in tuna.products) "${product.link} | ${product.itemsPerPack} x ${product.quantityPerItem} ${product.unit.name}",
+      ];
+
+      expect(products, [
+        "https://tienda.mercadona.es/product/18002/atun-claro-aceite-oliva-hacendado-pack-6 | 6 x 60.0 grams",
+        "https://tienda.mercadona.es/product/18002/atun-claro-aceite-oliva-hacendado-pack-6 | 6 x 1.0 pieces",
+        "https://tienda.mercadona.es/product/18030/atun-aceite-oliva-hacendado-lata | 1 x 650.0 grams",
+      ]);
+    });
+  });
 }
